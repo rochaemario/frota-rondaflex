@@ -855,6 +855,9 @@ body.kb .sh-foot{display:none}
 .av-btn{flex:1;background:var(--surface);border:1.5px solid var(--accent,#0033a0);color:var(--accent,#0033a0)}
 
 /* cartao Identificar */
+.fr-g{display:flex;flex-direction:column;gap:10px}.fr-b{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface,#fff);font:inherit;color:var(--fg);text-align:left;cursor:pointer;box-shadow:var(--shadow)}
+.fr-b .ic{width:44px;height:44px;border-radius:12px;background:var(--sunk);display:grid;place-items:center;flex:none}.fr-b .ic svg{width:22px;height:22px;color:var(--accent)}
+.fr-b .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fr-b b{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:.005em}.fr-b small{font-size:13px;color:var(--muted)}.fr-b>svg{width:18px;height:18px;color:var(--faint);flex:none}
 .id-fb{display:grid;grid-template-columns:1fr 1fr;gap:10px}.id-big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:104px;border-radius:16px;border:1.5px solid var(--accent,#0033a0);background:var(--surface,#fff);color:var(--accent,#0033a0);font:inherit;font-size:15.5px;font-weight:600;cursor:pointer}.id-big svg{width:30px;height:30px}
 .id-dica{margin:10px 2px 0}
 .pk-w{position:fixed;inset:0;z-index:130;background:rgba(10,21,40,.45);display:flex;align-items:flex-end;justify-content:center;padding:12px}
@@ -929,8 +932,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=c12af2f13b"></script>
-<script src="shim.js?v=c12af2f13b"></script>
+<script src="config.js?v=e4effca129"></script>
+<script src="shim.js?v=e4effca129"></script>
 </head>
 <body>
 
@@ -981,6 +984,7 @@ const I={
   manut:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.3 5.3L4 17l3 3 5.4-5.4a4 4 0 0 0 5.3-5.3l-2.4 2.4-2.6-.4-.4-2.6z"/></svg>',
   estoque:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>',
   ident:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><circle cx="11" cy="11" r="3.5"/><path d="M16 16l-2.5-2.5"/></svg>',
+  frota:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16V8h10v8"/><path d="M12 11h4l3 3v2h-7"/><circle cx="6" cy="17.5" r="1.8"/><circle cx="16" cy="17.5" r="1.8"/></svg>',
   aloc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
@@ -998,7 +1002,7 @@ const frentesDe=a=>a===RES?[]:a==='Mina'?['UG','Geral']:FRENTES.filter(f=>f!=='U
 const hmTxt=e=>e.horimetro===''||e.horimetro==null?'—':nf(e.horimetro);
 const alocTxt=e=>[e.alocacao,e.alocacao==='DM1'?e.area:'',e.frente].filter(Boolean).join(' · ');
 const optList=(list,val,ph)=>`<option value="">${ph}</option>`+[...list,...(val&&!list.includes(val)?[val]:[])].map(o=>`<option${o===val?' selected':''}>${esc(o)}</option>`).join('');
-const TABS=[['painel','Painel'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel']];
+const TABS=[['painel','Painel'],['frota','Frota'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel']];
 
 /* ---------- regras ---------- */
 function itemStatus(eq,it){
@@ -1299,11 +1303,11 @@ async function openDelAbast(){
 function render(){
   if(S.db&&!(S.loaded.e&&S.loaded.t&&S.loaded.s&&S.loaded.c)) return;
   if(!S.db){$('#app').innerHTML=`<div class="card"><div class="hero"><h3>Sem conexao com os dados</h3><p>Este app guarda a frota no armazenamento do proprio link. Abra-o pelo Claude, conectado a sua conta, para ver e editar.</p></div></div>`;return}
-  const subT=()=>{const n=(TABS.find(t=>t[0]===S.focus)||[])[1]||'';if(S.focus!=='aloc'||!S.alocSite)return esc(n);
+  const subT=()=>{const n=(TABS.find(t=>t[0]===S.focus)||[])[1]||'';const pf=FROTA_KIDS.includes(S.focus)?'<span>Frota › </span>':'';if(S.focus!=='aloc'||!S.alocSite)return pf+esc(n);
     const a=S.alocSel?(S.alocSel==='_'?'Sem area':S.alocSel):'';return `${esc(n)} <span>› ${esc(S.alocSite)}${a?' › '+esc(a):''}</span>`};
   document.body.classList.toggle('focus',!!S.focus);
   TB_SUB='';
-  const cards=[['equip',vEquip],['manut',vManut],['estoque',vEstoque],['comb',vComb],['aloc',vAloc],['ident',vIdent]].filter(([k])=>!S.focus||S.focus===k).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
+  const cards=[['frota',vFrota],['equip',vEquip],['manut',vManut],['estoque',vEstoque],['comb',vComb],['aloc',vAloc],['ident',vIdent]].filter(([k])=>S.focus?S.focus===k:!FROTA_KIDS.includes(k)).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
       return `<section class="card acc${o?' open':''}" id="sec-${k}">${o?'':`<button class="acc-h" data-acc="${k}" aria-expanded="${o}" aria-controls="b-${k}"><span class="ic">${I[k]}</span><h2>${n}</h2><span class="tg">${I.chev}</span></button>`}
       <div class="acc-b" id="b-${k}"${o?'':' hidden'}>${o?f():''}</div></section>`}).join('');
   $('#app').innerHTML=(S.focus?`<div class="subbar"><button class="homebar" data-a="up" aria-label="Voltar" title="Voltar">${I.back}</button><h2>${subT()}</h2>${TB_SUB?`<span class="sb-sub">${TB_SUB}</span>`:''}</div>`:exBanner()+`<section class="card" id="sec-painel" aria-label="Painel">${vPainel()}</section>`)+cards+(S.focus?'':`<div class="brandmark"><img src="${LOGO}" alt="Rondaflex" width="132" height="17"></div>`);
@@ -1578,7 +1582,10 @@ function bindView(){
     /* volta so uma tela: dentro da Alocacao sobe um nivel; senao volta ao inicio */
     if(S.focus==='aloc'&&S.alocSel){S.alocSel='';render();SCR().scrollTo(0,0);return}
     if(S.focus==='aloc'&&S.alocSite){S.alocSite='';render();SCR().scrollTo(0,0);return}
+    /* dentro da Frota: volta para a Frota */
+    if(FROTA_KIDS.includes(S.focus)){abreCard('frota');return}
     goHome()});
+  app.querySelectorAll('[data-fr]').forEach(b=>b.onclick=()=>abreCard(b.dataset.fr));
   app.querySelectorAll('[data-a="home"]').forEach(b=>b.onclick=()=>{S.focus='';S.esQ='';S.esFoc=false;S.esAll=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)});
   const on=(k,fn)=>app.querySelectorAll(`[data-a="${k}"]`).forEach(b=>b.onclick=fn);
   on('new-tr',()=>{NAV.length=0;formRegistrar(S.mf.equip)});
@@ -1873,6 +1880,20 @@ async function shrink(file){
   }catch(e){return file}finally{URL.revokeObjectURL(url)}
 }
 
+
+/* ===================== Cartao Frota =====================
+   Agrupa Equipamentos, Manutencoes (por enquanto: Preventivas), Combustivel e Alocacao. */
+const FROTA_KIDS=['equip','manut','comb','aloc'];
+function abreCard(k){S.focus=k;S.esQ='';S.esFoc=false;S.esAll=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
+  try{localStorage.setItem('frota.focus',k)}catch(e){}render();SCR().scrollTo(0,0)}
+function vFrota(){
+  const eqs=c=>new Set(allItems().filter(x=>x.st.cls===c).map(x=>x.eq.id)),vb=eqs('bad'),nv=vb.size,np=[...eqs('warn')].filter(i=>!vb.has(i)).length;
+  const al=S.equips.filter(e=>e.alocacao).length;
+  const b=(k,ic,t,d)=>`<button type="button" class="fr-b" data-fr="${k}"><span class="ic">${ic}</span><span class="tx"><b>${t}</b><small>${d}</small></span>${I.chev}</button>`;
+  return `<div class="fr-g">${b('equip',I.equip,'Equipamentos',`${S.equips.length} cadastrado${S.equips.length===1?'':'s'}`)}
+    ${b('manut',I.manut,'Manutencoes',nv?`Preventivas · ${nv} equipamento${nv>1?'s':''} com vencida`:np?`Preventivas · ${np} equipamento${np>1?'s':''} perto de vencer`:'Preventivas em dia')}
+    ${b('comb',I.comb,'Combustivel','Abastecimentos e consumo')}
+    ${b('aloc',I.aloc,'Alocacao',`${al} de ${S.equips.length} alocado${al===1?'':'s'}`)}</div>`}
 /* ===================== Cartao Identificar =====================
    Peca desconhecida: tira a foto ou escolhe da galeria e o app abre o Google Lens com ela.
    A foto sobe so para o Lens conseguir abrir; e apagada na proxima vez que o app abrir. */

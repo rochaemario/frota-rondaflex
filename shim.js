@@ -116,6 +116,12 @@
   .eqp-r div{flex:1;min-width:0}.eqp-r div b{display:block;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.eqp-r div small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
   .eqp-r select{width:auto;min-height:38px;font-size:14px}
   body.papel-consulta #fab,body.papel-consulta #sideaj,body.papel-consulta #sidehm,body.papel-consulta #cartb{display:none!important}
+  .dg-r{display:flex;align-items:center;gap:12px;padding-top:10px;border-top:1px solid var(--line)}.dg-r[hidden]{display:none}.dg-r div{flex:1;min-width:0}.dg-r b{display:block;font-size:14.5px}.dg-r small{font-size:12.5px;color:var(--muted)}
+  .sw{width:46px;height:28px;border-radius:14px;border:0;padding:0;background:#c9cfda;position:relative;flex:none;cursor:pointer;transition:background .15s}.sw:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}
+  .sw[aria-checked="true"]{background:var(--accent,#0033a0)}.sw[aria-checked="true"]:after{left:21px}
+  .lk{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;margin-top:12vh}
+  .lk-i{width:96px;height:96px;border-radius:50%;background:#e4e9f4;color:var(--accent,#0033a0);display:flex;align-items:center;justify-content:center}.lk-i svg{width:54px;height:54px}
+  .lk p{max-width:290px}.lk .btn{width:100%;margin-top:6px}
   .imp-p{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}.imp-p i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}`;
   function css(){if(document.getElementById('lg-css'))return;const s=document.createElement('style');s.id='lg-css';s.textContent=CSS;document.head.appendChild(s)}
   const BRAND='<div class="brand"><i></i>Controle de Frota</div>';
@@ -129,7 +135,7 @@
       const f=o.querySelector('#lg-f'),x=o.querySelector('#lg-x'),b=o.querySelector('#lg-b');
       try{const m=localStorage.getItem('frota.email');if(m)o.querySelector('#lg-m').value=m}catch(e){}
       f.onsubmit=async ev=>{ev.preventDefault();x.textContent='';b.disabled=true;b.textContent='Entrando…';const email=o.querySelector('#lg-m').value.trim();
-        const {error}=await sb.auth.signInWithPassword({email,password:o.querySelector('#lg-p').value});
+        acabouDeEntrar=true;const {error}=await sb.auth.signInWithPassword({email,password:o.querySelector('#lg-p').value});
         b.disabled=false;b.textContent='Entrar';
         if(error){x.textContent=/invalid/i.test(error.message)?'E-mail ou senha incorretos.':/fetch|network/i.test(error.message)?'Sem conexão com a internet.':'Não foi possível entrar. Tente de novo.';return}
         try{localStorage.setItem('frota.email',email)}catch(e){}};
@@ -140,10 +146,32 @@
     o.querySelector('#np-f').onsubmit=async ev=>{ev.preventDefault();const {error}=await sb.auth.updateUser({password:o.querySelector('#np-p').value});if(error){o.querySelector('#np-x').textContent='Use pelo menos 6 caracteres.';return}history.replaceState(null,'',location.pathname);start()}})}
   function waiting(){screen(`<h1>Aguardando liberação</h1><p>Seu acesso foi criado, mas o administrador ainda precisa liberar. Peça para ele abrir <b>Equipe</b> no app.</p><button type="button" class="btn" id="lg-o">Sair</button>`,o=>{o.querySelector('#lg-o').onclick=()=>sb.auth.signOut()})}
 
-  let started=false;
+  let started=false,acabouDeEntrar=false,travaP=null;
+  /* ---------- digital: trava ao abrir o app (só neste aparelho) ----------
+     Usa o desbloqueio do próprio celular (digital, rosto ou a senha do celular).
+     A digital nunca sai do aparelho; o app só recebe "confirmado". */
+  const DGK='frota.dg',b64=a=>btoa(String.fromCharCode(...new Uint8Array(a))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),
+    unb64=t=>Uint8Array.from(atob(t.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((t.length+3)%4)),c=>c.charCodeAt(0)),rnd=()=>crypto.getRandomValues(new Uint8Array(32));
+  const dgLer=uid=>{try{const d=JSON.parse(localStorage.getItem(DGK)||'null');return d&&d.uid===uid?d:null}catch(e){return null}};
+  const dgPode=async()=>{try{return !!(window.PublicKeyCredential&&await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())}catch(e){return false}};
+  async function dgCriar(u){const c=await navigator.credentials.create({publicKey:{challenge:rnd(),rp:{name:'Controle de Frota'},
+      user:{id:new TextEncoder().encode(u.user_id).slice(0,64),name:u.email||'frota',displayName:u.nome||u.email||'Frota'},
+      pubKeyCredParams:[{type:'public-key',alg:-7},{type:'public-key',alg:-257}],
+      authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000,attestation:'none'}});
+    localStorage.setItem(DGK,JSON.stringify({uid:u.user_id,id:b64(c.rawId)}))}
+  async function dgConferir(d){await navigator.credentials.get({publicKey:{challenge:rnd(),allowCredentials:[{type:'public-key',id:unb64(d.id),transports:['internal']}],userVerification:'required',timeout:60000}});return true}
+  function avisar(t,m){document.querySelectorAll('.toast').forEach(x=>x.remove());const e=document.createElement('div');e.className='toast';e.setAttribute('role','status');e.innerHTML=`<b class="toast-t">${esc(t)}</b><span>${esc(m)}</span>`;e.onclick=()=>e.remove();document.body.appendChild(e);setTimeout(()=>e.remove(),4000)}
+  const FP='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 11c0 3.5-.6 6.4-2 9"/><path d="M8.6 7.6A5 5 0 0 1 17 11c0 2-.2 3.8-.6 5.5"/><path d="M7 11a5 5 0 0 1 .4-2"/><path d="M15 12c0 2.6-.4 5-1.2 7"/><path d="M9 12.5c0 2-.3 3.8-.9 5.4"/><path d="M5.2 15.5c.5-1.4.8-2.9.8-4.5a6 6 0 0 1 9.8-4.6"/><path d="M18.8 8.5c.4.8.7 1.6.9 2.5"/><path d="M12 15c0 1.8-.2 3.5-.6 5"/></svg>';
+  function travar(d){return new Promise(ok=>{
+    screen(`<div class="lk"><div class="lk-i">${FP}</div><h1>App bloqueado</h1><p>Use a digital para abrir o Controle de Frota. Se não funcionar, use a senha do celular.</p><div class="lg-e" id="lk-x"></div><button type="button" class="btn pri" id="lk-b">Desbloquear</button><button type="button" class="lg-l" id="lk-o">Entrar com e-mail e senha</button></div>`,o=>{
+      const x=o.querySelector('#lk-x'),b=o.querySelector('#lk-b');let ocupado=false;
+      const tentar=async()=>{if(ocupado)return;ocupado=true;x.textContent='';try{await dgConferir(d);ok()}catch(e){x.textContent=e&&e.name==='NotAllowedError'?'':'Não foi possível usar o desbloqueio do celular. Entre com e-mail e senha.'}ocupado=false};
+      b.onclick=tentar;o.querySelector('#lk-o').onclick=async()=>{try{localStorage.removeItem(DGK)}catch(e){}await sb.auth.signOut()};
+      setTimeout(tentar,250)})})}
   async function start(){
     const {data:{session}}=await sb.auth.getSession();
     if(!session){loginForm();return}
+    const dg=!acabouDeEntrar&&!started&&dgLer(session.user.id);if(dg){travaP=travaP||travar(dg);await travaP}
     const {data,error}=await sb.from('perfis').select('user_id,email,nome,papel').eq('user_id',session.user.id).maybeSingle();
     if(error){loginForm('Sem conexão com o servidor. Tente de novo.');return}
     if(!data){waiting();return}
@@ -158,8 +186,12 @@
     if(open&&!ev.target.closest('#acct')){open.remove();if(!s)return}
     if(!s||!perfil)return;ev.stopPropagation();ev.preventDefault();if(open)return;css();
     const d=document.createElement('div');d.id='acct';d.className='acct';
-    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}<button type="button" class="btn" id="ac-out">Sair</button>`;
-    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>sb.auth.signOut();const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()}},true);
+    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
+    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>sb.auth.signOut();const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
+    const dr=d.querySelector('#ac-dg'),sw=dr.querySelector('.sw');const pinta=()=>sw.setAttribute('aria-checked',!!dgLer(perfil.user_id));pinta();
+    dgPode().then(v=>{dr.hidden=!v});
+    sw.onclick=async()=>{if(dgLer(perfil.user_id)){try{localStorage.removeItem(DGK)}catch(e){}pinta();avisar('Digital desativada','O app abre sem pedir a digital');return}
+      try{await dgCriar(perfil);pinta();avisar('Digital ativada','O app vai pedir a digital ao abrir')}catch(e){if(!(e&&e.name==='NotAllowedError'))avisar('Não foi possível ativar','Este celular não liberou o uso da digital')}}},true);
   async function equipe(){
     const {data,error}=await sb.from('perfis').select('user_id,email,nome,papel').order('nome');
     screen(`<h1>Equipe</h1><p>Novas pessoas: crie o acesso no Supabase (Authentication › Add user). Elas aparecem aqui como Consulta; escolha o papel.</p>

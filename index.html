@@ -860,6 +860,9 @@ body.kb .sh-foot{display:none}
 .id-ph{position:relative;align-self:center;width:100%;max-width:300px;aspect-ratio:1;background:#fff;border-radius:16px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px}.id-ph img{max-width:92%;max-height:92%;object-fit:contain}
 .id-x{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;border:0;background:var(--sunk);color:var(--muted);font-weight:700;cursor:pointer}
 .id-lens,.id-web{display:flex;align-items:center;justify-content:center;gap:8px}.id-lens svg,.id-web svg{width:20px;height:20px}.id-web{margin-top:12px;background:var(--surface,#fff);border:1.5px solid var(--accent,#0033a0);color:var(--accent,#0033a0)}.id-web:disabled{opacity:.45}
+.id-conf{display:flex;align-items:center;gap:12px;width:100%;margin-top:10px;padding:12px 14px;border-radius:14px;border:1px solid var(--line-2,#d5dbe6);background:var(--surface,#fff);font:inherit;color:var(--fg);text-align:left;cursor:pointer}
+.id-conf>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.id-conf b{font-size:15.5px}.id-conf small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.id-conf>svg{flex:none;width:18px;height:18px;color:var(--muted);transform:rotate(90deg);transition:transform .15s}.id-conf[aria-expanded="true"]>svg{transform:rotate(-90deg)}
 .id-ch{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}.id-ch .chip{padding:6px 12px;font-family:var(--mono)}
 .id-no{display:flex;flex-direction:column;gap:10px;background:var(--surface,#fff);border-radius:14px;padding:13px;border:1px solid var(--line)}.id-no span{color:var(--muted);font-size:14px}
 .id-rr{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:10px 13px;cursor:pointer}.id-rr+.id-rr{box-shadow:inset 0 1px 0 var(--line)}.id-rr em{font-style:normal;font-size:12px;color:var(--muted);flex:none}
@@ -935,8 +938,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=c8997882b3"></script>
-<script src="shim.js?v=c8997882b3"></script>
+<script src="config.js?v=5898c59722"></script>
+<script src="shim.js?v=5898c59722"></script>
 </head>
 <body>
 
@@ -1907,6 +1910,7 @@ function idReconhece(txt){const t=semAcento(String(txt||'')),up=t.toUpperCase(),
 const semAcento=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
 function idNoEstoque(c){const ks=[c.ref,...String(c.eqv||'').split(/[,;]+/)].map(x=>nzCod(x)).filter(x=>x.length>=4);if(!ks.length)return [];
   return S.estoque.filter(x=>[x.ref,x.codigo,...(x.eans||[])].some(v=>v&&ks.includes(nzCod(v))))}
+const idResumo=c=>[c.ref,c.fab].filter(Boolean).join(' · ')||'Cole o que o Lens encontrou';
 function idRecentes(){return idLer(IDR)||[]}
 function idGuardaRecente(c){if(!c||!c.foto)return;let l=idRecentes().filter(x=>x.foto!==c.foto);l.unshift({...c,ts:Date.now()});
   const sai=l.slice(10);l=l.slice(0,10);idGrava(IDR,l);sai.forEach(x=>{if(!x.usado&&S.assets)S.assets.delete(x.foto).catch(()=>{})})}
@@ -1922,14 +1926,15 @@ function vIdent(){
   else{const est=idNoEstoque(c);
     h+=`<div class="id-cur"><div class="id-ph">${imgTag(c.foto)}<button type="button" class="id-x" data-ida="nova" aria-label="Nova identificacao">✕</button></div>
       <button type="button" class="btn pri block id-lens" data-ida="lens">${IC.lens}<span>Pesquisar no Google Lens</span></button>
-      <div class="lbl">O que o Lens encontrou</div>
+      <button type="button" class="id-conf" data-ida="exp" aria-expanded="${!!S.idExp}"><span><b>Confirmar</b><small id="id-sum">${esc(idResumo(c))}</small></span>${I.chev}</button>
+      <div id="id-blk"${S.idExp?'':' hidden'}><div class="lbl">O que o Lens encontrou</div>
       <div class="fset"><label class="f">Texto encontrado <span class="hint">cole aqui</span><textarea id="id-tx" placeholder="Copie no Lens o titulo ou a descricao da peca e cole aqui" style="min-height:72px">${esc(c.tx||'')}</textarea></label>
         <button type="button" class="btn" data-ida="colar">Colar</button><div id="id-rf"></div></div>
       <div class="lbl">Ficha da peca</div>
       <div class="fset"><label class="f">Referencia oficial<input id="id-ref" value="${esc(c.ref||'')}" autocapitalize="characters" style="font-family:var(--mono)"></label>
         <div class="grid"><label class="f">Fabricante<input id="id-fab" value="${esc(c.fab||'')}"></label><label class="f">Equivalentes <span class="hint">opcional</span><input id="id-eqv" value="${esc(c.eqv||'')}" autocapitalize="characters"></label></div>
-        <label class="f">Descricao<input id="id-desc" value="${esc(c.desc||'')}" placeholder="Ex.: Filtro oleo motor"></label></div>
-      <button type="button" class="btn block id-web" data-ida="web"${c.ref?'':' disabled'}>${IC.web}<span>Confirmar na internet</span></button>
+        <label class="f">Descricao<input id="id-desc" value="${esc(c.desc||'')}" placeholder="Ex.: Filtro oleo motor"></label></div></div>
+      <button type="button" class="btn block id-web" data-ida="web"${c.ref?'':' disabled'}>${IC.web}<span>Verificar na internet</span></button>
       <div class="lbl">No estoque</div><div id="id-est">${idEstHTML(c,est)}</div></div>`}
   if(rec.length)h+=`<div class="lbl" style="margin-top:18px">Identificacoes recentes</div><div class="list">${rec.map(x=>`<button type="button" class="id-rr" data-idr="${esc(x.foto)}"><span class="av-t">${imgTag(x.foto)}</span><span class="av-m"><b class="${x.ref?'num':''}">${esc(x.ref||'Sem referencia')}</b><span class="av-p">${esc([x.desc,x.fab].filter(Boolean).join(' · ')||'Toque para retomar')}</span></span><em>${avHora(x.ts)}</em></button>`).join('')}</div>`;
   return h}
@@ -1946,7 +1951,7 @@ function bindIdent(app){
   const c=idLer(IDK);if(!c)return;
   const g=id=>app.querySelector('#'+id);
   const salva=()=>{const n={...idLer(IDK),tx:g('id-tx').value,ref:g('id-ref').value.trim().toUpperCase(),fab:g('id-fab').value.trim(),eqv:g('id-eqv').value.trim().toUpperCase(),desc:g('id-desc').value.trim()};idGrava(IDK,n);idGuardaRecente(n);
-    const w=app.querySelector('[data-ida="web"]');if(w)w.disabled=!n.ref;g('id-est').innerHTML=idEstHTML(n,idNoEstoque(n));bindEst();return n};
+    const w=app.querySelector('[data-ida="web"]');if(w)w.disabled=!n.ref;const sm=g('id-sum');if(sm)sm.textContent=idResumo(n);g('id-est').innerHTML=idEstHTML(n,idNoEstoque(n));bindEst();return n};
   const bindEst=()=>{app.querySelectorAll('#id-est [data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));const cd=app.querySelector('[data-ida="cad"]');if(cd)cd.onclick=cadastra};
   const reconhece=()=>{const r=idReconhece(g('id-tx').value),box=g('id-rf');
     if(!g('id-tx').value.trim()){box.innerHTML='';return}
@@ -1961,8 +1966,9 @@ function bindIdent(app){
       const eq=new Set(String(g('id-eqv').value).split(/[,;]+/).map(x=>x.trim()).filter(Boolean));eq.delete(v);if(old&&nzCod(old)!==nzCod(v))eq.add(old);g('id-eqv').value=[...eq].join(', ');reconhece()});
     salva()};
   g('id-tx').oninput=later2(reconhece,350);['id-ref','id-fab','id-eqv','id-desc'].forEach(k=>g(k).oninput=later2(salva,300));
+  app.querySelector('[data-ida="exp"]').onclick=ev=>{S.idExp=!S.idExp;const b=ev.currentTarget;b.setAttribute('aria-expanded',S.idExp);g('id-blk').hidden=!S.idExp;if(S.idExp&&!g('id-tx').value.trim())g('id-tx').focus()};
   app.querySelector('[data-ida="colar"]').onclick=async()=>{try{const t=await navigator.clipboard.readText();if(t){g('id-tx').value=t;reconhece();return}}catch(e){}toast('Toque e segure no campo para colar.');g('id-tx').focus()};
-  app.querySelector('[data-ida="nova"]').onclick=()=>{const cur=salva();idGuardaRecente(cur);idGrava(IDK,null);render()};
+  app.querySelector('[data-ida="nova"]').onclick=()=>{S.idExp=false;const cur=salva();idGuardaRecente(cur);idGrava(IDK,null);render()};
   app.querySelector('[data-ida="lens"]').onclick=async()=>{if(!navigator.onLine){toast('Sem internet. O Google Lens precisa de conexao.');return}
     const w=window.open('about:blank','_blank');const cur=idLer(IDK);
     try{await window.__assetPronto(cur.foto);const u='https://lens.google.com/uploadbyurl?url='+encodeURIComponent(window.__remoteUrl(cur.foto));if(w)w.location.href=u;else location.href=u}

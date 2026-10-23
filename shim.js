@@ -236,7 +236,7 @@
     if(!session)session=sessaoGuardada();
     /* sem sessão e sem internet: se este aparelho já foi usado, abre com os dados guardados (login volta a ser pedido quando houver internet) */
     if(!session&&!navigator.onLine&&!started){let pf0=null;try{pf0=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}
-      if(pf0&&await dbInit()){perfil=pf0;document.body.classList.add('papel-'+perfil.papel);closeScreen();started=true;semSessao=true;resolveReady();setTimeout(updSync,300);return}}
+      if(pf0&&await dbInit()){const dg0=dgLer(pf0.user_id);if(dg0){travaP=travaP||travar(dg0);await travaP}perfil=pf0;document.body.classList.add('papel-'+perfil.papel);closeScreen();started=true;semSessao=true;resolveReady();setTimeout(updSync,300);return}}
     if(!session){loginForm();return}
     const dg=!acabouDeEntrar&&!started&&dgLer(session.user.id);if(dg){travaP=travaP||travar(dg);await travaP}
     let pf=null;try{pf=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}if(pf&&pf.user_id!==session.user.id)pf=null;

@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
@@ -813,6 +813,7 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 #scrim:not([hidden])~.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}.card{padding:20px}}
 .toast-t{display:block;font-weight:700;margin-bottom:1px}
+#mv-c,#s-idq,.ct-c,#esq,#pe-q,#pd-q,#pq{scroll-margin-top:calc(70px + env(safe-area-inset-top,0px))}
 .rd-row{min-height:44px;gap:8px;color:var(--accent);border-color:var(--accent);background:var(--surface)}.rd-row svg{width:20px;height:20px}
 #mv-camw .rd-row,#s-idf .rd-row,.ct-pk .rd-row,#k-cam,#t-cam{margin-top:8px}#t-cam{margin-bottom:8px}#pd-cam,#pe-cam{margin-top:8px}
 .mv-card{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:0;background:var(--ok-bg);font:inherit;color:var(--fg);cursor:pointer}
@@ -843,8 +844,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=33f93be7f3"></script>
-<script src="shim.js?v=33f93be7f3"></script>
+<script src="config.js?v=00c03fc965"></script>
+<script src="shim.js?v=00c03fc965"></script>
 </head>
 <body>
 
@@ -1405,7 +1406,7 @@ function bindView(){
   app.querySelectorAll('[data-pntab]').forEach(b=>b.onclick=()=>{S.pnTab=b.dataset.pntab;render()});
   app.querySelectorAll('[data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));
   const esq=$('#esq');if(esq){
-    const run=()=>{S.esQ=esq.value;const toks=esNorm(esq.value.trim()).split(/\s+/).filter(Boolean);let tot=0;
+    const run=()=>{S.esQ=esq.value;const ec2=$('#es-cam');if(ec2)ec2.hidden=!!esq.value.trim();const toks=esNorm(esq.value.trim()).split(/\s+/).filter(Boolean);let tot=0;
       /* sem busca, a listagem completa só aparece pelo botão Relatório */
       if(!toks.length&&!S.esAll){app.querySelectorAll('.es-blk').forEach(blk=>blk.hidden=true);const z=$('#esq-0');if(z)z.hidden=true;return}
       app.querySelectorAll('.es-blk').forEach(blk=>{let n=0,first=null;blk.querySelectorAll('[data-q]').forEach(r=>{const t=r.dataset.q,w=t.split(/[\s(),·–]+/),c=t.replace(/[\s.\-\/]/g,'');
@@ -2410,7 +2411,7 @@ function formStock(id,preset,onSaved){
   mount:sh=>{
     if(idStep){const ft=sh.querySelector('.sh-foot');if(ft)ft.hidden=true;const iq=sh.querySelector('#s-idq'),ih=sh.querySelector('#s-idh');
       const seguir=v=>{const V=v.trim().toUpperCase();if(V)sh.querySelector(/^\d{1,7}$/.test(V)?'#s-codigo':'#s-ref').value=V;sh.querySelector('#s-idf').remove();sh.querySelector('#fs').hidden=false;if(ft)ft.hidden=false;setTimeout(()=>sh.querySelector('#s-desc').focus(),60)};
-      const busca=()=>{const v=iq.value.trim(),k=nzCod(v);if(!k){ih.innerHTML='';return}
+      const busca=()=>{const v=iq.value.trim(),k=nzCod(v);const scm2=sh.querySelector('#s-cam');if(scm2)scm2.hidden=!!k;if(!k){ih.innerHTML='';return}
         const m=S.estoque.filter(x=>nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||(x.eans||[]).some(e=>nzCod(e)===k)||nzCod(x.desc).includes(k)).sort(byCode).slice(0,6);
         ih.innerHTML=(m.length?`<p class="note" style="margin:10px 2px 6px">Já cadastrado${m.length>1?'s':''}: toque para ver o cadastro</p><div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-sx="${esc(x.id)}"`})).join('')}</div>`:'')
           +`<button type="button" class="btn ${m.length?'':'pri '}block" id="s-go" style="margin-top:10px">Cadastrar ${esc(v.toUpperCase())}${m.length?' como novo':''}</button>`;
@@ -2507,7 +2508,7 @@ function formMovEst(dir){
       selb.querySelector('#mv-card').onclick=()=>formMov(x.id);
       selb.querySelector('#mv-tr').onclick=()=>{cur=null;D.cur=null;c.value='';selb.innerHTML='';step(false);prev();c.focus()};
       step(true);go.textContent=ent?'Lançar entrada':'Lançar saída';q.value=keepQ?(D.q||''):'';if(!keepQ)D.q='';prev();if(!keepQ)setTimeout(()=>q.focus(),60)};
-    const search=()=>{cur=null;prev();const k=nzCod(c.value);go.textContent=ent?'Lançar entrada':'Lançar saída';
+    const search=()=>{cur=null;prev();const k=nzCod(c.value);if(camw)camw.hidden=!!k;go.textContent=ent?'Lançar entrada':'Lançar saída';
       if(!k){hit.innerHTML='';return}
       const its=S.estoque.filter(x=>!isKit(x)),score=x=>{const a=nzCod(x.codigo),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
       const m=its.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,5).map(a=>a[1]);
@@ -2633,7 +2634,7 @@ function addPicker(box,has,onPick,onAvulso){
   box.querySelector('.ct-add').onclick=ev=>{ev.stopPropagation();box.innerHTML=`<div class="ct-pk"><input class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="TAG, código, referência ou nome">${rdBtn('ct-cam')}<div class="ct-hit"></div></div>`;
     const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');c.focus();
     const cc=box.querySelector('#ct-cam');if(cc)cc.onclick=e2=>{e2.stopPropagation();rdOpen({mode:'item',use:v=>{if(v.item)onPick(v.item);else if(v.text){c.value=v.text;c.oninput()}}})};
-    c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
+    c.oninput=()=>{const k=nzCod(c.value);const cc2=box.querySelector('#ct-cam');if(cc2)cc2.hidden=!!k;if(!k){hit.innerHTML='';return}
       /* TAG de equipamento: mostra o kit dele e os filtros compatíveis */
       const eq=S.equips.find(e=>nzCod(e.codigo)===k),cp=eq?eqCompat(eq):{kits:[],its:[]},shown=new Set([...cp.kits,...cp.its].map(x=>x.id));
       const m=S.estoque.filter(x=>!shown.has(x.id)&&(nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||nzCod(x.desc).includes(k))).slice(0,5);
@@ -2858,6 +2859,9 @@ async function clearExamples(){
   },'Exemplos apagados');
 }
 
+/* com o teclado aberto, o campo de busca sobe para o topo e as sugestões ficam visíveis logo abaixo */
+document.addEventListener('focusin',ev=>{const t=ev.target;if(!t.matches||!t.matches('#mv-c,#s-idq,.ct-c,#esq,#pe-q,#pd-q,#pq'))return;
+  setTimeout(()=>{if(document.activeElement===t)t.scrollIntoView({block:'start',behavior:'smooth'})},320)});
 /* ---------- leitor pela câmera (só no app baixável): código de barras, QR ou texto ----------
    Um botão de câmera aparece dentro dos campos onde se informa um item do estoque.
    Códigos são lidos na hora; texto é lido sozinho depois de ~2 s sem código, ou em "Ler texto agora". */

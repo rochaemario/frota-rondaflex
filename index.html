@@ -819,7 +819,10 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .sp-aj.on{background:#fff6cc;border-color:#e0b100}
 .sp-sw{width:46px;height:28px;border-radius:14px;border:0;padding:0;background:#c9cfda;position:relative;flex:none;cursor:pointer;transition:background .15s}.sp-sw:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}
 .sp-sw[aria-checked="true"]{background:#e0a800}.sp-sw[aria-checked="true"]:after{left:21px}.sp-d{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:4px}
-.t-add{margin-bottom:10px}.t-add .search{margin:0}
+.t-add{margin-bottom:10px}#t-kits{margin-bottom:10px}#t-kits .ti-g{padding:0 2px 6px}
+.kt-r{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:11px 13px;cursor:pointer}.kt-r+.kt-r{box-shadow:inset 0 1px 0 var(--line)}
+.kt-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.kt-n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kt-n small{font-size:12.5px;color:var(--muted)}
+.kt-a{flex:none;font-size:13.5px;font-weight:600;color:var(--accent,#0033a0);padding:7px 11px;border-radius:9px;background:#e4e9f4}.kt-r.on .kt-a{background:none;color:var(--ok,#12804a)}.t-add .search{margin:0}
 .eqs-o{width:100%;border-radius:10px}.eqs-v{padding:12px;color:var(--muted);font-size:13.5px}
 .lt-r{display:flex;align-items:center;gap:12px;padding:10px 13px;border:0;border-left:3px solid transparent;width:100%;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lt-r:disabled{cursor:default}
 .lt-k{flex:none;width:20px;height:20px;border-radius:6px;background:var(--accent,#0033a0);position:relative}.lt-k:after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
@@ -878,8 +881,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=749a65e656"></script>
-<script src="shim.js?v=749a65e656"></script>
+<script src="config.js?v=3ff8c7894d"></script>
+<script src="shim.js?v=3ff8c7894d"></script>
 </head>
 <body>
 
@@ -2374,13 +2377,13 @@ function formTroca(eqId){
     <label class="f">Próxima (h) <span class="hint">opcional</span><input id="t-prox" type="number" step="0.1" inputmode="decimal" placeholder="Automático"></label>
     <p class="note" id="t-proxhint" style="margin:0">Em branco, a próxima é agendada sozinha pelo intervalo de cada item.</p></div>
     <div class="lbl" style="margin-top:16px">Itens trocados <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">vencidos já vêm marcados</span></div>
-    <div class="sug-w t-add"><div class="search">${I.search}<input id="t-q" type="search" placeholder="Adicionar item por código ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="t-qh"></div></div>
+    <div id="t-kits" hidden></div><div class="sug-w t-add"><div class="search">${I.search}<input id="t-q" type="search" placeholder="Adicionar item por código ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="t-qh"></div></div>
     ${rdBtn('t-cam','Adicionar item pela câmera')}<div class="list" id="t-items"></div><div class="list" id="t-extra" hidden></div>
     <div class="fset" style="margin-top:12px"><label class="f">Observações<textarea id="t-obs"></textarea></label></div><div id="t-eqv"></div></form>`,
   foot:`<button class="btn pri" form="ft">Registrar preventiva</button>`,
   mount:sh=>{
     const sel=sh.querySelector('#t-eq'),box=sh.querySelector('#t-items'),hm=sh.querySelector('#t-hm');
-    const fill=()=>{const e=eqById(sel.value);if(!e){box.innerHTML='<div class="empty">Escolha o equipamento.</div>';return}
+    const fill=()=>{const e=eqById(sel.value);if(!e){box.innerHTML='<div class="empty">Escolha o equipamento.</div>';sh.querySelector('#t-kits').hidden=true;return}
       hm.value=e.horimetro||'';
       const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId);return `<label class="chk"><input type="checkbox" data-pid="${esc(it.pid)}"${s.cls==='bad'||s.cls==='warn'?' checked':''}><span class="box"></span>
         <div class="main"><b>${esc(itNome(it))}</b><input class="cd" data-cd="${esc(it.pid)}" value="${esc(it.espec||'')}" placeholder="Código usado" autocapitalize="characters" aria-label="Código usado em ${esc(itNome(it))}"><div class="s"><span class="pill ${s.cls}">${s.label}</span>${st?`<span>${isKit(st)?'disponível':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div></div>
@@ -2391,6 +2394,10 @@ function formTroca(eqId){
       const mb=box.querySelector('.ti-more');mb&&(mb.onclick=()=>{const o=box.querySelector('.ti-ok'),x=o.hidden;o.hidden=!x;mb.setAttribute('aria-expanded',x)});
       box.querySelectorAll('[data-cd]').forEach(i=>{i.onclick=ev=>ev.preventDefault();i.oninput=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(i.dataset.cd)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
       extras.length=0;drawX();
+      /* kits que servem neste equipamento */
+      const kb=sh.querySelector('#t-kits'),ks=eqCompat(e).kits;kb.hidden=!ks.length;
+      kb.innerHTML=ks.length?`<div class="ti-g">Kits compatíveis</div><div class="list">${ks.map(k=>`<button type="button" class="kt-r" data-kit="${esc(k.id)}"><span class="kt-n"><b>${esc(k.desc)}</b><small class="num">${esc(stCod(k))} · ${kitComps(k).length} itens · disponível ${nf(stQtd(k),1)}</small></span><span class="kt-a">Adicionar kit</span></button>`).join('')}</div>`:'';
+      kb.querySelectorAll('[data-kit]').forEach(b=>b.onclick=()=>{if(!b.classList.contains('on'))addKit(stById(b.dataset.kit))});
       };
     /* adicionar item (texto ou câmera): se é do plano, marca a linha; se não, entra como item avulso com baixa no estoque */
     const extras=[],xb=sh.querySelector('#t-extra');
@@ -2398,13 +2405,23 @@ function formTroca(eqId){
         <div class="main"><b>${esc(st.desc)}</b><div class="s"><span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponível':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span></div></div>
         <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span></label>`}).join('');
       xb.querySelectorAll('[data-xk]').forEach(c=>c.onchange=()=>{if(!c.checked){extras.splice(Number(c.dataset.xk),1);drawX();hint()}});
-      xb.querySelectorAll('[data-xq]').forEach(q=>{q.onclick=ev=>ev.preventDefault();q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}})};
+      xb.querySelectorAll('[data-xq]').forEach(q=>{q.onclick=ev=>ev.preventDefault();q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=extras.some(x=>x.s.id===b.dataset.kit);b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)})};
     const addPeca=st=>{const e2=eqById(sel.value);if(!e2){toast('Escolha o equipamento antes.');return}if(!st)return;
       const it=(e2.itens||[]).find(i=>i.estoqueId===st.id||(isKit(stById(i.estoqueId)||{})&&kitComps(stById(i.estoqueId)).some(c=>c.s.id===st.id))||(itCod(i)&&nzCod(itCod(i))===nzCod(stCod(st))));
       if(it){const o=box.querySelector('.ti-ok');if(o&&o.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`)){o.hidden=false;const mb=box.querySelector('.ti-more');mb&&mb.setAttribute('aria-expanded','true')}
         const cdI=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`);if(cdI){cdI.value=stCod(st);cdI.dispatchEvent(new Event('input'));cdI.closest('.chk').scrollIntoView({block:'center',behavior:'smooth'});toast(`${itNome(it)} marcado`)}return}
       if(!extras.some(x=>x.s.id===st.id))extras.push({s:st,q:1});drawX();hint();
       const r=xb.querySelector(`[data-xk="${extras.findIndex(x=>x.s.id===st.id)}"]`);r&&r.closest('.chk').scrollIntoView({block:'center',behavior:'smooth'});toast(`${st.desc} adicionado`)};
+    /* kit: entra como item adicionado (baixa dos componentes) e marca no plano os itens que ele cobre, sem baixa dupla */
+    const addKit=k=>{const e2=eqById(sel.value);if(!e2||!k)return;
+      const inPlan=(e2.itens||[]).find(i=>i.estoqueId===k.id);if(inPlan){addPeca(k);return}
+      const comp=new Set(kitComps(k).map(x=>x.s.id));let n=0;
+      (e2.itens||[]).forEach(it=>{const so=stOfIt(it);if(!so||!comp.has(so.id))return;const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(it.pid)}"]`);if(!cb)return;
+        const o=box.querySelector('.ti-ok');if(o&&o.contains(cb)){o.hidden=false;const mb=box.querySelector('.ti-more');mb&&mb.setAttribute('aria-expanded','true')}
+        cb.checked=true;const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`);if(q)q.value=0;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`);if(cd&&!cd.value)cd.value=stCod(so);n++});
+      box.dispatchEvent(new Event('change'));
+      if(!extras.some(x=>x.s.id===k.id))extras.push({s:k,q:1});drawX();hint();
+      toast(n?`${k.desc} adicionado · ${n} ${n===1?'item do plano marcado':'itens do plano marcados'} (baixa pelo kit)`:`${k.desc} adicionado`)};
     const tq=sh.querySelector('#t-q'),tqh=sh.querySelector('#t-qh');
     tq.oninput=()=>{const k=nzCod(tq.value);if(!k){tqh.innerHTML='';return}
       const score=x=>{const a=nzCod(stCod(x)),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};

@@ -871,8 +871,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=896275d0c1"></script>
-<script src="shim.js?v=896275d0c1"></script>
+<script src="config.js?v=92fa25ca56"></script>
+<script src="shim.js?v=92fa25ca56"></script>
 </head>
 <body>
 
@@ -1589,7 +1589,7 @@ function openMenu(mode){
   const T={
     '':{title:'Menu',sub:'Escolha a área',body:mi('frota',I.equip,'Frota','Preventivas, equipamentos e horímetro')+mi('est',I.estoque,'Estoque','Entrada, saída, filtros, óleos, kits e compras')+mi('comb',I.comb,'Combustível','Abastecimentos')+mi('aj',DB_IC,'Ajustes do app','Listas do app e cópia de segurança')},
     frota:{title:'Frota',sub:'Preventivas, equipamentos e horímetro',body:mi('x:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('reg',I.manut,'Preventiva','Troca de óleos e filtros, ou filtros de ar')+mi('thm',I.manut,'Troca de horímetro','O relógio de horas foi substituído')
-      +g('Correções')+mi('ed-tr',EDI,'Editar preventiva','Corrige data, horímetro e peças usadas')+mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')},
+      +g('Correções')+mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saída do estoque','Retirada avulsa, fora das preventivas')
       +mi('x:st',I.estoque,'Filtros e óleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')},
     comb:{title:'Combustível',sub:'Abastecimentos',body:mi('abast',I.comb,'Abastecimento','Litros e horímetro para o consumo por hora')+g('Correções')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o último abastecimento de um equipamento')},
@@ -1605,7 +1605,7 @@ function openMenu(mode){
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
-      const A={backup:()=>backupAll(b),abast:formAbast,cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar(''),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
+      const A={backup:()=>backupAll(b),abast:formAbast,cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar('',true),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
         'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }
@@ -2285,12 +2285,13 @@ function formEq(id){
 }
 
 /* ---------- registrar preventiva: escolha ---------- */
-function formRegistrar(eqId){
-  nav('reg',()=>formRegistrar(eqId));
+function formRegistrar(eqId,menu){
+  nav('reg',()=>formRegistrar(eqId,menu));
+  const EDT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
   const mi=(a,ic,t,d)=>`<button class="mi" data-rg="${a}"><span class="ic">${ic}</span><span class="tx"><b>${t}</b><span>${d}</span></span>${I.chev}</button>`;
   const AIR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h7"/></svg>';
-  openSheet({title:'Registrar preventiva',sub:'O que foi feito?',body:`<div class="menu">${mi('ar',AIR,'Filtros de ar','Motor ou ar condicionado')}${mi('prev',I.manut,'Preventiva','Troca de óleos e filtros do plano')}</div>`,
-    mount:sh=>sh.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>b.dataset.rg==='ar'?formFiltroAr(eqId):formTroca(eqId))});
+  openSheet({title:'Registrar preventiva',sub:'O que foi feito?',body:`<div class="menu">${mi('ar',AIR,'Filtros de ar','Motor ou ar condicionado')}${mi('prev',I.manut,'Preventiva','Troca de óleos e filtros do plano')}${menu?mi('ed',EDT,'Editar preventiva','Corrige data, horímetro e peças usadas'):''}</div>`,
+    mount:sh=>sh.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>b.dataset.rg==='ar'?formFiltroAr(eqId):b.dataset.rg==='ed'?formPickTr():formTroca(eqId))});
 }
 function formFiltroAr(eqId,sub){
   if(!sub){

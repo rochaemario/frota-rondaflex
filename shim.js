@@ -186,6 +186,7 @@
         catch(e){console.error(e);x.style.color='var(--bad)';x.textContent='Não foi possível importar: '+((e&&e.message)||'erro')+'. Confira a internet e tente de novo.'}}})}
 
   /* ---------- o que o app pede ---------- */
+  window.__PWA=true;
   window.claude=Object.freeze({use:async name=>{await ready;
     if(name==='db')return DB;
     if(name==='assets')return perfil&&perfil.papel!=='consulta'?ASSETS:null;

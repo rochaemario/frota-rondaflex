@@ -813,6 +813,25 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 #scrim:not([hidden])~.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}.card{padding:20px}}
 .toast-t{display:block;font-weight:700;margin-bottom:1px}
+.rd-w{position:relative;display:block}.rd-w>input{padding-right:54px!important}
+.rd-b{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:42px;height:36px;border-radius:9px;border:0;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);cursor:pointer}
+.rd-b svg,.rd-kb svg{width:20px;height:20px}.rd-kb{width:48px;padding:0;margin-left:auto;color:var(--accent)}
+.rdr{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;overflow:auto;padding-top:env(safe-area-inset-top,0px)}
+.rdr-h{display:flex;align-items:center;gap:12px;padding:14px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px))}
+.rdr-h h2{font-family:var(--display);font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.02em;margin:0;line-height:1.1}.rdr-h .sub{font-size:13px;color:var(--muted)}
+.rdr-b{display:flex;flex-direction:column;gap:10px;padding:0 max(14px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));max-width:560px;width:100%;margin:0 auto}
+.rdr-cam{position:relative;border-radius:16px;overflow:hidden;background:#000;aspect-ratio:3/4;max-height:56vh}
+.rdr-cam video{width:100%;height:100%;object-fit:cover;display:block}
+.rdr-fr{position:absolute;left:8%;right:8%;top:40%;height:20%;border:2px solid #fff;border-radius:10px;box-shadow:0 0 0 999px rgba(0,0,0,.35);transition:border-color .2s}.rdr-fr.ok{border-color:#4fd18a}
+.rdr-st{position:absolute;left:12px;right:12px;bottom:12px;text-align:center;color:#fff;font-size:13px;font-weight:500;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.rdr-lz{position:absolute;right:10px;top:10px;width:42px;height:42px;border-radius:50%;border:0;background:rgba(0,0,0,.45);color:#fff;display:grid;place-items:center}.rdr-lz svg{width:20px;height:20px}
+.rdr-a,.rdr-r{display:flex;flex-direction:column;gap:8px}
+.rdr-c{background:var(--surface);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.rdr-k{font-size:12px;color:var(--muted)}.rdr-v{font-size:18px;word-break:break-all}
+.rdr-no{padding:9px 11px;border-radius:12px;background:var(--warn-bg);color:var(--warn);font-size:13.5px}
+.rdr-l{display:flex;flex-direction:column;border-radius:12px;overflow:hidden;background:var(--sunk)}
+.rdr-it{display:block;width:100%;padding:0;border:0;background:none;text-align:left;cursor:pointer;font:inherit;color:inherit}.rdr-it+.rdr-it{box-shadow:inset 0 1px 0 var(--line)}
+
 .ajs{display:inline-grid;place-items:center;flex:none;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#ffd960 0,#fcc21e 55%,#f7b80a 100%);vertical-align:-2px;margin:0 2px 0 8px}.ajs svg{width:14px;height:14px;fill:#3a2600;display:block}
 /* o selo acompanha o nome do registro, logo depois do texto */
 .ia-t .ajs{margin-left:9px}.tq-c+.ajs{margin:0 6px 0 -2px}.hmcard>.ajs{margin:0 6px 0 0}
@@ -822,8 +841,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=2a66499245"></script>
-<script src="shim.js?v=2a66499245"></script>
+<script src="config.js?v=981c488382"></script>
+<script src="shim.js?v=981c488382"></script>
 </head>
 <body>
 
@@ -1440,7 +1459,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen)goBack()}
 /* botão/gesto voltar do celular: volta uma tela dentro do app; na tela inicial pede um segundo toque para sair */
 (function(){let armed=false,exitT=0;
   const arm=()=>{if(armed)return;try{history.pushState({frota:1},'');armed=true}catch(e){}};
-  const inner=()=>{const dv=document.querySelector('.docv');
+  const inner=()=>{if(document.querySelector('.rdr')){rdClose();return true}const dv=document.querySelector('.docv');
     if(dv){if(dv.classList.contains('zoom'))dv.classList.remove('zoom');else{const x=dv.querySelector('[data-x]');x?x.click():dv.remove()}return true}
     if(sheetOpen){goBack();return true}
     if(S.focus){const up=document.querySelector('#app [data-a="up"]');if(up)up.click();else goHome();return true}
@@ -2402,9 +2421,9 @@ function formStock(id,preset,onSaved){
       if(!g('codigo')&&!g('ref')){toast('Informe o código do almoxarifado ou a referência.');return}
       {const dup=S.estoque.find(x=>x.id!==id&&((g('codigo')&&(nzCod(x.codigo)===nzCod(g('codigo'))||nzCod(x.ref)===nzCod(g('codigo'))))||(g('ref')&&(nzCod(x.ref)===nzCod(g('ref'))||nzCod(x.codigo)===nzCod(g('ref'))))));
        if(dup){toast(`Esse código já está cadastrado em "${dup.desc}".`);return}}
-      const body={codigo:g('codigo').toUpperCase(),ref:g('ref').toUpperCase(),desc:g('desc'),descFab:g('dfab'),marca:g('marca'),aplic:g('aplic'),encaixe:enc,tipo:g('tipo'),un:g('un')||'un',local:g('local'),qtd:Number(g('qtd'))||0,minimo:Number(g('min'))||0,fotos:fotoNow.slice(0,3),exemplo:!!s.exemplo};
+      const body={codigo:g('codigo').toUpperCase(),ref:g('ref').toUpperCase(),desc:g('desc'),descFab:g('dfab'),marca:g('marca'),aplic:g('aplic'),encaixe:enc,tipo:g('tipo'),un:g('un')||'un',local:g('local'),qtd:Number(g('qtd'))||0,minimo:Number(g('min'))||0,fotos:fotoNow.slice(0,3),exemplo:!!s.exemplo,...(s.eans&&s.eans.length?{eans:s.eans}:{})};
       const ref=id?S.db.doc('estoque/'+id):S.db.collection('estoque').doc();
-      if(await safe(async()=>{await ref.set(body);if(onSaved)await onSaved(ref.id,body)},onSaved?'Item cadastrado e entrada lançada':'Item salvo')){commitPhotos(fotoOrig,fotoNow);id||onSaved?goBack():closeSheet()}}}});
+      if(await safe(async()=>{await ref.set(body);if(onSaved)await onSaved(ref.id,body)},onSaved?(onSaved.msg||'Item cadastrado e entrada lançada'):'Item salvo')){commitPhotos(fotoOrig,fotoNow);id||onSaved?goBack():closeSheet()}}}});
 }
 function movLine(m,un){const e=m.equipId&&eqById(m.equipId);const ent=m.tipo==='entrada';
   return `<div class="r"><span>${sdate(m.data)} · ${ent?'Entrada':m.origem==='preventiva'?'Preventiva':'Saída'}${e?' · '+esc(e.codigo):''}${m.ajuste?AJS:''}${m.obs?`<small class="mv-o">${esc(m.obs)}</small>`:''}</span><b class="num ${ent?'mv-in':'mv-out'}">${ent?'+':'−'}${nf(m.qtd,1)} ${esc(un)}</b></div>`}
@@ -2802,6 +2821,110 @@ async function clearExamples(){
     for(const s of S.estoque.filter(x=>x.exemplo))await S.db.doc('estoque/'+s.id).delete();
   },'Exemplos apagados');
 }
+
+/* ---------- leitor pela câmera (só no app baixável): código de barras, QR ou texto ----------
+   Um botão de câmera aparece dentro dos campos onde se informa um item do estoque.
+   Códigos são lidos na hora; texto é lido sozinho depois de ~2 s sem código, ou em "Ler texto agora". */
+const CAM_OK=!!(window.__PWA&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+const RD_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+/* onde aparece: campo → como usar o que foi lido */
+const RD_SPOTS=[['#esq','item'],['#mv-c','item'],['.ct-c','item'],['input.cd','raw'],['#s-ref','raw'],['#pe-q:not([placeholder^="TAG"])','item'],['#pd-q:not([placeholder^="TAG"])','item']];
+const rdCanon=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/O/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/Z/g,'2');
+const rdQuase=(t,k)=>{if(k.length<7||t.length<k.length)return false;for(let i=0;i+k.length<=t.length;i++){let d=0;for(let j=0;j<k.length&&d<2;j++)if(t[i+j]!==k[j])d++;if(d<=1)return true}return false};
+function rdKeys(){return S.estoque.map(s=>({s,keys:[s.codigo,s.ref,...(s.eans||[])].filter(Boolean).map(rdCanon).filter(k=>k.length>=4)}))}
+function rdFind1(txt){const t=rdCanon(txt);if(t.length<4)return {lista:[],aprox:false};const its=rdKeys();
+  const ex=its.filter(x=>x.keys.some(k=>t.includes(k)||(k.includes(t)&&t.length>=6)));if(ex.length)return {lista:ex.map(x=>x.s),aprox:false};
+  const ap=its.filter(x=>x.keys.some(k=>rdQuase(t,k)));return {lista:ap.map(x=>x.s),aprox:ap.length>0}}
+function rdFind(txt){const ps=String(txt).split(/[|;\n]/).map(x=>x.trim()).filter(Boolean);
+  if(ps.length>1){for(const p of ps){const r=rdFind1(p);if(r.lista.length&&!r.aprox)return r}for(const p of ps){const r=rdFind1(p);if(r.lista.length)return r}return {lista:[],aprox:false}}
+  return rdFind1(txt)}
+/* referência de peça dentro do que foi lido (ex.: CAT 222-9021, ou "2229021.000" dentro do QR) */
+function rdRef(txt){const t=String(txt);let m=t.match(/\b(\d{3})-?(\d{4})\b/);if(m)return m[1]+'-'+m[2];
+  for(const p of t.split(/[|;\n]/)){const q=p.trim().match(/^(\d{3})(\d{4})(\.0+)?$/);if(q)return q[1]+'-'+q[2]}
+  if(/^\d{8,}$/.test(t.trim()))return '';
+  const tk=t.toUpperCase().split(/[\s|;]+/).map(x=>x.replace(/[^A-Z0-9.\-\/]/g,'')).filter(x=>x.length>=4&&/\d/.test(x)&&!/^\d{8,}$/.test(x));return tk[0]||''}
+let RD=null;
+function rdDecorate(root){if(!CAM_OK)return;RD_SPOTS.forEach(([sel,mode])=>(root||document).querySelectorAll(sel).forEach(inp=>{if(inp.dataset.rd)return;inp.dataset.rd=mode;
+  const w=document.createElement('span');w.className='rd-w';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
+  const b=document.createElement('button');b.type='button';b.className='rd-b';b.setAttribute('aria-label','Ler pela câmera');b.innerHTML=RD_IC;w.appendChild(b);
+  b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();rdOpen({mode,use:v=>rdFill(inp,v)})}}));
+  const ka=(root||document).querySelector('#k-add');if(ka&&!ka.dataset.rd){ka.dataset.rd=1;const b=document.createElement('button');b.type='button';b.className='btn ghost rd-kb';b.setAttribute('aria-label','Adicionar item pela câmera');b.innerHTML=RD_IC;ka.after(b);
+    b.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item)return;ka.click();const rows=document.querySelectorAll('#sheet [data-kc]'),sel=rows[rows.length-1]&&rows[rows.length-1].querySelector('select');if(sel){sel.value=v.item.id;sel.dispatchEvent(new Event('change',{bubbles:true}))}}})}}
+function rdFill(inp,v){const val=v.item?stCod(v.item):v.text;inp.value=val;inp.dispatchEvent(new Event('input',{bubbles:true}));
+  if(v.item){const h=document.querySelector(`#sheet [data-pk="${CSS.escape(v.item.id)}"],#sheet [data-ad="${CSS.escape(v.item.id)}"]`);if(h)h.click()}
+  if(inp.id!=='esq')inp.focus({preventScroll:true})}
+if(CAM_OK)new MutationObserver(()=>rdDecorate()).observe(document.body,{childList:true,subtree:true});
+
+function rdOpen(o){if(RD)return;RD={...o,last:'',lastCode:0,busy:false,ocrBusy:false,stopped:false};
+  const d=document.createElement('div');d.className='rdr';d.setAttribute('role','dialog');d.setAttribute('aria-label','Ler item');
+  d.innerHTML=`<div class="rdr-h"><button type="button" class="backbtn" data-x aria-label="Voltar">${I.back}</button><div class="sh-tt"><h2>Ler item</h2><div class="sub">Código de barras, QR ou texto</div></div></div>
+    <div class="rdr-b"><div class="rdr-cam"><video playsinline muted></video><div class="rdr-fr"></div><button type="button" class="rdr-lz" hidden aria-label="Lanterna"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6l-1 6h-4zM10 8h4v12a2 2 0 0 1-4 0z"/></svg></button><div class="rdr-st">Abrindo a câmera…</div></div>
+    <div class="rdr-r" hidden></div><div class="rdr-a"><button type="button" class="btn" data-now>Ler texto agora</button><button type="button" class="btn ghost" data-x>Digitar em vez de ler</button></div></div>`;
+  document.body.appendChild(d);RD.el=d;d.querySelectorAll('[data-x]').forEach(b=>b.onclick=rdClose);d.querySelector('[data-now]').onclick=()=>rdOcr(true);
+  rdStart()}
+function rdClose(){if(!RD)return;RD.stopped=true;cancelAnimationFrame(RD.raf);clearTimeout(RD.t);if(RD.stream)RD.stream.getTracks().forEach(t=>t.stop());RD.el.remove();RD=null}
+document.addEventListener('visibilitychange',()=>{if(document.hidden&&RD)rdClose()});
+async function rdStart(){const r=RD,v=r.el.querySelector('video'),st=r.el.querySelector('.rdr-st');
+  try{r.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})}
+  catch(e){st.textContent='Sem acesso à câmera. Libere a câmera para o app nas configurações do celular.';return}
+  if(r.stopped){r.stream.getTracks().forEach(t=>t.stop());return}
+  const tr=r.stream.getVideoTracks()[0];r.track=tr;
+  try{const c=tr.getCapabilities?tr.getCapabilities():{};if(c.focusMode&&c.focusMode.includes('continuous'))await tr.applyConstraints({advanced:[{focusMode:'continuous'}]});
+    if(c.torch){const lz=r.el.querySelector('.rdr-lz');lz.hidden=false;let on=false;lz.onclick=async()=>{on=!on;try{await tr.applyConstraints({advanced:[{torch:on}]})}catch(e){}}}}catch(e){}
+  v.srcObject=r.stream;await v.play().catch(()=>{});st.textContent='Aponte para o código ou enquadre o texto';r.lastCode=performance.now();
+  try{if('BarcodeDetector' in window)r.det=new BarcodeDetector({formats:await BarcodeDetector.getSupportedFormats()})}catch(e){}
+  let lt=0;const loop=()=>{r.raf=requestAnimationFrame(async ts=>{if(r.stopped)return;loop();if(!r.det||r.busy||r.paused||ts-lt<180||v.readyState<2)return;r.busy=true;lt=ts;
+    try{const c=(await r.det.detect(v))[0];if(c){r.lastCode=performance.now();if(c.rawValue!==r.last){r.last=c.rawValue;rdShow(c.rawValue,c.format==='qr_code'?'QR code':'código de barras')}}}catch(e){}r.busy=false})};loop();
+  r.t=setTimeout(()=>rdOcr(false),2000)}
+function rdCrop(v){const vw=v.videoWidth,vh=v.videoHeight,cw=v.clientWidth,ch=v.clientHeight;if(!vw)return null;const s=Math.max(cw/vw,ch/vh),ox=(vw*s-cw)/2,oy=(vh*s-ch)/2;
+  const fx=(cw*.08+ox)/s,fy=(ch*.40+oy)/s,fw=cw*.84/s,fh=ch*.20/s,k=Math.min(2.2,1400/fw),c=document.createElement('canvas');c.width=Math.round(fw*k);c.height=Math.round(fh*k);
+  const g=c.getContext('2d');g.filter='grayscale(1) contrast(1.6)';g.drawImage(v,fx,fy,fw,fh,0,0,c.width,c.height);return c}
+let rdWorker=null;
+async function rdOcrWorker(){if(rdWorker)return rdWorker;
+  await new Promise((ok,ko)=>{if(window.Tesseract)return ok();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>ko(new Error('sem internet'));document.head.appendChild(s)});
+  const w=await Tesseract.createWorker('eng');await w.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-./ ',tessedit_pageseg_mode:'6'});return rdWorker=w}
+async function rdOcr(forced){const r=RD;if(!r||r.stopped)return;clearTimeout(r.t);
+  if(r.paused&&!forced){r.t=setTimeout(()=>rdOcr(false),2500);return}
+  if(!forced&&performance.now()-r.lastCode<2000){r.t=setTimeout(()=>rdOcr(false),1200);return}
+  if(r.ocrBusy)return;r.ocrBusy=true;const st=r.el.querySelector('.rdr-st'),nb=r.el.querySelector('[data-now]');nb.disabled=true;st.textContent=rdWorker?'Lendo texto…':'Preparando a leitura de texto…';
+  try{const w=await rdOcrWorker();if(!RD||r.stopped)return;const c=rdCrop(r.el.querySelector('video'));
+    if(c){const {data}=await w.recognize(c);if(!RD||r.stopped)return;
+      const ls=(data.text||'').split('\n').map(x=>x.trim()).filter(x=>x.replace(/[^A-Z0-9]/gi,'').length>=4);let ok=false;
+      for(const l of ls){if(rdFind(l).lista.length){rdShow(l,'texto');ok=true;break}}
+      if(!ok&&ls.length&&(forced||(data.confidence||0)>=60))rdShow(ls[0],'texto');
+      else if(!ok)st.textContent=ls.length?'Texto lido, sem item igual no estoque':'Nenhum texto no retângulo'}}
+  catch(e){st.textContent='Leitura de texto indisponível sem internet'}
+  r.ocrBusy=false;if(RD&&!r.stopped){nb.disabled=false;r.t=setTimeout(()=>rdOcr(false),2500)}}
+function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.querySelector('.rdr-fr'),st=r.el.querySelector('.rdr-st'),box=r.el.querySelector('.rdr-r'),act=r.el.querySelector('.rdr-a');
+  try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}
+  const f=rdFind(txt),ref=rdRef(txt),lido=f.lista.length===1&&!f.aprox?stCod(f.lista[0]):(ref||txt);fr.classList.add('ok');
+  const again=()=>{r.paused=false;r.last='';box.hidden=true;act.hidden=false;fr.classList.remove('ok');st.textContent='Aponte para o código ou enquadre o texto';r.lastCode=performance.now()};
+  const done=v=>{const u=r.use;rdClose();u(v)};
+  box.hidden=false;act.hidden=true;
+  const row=s=>`<button type="button" class="rdr-it" data-rit="${esc(s.id)}">${esRow(s,{tag:'div'})}</button>`;
+  if(r.mode==='raw'){st.textContent=tipo==='texto'?'Texto lido':'Código lido';
+    box.innerHTML=`<div class="rdr-c"><span class="rdr-k">Lido · ${tipo}</span><b class="rdr-v num">${esc(lido)}</b>${f.lista.length?`<span class="rdr-k">${f.aprox?'Parecido com':'No estoque'}: ${f.lista.map(x=>esc(stCod(x)+' · '+x.desc)).join(', ')}</span>`:''}</div>
+      <button type="button" class="btn pri" data-u>Usar ${esc(lido)}</button><button type="button" class="btn" data-a>Ler outro</button>`;
+    box.querySelector('[data-u]').onclick=()=>done({text:lido});box.querySelector('[data-a]').onclick=again;return}
+  if(f.lista.length){st.textContent='Item encontrado';
+    box.innerHTML=`<div class="rdr-c"><span class="rdr-k">Lido · ${tipo}${f.aprox?' · leitura parecida':''}</span><b class="rdr-v num">${esc(txt.length>40?txt.slice(0,40)+'…':txt)}</b>${f.lista.length>1||f.aprox?'<span class="rdr-k">Toque no item certo</span>':''}<div class="rdr-l">${f.lista.map(row).join('')}</div></div>
+      ${f.lista.length===1&&!f.aprox?'<button type="button" class="btn pri" data-u>Usar este item</button>':''}<button type="button" class="btn" data-a>Ler outro</button>`;
+    box.querySelectorAll('[data-rit]').forEach(b=>b.onclick=()=>done({item:stById(b.dataset.rit)}));const u=box.querySelector('[data-u]');if(u)u.onclick=()=>done({item:f.lista[0]});
+    box.querySelector('[data-a]').onclick=again;return}
+  /* não está no estoque: referência → cadastrar em destaque; número sem referência → ligar em destaque */
+  st.textContent=tipo==='texto'?'Texto lido':'Código lido';const code=tipo!=='texto'?txt:'';
+  const bC=`<button type="button" class="btn ${ref?'pri':''}" data-c>Cadastrar item${ref?' '+esc(ref):''}</button>`,bL=code?`<button type="button" class="btn ${ref?'':'pri'}" data-l>Ligar a um item existente</button>`:'';
+  box.innerHTML=`<div class="rdr-c"><span class="rdr-k">Lido · ${tipo}</span><b class="rdr-v num">${esc(ref||(txt.length>40?txt.slice(0,40)+'…':txt))}</b><div class="rdr-no">${ref?'Esta peça não está no estoque.':'Código ainda não ligado a nenhum item.'}</div></div>
+    ${ref?bC+bL:bL+bC}<button type="button" class="btn ghost" data-a>Ler outro</button>`;
+  box.querySelector('[data-a]').onclick=again;
+  box.querySelector('[data-c]').onclick=()=>{const u=r.use,pre={ref:ref||''};if(code&&!ref)pre.eans=[code];else if(code)pre.eans=[code];rdClose();
+    const cb=async id=>{setTimeout(()=>{const x=stById(id);if(x)u({item:x})},350)};cb.msg='Item cadastrado';formStock(null,pre,cb)};
+  const l=box.querySelector('[data-l]');if(l)l.onclick=()=>{
+    box.innerHTML=`<div class="rdr-c"><span class="rdr-k">Ligar ${esc(code.length>24?code.slice(0,24)+'…':code)} a qual item?</span><div class="search">${I.search}<input type="search" data-q placeholder="Código, referência ou descrição" autocomplete="off"></div><div class="rdr-l" data-ll></div></div><button type="button" class="btn ghost" data-a>Cancelar</button>`;
+    const q=box.querySelector('[data-q]'),ll=box.querySelector('[data-ll]');const draw=()=>{const k=nzCod(q.value);ll.innerHTML=S.estoque.filter(x=>!isKit(x)&&(!k||nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||nzCod(x.desc).includes(k))).sort(byCode).slice(0,30).map(row).join('')||'<p class="note" style="margin:6px 2px">Nenhum item.</p>';
+      ll.querySelectorAll('[data-rit]').forEach(b=>b.onclick=async()=>{const x=stById(b.dataset.rit);const eans=[...new Set([...(x.eans||[]),code])];
+        if(await safe(()=>S.db.doc('estoque/'+x.id).update({eans}),'Código ligado a '+stCod(x)))done({item:{...x,eans}})})};
+    q.oninput=draw;draw();box.querySelector('[data-a]').onclick=again}}
 
 /* ---------- dados ---------- */
 (async()=>{

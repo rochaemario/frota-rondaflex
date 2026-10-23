@@ -933,8 +933,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=55bf3ab566"></script>
-<script src="shim.js?v=55bf3ab566"></script>
+<script src="config.js?v=44999ea001"></script>
+<script src="shim.js?v=44999ea001"></script>
 </head>
 <body>
 
@@ -1366,7 +1366,7 @@ function vEquip(){
   `<div class="tsec-wrap">${tipos.map(t=>{const l=S.equips.filter(e=>(e.tipo||'Sem tipo')===t).sort(byCode);
     const ab=S.eqTipo===t;
     return `<section class="tsec"><h3 class="tsec-h eqt" data-eqt="${esc(t)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(t)}</span><em>${l.length}</em></h3>
-    <div class="tsec-l"${ab?'':' hidden'}>${l.map(e=>`<button class="tq" data-eq=""${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</span>${I.chev}</button>`).join('')}</div></section>`}).join('')}</div>`;
+    <div class="tsec-l"${ab?'':' hidden'}>${l.map(e=>`<button class="tq" data-eq="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</span>${I.chev}</button>`).join('')}</div></section>`}).join('')}</div>`;
 }
 function vAloc(){
   /* equipamento na alocacao: abre uma tela com 2 linhas (motorista e alocar/realocar); a ficha nao abre por aqui */

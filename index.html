@@ -813,9 +813,11 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 #scrim:not([hidden])~.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}.card{padding:20px}}
 .toast-t{display:block;font-weight:700;margin-bottom:1px}
-.rd-w{position:relative;display:block}.rd-w>input{padding-right:54px!important}
-.rd-b{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:42px;height:36px;border-radius:9px;border:0;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);cursor:pointer}
-.rd-b svg,.rd-kb svg{width:20px;height:20px}.rd-kb{width:48px;padding:0;margin-left:auto;color:var(--accent)}
+.rd-row{min-height:44px;gap:8px;color:var(--accent);border-color:var(--accent);background:var(--surface)}.rd-row svg{width:20px;height:20px}
+#mv-camw .rd-row,#s-idf .rd-row,.ct-pk .rd-row,#k-cam,#t-cam{margin-top:8px}#t-cam{margin-bottom:8px}#pd-cam,#pe-cam{margin-top:8px}
+.mv-card{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:0;background:var(--ok-bg);font:inherit;color:var(--fg);cursor:pointer}
+.mv-card b{font-size:15px}.mv-card>span{font-size:13px;color:var(--muted)}.mv-card em{font-style:normal;font-size:12px;font-weight:600;color:var(--ok);margin-top:2px}
+.mv-tr{display:flex;justify-content:flex-end;margin-top:4px}.mv-tr .lnk{background:none;border:0;padding:6px 4px;font:inherit;font-size:13.5px;font-weight:600;color:var(--accent);cursor:pointer}
 .rdr{position:fixed;inset:0;z-index:80;background:var(--bg);display:flex;flex-direction:column;overflow:auto;padding-top:env(safe-area-inset-top,0px)}
 .rdr-h{display:flex;align-items:center;gap:12px;padding:14px max(14px,env(safe-area-inset-right,0px)) 10px max(14px,env(safe-area-inset-left,0px))}
 .rdr-h h2{font-family:var(--display);font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.02em;margin:0;line-height:1.1}.rdr-h .sub{font-size:13px;color:var(--muted)}
@@ -841,8 +843,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=981c488382"></script>
-<script src="shim.js?v=981c488382"></script>
+<script src="config.js?v=33f93be7f3"></script>
+<script src="shim.js?v=33f93be7f3"></script>
 </head>
 <body>
 
@@ -1374,7 +1376,7 @@ function vEstoque(){
   const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],...(ix[s.id]||[])].filter(Boolean).join(' '));
   const row=s=>esRow(s,{attr:`data-mov="${esc(s.id)}"${busca?` data-q="${esc(qOf(s))}"`:''}`});
   return toolbar('Filtros, óleos e kits da oficina')+
-  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, código, referência ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div><button type="button" class="btn block es-rel" id="es-rel"${S.esAll?' hidden':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatório</button></div>`:'')+
+  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, código, referência ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<button type="button" class="btn block es-rel" id="es-rel"${S.esAll?' hidden':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatório</button></div>`:'')+
   (list.length?G.map(([k,lab])=>{const l=list.filter(s=>grp(s)===k);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>${lab}</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''}).join('')+(busca?'<div class="empty es-0" id="esq-0" hidden>Nenhum item encontrado.</div>':'')
   :'<div class="empty"><b>Estoque vazio</b>Toque no botão + para cadastrar filtros e óleos. Ligados ao plano da máquina, eles baixam sozinhos a cada troca.</div>');
 }
@@ -1411,7 +1413,7 @@ function bindView(){
         const ok=toks.every(k=>w.some(x=>x.startsWith(k))||(/\d/.test(k)&&c.includes(k.replace(/[.\-\/]/g,''))));r.hidden=!ok;r.classList.remove('es-first');if(ok){n++;if(!first){first=r;r.classList.add('es-first')}}});
         blk.hidden=!n;const em=blk.querySelector('.es-g em');if(em)em.textContent=n;tot+=n});
       const z=$('#esq-0');if(z)z.hidden=!!tot};
-    esq.oninput=run;const rel=$('#es-rel');if(rel)rel.onclick=()=>{S.esAll=true;rel.hidden=true;run()};esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
+    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});const rel=$('#es-rel');if(rel)rel.onclick=()=>{S.esAll=true;rel.hidden=true;run()};esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
     esq.onfocus=()=>{S.esFoc=true};esq.onblur=()=>setTimeout(()=>{if(esq.isConnected)S.esFoc=false},0);
     if(S.esQ){esq.value=S.esQ;run()}
     if(S.esFoc){esq.focus({preventScroll:true});const n=esq.value.length;try{esq.setSelectionRange(n,n)}catch(e){}}}
@@ -1514,7 +1516,7 @@ function openMenu(mode){
     ${mi('locais',I.aloc,'Locais de alocação','Ex.: DM1, PQ')}${mi('areas',I.aloc,'Áreas do DM1','Ex.: Planta, Mina')}${mi('frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')}`;
   if(!mode){
     openSheet({title:'Cadastros',sub:'O que você quer fazer?',body:`<div class="menu">${mi('novo',I.plus,'Novo cadastro','Equipamento, filtros e óleos, kit e listas')}${mi('editar',EDI,'Editar cadastro','Alterar dados e fotos de um cadastro')}${mi('excluir',DEL,'Excluir cadastro','Apagar um equipamento, item, kit, preventiva ou nome de lista')}<div class="mgrp">Estoque</div>${mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')}${mi('mv-saida',MV_OUT,'Saída do estoque','Retirada avulsa, fora das preventivas')}${mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')}<div class="mgrp">Combustível</div>${mi('abast',I.comb,'Abastecimento','Litros e horímetro para o consumo por hora')}<div class="mgrp">Dados</div>${mi('backup','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/><path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5"/><path d="M17 15v6M14.5 18.5L17 21l2.5-2.5"/></svg>','Cópia de segurança','Baixa um arquivo com todos os dados do app')}</div>`,
-      mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;m==='backup'?backupAll(b):m==='abast'?formAbast():m==='cart'?openListas():m.startsWith('mv-')?(formMovEst.done=null,formMovEst(m.slice(3))):openMenu(m)})});return;
+      mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;m==='backup'?backupAll(b):m==='abast'?formAbast():m==='cart'?openListas():m.startsWith('mv-')?(formMovEst.done=null,formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q=''),formMovEst(m.slice(3))):openMenu(m)})});return;
   }
   const body=mode==='excluir'
     ?`<div class="menu"><div class="mgrp">Frota</div>${mi('dl-eq',I.equip,'Equipamento','Apaga o equipamento e as preventivas dele')}${mi('dl-tr',I.manut,'Preventiva','Apaga um registro de preventiva ou reprogramação')}<div class="mgrp">Estoque</div>${mi('dl-st',I.estoque,'Filtros e óleos','Apaga um item do estoque')}${mi('dl-kit',KIT_IC,'Kit','Apaga um kit; os itens continuam no estoque')}<div class="mgrp">Combustível</div>${mi('dl-ab',I.comb,'Abastecimento','Apaga o último abastecimento de um equipamento')}${listas}</div>`
@@ -1541,11 +1543,12 @@ function formPickDel(kind){
     match=(x,t)=>{const e=eqById(x.equipId),c=norm(e?e.codigo:'');return c.includes(t)||c.replace(/[\s-]/g,'').includes(t)}}
   const draw=l=>kind==='eq'?porTipo(l,row):l.length?`<div class="tsec-l">${l.map(row).join('')}</div>`:'';
   openSheet({title,sub:'Toque no item para excluir',
-  body:`<div class="search">${I.search}<input id="pd-q" type="search" placeholder="${ph}" autocomplete="off" aria-label="Buscar"></div>
+  body:`<div class="search">${I.search}<input id="pd-q" type="search" placeholder="${ph}" autocomplete="off" aria-label="Buscar"></div>${kind==='st'||kind==='kit'?rdBtn('pd-cam'):''}
     <div id="pd-l" style="margin-top:8px">${draw(all)||'<div class="empty">Nada cadastrado.</div>'}</div>`,
   mount:sh=>{const l=sh.querySelector('#pd-l'),q=sh.querySelector('#pd-q');
     const bind=()=>l.querySelectorAll('[data-pd]').forEach(b=>b.onclick=()=>openDelete(kind,b.dataset.pd));
-    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');l.innerHTML=draw(all.filter(x=>!t||match(x,t)||match(x,tc)))||'<div class="empty">Nada encontrado.</div>';bind()};bind()}});
+    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');l.innerHTML=draw(all.filter(x=>!t||match(x,t)||match(x,tc)))||'<div class="empty">Nada encontrado.</div>';bind()};bind();
+    const pc=sh.querySelector('#pd-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))openDelete(kind,v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
 }
 function openDelete(kind,id){
   nav('del:'+kind+':'+id,()=>openDelete(kind,id));
@@ -1834,13 +1837,14 @@ function formPickEdit(kind){
   const draw=l=>isEq?porTipo(l,row):l.length?`<div class="tsec-l">${l.map(row).join('')}</div>`:'';
   const row=x=>!isEq?esRow(x,{attr:`data-pe="${esc(x.id)}"`}):`<button type="button" class="tq" data-pe="${esc(x.id)}"><span class="tq-c">${esc(isEq?x.codigo:stCod(x))}</span><span class="tq-m">${esc(isEq?([x.marca,x.modelo].filter(Boolean).join(' ')||'—'):x.desc)}</span>${I.chev}</button>`;
   openSheet({title:isEq?'Editar equipamento':K?'Editar kit':'Editar filtros e óleos',sub:'Busque e toque no item para editar',
-  body:`<div class="search">${I.search}<input id="pe-q" type="search" placeholder="${isEq?'TAG, tipo ou modelo':'Código, referência ou descrição'}" autocomplete="off" aria-label="Buscar"></div>
+  body:`<div class="search">${I.search}<input id="pe-q" type="search" placeholder="${isEq?'TAG, tipo ou modelo':'Código, referência ou descrição'}" autocomplete="off" aria-label="Buscar"></div>${isEq?'':rdBtn('pe-cam')}
     <div id="pe-l" style="margin-top:8px">${draw(all)||'<div class="empty">Nada cadastrado ainda.</div>'}</div>`,
   mount:sh=>{const l=sh.querySelector('#pe-l'),q=sh.querySelector('#pe-q');
     const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
     const bind=()=>l.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>isEq?formEq(b.dataset.pe):K?formKit(b.dataset.pe):formStock(b.dataset.pe));
     q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.ref,x.desc].join(' ')).includes(t));
-      l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind()};bind()}});
+      l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind()};bind();
+    const pc=sh.querySelector('#pe-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))K?formKit(v.item.id):formStock(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
 }
 /* atalhos que levam ao caminho oficial de edição */
 function goEditar(kind,id){kind==='eq'?formEq(id):isKit(stById(id))?formKit(id):formStock(id)}
@@ -2254,7 +2258,7 @@ function formTroca(eqId){
     <label class="f">Próxima (h) <span class="hint">opcional</span><input id="t-prox" type="number" step="0.1" inputmode="decimal" placeholder="Automático"></label>
     <p class="note" id="t-proxhint" style="margin:0">Em branco, a próxima é agendada sozinha pelo intervalo de cada item.</p></div>
     <div class="lbl" style="margin-top:16px">Itens trocados <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">vencidos já vêm marcados</span></div>
-    <div class="list" id="t-items"></div>
+    ${rdBtn('t-cam','Conferir peça pela câmera')}<div class="list" id="t-items"></div>
     <div class="fset" style="margin-top:12px"><label class="f">Observações<textarea id="t-obs"></textarea></label></div><div id="t-eqv"></div></form>`,
   foot:`<button class="btn pri" form="ft">Registrar preventiva</button>`,
   mount:sh=>{
@@ -2268,6 +2272,11 @@ function formTroca(eqId){
       box.innerHTML=!its.length?'':!A.length||!B.length?its.map(row).join(''):`<div class="ti-g">Vencidos e próximos</div>${A.map(row).join('')}<button type="button" class="ti-more" aria-expanded="false"><span>Itens em dia</span>${I.chev||'›'}</button><div class="ti-ok" hidden>${B.map(row).join('')}</div>`;
       if(!its.length)box.innerHTML=`<div class="empty"><b>Sem óleos e filtros no plano</b>Monte o plano pelo + › Editar cadastro › Equipamento para registrar trocas.</div>`;
       const mb=box.querySelector('.ti-more');mb&&(mb.onclick=()=>{const o=box.querySelector('.ti-ok'),x=o.hidden;o.hidden=!x;mb.setAttribute('aria-expanded',x)});
+      const tc=sh.querySelector('#t-cam');if(tc)tc.onclick=()=>rdOpen({mode:'item',use:v=>{const e2=eqById(sel.value);if(!e2){toast('Escolha o equipamento antes.');return}if(!v.item){toast('Peça não encontrada no estoque.');return}
+        const it=(e2.itens||[]).find(i=>i.estoqueId===v.item.id||(isKit(stById(i.estoqueId)||{})&&kitComps(stById(i.estoqueId)).some(c=>c.s.id===v.item.id))||(itCod(i)&&nzCod(itCod(i))===nzCod(stCod(v.item))));
+        if(!it){toast(`${stCod(v.item)} não está no plano de ${e2.codigo}.`);return}
+        const o=box.querySelector('.ti-ok');if(o&&o.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`)){o.hidden=false;const mb=box.querySelector('.ti-more');mb&&mb.setAttribute('aria-expanded','true')}
+        const cdI=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`);if(cdI){cdI.value=stCod(v.item);cdI.dispatchEvent(new Event('input'));cdI.closest('.chk').scrollIntoView({block:'center',behavior:'smooth'});toast(`${itNome(it)} conferido`)}}});
       box.querySelectorAll('[data-cd]').forEach(i=>{i.onclick=ev=>ev.preventDefault();i.oninput=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(i.dataset.cd)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
       };
     const ph=sh.querySelector('#t-proxhint'),pin=sh.querySelector('#t-prox');
@@ -2377,8 +2386,10 @@ function openTroca(id){
 function formStock(id,preset,onSaved){
   nav('fs:'+(id||'novo'),()=>formStock(id,preset,onSaved));
   const s=id?stById(id):{tipo:'filtro',un:'un',qtd:0,minimo:2,...(preset||{})};
+  /* item novo: primeiro identifica (digitando ou pela câmera); se já existir, mostra; senão abre o resto do cadastro */
+  const idStep=!id&&!(preset&&(preset.ref||preset.codigo));
   openSheet({title:id?'Editar item':'Novo item do estoque',sub:id?esc(stCod(s)):'',
-  body:`<form id="fs"><div class="fset"><div class="grid">
+  body:`${idStep?`<div class="fset" id="s-idf"><label class="f">Código ou referência<input id="s-idq" autocomplete="off" autocapitalize="characters" placeholder="Ex.: 222-9021" style="font-family:var(--mono);font-size:19px;min-height:52px"></label>${rdBtn('s-cam')}<div id="s-idh" aria-live="polite"></div></div>`:''}<form id="fs"${idStep?' hidden':''}><div class="fset"><div class="grid">
     <label class="f">Código <span class="hint">almoxarifado</span><input id="s-codigo" value="${esc(s.codigo||'')}" placeholder="Se tiver" autocapitalize="characters"></label>
     <label class="f">Referência <span class="hint">código de fábrica</span><input id="s-ref" value="${esc(s.ref||'')}" placeholder="Ex.: WIX 51515" autocapitalize="characters"></label>
     <label class="f w">Descrição<input id="s-desc" required value="${esc(s.desc||'')}" placeholder="Ex.: Filtro óleo motor"></label>
@@ -2397,6 +2408,16 @@ function formStock(id,preset,onSaved){
     <div id="delbox"></div></form>`,
   foot:`<button class="btn pri" form="fs">Salvar</button>`,
   mount:sh=>{
+    if(idStep){const ft=sh.querySelector('.sh-foot');if(ft)ft.hidden=true;const iq=sh.querySelector('#s-idq'),ih=sh.querySelector('#s-idh');
+      const seguir=v=>{const V=v.trim().toUpperCase();if(V)sh.querySelector(/^\d{1,7}$/.test(V)?'#s-codigo':'#s-ref').value=V;sh.querySelector('#s-idf').remove();sh.querySelector('#fs').hidden=false;if(ft)ft.hidden=false;setTimeout(()=>sh.querySelector('#s-desc').focus(),60)};
+      const busca=()=>{const v=iq.value.trim(),k=nzCod(v);if(!k){ih.innerHTML='';return}
+        const m=S.estoque.filter(x=>nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||(x.eans||[]).some(e=>nzCod(e)===k)||nzCod(x.desc).includes(k)).sort(byCode).slice(0,6);
+        ih.innerHTML=(m.length?`<p class="note" style="margin:10px 2px 6px">Já cadastrado${m.length>1?'s':''}: toque para ver o cadastro</p><div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-sx="${esc(x.id)}"`})).join('')}</div>`:'')
+          +`<button type="button" class="btn ${m.length?'':'pri '}block" id="s-go" style="margin-top:10px">Cadastrar ${esc(v.toUpperCase())}${m.length?' como novo':''}</button>`;
+        ih.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));ih.querySelector('#s-go').onclick=()=>seguir(v)};
+      iq.oninput=busca;iq.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const b=ih.querySelector('#s-go');b&&b.click()}};setTimeout(()=>iq.focus(),60);
+      const scm=sh.querySelector('#s-cam');if(scm)scm.onclick=()=>rdOpen({mode:'raw',use:v=>{iq.value=v.text||'';busca()}})}
+
     const fotoOrig=[...(s.fotos||[])],fotoNow=photoEditor(sh.querySelector('#s-ph'),[...fotoOrig],3);
     let enc=[...(s.encaixe||[])].filter(eqById);const encBox=sh.querySelector('#s-enc'),encQ=sh.querySelector('#s-encq'),encR=sh.querySelector('#s-encr');
     const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'série '+e.serie:''].filter(Boolean).join(' · ');
@@ -2464,27 +2485,39 @@ function formMovEst(dir){
   const eqs=S.equips.slice().sort(byCode);
   openSheet({title:ent?'Entrada no estoque':'Saída do estoque',sub:'Código do almoxarifado ou referência',
   body:`${S.ajuste?'<div class="banner aj-b" id="aj-ask"><div>Desative o Ajuste para lançar.</div><button type="button" class="btn sm" id="aj-off">Desativar</button></div>':''}<form id="mv-f"><div class="fset"><div class="grid">
-    <label class="f w">Código ou referência<input id="mv-c" required autocomplete="off" autocapitalize="characters" placeholder="Ex.: 353-5058" style="font-family:var(--mono);font-size:19px;min-height:52px"></label>
+    <label class="f w" id="mv-cl">Código ou referência<input id="mv-c" autocomplete="off" autocapitalize="characters" placeholder="Ex.: 353-5058" style="font-family:var(--mono);font-size:19px;min-height:52px"></label>
+    ${CAM_OK?`<div class="w" id="mv-camw">${rdBtn('mv-cam')}</div>`:''}
+    <div class="w" id="mv-sel" hidden></div>
     <div class="w" id="mv-hit" aria-live="polite"></div>
-    <label class="f">${ent?'Quantidade a adicionar':'Quantidade a retirar'}<input id="mv-q" type="number" step="0.1" min="0" inputmode="decimal" required style="font-family:var(--mono);font-size:19px;min-height:52px"></label>
-    <label class="f">Data<input id="mv-dt" type="date" required value="${esc(D.dt)}"></label>
-    <div class="w note" id="mv-prev"></div>
-    ${ent?`<label class="f w">Fornecedor<input id="mv-obs" placeholder="Opcional" value="${esc(D.forn||'')}"></label>`
-      :`<label class="f">Equipamento<select id="mv-eq"><option value="">Nenhum (opcional)</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)}</option>`).join('')}</select></label><label class="f">Motivo<input id="mv-obs" placeholder="Opcional"></label>`}
+    <label class="f" data-mvx hidden>${ent?'Quantidade a adicionar':'Quantidade a retirar'}<input id="mv-q" type="number" step="0.1" min="0" inputmode="decimal" required style="font-family:var(--mono);font-size:19px;min-height:52px"></label>
+    <label class="f" data-mvx hidden>Data<input id="mv-dt" type="date" required value="${esc(D.dt)}"></label>
+    <div class="w note" id="mv-prev" data-mvx hidden></div>
+    ${ent?`<label class="f w" data-mvx hidden>Fornecedor<input id="mv-obs" placeholder="Opcional" value="${esc(D.forn||'')}"></label>`
+      :`<label class="f" data-mvx hidden>Equipamento<select id="mv-eq"><option value="">Nenhum (opcional)</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)}</option>`).join('')}</select></label><label class="f" data-mvx hidden>Motivo<input id="mv-obs" placeholder="Opcional"></label>`}
   </div></div></form>`,
-  foot:`<button class="btn pri" form="mv-f" id="mv-go" style="flex:1">${ent?'Lançar entrada':'Lançar saída'}</button>`,
+  foot:`<button class="btn pri" form="mv-f" id="mv-go" style="flex:1" disabled>${ent?'Lançar entrada':'Lançar saída'}</button>`,
   mount:sh=>{
     const c=sh.querySelector('#mv-c'),q=sh.querySelector('#mv-q'),hit=sh.querySelector('#mv-hit'),go=sh.querySelector('#mv-go'),pv=sh.querySelector('#mv-prev');let cur=null;
     const prev=()=>{const n=Number(q.value)||0;pv.innerHTML=cur&&n>0?`Saldo ${nf(cur.qtd,1)} ${esc(cur.un)} → <b>${nf(Math.round(((Number(cur.qtd)||0)+(ent?n:-n))*10)/10,1)} ${esc(cur.un)}</b>`:''};
-    const pick=x=>{cur=x;c.value=stCod(x);hit.innerHTML=`<div class="mv-hit ok"><b>${esc(x.desc)}</b><span>${[x.codigo&&x.ref?'ref. '+x.ref:'',x.marca].filter(Boolean).map(esc).join(' · ')}${(x.codigo&&x.ref)||x.marca?' · ':''}saldo ${nf(x.qtd,1)} ${esc(x.un)}</span></div>`;go.textContent=ent?'Lançar entrada':'Lançar saída';prev();q.focus()};
+    /* primeiro identifica o item; só depois aparecem quantidade, data e o resto */
+    const cl=sh.querySelector('#mv-cl'),camw=sh.querySelector('#mv-camw'),selb=sh.querySelector('#mv-sel'),mvx=[...sh.querySelectorAll('[data-mvx]')];
+    const step=on=>{cl.hidden=on;if(camw)camw.hidden=on;hit.hidden=on;selb.hidden=!on;mvx.forEach(x=>x.hidden=!on);go.disabled=!on};
+    const pick=(x,keepQ)=>{cur=x;D.cur=x.id;D.curDir=dir;c.value=stCod(x);hit.innerHTML='';
+      selb.innerHTML=`<button type="button" class="mv-card" id="mv-card"><b>${esc(x.desc)}</b><span><span class="num">${esc(stCod(x))}</span>${x.marca?' · '+esc(x.marca):''} · saldo ${nf(x.qtd,1)} ${esc(x.un)}</span><em>Toque para ver o cadastro ›</em></button><div class="mv-tr"><button type="button" class="lnk" id="mv-tr">Trocar item</button></div>`;
+      selb.querySelector('#mv-card').onclick=()=>formMov(x.id);
+      selb.querySelector('#mv-tr').onclick=()=>{cur=null;D.cur=null;c.value='';selb.innerHTML='';step(false);prev();c.focus()};
+      step(true);go.textContent=ent?'Lançar entrada':'Lançar saída';q.value=keepQ?(D.q||''):'';if(!keepQ)D.q='';prev();if(!keepQ)setTimeout(()=>q.focus(),60)};
     const search=()=>{cur=null;prev();const k=nzCod(c.value);go.textContent=ent?'Lançar entrada':'Lançar saída';
       if(!k){hit.innerHTML='';return}
       const its=S.estoque.filter(x=>!isKit(x)),score=x=>{const a=nzCod(x.codigo),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
       const m=its.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,5).map(a=>a[1]);
       if(m.length){hit.innerHTML=`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-pk="${esc(x.id)}"`})).join('')}</div>`;
         hit.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>pick(stById(b.dataset.pk)))}
-      else{hit.innerHTML=`<div class="mv-hit no"><b>Item não cadastrado</b><span>${ent?'Ao lançar, abre o cadastro já com o código e a quantidade.':'Confira o código: só dá saída de item cadastrado.'}</span></div>`;if(ent)go.textContent='Cadastrar e lançar'}};
-    c.oninput=search;q.oninput=prev;setTimeout(()=>c.focus(),60);
+      else{const v=c.value.trim().toUpperCase();hit.innerHTML=`<div class="mv-hit no"><b>Item não cadastrado</b><span>${ent?'Cadastre o item para lançar a entrada.':'Confira o código: só dá saída de item cadastrado.'}</span>${ent?`<button type="button" class="btn sm" id="mv-cad" style="margin-top:8px">Cadastrar ${esc(v)}</button>`:''}</div>`;
+        const nb=hit.querySelector('#mv-cad');if(nb)nb.onclick=()=>{const pre=/^\d{1,7}$/.test(v)?{codigo:v}:{ref:v};const cb=async sid=>{D.cur=sid;D.curDir=dir};cb.msg='Item cadastrado';formStock(null,pre,cb)}}};
+    c.oninput=search;q.oninput=()=>{D.q=q.value;prev()};
+    const cb2=sh.querySelector('#mv-cam');cb2&&(cb2.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item)pick(v.item);else if(v.text){c.value=v.text;search()}}}));
+    if(D.cur&&D.curDir===dir&&stById(D.cur))pick(stById(D.cur),true);else{D.cur=null;setTimeout(()=>c.focus(),60)}
     c.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const f=hit.querySelector('[data-pk]');if(f)f.click()}};
     sh.querySelector('#mv-dt').onchange=ev=>D.dt=ev.target.value;
     ent&&(sh.querySelector('#mv-obs').oninput=ev=>D.forn=ev.target.value);
@@ -2502,7 +2535,7 @@ function formMovEst(dir){
       const x=cur,antes=Number(x.qtd)||0,saldo=Math.round((antes+(ent?n:-n))*10)/10;
       if(!ent&&saldo<0){toast(`Saída maior que o saldo (${nf(x.qtd,1)} ${x.un}).`);return}
       if(await safe(async()=>{await S.db.doc('estoque/'+x.id).update({qtd:saldo,...(ent?{ultEnt:{data:dt,qtd:n}}:{})});await log(x.id,saldo)},`${ent?'Entrada':'Saída'} lançada`)){
-        formMovEst.done={dir,id:x.id,n,antes,saldo,dt};NAV.pop();formMovEst(dir)}};
+        formMovEst.done={dir,id:x.id,n,antes,saldo,dt};D.cur=null;D.q='';NAV.pop();formMovEst(dir)}};
   }});
 }
 /* ---------- lista de compra ---------- */
@@ -2597,8 +2630,9 @@ function openListaFeita(l){
 /* botão "Adicionar item" que só mostra a busca quando tocado */
 function addPicker(box,has,onPick,onAvulso){
   box.innerHTML=`<button type="button" class="ct-add">${I.plus}Adicionar item</button>`;
-  box.querySelector('.ct-add').onclick=ev=>{ev.stopPropagation();box.innerHTML=`<div class="ct-pk"><input class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="TAG, código, referência ou nome"><div class="ct-hit"></div></div>`;
+  box.querySelector('.ct-add').onclick=ev=>{ev.stopPropagation();box.innerHTML=`<div class="ct-pk"><input class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="TAG, código, referência ou nome">${rdBtn('ct-cam')}<div class="ct-hit"></div></div>`;
     const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');c.focus();
+    const cc=box.querySelector('#ct-cam');if(cc)cc.onclick=e2=>{e2.stopPropagation();rdOpen({mode:'item',use:v=>{if(v.item)onPick(v.item);else if(v.text){c.value=v.text;c.oninput()}}})};
     c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
       /* TAG de equipamento: mostra o kit dele e os filtros compatíveis */
       const eq=S.equips.find(e=>nzCod(e.codigo)===k),cp=eq?eqCompat(eq):{kits:[],its:[]},shown=new Set([...cp.kits,...cp.its].map(x=>x.id));
@@ -2788,7 +2822,7 @@ function formKit(id){
     <label class="f w">Descrição<input id="k-desc" required value="${esc(k.desc||'')}" placeholder="Ex.: Preventiva 250 h · Caminhão"></label></div></div>
     <div class="fset" style="margin-top:12px"><h3>Itens do kit</h3><p class="note" style="margin:0">Escolha cada item e a quantidade que vai em um kit.</p>
       <div id="k-comps">${(k.comps&&k.comps.length?k.comps:[{},{}]).map(compRow).join('')}</div>
-      <button type="button" class="btn ghost" id="k-add">${I.plus}Item</button></div>
+      <button type="button" class="btn ghost" id="k-add">${I.plus}Item</button>${rdBtn('k-cam','Adicionar item pela câmera')}</div>
     <div class="fset" style="margin-top:12px"><h3>Fotos (opcional, até 3)</h3><div id="k-ph"></div></div>
     <div id="delbox"></div></form>`,
   foot:`<button class="btn pri" form="fk">Salvar kit</button>`,
@@ -2799,6 +2833,8 @@ function formKit(id){
       r.querySelector('[data-kc-id]').onchange=ev=>{const s=stById(ev.target.value);r.querySelector('[data-kc-u]').textContent=s?s.un:''}});
     bind();
     sh.querySelector('#k-add').onclick=()=>{box.insertAdjacentHTML('beforeend',compRow({}));bind();box.lastElementChild.querySelector('select').focus()};
+    const kc=sh.querySelector('#k-cam');if(kc)kc.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item||isKit(v.item)){toast('Leia um filtro ou óleo do estoque.');return}
+      const empty=[...box.querySelectorAll('[data-kc] select')].find(x=>!x.value);if(!empty){box.insertAdjacentHTML('beforeend',compRow({id:v.item.id}));bind()}else{empty.value=v.item.id;empty.dispatchEvent(new Event('change',{bubbles:true}))}}});
     sh.querySelector('#fk').onsubmit=ev=>{ev.preventDefault();
       const m={};box.querySelectorAll('[data-kc]').forEach(r=>{const cid=r.querySelector('[data-kc-id]').value,q=Number(r.querySelector('[data-kc-q]').value)||0;if(cid&&q>0)m[cid]=(m[cid]||0)+q});
       const comps=Object.entries(m).map(([cid,q])=>({id:cid,qtd:Math.round(q*10)/10}));
@@ -2827,8 +2863,8 @@ async function clearExamples(){
    Códigos são lidos na hora; texto é lido sozinho depois de ~2 s sem código, ou em "Ler texto agora". */
 const CAM_OK=!!(window.__PWA&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const RD_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
-/* onde aparece: campo → como usar o que foi lido */
-const RD_SPOTS=[['#esq','item'],['#mv-c','item'],['.ct-c','item'],['input.cd','raw'],['#s-ref','raw'],['#pe-q:not([placeholder^="TAG"])','item'],['#pd-q:not([placeholder^="TAG"])','item']];
+/* botão "Ler com a câmera" numa linha própria, logo abaixo do campo de identificação */
+const rdBtn=(id,txt)=>CAM_OK?`<button type="button" class="btn block rd-row" id="${id}">${RD_IC}${txt||'Ler com a câmera'}</button>`:'';
 const rdCanon=s=>String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'').replace(/O/g,'0').replace(/[IL]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/Z/g,'2');
 const rdQuase=(t,k)=>{if(k.length<7||t.length<k.length)return false;for(let i=0;i+k.length<=t.length;i++){let d=0;for(let j=0;j<k.length&&d<2;j++)if(t[i+j]!==k[j])d++;if(d<=1)return true}return false};
 function rdKeys(){return S.estoque.map(s=>({s,keys:[s.codigo,s.ref,...(s.eans||[])].filter(Boolean).map(rdCanon).filter(k=>k.length>=4)}))}
@@ -2844,17 +2880,6 @@ function rdRef(txt){const t=String(txt);let m=t.match(/\b(\d{3})-?(\d{4})\b/);if
   if(/^\d{8,}$/.test(t.trim()))return '';
   const tk=t.toUpperCase().split(/[\s|;]+/).map(x=>x.replace(/[^A-Z0-9.\-\/]/g,'')).filter(x=>x.length>=4&&/\d/.test(x)&&!/^\d{8,}$/.test(x));return tk[0]||''}
 let RD=null;
-function rdDecorate(root){if(!CAM_OK)return;RD_SPOTS.forEach(([sel,mode])=>(root||document).querySelectorAll(sel).forEach(inp=>{if(inp.dataset.rd)return;inp.dataset.rd=mode;
-  const w=document.createElement('span');w.className='rd-w';inp.parentNode.insertBefore(w,inp);w.appendChild(inp);
-  const b=document.createElement('button');b.type='button';b.className='rd-b';b.setAttribute('aria-label','Ler pela câmera');b.innerHTML=RD_IC;w.appendChild(b);
-  b.onclick=ev=>{ev.preventDefault();ev.stopPropagation();rdOpen({mode,use:v=>rdFill(inp,v)})}}));
-  const ka=(root||document).querySelector('#k-add');if(ka&&!ka.dataset.rd){ka.dataset.rd=1;const b=document.createElement('button');b.type='button';b.className='btn ghost rd-kb';b.setAttribute('aria-label','Adicionar item pela câmera');b.innerHTML=RD_IC;ka.after(b);
-    b.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item)return;ka.click();const rows=document.querySelectorAll('#sheet [data-kc]'),sel=rows[rows.length-1]&&rows[rows.length-1].querySelector('select');if(sel){sel.value=v.item.id;sel.dispatchEvent(new Event('change',{bubbles:true}))}}})}}
-function rdFill(inp,v){const val=v.item?stCod(v.item):v.text;inp.value=val;inp.dispatchEvent(new Event('input',{bubbles:true}));
-  if(v.item){const h=document.querySelector(`#sheet [data-pk="${CSS.escape(v.item.id)}"],#sheet [data-ad="${CSS.escape(v.item.id)}"]`);if(h)h.click()}
-  if(inp.id!=='esq')inp.focus({preventScroll:true})}
-if(CAM_OK)new MutationObserver(()=>rdDecorate()).observe(document.body,{childList:true,subtree:true});
-
 function rdOpen(o){if(RD)return;RD={...o,last:'',lastCode:0,busy:false,ocrBusy:false,stopped:false};
   const d=document.createElement('div');d.className='rdr';d.setAttribute('role','dialog');d.setAttribute('aria-label','Ler item');
   d.innerHTML=`<div class="rdr-h"><button type="button" class="backbtn" data-x aria-label="Voltar">${I.back}</button><div class="sh-tt"><h2>Ler item</h2><div class="sub">Código de barras, QR ou texto</div></div></div>

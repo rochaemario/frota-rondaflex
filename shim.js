@@ -109,7 +109,7 @@
   function updSync(){const el=document.getElementById('sync');if(!el)return;const n=OUT.length,on=navigator.onLine&&netOk;
     const t=!on?(n?`Sem internet · ${n} pendente${n>1?'s':''}`:'Sem internet'):n?'Sincronizando…':'Sincronizado';
     if(el.textContent!==t)el.textContent=t;el.className='sync '+(on&&!n?'on':'off')}
-  addEventListener('offline',()=>{netOk=false;updSync()});addEventListener('online',()=>{netOk=true;updSync();sincronizar()});
+  addEventListener('offline',()=>{netOk=false;updSync()});addEventListener('online',()=>{netOk=true;updSync();if(semSessao){sb.auth.getSession().then(({data})=>{if(data&&data.session){semSessao=false;sincronizar()}else loginForm('Entre de novo para enviar o que foi lançado sem internet.')}).catch(()=>{});return}sincronizar()});
   let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>60000)sincronizar()});
 
   /* consultas feitas na cópia local */
@@ -205,9 +205,9 @@
         x.style.color='var(--ok)';x.textContent=error?'':'Enviamos um link para criar uma nova senha. Confira seu e-mail.';if(error){x.style.color='';x.textContent='Não foi possível enviar. Confira o e-mail.'}}})}
   function newPassword(){screen(`<h1>Nova senha</h1><p>Crie sua nova senha de acesso.</p><form class="lg-f" id="np-f"><label class="f">Nova senha<input id="np-p" type="password" minlength="6" autocomplete="new-password" required></label><div class="lg-e" id="np-x"></div><button class="btn pri">Salvar senha</button></form>`,o=>{
     o.querySelector('#np-f').onsubmit=async ev=>{ev.preventDefault();const {error}=await sb.auth.updateUser({password:o.querySelector('#np-p').value});if(error){o.querySelector('#np-x').textContent='Use pelo menos 6 caracteres.';return}history.replaceState(null,'',location.pathname);start()}})}
-  function waiting(){screen(`<h1>Aguardando liberação</h1><p>Seu acesso foi criado, mas o administrador ainda precisa liberar. Peça para ele abrir <b>Equipe</b> no app.</p><button type="button" class="btn" id="lg-o">Sair</button>`,o=>{o.querySelector('#lg-o').onclick=()=>sb.auth.signOut()})}
+  function waiting(){screen(`<h1>Aguardando liberação</h1><p>Seu acesso foi criado, mas o administrador ainda precisa liberar. Peça para ele abrir <b>Equipe</b> no app.</p><button type="button" class="btn" id="lg-o">Sair</button>`,o=>{o.querySelector('#lg-o').onclick=()=>(saindo=true,sb.auth.signOut())})}
 
-  let started=false,acabouDeEntrar=false,travaP=null;
+  let started=false,acabouDeEntrar=false,travaP=null,saindo=false,semSessao=false;
   /* ---------- digital: trava ao abrir o app (só neste aparelho) ----------
      Usa o desbloqueio do próprio celular (digital, rosto ou a senha do celular).
      A digital nunca sai do aparelho; o app só recebe "confirmado". */
@@ -227,13 +227,16 @@
     screen(`<div class="lk"><div class="lk-i">${FP}</div><h1>App bloqueado</h1><p>Use a digital para abrir o Controle de Frota. Se não funcionar, use a senha do celular.</p><div class="lg-e" id="lk-x"></div><button type="button" class="btn pri" id="lk-b">Desbloquear</button><button type="button" class="lg-l" id="lk-o">Entrar com e-mail e senha</button></div>`,o=>{
       const x=o.querySelector('#lk-x'),b=o.querySelector('#lk-b');let ocupado=false;
       const tentar=async()=>{if(ocupado)return;ocupado=true;x.textContent='';try{await dgConferir(d);ok()}catch(e){x.textContent=e&&e.name==='NotAllowedError'?'':'Não foi possível usar o desbloqueio do celular. Entre com e-mail e senha.'}ocupado=false};
-      b.onclick=tentar;o.querySelector('#lk-o').onclick=async()=>{try{localStorage.removeItem(DGK)}catch(e){}await sb.auth.signOut()};
+      b.onclick=tentar;o.querySelector('#lk-o').onclick=async()=>{try{localStorage.removeItem(DGK)}catch(e){}await (saindo=true,sb.auth.signOut())};
       setTimeout(tentar,250)})})}
   /* sessão guardada no aparelho (para abrir sem internet) */
   const sessaoGuardada=()=>{try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k));const s=v&&(v.currentSession||v);if(s&&s.user)return s}}}catch(e){}return null};
   async function start(){
     let session=null;try{({data:{session}}=await sb.auth.getSession())}catch(e){}
     if(!session)session=sessaoGuardada();
+    /* sem sessão e sem internet: se este aparelho já foi usado, abre com os dados guardados (login volta a ser pedido quando houver internet) */
+    if(!session&&!navigator.onLine&&!started){let pf0=null;try{pf0=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}
+      if(pf0&&await dbInit()){perfil=pf0;document.body.classList.add('papel-'+perfil.papel);closeScreen();started=true;semSessao=true;resolveReady();setTimeout(updSync,300);return}}
     if(!session){loginForm();return}
     const dg=!acabouDeEntrar&&!started&&dgLer(session.user.id);if(dg){travaP=travaP||travar(dg);await travaP}
     let pf=null;try{pf=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}if(pf&&pf.user_id!==session.user.id)pf=null;
@@ -250,7 +253,10 @@
       closeScreen();started=true;resolveReady();setTimeout(updSync,300);realtime();return}
     closeScreen()
   }
-  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'&&!started)start();if(ev==='SIGNED_OUT'){try{sessionStorage.clear();localStorage.removeItem('frota.perfil')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
+  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{semSessao=false;closeScreen();sincronizar()}return}
+    /* sessão perdida sem o usuário pedir (ex.: senha trocada): pede login de novo, sem apagar o que está guardado */
+    if(ev==='SIGNED_OUT'&&!saindo){if(started)loginForm('Entre de novo para enviar o que está guardado neste aparelho.');return}
+    if(ev==='SIGNED_OUT'){try{sessionStorage.clear();localStorage.removeItem('frota.perfil')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
 
   /* ---------- conta e equipe (toque em "Sincronizado") ---------- */
   const PAPEL={admin:'Administrador',editor:'Editor',consulta:'Consulta'};
@@ -259,7 +265,7 @@
     if(!s||!perfil)return;ev.stopPropagation();ev.preventDefault();if(open)return;css();
     const d=document.createElement('div');d.id='acct';d.className='acct';
     d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
-    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alterações ainda não enviadas',`Há ${OUT.length} ${OUT.length>1?'alterações':'alteração'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}sb.auth.signOut()};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
+    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alterações ainda não enviadas',`Há ${OUT.length} ${OUT.length>1?'alterações':'alteração'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}(saindo=true,sb.auth.signOut())};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
     const dr=d.querySelector('#ac-dg'),sw=dr.querySelector('.sw');const pinta=()=>sw.setAttribute('aria-checked',!!dgLer(perfil.user_id));pinta();
     dgPode().then(v=>{dr.hidden=!v});
     sw.onclick=async()=>{if(dgLer(perfil.user_id)){try{localStorage.removeItem(DGK)}catch(e){}pinta();avisar('Digital desativada','O app abre sem pedir a digital');return}

@@ -743,6 +743,12 @@ body.focus .tsec-h{top:calc(var(--hdr,52px) + var(--subh,47px))}
 .spec{background:var(--surface);border-radius:16px;padding:4px 14px}
 .spec .r{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:11px 0;font-size:14.5px}
 .spec .r+.r{border-top:1px solid var(--line)}
+.spec .r.ls{flex-direction:column;align-items:stretch;gap:4px}
+.spec .r.stk{flex-direction:column;align-items:stretch;gap:3px}.spec .r.stk>b{text-align:left;font-weight:500;line-height:1.4}
+.sl{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.sl li{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:7px 0 7px 10px;border-left:2px solid var(--line);font-size:14px}
+.sl li+li{margin-top:2px}.sl-n{min-width:0;color:var(--fg);font-weight:500}.sl-n small{display:block;font-size:12px;color:var(--faint);font-weight:500;margin-top:1px}
+.sl li>b{flex:none;font-weight:500;color:var(--muted);font-size:13.5px}
 .spec .r>span{color:var(--muted)}
 .doc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;text-align:left}.doc-t b{font-weight:600;font-size:14.5px}.doc-t small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .fpick{position:relative;overflow:hidden;cursor:pointer}.fpick input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
@@ -849,8 +855,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=e5c4e4c364"></script>
-<script src="shim.js?v=e5c4e4c364"></script>
+<script src="config.js?v=58c053e9dc"></script>
+<script src="shim.js?v=58c053e9dc"></script>
 </head>
 <body>
 
@@ -1444,6 +1450,8 @@ function bindView(){
 
 /* ---------- gaveta ---------- */
 let sheetOpen=false,lastFocus=null;
+/* texto longo num quadro de dados (observações, descrição) vai para baixo do rótulo, alinhado à esquerda */
+function stackLong(root){requestAnimationFrame(()=>root.querySelectorAll('.spec .r:not(.ls):not(.stk)>b').forEach(v=>{if(v.querySelector('small,div,.cp,.sit,.pill'))return;if(v.getBoundingClientRect().height>26)v.parentElement.classList.add('stk')}))}
 function openSheet({title,sub='',body,foot='',mount}){
   if(!sheetOpen)lastFocus=document.activeElement;
   $('#sheet').innerHTML=`<div class="sh-top"><div class="grab"></div><div class="sh-head"><button class="backbtn" data-back aria-label="Voltar" title="Voltar">${I.back}</button><div class="sh-tt"><h2>${/<[a-z]/i.test(title)?title:`<span class="tt-x">${title}</span>`}</h2>${sub?`<div class="sub">${sub}</div>`:''}</div></div></div>
@@ -1452,6 +1460,7 @@ function openSheet({title,sub='',body,foot='',mount}){
   $('#sheet').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeSheet);
   $('#sheet').querySelectorAll('[data-back],[data-k="back"]').forEach(b=>b.onclick=goBack);
   mount&&mount($('#sheet'));$('#sheet [data-back]').focus({preventScroll:true});
+  stackLong($('#sheet'));
 }
 const NAV=[];
 function nav(key,fn){const i=NAV.findIndex(n=>n.key===key);if(i>=0)NAV.length=i;NAV.push({key,fn})}
@@ -1580,7 +1589,7 @@ function openDelete(kind,id){
     title=`<span class="code" style="font-size:16px">${esc(stCod(s))}</span>${esc(s.desc)}`;
     info=`<div class="spec"><div class="r"><span>Referência</span><b>${esc(s.ref||'—')}</b></div><div class="r"><span>Saldo</span><b>${nf(stQtd(s),1)} ${esc(stUn(s))}</b></div><div class="r"><span>Ligado a planos</span><b>${used} equip.</b></div></div>`;
     const kits=S.estoque.filter(k=>isKit(k)&&(k.comps||[]).some(c=>c.id===id));
-    if(isKit(s))info=`<div class="spec"><div class="r"><span>Itens no kit</span><b>${kitComps(s).map(x=>esc(stCod(x.s))).join(', ')||'—'}</b></div><div class="r"><span>Ligado a planos</span><b>${used} equip.</b></div></div>`;
+    if(isKit(s))info=`<div class="spec">${specList('Itens no kit',kitComps(s).map(x=>[x.s.desc,stCod(x.s),nf(x.c.qtd,1)+' '+(x.s.un||'')]))}<div class="r"><span>Ligado a planos</span><b>${used} equip.</b></div></div>`;
     else if(kits.length)info=info.replace(/<\/div>$/,`<div class="r"><span>Faz parte dos kits</span><b>${kits.map(k=>esc(k.codigo)).join(', ')}</b></div></div>`);
     warn=isKit(s)?`Excluir este kit? Os itens dele continuam no estoque.${used?' Os planos ligados ao kit ficam sem baixa automática.':''} Não dá para desfazer.`
       :`Excluir este item?${kits.length?` Ele sai também ${kits.length===1?'do kit':'dos kits'} ${kits.map(k=>k.codigo).join(', ')}.`:''}${used?' Os planos ligados a ele ficam sem baixa automática.':''} Não dá para desfazer.`;
@@ -1591,7 +1600,7 @@ function openDelete(kind,id){
       await S.db.doc('estoque/'+id).delete();(s.fotos||[]).forEach(dropAsset)}}
   else{const t=S.trocas.find(x=>x.id===id);if(!t){goBack();return}const e=eqById(t.equipId);
     title=t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub)}`:t.tipo==='reprog'?`Reprogramação de ${fdate(t.data)}`:t.tipo==='hmtroca'?`Troca de horímetro de ${fdate(t.data)}`:`Preventiva de ${fdate(t.data)}`;
-    info=`<div class="spec"><div class="r"><span>Equipamento</span><b>${esc(e?e.codigo:'—')}</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horímetro</span><b>${nf(t.horimetro)} h</b></div><div class="r"><span>Itens</span><b>${(t.itens||[]).map(i=>esc(itNome(i))).join(', ')||'—'}</b></div></div>`;
+    info=`<div class="spec"><div class="r"><span>Equipamento</span><b>${esc(e?e.codigo:'—')}</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horímetro</span><b>${nf(t.horimetro)} h</b></div>${specList('Itens trocados',(t.itens||[]).map(i=>[itNome(i),itCod(i),i.qtd?nf(i.qtd,1)+' '+(i.un||''):'']))}</div>`;
     warn=t.tipo==='reprog'?'Excluir esta reprogramação? O item volta ao vencimento anterior. Não dá para desfazer.':'Excluir este registro? O plano do equipamento e o estoque não voltam sozinhos. Não dá para desfazer.';
     run=async()=>{if(t.tipo==='reprog'&&e){const m={};(t.itens||[]).forEach(i=>m[i.pid]=i);
         const its=e.itens.map(i=>{const r=m[i.pid];return r&&Number(i.proxH)===Number(r.para)?{...i,proxH:r.proxAnt??'',reprog:''}:i});
@@ -1887,6 +1896,9 @@ function formGerir(kind){
       l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind()};bind();
     const pc=sh.querySelector('#gr-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))edit(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
 }
+/* lista dentro de um quadro de dados: um item por linha, nome à esquerda e quantidade à direita */
+function specList(lab,rows){if(!rows.length)return `<div class="r"><span>${esc(lab)}</span><b>—</b></div>`;
+  return `<div class="r ls"><span>${esc(lab)}</span><ul class="sl">${rows.map(([n,c,q])=>`<li><span class="sl-n">${esc(n)}${c?`<small class="num">${esc(c)}</small>`:''}</span>${q?`<b class="num">${esc(q)}</b>`:''}</li>`).join('')}</ul></div>`}
 /* atalhos que levam ao caminho oficial de edição */
 function goEditar(kind,id){kind==='eq'?formEq(id):isKit(stById(id))?formKit(id):formStock(id)}
 function itemList(e,its,empty){
@@ -2499,7 +2511,7 @@ function formMov(id){
   body:`<div class="hmcard"><div><div class="k">Saldo</div><div class="v">${nf(s.qtd,1)}<small>${esc(s.un)}</small></div><div class="d">Mínimo ${nf(s.minimo,1)} ${esc(s.un)}</div></div><span class="pill ${c}">${c==='bad'?'Zerado':c==='warn'?'Repor':'Ok'}</span></div>
   <div class="lbl">Dados do item</div><div class="spec"><div class="r"><span>Código almoxarifado</span><b class="num">${s.codigo?esc(s.codigo):'<span style="color:var(--faint)">—</span>'}</b></div>${s.ref?`<div class="r"><span>Referência</span><b class="num">${esc(s.ref)}</b></div>`:''}${s.descFab?`<div class="r"><span>Descrição do fabricante</span><b>${esc(s.descFab)}</b></div>`:''}${s.marca?`<div class="r"><span>Marca</span><b>${esc(s.marca)}</b></div>`:''}${s.aplic?`<div class="r"><span>Aplicação</span><b>${esc(s.aplic)}</b></div>`:''}${s.local?`<div class="r"><span>Local</span><b>${esc(s.local)}</b></div>`:''}</div>
   ${enc.length?`<div class="lbl">Encaixe de fábrica <span class="c">${enc.length}</span></div><div class="spec">${enc.map(e=>`<div class="r"><span><b class="num">${esc(e.codigo)}</b></span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' '))}${e.serie?` · <span class="num">${esc(e.serie)}</span>`:''}</b></div>`).join('')}</div>`:''}
-  <div class="lbl">Usado em</div><div class="spec"><div class="r"><span>Planos</span><b>${esc(used.join(', ')||'Nenhum ligado')}</b></div>${inKits.length?`<div class="r"><span>Kits</span><b>${esc(inKits.join(', '))}</b></div>`:''}</div>
+  <div class="lbl">Usado em</div><div class="spec">${used.length?specList('Planos',used.map(u=>[u])):'<div class="r"><span>Planos</span><b>Nenhum ligado</b></div>'}${inKits.length?specList('Kits',inKits.map(k=>[k])):''}</div>
   <div class="lbl">Movimentações</div><div id="mv-box"><div class="note" style="padding:6px 2px">Carregando…</div></div>
   ${fotoStHTML(s)}`,
   mount:sh=>{bindFotoSt(sh);

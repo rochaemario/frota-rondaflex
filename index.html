@@ -853,6 +853,16 @@ body.kb .sh-foot{display:none}
 .chip.on{background:var(--accent,#0033a0);color:#fff;border-color:var(--accent,#0033a0)}.chip .av-a{width:28px;height:28px;font-size:11px}.chip.on .av-a{background:#fff}
 .anx{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.anx button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:var(--surface);border:1px dashed #9fb0d6;color:var(--accent,#0033a0);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}.anx svg{width:22px;height:22px}
 .av-btn{flex:1;background:var(--surface);border:1.5px solid var(--accent,#0033a0);color:var(--accent,#0033a0)}
+
+/* cartao Identificar */
+.id-fb{display:grid;grid-template-columns:1fr 1fr;gap:10px}.id-big{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:104px;border-radius:16px;border:1.5px solid var(--accent,#0033a0);background:var(--surface,#fff);color:var(--accent,#0033a0);font:inherit;font-size:15.5px;font-weight:600;cursor:pointer}.id-big svg{width:30px;height:30px}
+.id-dica{margin:10px 2px 0}.id-cur{display:flex;flex-direction:column}
+.id-ph{position:relative;align-self:center;width:100%;max-width:300px;aspect-ratio:1;background:#fff;border-radius:16px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px}.id-ph img{max-width:92%;max-height:92%;object-fit:contain}
+.id-x{position:absolute;top:8px;right:8px;width:32px;height:32px;border-radius:50%;border:0;background:var(--sunk);color:var(--muted);font-weight:700;cursor:pointer}
+.id-lens,.id-web{display:flex;align-items:center;justify-content:center;gap:8px}.id-lens svg,.id-web svg{width:20px;height:20px}.id-web{margin-top:12px;background:var(--surface,#fff);border:1.5px solid var(--accent,#0033a0);color:var(--accent,#0033a0)}.id-web:disabled{opacity:.45}
+.id-ch{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13px;color:var(--muted)}.id-ch .chip{padding:6px 12px;font-family:var(--mono)}
+.id-no{display:flex;flex-direction:column;gap:10px;background:var(--surface,#fff);border-radius:14px;padding:13px;border:1px solid var(--line)}.id-no span{color:var(--muted);font-size:14px}
+.id-rr{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:10px 13px;cursor:pointer}.id-rr+.id-rr{box-shadow:inset 0 1px 0 var(--line)}.id-rr em{font-style:normal;font-size:12px;color:var(--muted);flex:none}
 .pk-w{position:fixed;inset:0;z-index:130;background:rgba(10,21,40,.45);display:flex;align-items:flex-end;justify-content:center;padding:12px}
 .pk-c{width:100%;max-width:440px;background:var(--surface,#fff);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;margin-bottom:env(safe-area-inset-bottom,0px)}.pk-c>b{font-size:16px;margin:0 2px 2px}
 .pk-o{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-radius:14px;border:1px solid var(--line-2,#d5dbe6);background:var(--surface,#fff);font:inherit;font-size:15.5px;font-weight:600;color:var(--fg);cursor:pointer;text-align:left}.pk-o svg{width:24px;height:24px;color:var(--accent,#0033a0)}
@@ -925,8 +935,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=e99d843dd1"></script>
-<script src="shim.js?v=e99d843dd1"></script>
+<script src="config.js?v=c8997882b3"></script>
+<script src="shim.js?v=c8997882b3"></script>
 </head>
 <body>
 
@@ -976,6 +986,7 @@ const I={
   equip:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="14" width="12" height="4" rx="2"/><path d="M5 14v-3h6l2 3"/><path d="M11 11l5-6 5 4-2 3"/><path d="M19 12l-1 3h-2"/></svg>',
   manut:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.3 5.3L4 17l3 3 5.4-5.4a4 4 0 0 0 5.3-5.3l-2.4 2.4-2.6-.4-.4-2.6z"/></svg>',
   estoque:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5"/><path d="M12 13v8"/></svg>',
+  ident:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V5a1 1 0 0 1 1-1h2M17 4h2a1 1 0 0 1 1 1v2M20 17v2a1 1 0 0 1-1 1h-2M7 20H5a1 1 0 0 1-1-1v-2"/><circle cx="11" cy="11" r="3.5"/><path d="M16 16l-2.5-2.5"/></svg>',
   aloc:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
   back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>',
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
@@ -993,7 +1004,7 @@ const frentesDe=a=>a===RES?[]:a==='Mina'?['UG','Geral']:FRENTES.filter(f=>f!=='U
 const hmTxt=e=>e.horimetro===''||e.horimetro==null?'—':nf(e.horimetro);
 const alocTxt=e=>[e.alocacao,e.alocacao==='DM1'?e.area:'',e.frente].filter(Boolean).join(' · ');
 const optList=(list,val,ph)=>`<option value="">${ph}</option>`+[...list,...(val&&!list.includes(val)?[val]:[])].map(o=>`<option${o===val?' selected':''}>${esc(o)}</option>`).join('');
-const TABS=[['painel','Painel'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['comb','Combustivel']];
+const TABS=[['painel','Painel'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel']];
 
 /* ---------- regras ---------- */
 function itemStatus(eq,it){
@@ -1298,7 +1309,7 @@ function render(){
     const a=S.alocSel?(S.alocSel==='_'?'Sem area':S.alocSel):'';return `${esc(n)} <span>› ${esc(S.alocSite)}${a?' › '+esc(a):''}</span>`};
   document.body.classList.toggle('focus',!!S.focus);
   TB_SUB='';
-  const cards=[['equip',vEquip],['manut',vManut],['estoque',vEstoque],['comb',vComb],['aloc',vAloc]].filter(([k])=>!S.focus||S.focus===k).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
+  const cards=[['equip',vEquip],['manut',vManut],['estoque',vEstoque],['ident',vIdent],['comb',vComb],['aloc',vAloc]].filter(([k])=>!S.focus||S.focus===k).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
       return `<section class="card acc${o?' open':''}" id="sec-${k}">${o?'':`<button class="acc-h" data-acc="${k}" aria-expanded="${o}" aria-controls="b-${k}"><span class="ic">${I[k]}</span><h2>${n}</h2><span class="tg">${I.chev}</span></button>`}
       <div class="acc-b" id="b-${k}"${o?'':' hidden'}>${o?f():''}</div></section>`}).join('');
   $('#app').innerHTML=(S.focus?`<div class="subbar"><button class="homebar" data-a="up" aria-label="Voltar" title="Voltar">${I.back}</button><h2>${subT()}</h2>${TB_SUB?`<span class="sb-sub">${TB_SUB}</span>`:''}</div>`:exBanner()+`<section class="card" id="sec-painel" aria-label="Painel">${vPainel()}</section>`)+cards+(S.focus?'':`<div class="brandmark"><img src="${LOGO}" alt="Rondaflex" width="132" height="17"></div>`);
@@ -1537,6 +1548,7 @@ function bindView(){
     try{localStorage.setItem('frota.focus',S.focus)}catch(e){}
     render();SCR().scrollTo(0,0);const h=document.querySelector(`[data-acc="${k}"]`);h&&h.focus({preventScroll:true})});
   const topAloc=()=>{const h=document.querySelector('[data-acc="aloc"]');h&&h.scrollIntoView({block:'start'})};
+  bindIdent(app);
   app.querySelectorAll('[data-cbe]').forEach(b=>b.onclick=()=>{NAV.length=0;openCombEq(b.dataset.cbe)});
   app.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>{S.alocSite=b.dataset.site;S.alocSel='';render();topAloc()});
   app.querySelectorAll('[data-dmv]').forEach(b=>b.onclick=()=>{S.dmAll=b.dataset.dmv==='all';try{localStorage.setItem('frota.dmAll',S.dmAll?'1':'')}catch(e){}render();topAloc()});
@@ -1866,10 +1878,108 @@ async function shrink(file){
     return await new Promise(ok=>out.toBlob(b=>ok(b||file),png?'image/png':'image/jpeg',png?undefined:.92));
   }catch(e){return file}finally{URL.revokeObjectURL(url)}
 }
+
+/* ===================== Cartao Identificar =====================
+   Peca desconhecida: foto (camera ou galeria) -> Google Lens -> cola o texto encontrado ->
+   o app reconhece referencia, fabricante e tipo -> confirma na internet -> mostra no estoque ou cadastra.
+   O rascunho fica guardado no aparelho (sobrevive se o app fechar enquanto o Lens esta aberto). */
+const IDK='frota.idCur',IDR='frota.idRec';
+const idLer=k=>{try{return JSON.parse(localStorage.getItem(k)||'null')}catch(e){return null}};
+const idGrava=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const FABS=[['caterpillar','Cat'],['\\bcat\\b','Cat'],['fleetguard','Fleetguard'],['donaldson','Donaldson'],['mann[ -]?filter','Mann'],['\\bmann\\b','Mann'],['\\bwix\\b','Wix'],['baldwin','Baldwin'],['tecfil','Tecfil'],['\\bfram\\b','Fram'],['parker','Parker'],['racor','Racor'],['volvo','Volvo'],['komatsu','Komatsu'],['hyundai','Hyundai'],['john deere','John Deere'],['\\bjcb\\b','JCB'],['case','Case'],['new holland','New Holland'],['perkins','Perkins'],['cummins','Cummins'],['scania','Scania'],['mercedes','Mercedes-Benz'],['bosch','Bosch'],['hengst','Hengst'],['sakura','Sakura'],['vox','Vox']];
+const REFS=[/\b\d[A-Z0-9]{1,2}-\d{4}\b/g,/\b(?:LF|FF|FS|AF|HF|WF|CS|CV)\s?-?\d{3,5}[A-Z]?\b/g,/\bP\d{6}\b/g,/\b(?:WK|W|CU|C|HU|PU|H)\s?\d{3,5}(?:\/\d{1,2})?[A-Z]?\b/g,/\b(?:BF|PA|RS|PT|B)\d{2,5}\b/g,/\b(?:PSL|PSC|PEL|PEC|ARL|ARS|PLS)\d{2,5}\b/g];
+function idReconhece(txt){const t=semAcento(String(txt||'')),up=t.toUpperCase(),low=t.toLowerCase();
+  const refs=[];REFS.forEach(r=>{(up.match(r)||[]).forEach(m=>{const v=m.replace(/\s+/g,' ').trim();if(!refs.includes(v))refs.push(v)})});
+  let fab='';for(const [k,v] of FABS){if(new RegExp(k,'i').test(low)){fab=v;break}}
+  if(!fab&&refs.some(r=>/^\d[A-Z0-9]{1,2}-\d{4}$/.test(r)))fab='Cat';
+  const tem=re=>re.test(low);let desc='';
+  const visc=(up.match(/\b\d{1,2}W-?\d{2}\b/)||[])[0];
+  if(tem(/separador|separator|water/))desc='Separador agua/combustivel';
+  else if(tem(/oleo|oil|lubrific|lube/)&&!tem(/filtr|filter|element/))desc='Oleo'+(tem(/motor|engine|diesel/)?' motor':'')+(visc?' '+visc.replace(/W(\d)/,'W-$1'):'');
+  else if(tem(/combustivel|fuel|diesel/))desc='Filtro combustivel'+(tem(/secundar|secondary/)?' - secundario':tem(/primar|primary/)?' - primario':'');
+  else if(tem(/cabine|cabin|cab\b|condicionad|hvac/))desc='Filtro ar cabine';
+  else if(tem(/\bar\b|\bair\b/))desc='Filtro ar motor'+(tem(/secundar|secondary|interno|inner/)?' - interno':tem(/primar|primary|externo|outer/)?' - externo':'');
+  else if(tem(/hidraulic|hydraulic/))desc='Filtro hidraulico'+(tem(/transmiss/)?'/transmissao':'');
+  else if(tem(/transmiss/))desc='Filtro transmissao';
+  else if(tem(/respiro|breather/))desc='Filtro respiro';
+  else if(tem(/oleo|oil|lubrific/))desc='Filtro oleo motor';
+  return {refs,fab,desc}}
+const semAcento=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'');
+function idNoEstoque(c){const ks=[c.ref,...String(c.eqv||'').split(/[,;]+/)].map(x=>nzCod(x)).filter(x=>x.length>=4);if(!ks.length)return [];
+  return S.estoque.filter(x=>[x.ref,x.codigo,...(x.eans||[])].some(v=>v&&ks.includes(nzCod(v))))}
+function idRecentes(){return idLer(IDR)||[]}
+function idGuardaRecente(c){if(!c||!c.foto)return;let l=idRecentes().filter(x=>x.foto!==c.foto);l.unshift({...c,ts:Date.now()});
+  const sai=l.slice(10);l=l.slice(0,10);idGrava(IDR,l);sai.forEach(x=>{if(!x.usado&&S.assets)S.assets.delete(x.foto).catch(()=>{})})}
+function vIdent(){
+  const c=idLer(IDK),pwa=!!window.__remoteUrl;
+  const rec=idRecentes().filter(x=>!c||x.foto!==c.foto);
+  const DICA='<p class="note id-dica">Fotografe a peca de lado e, se houver, a marca ou os numeros gravados.</p>';
+  const IC={cam:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>',gal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>',lens:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>',web:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 3 2.5 15 0 18M12 3c-2.5 3-2.5 15 0 18"/></svg>'};
+  const fotoBtns=`<div class="id-fb"><button type="button" class="id-big" data-idf="cam">${IC.cam}<span>Tirar foto</span></button><button type="button" class="id-big" data-idf="gal">${IC.gal}<span>Galeria</span></button></div>`;
+  let h=toolbar('Descubra a referencia de uma peca desconhecida');
+  if(!pwa)return h+'<div class="empty"><b>Disponivel no app baixavel</b>A pesquisa pelo Google Lens precisa do app instalado no celular.</div>';
+  if(!c)h+=fotoBtns+DICA;
+  else{const est=idNoEstoque(c);
+    h+=`<div class="id-cur"><div class="id-ph">${imgTag(c.foto)}<button type="button" class="id-x" data-ida="nova" aria-label="Nova identificacao">✕</button></div>
+      <button type="button" class="btn pri block id-lens" data-ida="lens">${IC.lens}<span>Pesquisar no Google Lens</span></button>
+      <div class="lbl">O que o Lens encontrou</div>
+      <div class="fset"><label class="f">Texto encontrado <span class="hint">cole aqui</span><textarea id="id-tx" placeholder="Copie no Lens o titulo ou a descricao da peca e cole aqui" style="min-height:72px">${esc(c.tx||'')}</textarea></label>
+        <button type="button" class="btn" data-ida="colar">Colar</button><div id="id-rf"></div></div>
+      <div class="lbl">Ficha da peca</div>
+      <div class="fset"><label class="f">Referencia oficial<input id="id-ref" value="${esc(c.ref||'')}" autocapitalize="characters" style="font-family:var(--mono)"></label>
+        <div class="grid"><label class="f">Fabricante<input id="id-fab" value="${esc(c.fab||'')}"></label><label class="f">Equivalentes <span class="hint">opcional</span><input id="id-eqv" value="${esc(c.eqv||'')}" autocapitalize="characters"></label></div>
+        <label class="f">Descricao<input id="id-desc" value="${esc(c.desc||'')}" placeholder="Ex.: Filtro oleo motor"></label></div>
+      <button type="button" class="btn block id-web" data-ida="web"${c.ref?'':' disabled'}>${IC.web}<span>Confirmar na internet</span></button>
+      <div class="lbl">No estoque</div><div id="id-est">${idEstHTML(c,est)}</div></div>`}
+  if(rec.length)h+=`<div class="lbl" style="margin-top:18px">Identificacoes recentes</div><div class="list">${rec.map(x=>`<button type="button" class="id-rr" data-idr="${esc(x.foto)}"><span class="av-t">${imgTag(x.foto)}</span><span class="av-m"><b class="${x.ref?'num':''}">${esc(x.ref||'Sem referencia')}</b><span class="av-p">${esc([x.desc,x.fab].filter(Boolean).join(' · ')||'Toque para retomar')}</span></span><em>${avHora(x.ts)}</em></button>`).join('')}</div>`;
+  return h}
+function idEstHTML(c,est){if(!c.ref)return '<p class="note" style="margin:0 2px">Preencha a referencia para procurar no estoque.</p>';
+  if(est.length)return `<div class="tsec-l">${est.map(x=>esRow(x,{attr:`data-mov="${esc(x.id)}"`})).join('')}</div>`;
+  return `<div class="id-no"><span>Nao esta no estoque.</span><button type="button" class="btn pri" data-ida="cad">Cadastrar item ${esc(c.ref)}</button></div>`}
+function bindIdent(app){
+  if(!app.querySelector('[data-idf],[data-ida],[data-idr]'))return;
+  const novo=async kind=>{const f=await pickPhotoDireto(kind);if(!f)return;if(!S.assets){toast('Sem permissao para enviar fotos.');return}
+    toast('Preparando a foto…');try{const b=await shrink(f);const r=await S.assets.upload(b,{type:b.type&&/^image\/(jpeg|png)$/.test(b.type)?b.type:'image/jpeg'});
+      const c={foto:r.id,tx:'',ref:'',fab:'',eqv:'',desc:'',ts:Date.now()};idGrava(IDK,c);idGuardaRecente(c);render()}catch(e){console.error(e);toast('Nao foi possivel usar a foto.')}};
+  app.querySelectorAll('[data-idf]').forEach(b=>b.onclick=()=>novo(b.dataset.idf));
+  app.querySelectorAll('[data-idr]').forEach(b=>b.onclick=()=>{const x=idRecentes().find(y=>y.foto===b.dataset.idr);if(!x)return;const cur=idLer(IDK);if(cur)idGuardaRecente(cur);idGrava(IDK,x);render();SCR().scrollTo(0,0)});
+  const c=idLer(IDK);if(!c)return;
+  const g=id=>app.querySelector('#'+id);
+  const salva=()=>{const n={...idLer(IDK),tx:g('id-tx').value,ref:g('id-ref').value.trim().toUpperCase(),fab:g('id-fab').value.trim(),eqv:g('id-eqv').value.trim().toUpperCase(),desc:g('id-desc').value.trim()};idGrava(IDK,n);idGuardaRecente(n);
+    const w=app.querySelector('[data-ida="web"]');if(w)w.disabled=!n.ref;g('id-est').innerHTML=idEstHTML(n,idNoEstoque(n));bindEst();return n};
+  const bindEst=()=>{app.querySelectorAll('#id-est [data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));const cd=app.querySelector('[data-ida="cad"]');if(cd)cd.onclick=cadastra};
+  const reconhece=()=>{const r=idReconhece(g('id-tx').value),box=g('id-rf');
+    if(!g('id-tx').value.trim()){box.innerHTML='';return}
+    if(!r.refs.length&&!r.fab&&!r.desc){box.innerHTML='<p class="note" style="margin:0">Nenhuma referencia encontrada no texto.</p>';return}
+    if(r.refs.length&&!g('id-ref').value.trim())g('id-ref').value=r.refs[0];
+    if(r.fab&&!g('id-fab').value.trim())g('id-fab').value=r.fab;
+    if(r.desc&&!g('id-desc').value.trim())g('id-desc').value=r.desc;
+    const ref=g('id-ref').value.trim().toUpperCase(),outras=r.refs.filter(x=>nzCod(x)!==nzCod(ref));
+    if(outras.length&&!g('id-eqv').value.trim())g('id-eqv').value=outras.join(', ');
+    box.innerHTML=r.refs.length>1?`<div class="id-ch"><span>Referencias no texto:</span>${r.refs.map(x=>`<button type="button" class="chip${nzCod(x)===nzCod(ref)?' on':''}" data-idref="${esc(x)}">${esc(x)}</button>`).join('')}</div>`:'';
+    box.querySelectorAll('[data-idref]').forEach(b=>b.onclick=()=>{const v=b.dataset.idref,old=g('id-ref').value.trim();g('id-ref').value=v;
+      const eq=new Set(String(g('id-eqv').value).split(/[,;]+/).map(x=>x.trim()).filter(Boolean));eq.delete(v);if(old&&nzCod(old)!==nzCod(v))eq.add(old);g('id-eqv').value=[...eq].join(', ');reconhece()});
+    salva()};
+  g('id-tx').oninput=later2(reconhece,350);['id-ref','id-fab','id-eqv','id-desc'].forEach(k=>g(k).oninput=later2(salva,300));
+  app.querySelector('[data-ida="colar"]').onclick=async()=>{try{const t=await navigator.clipboard.readText();if(t){g('id-tx').value=t;reconhece();return}}catch(e){}toast('Toque e segure no campo para colar.');g('id-tx').focus()};
+  app.querySelector('[data-ida="nova"]').onclick=()=>{const cur=salva();idGuardaRecente(cur);idGrava(IDK,null);render()};
+  app.querySelector('[data-ida="lens"]').onclick=async()=>{if(!navigator.onLine){toast('Sem internet. O Google Lens precisa de conexao.');return}
+    const w=window.open('about:blank','_blank');const cur=idLer(IDK);
+    try{await window.__assetPronto(cur.foto);const u='https://lens.google.com/uploadbyurl?url='+encodeURIComponent(window.__remoteUrl(cur.foto));if(w)w.location.href=u;else location.href=u}
+    catch(e){if(w)w.close();toast('A foto ainda nao foi enviada. Tente de novo em instantes.')}};
+  app.querySelector('[data-ida="web"]').onclick=()=>{const n=salva();if(!n.ref)return;window.open('https://www.google.com/search?q='+encodeURIComponent([n.ref,n.fab,n.desc].filter(Boolean).join(' ')),'_blank')};
+  const cadastra=()=>{const n=salva();const tipo=/^oleo/i.test(n.desc)?'oleo':/filtro|separador/i.test(n.desc)||!n.desc?'filtro':'outro';
+    const cb=async sid=>{const x={...idLer(IDK),usado:true,itemId:sid};idGrava(IDK,x);idGuardaRecente(x)};cb.msg='Item cadastrado';
+    formStock(null,{ref:n.ref,marca:n.fab,desc:n.desc,descFab:'',aplic:'',tipo,un:tipo==='oleo'?'L':'un',fotos:[n.foto],eqv:n.eqv},cb)};
+  bindEst()}
+const later2=(fn,ms)=>{let t;return()=>{clearTimeout(t);t=setTimeout(fn,ms)}};
 /* o app nao usa acentos: o que for digitado perde o acento na hora, sem erro */
 document.addEventListener('input',ev=>{const t=ev.target;if(!t||!(t.tagName==='TEXTAREA'||(t.tagName==='INPUT'&&/^(text|search|)$/.test(t.type||''))))return;
   const v=t.value,n=v.normalize('NFD').replace(/[\u0300-\u036f]/g,'').normalize('NFC');if(n===v)return;
   let a=null,b=null;try{a=t.selectionStart;b=t.selectionEnd}catch(e){}t.value=n;try{if(a!=null)t.setSelectionRange(Math.min(a,n.length),Math.min(b,n.length))}catch(e){}},true);
+/* foto direto da camera ou da galeria */
+function pickPhotoDireto(kind){return new Promise(ok=>{const i=document.createElement('input');i.type='file';i.accept='image/*';if(kind==='cam')i.setAttribute('capture','environment');i.style.display='none';document.body.appendChild(i);
+  i.onchange=()=>{const f=i.files&&i.files[0];i.remove();ok(f||null)};i.click()})}
 /* foto: pergunta se vem da camera ou da galeria */
 function pickPhoto(){return new Promise(ok=>{
   const w=document.createElement('div');w.className='pk-w';

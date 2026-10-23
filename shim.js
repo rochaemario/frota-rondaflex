@@ -29,6 +29,7 @@
   const LOCALBLOB=new Map();                     // fotos ainda nao enviadas: id -> objectURL
   const remoteUrl=id=>`${CFG.url}/storage/v1/object/public/${BUCKET}/${encodeURIComponent(id)}`;
   window.__blobUrl=id=>LOCALBLOB.get(id)||remoteUrl(id);
+  window.__remoteUrl=remoteUrl;
   let IDBH=null;
   const idbOpen=()=>new Promise((ok,no)=>{if(!('indexedDB' in window)){ok(null);return}const r=indexedDB.open('frota',1);
     r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('docs');d.createObjectStore('meta');d.createObjectStore('outbox',{keyPath:'k',autoIncrement:true});d.createObjectStore('blobs')};
@@ -145,6 +146,8 @@
         Promise.resolve().then(()=>{if(set.has(cb))cb(snapCol(parent))});return()=>set.delete(cb)}};
   }
   const DB=Object.freeze({doc:docRef,collection});
+  /* espera a foto chegar ao servidor (usado antes de abrir o Google Lens) */
+  window.__assetPronto=id=>new Promise((ok,no)=>{const t0=Date.now();flushSoon();const tick=()=>{if(!OUT.some(o=>o.op==='upload'&&o.id===id)){ok();return}if(Date.now()-t0>30000||!navigator.onLine){no(new Error('timeout'));return}setTimeout(tick,300)};tick()});
 
   /* ---------- arquivos (fotos e PDFs): guardados no aparelho e enviados pela fila ---------- */
   const ASSETS=Object.freeze({

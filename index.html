@@ -813,6 +813,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 
 .confirm{background:var(--bad-bg);border-radius:14px;padding:13px;margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .confirm .b{display:flex;gap:8px}.confirm .b .btn{flex:1}
+.dv-ask{margin-top:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e7ee);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}.dv-ask>b{font-size:15px}
+.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.et-i{cursor:default}
 .note{font-size:13px;color:var(--muted)}
 .warnline{font-size:13px;color:var(--warn);min-height:1em;margin:0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:12px 18px;border-radius:14px;z-index:40;font-weight:500;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
@@ -855,8 +857,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=6bd35de155"></script>
-<script src="shim.js?v=6bd35de155"></script>
+<script src="config.js?v=b050d17f1d"></script>
+<script src="shim.js?v=b050d17f1d"></script>
 </head>
 <body>
 
@@ -1534,7 +1536,7 @@ function openMenu(mode){
   const T={
     '':{title:'Menu',sub:'Escolha a área',body:mi('frota',I.equip,'Frota','Preventivas, equipamentos e horímetro')+mi('est',I.estoque,'Estoque','Entrada, saída, filtros, óleos, kits e compras')+mi('comb',I.comb,'Combustível','Abastecimentos')+mi('aj',DB_IC,'Ajustes do app','Listas do app e cópia de segurança')},
     frota:{title:'Frota',sub:'Preventivas, equipamentos e horímetro',body:mi('x:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('reg',I.manut,'Preventiva','Troca de óleos e filtros, ou filtros de ar')+mi('thm',I.manut,'Troca de horímetro','O relógio de horas foi substituído')
-      +g('Correções')+mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')},
+      +g('Correções')+mi('ed-tr',EDI,'Editar preventiva','Corrige data, horímetro e peças usadas')+mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saída do estoque','Retirada avulsa, fora das preventivas')
       +mi('x:st',I.estoque,'Filtros e óleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')},
     comb:{title:'Combustível',sub:'Abastecimentos',body:mi('abast',I.comb,'Abastecimento','Litros e horímetro para o consumo por hora')+g('Correções')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o último abastecimento de um equipamento')},
@@ -1550,7 +1552,7 @@ function openMenu(mode){
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
-      const A={backup:()=>backupAll(b),abast:formAbast,cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar(''),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,st:()=>formStock(),kit:()=>formKit(),
+      const A={backup:()=>backupAll(b),abast:formAbast,cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar(''),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
         'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }
@@ -2400,6 +2402,75 @@ function formTroca(eqId){
     };
   }});
 }
+/* + › Frota › Editar preventiva: escolhe o registro (preventivas e filtros de ar) */
+function formPickTr(){
+  nav('pktr',()=>formPickTr());
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
+  const all=S.trocas.filter(t=>t.tipo!=='hmtroca'&&t.tipo!=='reprog'&&eqById(t.equipId)).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));
+  const row=x=>{const e=eqById(x.equipId);return `<button type="button" class="tq" data-pt="${esc(x.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${tTit(x)}${x.ajuste?AJS:''}</span><span class="tq-d">${fdate(x.data)}</span>${I.chev}</button>`};
+  const draw=l=>l.length?`<div class="tsec-l">${l.slice(0,80).map(row).join('')}</div>`:'<div class="empty">Nada encontrado.</div>';
+  openSheet({title:'Editar preventiva',sub:'Toque no registro para editar',
+  body:`<div class="search">${I.search}<input id="pt-q" type="search" placeholder="TAG do equipamento" autocomplete="off" aria-label="Buscar"></div><div id="pt-l" style="margin-top:8px">${all.length?draw(all):'<div class="empty">Nenhuma preventiva registrada.</div>'}</div>`,
+  mount:sh=>{const l=sh.querySelector('#pt-l'),q=sh.querySelector('#pt-q');
+    const bind=()=>l.querySelectorAll('[data-pt]').forEach(b=>b.onclick=()=>formEditTroca(b.dataset.pt));
+    q.oninput=()=>{const t=norm(q.value.trim());l.innerHTML=draw(all.filter(x=>!t||norm(eqById(x.equipId).codigo).includes(t)));bind()};bind()}});
+}
+/* peças que saíram do estoque num registro (kits viram componentes; ajuste não conta) */
+function pecasUsadas(t,itens){const acc={};if(t.ajuste)return acc;(itens||t.itens||[]).forEach(i=>{const q=Number(i.qtd)||0;if(i.estoqueId&&q>0)addBaixa(acc,i.estoqueId,q)});
+  Object.keys(acc).forEach(k=>{acc[k]=Math.round(acc[k]*10)/10;if(!stById(k))delete acc[k]});return acc}
+/* editar preventiva: data, horímetro, responsável, observações, código e quantidade de cada peça.
+   Peça a mais sai do estoque; peça a menos pode voltar ao estoque (pergunta antes). */
+function formEditTroca(id){
+  nav('edtr:'+id,()=>formEditTroca(id));
+  const t=S.trocas.find(x=>x.id===id),e=t&&eqById(t.equipId);if(!e){goBack();return}
+  const ar=t.tipo==='filtro_ar',its=(t.itens||[]);
+  openSheet({title:'Editar '+(ar?'filtro de ar':'preventiva'),sub:`${esc(e.codigo)} · ${fdate(t.data)}`,
+  body:`${t.ajuste?`<p class="note" style="margin:0 2px 10px">Lançada em ajuste ${AJS} · alterar peças não mexe no estoque.</p>`:''}<form id="fet"><div class="fset">
+    <div class="grid"><label class="f">Data<input id="et-dt" type="date" required value="${esc(t.data||'')}"></label>
+    <label class="f">Horímetro (h)<input id="et-hm" type="number" step="0.1" inputmode="decimal" required value="${esc(t.horimetro??'')}"></label></div>
+    <label class="f">Responsável<input id="et-resp" value="${esc(t.resp||'')}" placeholder="Mecânico ou oficina"></label></div>
+    ${its.length?`<div class="lbl" style="margin-top:16px">Peças usadas <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">quantidade 0 = não usou do estoque</span></div>
+    <div class="list">${its.map((i,k)=>`<div class="chk et-i"><div class="main"><b>${esc(itNome(i))}</b>${ar?'':`<input class="cd" data-ecd="${k}" value="${esc(i.espec||'')}" placeholder="Código usado" autocapitalize="characters" aria-label="Código usado">`}</div>
+      <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-eq="${k}" value="${esc(i.qtd??'')}" aria-label="Quantidade"><span class="u">${esc(i.un||'')}</span></div>`).join('')}</div>`:''}
+    <div class="fset" style="margin-top:12px"><label class="f">Observações<textarea id="et-obs">${esc(t.obs||'')}</textarea></label></div><div id="et-conf"></div></form>`,
+  foot:`<button class="btn pri" form="fet">Salvar alterações</button>`,
+  mount:sh=>{const f=sh.querySelector('#fet'),cf=sh.querySelector('#et-conf');
+    f.addEventListener('input',()=>cf.innerHTML='');
+    f.onsubmit=ev=>{ev.preventDefault();
+      const dt=sh.querySelector('#et-dt').value,h0=Number(sh.querySelector('#et-hm').value);
+      if(!dt||isNaN(h0)||h0<0){toast('Confira a data e o horímetro.');return}
+      const novos=its.map((i,k)=>{const qv=sh.querySelector(`[data-eq="${k}"]`).value,cd=sh.querySelector(`[data-ecd="${k}"]`);return {...i,qtd:qv===''?0:Math.round(Number(qv)*10)/10,...(cd?{espec:cd.value.trim().toUpperCase()}:{})}});
+      if(novos.some(i=>!(i.qtd>=0))){toast('Quantidade inválida.');return}
+      const A=pecasUsadas(t),B=pecasUsadas(t,novos),mais={},menos={};
+      new Set([...Object.keys(A),...Object.keys(B)]).forEach(k=>{const d=Math.round(((B[k]||0)-(A[k]||0))*10)/10;if(d>0)mais[k]=d;else if(d<0)menos[k]=-d});
+      const go=async dev=>{
+        const ok=await safe(async()=>{
+          /* horímetro convertido (troca de relógio) segue a mesma diferença */
+          const effOld=t.hmConv??t.horimetro,effNew=Math.round((h0+(Number(effOld)-Number(t.horimetro)||0))*10)/10,dh=Math.round((effNew-Number(effOld))*10)/10;
+          await S.db.doc('trocas/'+id).update({data:dt,horimetro:h0,...(t.hmConv!=null?{hmConv:effNew}:{}),resp:sh.querySelector('#et-resp').value.trim(),obs:sh.querySelector('#et-obs').value.trim(),itens:novos,editado:Date.now()});
+          /* o plano só muda nos itens que ainda apontam para este registro */
+          const pids=new Set(novos.map(i=>i.pid).filter(Boolean));
+          if((dh||dt!==t.data)&&pids.size){let mud=false;const its2=(e.itens||[]).map(i=>{if(!pids.has(i.pid)||Number(i.ultimaH)!==Number(effOld))return i;mud=true;
+              return {...i,ultimaH:effNew,ultimaData:dt,proxH:i.proxH===''||i.proxH==null||isNaN(Number(i.proxH))?i.proxH:Math.round((Number(i.proxH)+dh)*10)/10}});
+            if(mud)await S.db.doc('equipamentos/'+e.id).update({itens:its2})}
+          for(const[sid,q]of Object.entries(mais)){const x=stById(sid);await logBaixa(sid,q,today(),e.id);await S.db.doc('estoque/'+sid).update({qtd:Math.round(((Number(x.qtd)||0)-q)*10)/10})}
+          if(dev)for(const[sid,q]of Object.entries(menos)){const x=stById(sid);const saldo=Math.round(((Number(x.qtd)||0)+q)*10)/10;
+            await S.db.doc('estoque/'+sid).update({qtd:saldo});try{await S.db.collection('movs').add({estoqueId:sid,tipo:'entrada',qtd:q,data:today(),obs:'Preventiva editada',equipId:e.id,origem:'estorno',saldo,ts:Date.now()})}catch(er){console.error(er)}}
+        },dev?'Preventiva salva e peças devolvidas':'Preventiva salva');
+        if(ok)goBack()};
+      const lst=o=>specList('',Object.entries(o).map(([sid,q])=>{const x=stById(sid);return[x.desc,stCod(x),nf(q,1)+' '+stUn(x)]}));
+      if(Object.keys(menos).length){
+        cf.innerHTML=`<div class="dv-ask"><b>Devolver ao estoque?</b><p class="note" style="margin:0">Estas peças foram retiradas do registro.</p><div class="spec dv-l">${lst(menos)}</div>${Object.keys(mais).length?`<p class="note" style="margin:0">E estas saem do estoque:</p><div class="spec dv-l">${lst(mais)}</div>`:''}
+          <div class="eqv-f"><button type="button" class="btn" data-sem>Não devolver</button><button type="button" class="btn pri" data-dev>Devolver</button></div></div>`;
+        cf.scrollIntoView({block:'start',behavior:'smooth'});
+        cf.querySelector('[data-sem]').onclick=()=>go(false);cf.querySelector('[data-dev]').onclick=()=>go(true);return}
+      if(Object.keys(mais).length){
+        cf.innerHTML=`<div class="dv-ask"><b>Saída do estoque</b><p class="note" style="margin:0">A quantidade aumentou. Estas peças saem do estoque:</p><div class="spec dv-l">${lst(mais)}</div>
+          <div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-ok>Confirmar</button></div></div>`;
+        cf.scrollIntoView({block:'start',behavior:'smooth'});
+        cf.querySelector('[data-x]').onclick=()=>cf.innerHTML='';cf.querySelector('[data-ok]').onclick=()=>go(false);return}
+      go(false)}}});
+}
 /* tela: preventivas realizadas de um equipamento (cada linha abre o detalhamento) */
 /* selo de ajuste: lançamento feito com o modo Ajuste ligado (sem mexer no estoque).
    Um toque no selo mostra o significado num balão pequeno, sem abrir a linha. */
@@ -2500,7 +2571,7 @@ function formStock(id,preset,onSaved){
       if(await safe(async()=>{await ref.set(body);if(onSaved)await onSaved(ref.id,body)},onSaved?(onSaved.msg||'Item cadastrado e entrada lançada'):'Item salvo')){commitPhotos(fotoOrig,fotoNow);id||onSaved?goBack():closeSheet()}}}});
 }
 function movLine(m,un){const e=m.equipId&&eqById(m.equipId);const ent=m.tipo==='entrada';
-  return `<div class="r"><span>${sdate(m.data)} · ${ent?'Entrada':m.origem==='preventiva'?'Preventiva':'Saída'}${e?' · '+esc(e.codigo):''}${m.ajuste?AJS:''}${m.obs?`<small class="mv-o">${esc(m.obs)}</small>`:''}</span><b class="num ${ent?'mv-in':'mv-out'}">${ent?'+':'−'}${nf(m.qtd,1)} ${esc(un)}</b></div>`}
+  return `<div class="r"><span>${sdate(m.data)} · ${ent?(m.origem==='estorno'?'Devolução':'Entrada'):m.origem==='preventiva'?'Preventiva':'Saída'}${e?' · '+esc(e.codigo):''}${m.ajuste?AJS:''}${m.obs?`<small class="mv-o">${esc(m.obs)}</small>`:''}</span><b class="num ${ent?'mv-in':'mv-out'}">${ent?'+':'−'}${nf(m.qtd,1)} ${esc(un)}</b></div>`}
 function formMov(id){
   nav('mv:'+id,()=>formMov(id));
   const s=stById(id);if(!s)return;if(isKit(s))return kitView(s);const c=stockCls(s);

@@ -87,7 +87,8 @@
   let pulling=null;
   function pull(){if(pulling)return pulling;pulling=(async()=>{
     const srv=new Map();let from=0;const N=1000;
-    for(;;){const {data,error}=await sb.from('docs').select('path,parent,data').order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>srv.set(r.path,r.data));if(data.length<N)break;from+=N}
+    for(;;){const {data,error}=await sb.from('docs').select('path,parent,data').order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>srv.set(r.path,r.data));
+      const pg=document.getElementById('dl-pg');if(pg)pg.textContent=`Baixando ${srv.size} registros…`;if(data.length<N)break;from+=N}
     const pend=new Set(OUT.map(o=>o.path).filter(Boolean));
     [...DOCS.keys()].forEach(p=>{if(!srv.has(p)&&!pend.has(p))setLocal(p,null,false)});
     srv.forEach((d,p)=>{let x=semAc(d);pendingFor(p).forEach(o=>{x=replay(x,o)});const cur=DOCS.get(p);if(JSON.stringify(cur)!==JSON.stringify(x))setLocal(p,x,false)});
@@ -237,22 +238,30 @@
   /* sessao guardada no aparelho (para abrir sem internet) */
   const sessaoGuardada=()=>{try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k));const s=v&&(v.currentSession||v);if(s&&s.user)return s}}}catch(e){}return null};
   async function start(){
-    let session=null;try{({data:{session}}=await sb.auth.getSession())}catch(e){}
-    if(!session)session=sessaoGuardada();
+    /* sessao: nao espera mais que 1,5 s pelo servidor; segue com a guardada e renova em segundo plano */
+    let session=null;const guard=sessaoGuardada();
+    try{const r=await Promise.race([sb.auth.getSession(),new Promise(ok=>setTimeout(()=>ok(guard&&!acabouDeEntrar?{data:{session:guard},lento:true}:null),1500))]);if(r)session=r.data.session}catch(e){}
+    if(!session&&!acabouDeEntrar)session=guard;
+    if(!session&&acabouDeEntrar){try{({data:{session}}=await sb.auth.getSession())}catch(e){}}
     /* sem sessao e sem internet: se este aparelho ja foi usado, abre com os dados guardados (login volta a ser pedido quando houver internet) */
     if(!session&&!navigator.onLine&&!started){let pf0=null;try{pf0=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}
       if(pf0&&await dbInit()){window.__frotaEu={uid:pf0.user_id,nome:pf0.nome||'',email:pf0.email||'',papel:pf0.papel};const dg0=dgLer(pf0.user_id);if(dg0){travaP=travaP||travar(dg0);await travaP}perfil=pf0;document.body.classList.add('papel-'+perfil.papel);closeScreen();started=true;semSessao=true;resolveReady();setTimeout(updSync,300);return}}
     if(!session){loginForm();return}
     const dg=!acabouDeEntrar&&!started&&dgLer(session.user.id);if(dg){travaP=travaP||travar(dg);await travaP}
     let pf=null;try{pf=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}if(pf&&pf.user_id!==session.user.id)pf=null;
-    let data=null,error=null;try{({data,error}=await sb.from('perfis').select('user_id,email,nome,papel').eq('user_id',session.user.id).maybeSingle())}catch(e){error=e}
-    if(error){if(!pf){loginForm('Sem conexao com o servidor. No primeiro acesso a internet e necessaria.');return}data=pf}
+    const buscaPerfil=async()=>{let d=null,e=null;try{({data:d,error:e}=await sb.from('perfis').select('user_id,email,nome,papel').eq('user_id',session.user.id).maybeSingle())}catch(x){e=x}return {d,e}};
+    let data=null;
+    if(pf&&!acabouDeEntrar){data=pf;
+      /* perfil guardado: abre na hora e confere com o servidor depois */
+      buscaPerfil().then(({d,e})=>{if(e)return;if(!d){waiting();return}if(JSON.stringify(d)!==JSON.stringify(pf)){perfil=d;try{localStorage.setItem('frota.perfil',JSON.stringify(d))}catch(x){}
+        document.body.classList.remove('papel-admin','papel-editor','papel-consulta');document.body.classList.add('papel-'+d.papel);window.__frotaEu={uid:d.user_id,nome:d.nome||'',email:d.email||'',papel:d.papel};if(d.papel!==pf.papel)setTimeout(()=>location.reload(),300)}})}
+    else{const {d,e}=await buscaPerfil();if(e){if(!pf){loginForm('Sem conexao com o servidor. No primeiro acesso a internet e necessaria.');return}data=pf}else data=d}
     if(!data){waiting();return}
     perfil=data;try{localStorage.setItem('frota.perfil',JSON.stringify(data))}catch(e){}
     document.body.classList.remove('papel-admin','papel-editor','papel-consulta');document.body.classList.add('papel-'+perfil.papel);
     if(!started){
       const tem=await dbInit();
-      if(!tem){screen('<h1>Carregando os dados</h1><p>Baixando a frota para este aparelho…</p>');
+      if(!tem){screen('<h1>Carregando os dados</h1><p>Baixando a frota para este aparelho. So acontece no primeiro acesso.</p><p id="dl-pg" style="font-weight:600;color:var(--fg)">Conectando…</p>');
         try{await pull()}catch(e){screen('<h1>Sem internet</h1><p>No primeiro uso neste aparelho e preciso internet para baixar os dados. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="of-t">Tentar de novo</button>',o=>{o.querySelector('#of-t').onclick=()=>start()});return}}
       else sincronizar();
       window.__frotaEu={uid:perfil.user_id,nome:perfil.nome||'',email:perfil.email||'',papel:perfil.papel};

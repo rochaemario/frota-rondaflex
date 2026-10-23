@@ -1,7 +1,7 @@
 {
  "name": "Controle de Frota · Rondaflex",
  "short_name": "Frota",
- "description": "Equipamentos, preventivas, estoque e combustível da frota Rondaflex.",
+ "description": "Equipamentos, preventivas, estoque e combustivel da frota Rondaflex.",
  "lang": "pt-BR",
  "start_url": "./",
  "scope": "./",

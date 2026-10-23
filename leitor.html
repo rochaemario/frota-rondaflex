@@ -7,7 +7,7 @@
 <title>Teste do Leitor</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
 <style>
-/* Layout: uma tela de câmera — cabeçalho da frota, visor com retângulo, resultado logo abaixo */
+/* Layout: uma tela de camera — cabecalho da frota, visor com retangulo, resultado logo abaixo */
 :root{
   --bg:#edf0f5;--surface:#fff;--sunk:#f3f5f9;--line:#dfe4ec;--fg:#121a2c;--muted:#4f5a70;--faint:#677289;
   --ink:#0b2470;--accent:#0033a0;--accent-soft:#e2e9f8;--red:#e30613;
@@ -50,13 +50,13 @@ main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;p
 <header><div class="brand"><i></i>Controle de Frota</div><small>teste do leitor</small></header>
 <main>
   <button class="btn" id="abrir"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Abrir leitor</button>
-  <div class="cam" id="cam" hidden><video id="v" playsinline muted></video><div class="frame" id="fr"></div><div class="st" id="st">Aponte para um código ou enquadre o texto no retângulo</div></div>
+  <div class="cam" id="cam" hidden><video id="v" playsinline muted></video><div class="frame" id="fr"></div><div class="st" id="st">Aponte para um codigo ou enquadre o texto no retangulo</div></div>
   <div class="row" id="ctl" hidden><button class="btn sec" id="agora">Ler texto agora</button><button class="btn sec ic" id="luz" aria-label="Lanterna" title="Lanterna"><svg viewBox="0 0 24 24"><path d="M9 2h6l-1 6h-4zM10 8h4v12a2 2 0 0 1-4 0z"/></svg></button></div>
   <button class="btn sec" id="fechar" hidden>Fechar leitor</button>
 
   <section class="card" id="res" hidden><h2>Lido</h2><div class="lido" id="lido"></div><div><span class="tag" id="tipo"></span></div><div id="match"></div><ol class="hist" id="hist"></ol></section>
 
-  <section class="card"><h2>Diagnóstico</h2><p>Se algo não funcionar, me mande um print desta parte.</p><div class="dg" id="dg"></div></section>
+  <section class="card"><h2>Diagnostico</h2><p>Se algo nao funcionar, me mande um print desta parte.</p><div class="dg" id="dg"></div></section>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
@@ -73,14 +73,14 @@ main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;p
     if(!session){set('Estoque','entre no app antes para comparar','no');return}
     const {data,error}=await sb.from('docs').select('path,data').eq('parent','estoque');if(error)throw error;
     itens=data.map(r=>({id:r.path.split('/').pop(),...r.data})).filter(s=>!s.kit).map(s=>({s,keys:[s.codigo,s.ref,s.ean,...(s.eans||[])].filter(Boolean).map(canon).filter(k=>k.length>=4)}));
-    set('Estoque',itens.length+' itens carregados','ok')}catch(e){set('Estoque','não carregou ('+(e.message||e)+')','no')}}
+    set('Estoque',itens.length+' itens carregados','ok')}catch(e){set('Estoque','nao carregou ('+(e.message||e)+')','no')}}
   carregar();
-  /* 1 caractere diferente vale para referências longas (ex.: 462-1111 lido no lugar de 462-1171) */
+  /* 1 caractere diferente vale para referencias longas (ex.: 462-1111 lido no lugar de 462-1171) */
   const quase=(t,k)=>{if(k.length<7||t.length<k.length)return false;for(let i=0;i+k.length<=t.length;i++){let d=0;for(let j=0;j<k.length&&d<2;j++)if(t[i+j]!==k[j])d++;if(d<=1)return true}return false};
   function procurarUm(txt){const t=canon(txt);if(t.length<4)return {lista:[],aprox:false};
     const exatos=itens.filter(x=>x.keys.some(k=>t.includes(k)||(k.includes(t)&&t.length>=6)));if(exatos.length)return {lista:exatos.map(x=>x.s),aprox:false};
     const aprox=itens.filter(x=>x.keys.some(k=>quase(t,k)));return {lista:aprox.map(x=>x.s),aprox:aprox.length>0}}
-  /* códigos com partes separadas (etiquetas CAT: …|5263125.000|…): procura parte por parte e fica com a referência */
+  /* codigos com partes separadas (etiquetas CAT: …|5263125.000|…): procura parte por parte e fica com a referencia */
   function procurar(txt){const partes=String(txt).split(/[|;\n]/).map(x=>x.trim()).filter(Boolean);
     if(partes.length>1){for(const p of partes){const r=procurarUm(p);if(r.lista.length&&!r.aprox)return r}for(const p of partes){const r=procurarUm(p);if(r.lista.length)return r}return {lista:[],aprox:false}}
     return procurarUm(txt)}
@@ -91,29 +91,29 @@ main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;p
   function mostrar(texto,tipo,r){const achados=r.lista||[];$('res').hidden=false;$('lido').textContent=texto;$('tipo').textContent=tipo;
     const codigo=tipo!=='Texto';
     $('match').innerHTML=achados.length?(r.aprox?'<p style="margin:0 0 6px">Leitura parecida com:</p>':'')+achados.map(s=>`<div class="m"><b>${E(s.codigo||s.ref)}</b><span>${E(s.desc)}</span></div>`).join('')
-      :`<div class="none">Nenhum item do estoque com esse código.</div>${codigo&&itens.length?`<button class="btn sec" id="ligar" style="margin-top:8px">Ligar a um item</button><div id="lg" hidden style="margin-top:8px;display:flex;flex-direction:column;gap:6px">${itens.map(x=>`<button class="btn sec" style="justify-content:flex-start;min-height:44px;padding:0 12px;font-weight:500" data-it="${E(x.s.id)}"><b style="font-family:var(--mono);margin-right:8px">${E(x.s.codigo||x.s.ref)}</b>${E(x.s.desc)}</button>`).join('')}</div>`:''}`;
+      :`<div class="none">Nenhum item do estoque com esse codigo.</div>${codigo&&itens.length?`<button class="btn sec" id="ligar" style="margin-top:8px">Ligar a um item</button><div id="lg" hidden style="margin-top:8px;display:flex;flex-direction:column;gap:6px">${itens.map(x=>`<button class="btn sec" style="justify-content:flex-start;min-height:44px;padding:0 12px;font-weight:500" data-it="${E(x.s.id)}"><b style="font-family:var(--mono);margin-right:8px">${E(x.s.codigo||x.s.ref)}</b>${E(x.s.desc)}</button>`).join('')}</div>`:''}`;
     const lb=$('ligar');if(lb)lb.onclick=()=>{$('lg').hidden=false;lb.hidden=true};
     document.querySelectorAll('[data-it]').forEach(b=>b.onclick=()=>ligar(b.dataset.it,texto));
     if(hist[0]!==texto){hist.unshift(texto);hist.length=Math.min(hist.length,6);$('hist').innerHTML=hist.slice(1).map(h=>`<li>${h.replace(/</g,'&lt;')}</li>`).join('')}
     try{navigator.vibrate&&navigator.vibrate(achados.length?[40,60,40]:60)}catch(e){}}
-  /* ensina o código: grava no item e, dali em diante, a leitura abre o item direto */
+  /* ensina o codigo: grava no item e, dali em diante, a leitura abre o item direto */
   async function ligar(id,codigo){const x=itens.find(i=>i.s.id===id);if(!x)return;const eans=[...new Set([...(x.s.eans||[]),codigo])];
     $('match').innerHTML='<p>Gravando…</p>';
     const {error}=await sb.rpc('doc_update',{p_path:'estoque/'+id,p_patch:{eans}});
-    if(error){$('match').innerHTML='<div class="none">Não foi possível gravar. Só administrador ou editor pode ligar códigos.</div>';return}
-    await carregar();ultimo='';mostrar(codigo,'Código ligado',{lista:[x.s],aprox:false})}
+    if(error){$('match').innerHTML='<div class="none">Nao foi possivel gravar. So administrador ou editor pode ligar codigos.</div>';return}
+    await carregar();ultimo='';mostrar(codigo,'Codigo ligado',{lista:[x.s],aprox:false})}
 
-  /* ---------- câmera ---------- */
+  /* ---------- camera ---------- */
   let stream=null,track=null,det=null,raf=0,lastCode=0,ocrBusy=false,ocrTimer=0,worker=null,parado=false;
   const v=$('v');
   set('Aparelho',/Android/.test(navigator.userAgent)?'Android':/iPhone|iPad/.test(navigator.userAgent)?'iPhone/iPad':'Computador');
-  set('Instalado',matchMedia('(display-mode: standalone)').matches?'sim (app)':'não (navegador)');
-  (async()=>{try{if('BarcodeDetector' in window){const f=await BarcodeDetector.getSupportedFormats();det=new BarcodeDetector({formats:f});set('Códigos',f.map(x=>FMT[x]||x).join(', '),'ok')}else set('Códigos','sem leitor nativo neste aparelho','no')}catch(e){set('Códigos','erro: '+e.message,'no')}})();
+  set('Instalado',matchMedia('(display-mode: standalone)').matches?'sim (app)':'nao (navegador)');
+  (async()=>{try{if('BarcodeDetector' in window){const f=await BarcodeDetector.getSupportedFormats();det=new BarcodeDetector({formats:f});set('Codigos',f.map(x=>FMT[x]||x).join(', '),'ok')}else set('Codigos','sem leitor nativo neste aparelho','no')}catch(e){set('Codigos','erro: '+e.message,'no')}})();
 
   async function abrir(){
     try{stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})}
-    catch(e){set('Câmera','bloqueada ('+(e.name||e)+')','no');return}
-    set('Câmera','funcionando','ok');track=stream.getVideoTracks()[0];
+    catch(e){set('Camera','bloqueada ('+(e.name||e)+')','no');return}
+    set('Camera','funcionando','ok');track=stream.getVideoTracks()[0];
     try{const c=track.getCapabilities?track.getCapabilities():{};if(c.focusMode&&c.focusMode.includes('continuous'))await track.applyConstraints({advanced:[{focusMode:'continuous'}]});$('luz').hidden=!c.torch}catch(e){$('luz').hidden=true}
     v.srcObject=stream;await v.play().catch(()=>{});
     $('cam').hidden=false;$('ctl').hidden=false;$('fechar').hidden=false;$('abrir').hidden=true;parado=false;lastCode=performance.now();
@@ -125,21 +125,21 @@ main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;p
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&stream)fechar()});
   let luz=false;$('luz').onclick=async()=>{luz=!luz;try{await track.applyConstraints({advanced:[{torch:luz}]})}catch(e){}};
 
-  /* códigos de barras e QR: leitura contínua, imediata */
+  /* codigos de barras e QR: leitura continua, imediata */
   let busy=false,lt=0;
   function loop(){raf=requestAnimationFrame(async ts=>{if(parado)return;loop();if(!det||busy||ts-lt<180||v.readyState<2)return;busy=true;lt=ts;
     try{const r=await det.detect(v);if(r.length){const c=r[0];lastCode=performance.now();
       if(c.rawValue!==ultimo){ultimo=c.rawValue;$('fr').classList.add('hit');setTimeout(()=>$('fr').classList.remove('hit'),600);
-        mostrar(c.rawValue,FMT[c.format]||c.format,procurar(c.rawValue));$('st').textContent='Código lido'}}}catch(e){}busy=false})}
+        mostrar(c.rawValue,FMT[c.format]||c.format,procurar(c.rawValue));$('st').textContent='Codigo lido'}}}catch(e){}busy=false})}
 
-  /* texto: tenta sozinho quando não há código no quadro */
+  /* texto: tenta sozinho quando nao ha codigo no quadro */
   function recorte(){const vw=v.videoWidth,vh=v.videoHeight,cw=v.clientWidth,ch=v.clientHeight;if(!vw)return null;
     const s=Math.max(cw/vw,ch/vh),ox=(vw*s-cw)/2,oy=(vh*s-ch)/2;
     const fx=(cw*.08+ox)/s,fy=(ch*.40+oy)/s,fw=cw*.84/s,fh=ch*.20/s;
     const k=Math.min(2.2,1400/fw),c=document.createElement('canvas');c.width=Math.round(fw*k);c.height=Math.round(fh*k);const g=c.getContext('2d');
     g.filter='grayscale(1) contrast(1.6)';g.drawImage(v,fx,fy,fw,fh,0,0,c.width,c.height);return c}
-  async function ocrWorker(){if(worker)return worker;set('Leitor de texto','carregando (só na primeira vez)…');
-    await new Promise((ok,ko)=>{if(window.Tesseract)return ok();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>ko(new Error('não carregou'));document.head.appendChild(s)});
+  async function ocrWorker(){if(worker)return worker;set('Leitor de texto','carregando (so na primeira vez)…');
+    await new Promise((ok,ko)=>{if(window.Tesseract)return ok();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>ko(new Error('nao carregou'));document.head.appendChild(s)});
     worker=await Tesseract.createWorker('eng');await worker.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-./ ',tessedit_pageseg_mode:'6'});
     set('Leitor de texto','pronto','ok');return worker}
   function agendaOcr(ms){clearTimeout(ocrTimer);ocrTimer=setTimeout(()=>lerTexto(false),ms)}
@@ -148,12 +148,12 @@ main{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px;p
     if(ocrBusy){if(!forcado)agendaOcr(1500);return}ocrBusy=true;$('agora').disabled=true;$('st').textContent='Lendo texto…';
     try{const w=await ocrWorker();const c=recorte();if(c){const t0=performance.now();const {data}=await w.recognize(c);const ms=Math.round(performance.now()-t0);
         const linhas=(data.text||'').split('\n').map(x=>x.trim()).filter(x=>x.replace(/[^A-Z0-9]/gi,'').length>=4);
-        set('Tempo da leitura',ms+' ms');set('Confiança',Math.round(data.confidence||0)+'%');
+        set('Tempo da leitura',ms+' ms');set('Confianca',Math.round(data.confidence||0)+'%');
         let achou=false;for(const l of linhas){const a=procurar(l);if(a.lista.length){mostrar(l,'Texto',a);achou=true;break}}
         if(!achou&&linhas.length&&(forcado||Math.round(data.confidence||0)>=60))mostrar(linhas.join(' · '),'Texto',{lista:[],aprox:false});
-        $('st').textContent=achou?'Texto reconhecido':(linhas.length?'Texto lido, sem item igual no estoque':'Nenhum texto no retângulo');
+        $('st').textContent=achou?'Texto reconhecido':(linhas.length?'Texto lido, sem item igual no estoque':'Nenhum texto no retangulo');
         if(achou){ocrBusy=false;$('agora').disabled=false;agendaOcr(6000);return}}}
-    catch(e){set('Leitor de texto','erro: '+(e.message||e),'no');$('st').textContent='Leitor de texto indisponível'}
+    catch(e){set('Leitor de texto','erro: '+(e.message||e),'no');$('st').textContent='Leitor de texto indisponivel'}
     ocrBusy=false;$('agora').disabled=false;agendaOcr(2500)}
   $('agora').onclick=()=>lerTexto(true);
 })();

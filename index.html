@@ -823,6 +823,7 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .kt-r{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:11px 13px;cursor:pointer}.kt-r+.kt-r{box-shadow:inset 0 1px 0 var(--line)}
 .kt-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.kt-n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kt-n small{font-size:12.5px;color:var(--muted)}
 .kt-a{flex:none;font-size:13.5px;font-weight:600;color:var(--accent,#0033a0);padding:7px 11px;border-radius:9px;background:#e4e9f4}.kt-r.on .kt-a{background:none;color:var(--ok,#12804a)}.t-add .search{margin:0}
+body.kb .sh-foot{display:none}
 .eqs-o{width:100%;border-radius:10px}.eqs-v{padding:12px;color:var(--muted);font-size:13.5px}
 .lt-r{display:flex;align-items:center;gap:12px;padding:10px 13px;border:0;border-left:3px solid transparent;width:100%;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lt-r:disabled{cursor:default}
 .lt-k{flex:none;width:20px;height:20px;border-radius:6px;background:var(--accent,#0033a0);position:relative}.lt-k:after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
@@ -881,8 +882,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=3ff8c7894d"></script>
-<script src="shim.js?v=3ff8c7894d"></script>
+<script src="config.js?v=7999299ce4"></script>
+<script src="shim.js?v=7999299ce4"></script>
 </head>
 <body>
 
@@ -1714,6 +1715,9 @@ $('#sideaj').onclick=()=>{S.ajuste=!S.ajuste;paintAj();
   toast(S.ajuste?'Registra sem dar baixa no <span style="white-space:nowrap">estoque'+AJS+'</span>':'Lançamentos voltam a alterar o estoque','aj',S.ajuste?'Modo ajuste ligado':'Modo ajuste desligado',true);
   if(sheetOpen){const top=NAV[NAV.length-1];if(top&&/^sp:/.test(top.key)){refreshSheet();return}if(top&&/^(fp|ar):/.test(top.key)){const b=$('#sheet .aj-b');if(S.ajuste&&!b)$('#sheet .sh-body').insertAdjacentHTML('afterbegin',AJ_BANNER);else if(!S.ajuste&&b)b.remove()}}};
 paintAj();
+/* teclado aberto: o botão de salvar não sobe junto; fica fixo embaixo, por trás do teclado */
+(()=>{let mx=innerHeight;const chk=()=>{if(innerHeight>mx)mx=innerHeight;document.body.classList.toggle('kb',innerHeight<mx*0.8)};
+  addEventListener('resize',chk);addEventListener('orientationchange',()=>{mx=0;setTimeout(chk,300)})})();
 /* barra do topo com o nome do app = início */
 function goHome(){S.esQ='';S.esFoc=false;S.esAll=false;if(sheetOpen){NAV.length=0;closeSheet()}S.focus='';S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)}
 document.querySelector('header').onclick=goHome;
@@ -2426,9 +2430,24 @@ function formTroca(eqId){
     tq.oninput=()=>{const k=nzCod(tq.value);if(!k){tqh.innerHTML='';return}
       const score=x=>{const a=nzCod(stCod(x)),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
       const m=S.estoque.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]);
-      tqh.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-tk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>';
-      tqh.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{tq.value='';tqh.innerHTML='';addPeca(stById(b.dataset.tk))})};
+      const v=tq.value.trim().toUpperCase();
+      tqh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-tk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="t-cad">Cadastrar ${esc(v)} <span>novo item no estoque e adiciona aqui</span></button>`;
+      tqh.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{tq.value='';tqh.innerHTML='';addPeca(stById(b.dataset.tk))});
+      tqh.querySelector('#t-cad').onclick=()=>{if(!eqById(sel.value)){toast('Escolha o equipamento antes.');return}const d=snap();tq.value='';tqh.innerHTML='';formTroca.draft=d;
+        const cb=async sid=>{d.add=sid};cb.msg='Item cadastrado';formStock(null,{ref:v},cb)}};
     const tc=sh.querySelector('#t-cam');if(tc)tc.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item){toast('Peça não encontrada no estoque.');return}addPeca(v.item)}});
+    /* rascunho: guarda o que foi preenchido ao sair para cadastrar um item novo, e devolve na volta */
+    const val=q=>sh.querySelector(q).value;
+    const snap=()=>({eq:sel.value,dt:val('#t-dt'),hm:val('#t-hm'),resp:val('#t-resp'),obs:val('#t-obs'),prox:val('#t-prox'),iv,
+      chk:[...box.querySelectorAll('input[type=checkbox][data-pid]')].map(c=>{const p=c.dataset.pid;return [p,c.checked,(box.querySelector(`[data-q="${CSS.escape(p)}"]`)||{}).value,(box.querySelector(`[data-cd="${CSS.escape(p)}"]`)||{}).value]}),
+      ex:extras.map(x=>[x.s.id,x.q])});
+    sh._restore=()=>{const d=formTroca.draft;formTroca.draft=null;if(!d)return;
+      if(d.eq&&eqById(d.eq)){const e1=eqById(d.eq);sel.value=d.eq;fill();const ei=sh.querySelector('.eqs-in');if(ei){ei.value=`${e1.codigo} · ${e1.tipo||''}`;ei.setCustomValidity('')}}
+      sh.querySelector('#t-dt').value=d.dt;hm.value=d.hm;sh.querySelector('#t-resp').value=d.resp;sh.querySelector('#t-obs').value=d.obs;sh.querySelector('#t-prox').value=d.prox;
+      if(d.iv){iv=d.iv;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv))}
+      d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null)ci.value=cd});
+      d.ex.forEach(([id,q])=>{const st=stById(id);if(st)extras.push({s:st,q})});drawX();hint();
+      if(d.add){const st=stById(d.add);if(st)addPeca(st);else setTimeout(()=>{const s2=stById(d.add);if(s2)addPeca(s2)},800)}};
     const ph=sh.querySelector('#t-proxhint'),pin=sh.querySelector('#t-prox');
     let iv=0;sh.querySelectorAll('[data-iv]').forEach(b=>b.onclick=()=>{const v=Number(b.dataset.iv);iv=iv===v?0:v;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv));hint()});
     const hint=()=>{const e=eqById(sel.value);if(e&&iv&&!pin.value.trim()){const h=Number(hm.value)||0;ph.textContent=`Intervalo de ${nf(iv)} h: a próxima fica para ${nf(h+iv)} h.`;return}
@@ -2436,7 +2455,7 @@ function formTroca(eqId){
       const h=Number(hm.value)||0;const ivs=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>e.itens.find(i=>i.pid===c.dataset.pid)).filter(Boolean).map(i=>Number(i.intervalo)||0);
       const w=ivs.filter(Boolean);ph.textContent=!ivs.length?'Marque os itens trocados.':!w.length?'Os itens marcados ainda não têm intervalo. Anote a próxima aqui ou defina o intervalo no cadastro.':`Em branco, fica agendada automaticamente para ${[...new Set(w)].map(v=>nf(h+v)+' h').join(' / ')}.`};
     pin.oninput=hint;hm.addEventListener('input',hint);box.addEventListener('change',hint);
-    sel.onchange=()=>{fill();hint()};fill();hint();
+    sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;

@@ -197,4 +197,10 @@
 
   /* ---------- app instalável: funciona mesmo com internet ruim ---------- */
   if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  /* versão nova publicada: avisa e atualiza com um toque (ou sozinho, se nada estiver aberto) */
+  if('serviceWorker' in navigator){let tinha=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!tinha){tinha=true;return}
+    const aberto=document.querySelector('#scrim:not([hidden]),.rdr,.lg');if(!aberto){location.reload();return}
+    if(document.getElementById('upd'))return;const b=document.createElement('button');b.id='upd';b.type='button';b.textContent='Nova versão do app · toque para atualizar';
+    b.style.cssText='position:fixed;z-index:120;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));background:#0033a0;color:#fff;border:0;border-radius:999px;padding:10px 16px;font:600 13.5px "IBM Plex Sans",sans-serif;box-shadow:0 8px 24px rgba(11,36,112,.3)';
+    b.onclick=()=>location.reload();document.body.appendChild(b)})}
 })();

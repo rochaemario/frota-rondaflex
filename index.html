@@ -814,7 +814,7 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .confirm{background:var(--bad-bg);border-radius:14px;padding:13px;margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .confirm .b{display:flex;gap:8px}.confirm .b .btn{flex:1}
 .dv-ask{margin-top:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e7ee);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}.dv-ask>b{font-size:15px}
-.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.et-i{cursor:default}
+.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.et-i{cursor:default}.et-st{display:block;font-size:12px;color:var(--muted);margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.et-st.fora{color:var(--faint)}
 .note{font-size:13px;color:var(--muted)}
 .warnline{font-size:13px;color:var(--warn);min-height:1em;margin:0}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:12px 18px;border-radius:14px;z-index:40;font-weight:500;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
@@ -857,8 +857,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=b050d17f1d"></script>
-<script src="shim.js?v=b050d17f1d"></script>
+<script src="config.js?v=4673bec10f"></script>
+<script src="shim.js?v=4673bec10f"></script>
 </head>
 <body>
 
@@ -2430,20 +2430,26 @@ function formEditTroca(id){
     <label class="f">Horímetro (h)<input id="et-hm" type="number" step="0.1" inputmode="decimal" required value="${esc(t.horimetro??'')}"></label></div>
     <label class="f">Responsável<input id="et-resp" value="${esc(t.resp||'')}" placeholder="Mecânico ou oficina"></label></div>
     ${its.length?`<div class="lbl" style="margin-top:16px">Peças usadas <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">quantidade 0 = não usou do estoque</span></div>
-    <div class="list">${its.map((i,k)=>`<div class="chk et-i"><div class="main"><b>${esc(itNome(i))}</b>${ar?'':`<input class="cd" data-ecd="${k}" value="${esc(i.espec||'')}" placeholder="Código usado" autocapitalize="characters" aria-label="Código usado">`}</div>
+    <div class="list">${its.map((i,k)=>`<div class="chk et-i"><div class="main"><b>${esc(itNome(i))}</b><input class="cd" data-ecd="${k}" value="${esc(i.espec||(i.estoqueId&&stById(i.estoqueId)?stCod(stById(i.estoqueId)):''))}" placeholder="Código usado" autocapitalize="characters" aria-label="Código usado"><small class="et-st" data-est="${k}"></small></div>
       <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-eq="${k}" value="${esc(i.qtd??'')}" aria-label="Quantidade"><span class="u">${esc(i.un||'')}</span></div>`).join('')}</div>`:''}
     <div class="fset" style="margin-top:12px"><label class="f">Observações<textarea id="et-obs">${esc(t.obs||'')}</textarea></label></div><div id="et-conf"></div></form>`,
   foot:`<button class="btn pri" form="fet">Salvar alterações</button>`,
   mount:sh=>{const f=sh.querySelector('#fet'),cf=sh.querySelector('#et-conf');
     f.addEventListener('input',()=>cf.innerHTML='');
+    /* código trocado: a peça passa a ser a do estoque com esse código (ou fica fora do estoque) */
+    const sid=its.map(i=>i.estoqueId||'');
+    const lab=(k,mud)=>{const x=sid[k]&&stById(sid[k]),el=sh.querySelector(`[data-est="${k}"]`);if(!el)return;el.textContent=x?`Estoque: ${stCod(x)} · ${x.desc}`:mud?'Não encontrado no estoque · fica sem baixa':'';el.classList.toggle('fora',!x);el.hidden=!el.textContent};
+    its.forEach((i,k)=>{lab(k);const inp=sh.querySelector(`[data-ecd="${k}"]`);inp.oninput=()=>{const v=inp.value.trim();
+      const orig=i.estoqueId&&stById(i.estoqueId),same=orig&&[stCod(orig),orig.codigo,orig.ref,i.espec].some(c=>c&&nzCod(c)===nzCod(v));
+      sid[k]=same?i.estoqueId:(stFind(v)||{}).id||'';lab(k,!same)}});
     f.onsubmit=ev=>{ev.preventDefault();
       const dt=sh.querySelector('#et-dt').value,h0=Number(sh.querySelector('#et-hm').value);
       if(!dt||isNaN(h0)||h0<0){toast('Confira a data e o horímetro.');return}
-      const novos=its.map((i,k)=>{const qv=sh.querySelector(`[data-eq="${k}"]`).value,cd=sh.querySelector(`[data-ecd="${k}"]`);return {...i,qtd:qv===''?0:Math.round(Number(qv)*10)/10,...(cd?{espec:cd.value.trim().toUpperCase()}:{})}});
+      const novos=its.map((i,k)=>{const qv=sh.querySelector(`[data-eq="${k}"]`).value,cd=sh.querySelector(`[data-ecd="${k}"]`);return {...i,qtd:qv===''?0:Math.round(Number(qv)*10)/10,espec:cd.value.trim().toUpperCase(),estoqueId:sid[k]}});
       if(novos.some(i=>!(i.qtd>=0))){toast('Quantidade inválida.');return}
       const A=pecasUsadas(t),B=pecasUsadas(t,novos),mais={},menos={};
       new Set([...Object.keys(A),...Object.keys(B)]).forEach(k=>{const d=Math.round(((B[k]||0)-(A[k]||0))*10)/10;if(d>0)mais[k]=d;else if(d<0)menos[k]=-d});
-      const go=async dev=>{
+      const go=async(dev,bx)=>{
         const ok=await safe(async()=>{
           /* horímetro convertido (troca de relógio) segue a mesma diferença */
           const effOld=t.hmConv??t.horimetro,effNew=Math.round((h0+(Number(effOld)-Number(t.horimetro)||0))*10)/10,dh=Math.round((effNew-Number(effOld))*10)/10;
@@ -2453,24 +2459,22 @@ function formEditTroca(id){
           if((dh||dt!==t.data)&&pids.size){let mud=false;const its2=(e.itens||[]).map(i=>{if(!pids.has(i.pid)||Number(i.ultimaH)!==Number(effOld))return i;mud=true;
               return {...i,ultimaH:effNew,ultimaData:dt,proxH:i.proxH===''||i.proxH==null||isNaN(Number(i.proxH))?i.proxH:Math.round((Number(i.proxH)+dh)*10)/10}});
             if(mud)await S.db.doc('equipamentos/'+e.id).update({itens:its2})}
-          for(const[sid,q]of Object.entries(mais)){const x=stById(sid);await logBaixa(sid,q,today(),e.id);await S.db.doc('estoque/'+sid).update({qtd:Math.round(((Number(x.qtd)||0)-q)*10)/10})}
+          if(bx)for(const[sid,q]of Object.entries(mais)){const x=stById(sid);await logBaixa(sid,q,today(),e.id);await S.db.doc('estoque/'+sid).update({qtd:Math.round(((Number(x.qtd)||0)-q)*10)/10})}
           if(dev)for(const[sid,q]of Object.entries(menos)){const x=stById(sid);const saldo=Math.round(((Number(x.qtd)||0)+q)*10)/10;
             await S.db.doc('estoque/'+sid).update({qtd:saldo});try{await S.db.collection('movs').add({estoqueId:sid,tipo:'entrada',qtd:q,data:today(),obs:'Preventiva editada',equipId:e.id,origem:'estorno',saldo,ts:Date.now()})}catch(er){console.error(er)}}
-        },dev?'Preventiva salva e peças devolvidas':'Preventiva salva');
+        },'Preventiva salva');
         if(ok)goBack()};
       const lst=o=>specList('',Object.entries(o).map(([sid,q])=>{const x=stById(sid);return[x.desc,stCod(x),nf(q,1)+' '+stUn(x)]}));
-      if(Object.keys(menos).length){
-        cf.innerHTML=`<div class="dv-ask"><b>Devolver ao estoque?</b><p class="note" style="margin:0">Estas peças foram retiradas do registro.</p><div class="spec dv-l">${lst(menos)}</div>${Object.keys(mais).length?`<p class="note" style="margin:0">E estas saem do estoque:</p><div class="spec dv-l">${lst(mais)}</div>`:''}
-          <div class="eqv-f"><button type="button" class="btn" data-sem>Não devolver</button><button type="button" class="btn pri" data-dev>Devolver</button></div></div>`;
-        cf.scrollIntoView({block:'start',behavior:'smooth'});
-        cf.querySelector('[data-sem]').onclick=()=>go(false);cf.querySelector('[data-dev]').onclick=()=>go(true);return}
-      if(Object.keys(mais).length){
-        cf.innerHTML=`<div class="dv-ask"><b>Saída do estoque</b><p class="note" style="margin:0">A quantidade aumentou. Estas peças saem do estoque:</p><div class="spec dv-l">${lst(mais)}</div>
-          <div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-ok>Confirmar</button></div></div>`;
-        cf.scrollIntoView({block:'start',behavior:'smooth'});
-        cf.querySelector('[data-x]').onclick=()=>cf.innerHTML='';cf.querySelector('[data-ok]').onclick=()=>go(false);return}
-      go(false)}}});
+      const ask=(tit,txt,o,no,yes,fn)=>{cf.innerHTML=`<div class="dv-ask"><b>${tit}</b><p class="note" style="margin:0">${txt}</p><div class="spec dv-l">${lst(o)}</div>
+          <div class="eqv-f"><button type="button" class="btn" data-n>${no}</button><button type="button" class="btn pri" data-y>${yes}</button></div></div>`;
+        cf.scrollIntoView({block:'start',behavior:'smooth'});cf.querySelector('[data-n]').onclick=()=>fn(false);cf.querySelector('[data-y]').onclick=()=>fn(true)};
+      /* 1º pergunta se devolve o que saiu do registro; 2º se dá baixa no que entrou no lugar */
+      const passo2=dev=>Object.keys(mais).length?ask('Dar baixa no estoque?','Peças aplicadas no lugar:',mais,'Não dar baixa','Dar baixa',bx=>go(dev,bx)):go(dev,false);
+      if(Object.keys(menos).length)ask('Devolver ao estoque?','Peças retiradas do registro:',menos,'Não devolver','Devolver',passo2);
+      else passo2(false)}}});
 }
+/* item do estoque pelo código exato (código, referência ou código de barras) */
+function stFind(v){const t=nzCod(v);if(t.length<3)return null;const l=S.estoque.filter(x=>[stCod(x),x.codigo,x.ref,...(x.eans||[])].some(c=>c&&nzCod(c)===t));return l.length===1?l[0]:null}
 /* tela: preventivas realizadas de um equipamento (cada linha abre o detalhamento) */
 /* selo de ajuste: lançamento feito com o modo Ajuste ligado (sem mexer no estoque).
    Um toque no selo mostra o significado num balão pequeno, sem abrir a linha. */

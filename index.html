@@ -814,7 +814,12 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .confirm{background:var(--bad-bg);border-radius:14px;padding:13px;margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .confirm .b{display:flex;gap:8px}.confirm .b .btn{flex:1}
 .dv-ask{margin-top:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e7ee);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}.dv-ask>b{font-size:15px}
-.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.eqs-o{width:100%;border-radius:10px}.eqs-v{padding:12px;color:var(--muted);font-size:13.5px}
+.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.sp-aj{display:flex;align-items:center;gap:14px;margin-top:12px;padding:13px 14px;border-radius:14px;background:var(--surface,#fff);border:1px solid var(--line)}
+.sp-aj div{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.sp-aj b{font-size:14.5px}.sp-aj span{font-size:13px;color:var(--muted)}
+.sp-aj.on{background:#fff6cc;border-color:#e0b100}
+.sp-sw{width:46px;height:28px;border-radius:14px;border:0;padding:0;background:#c9cfda;position:relative;flex:none;cursor:pointer;transition:background .15s}.sp-sw:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}
+.sp-sw[aria-checked="true"]{background:#e0a800}.sp-sw[aria-checked="true"]:after{left:21px}.sp-d{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:4px}
+.eqs-o{width:100%;border-radius:10px}.eqs-v{padding:12px;color:var(--muted);font-size:13.5px}
 .lt-r{display:flex;align-items:center;gap:12px;padding:10px 13px;border:0;border-left:3px solid transparent;width:100%;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lt-r:disabled{cursor:default}
 .lt-k{flex:none;width:20px;height:20px;border-radius:6px;background:var(--accent,#0033a0);position:relative}.lt-k:after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .lt-r.off .lt-k{background:none;box-shadow:inset 0 0 0 2px var(--line-2,#c9cfda)}.lt-r.off .lt-k:after{display:none}.lt-r.off .lt-c,.lt-r.off .lt-m b{opacity:.5}.lt-r:disabled .lt-k{visibility:hidden}.lt-r+.lt-r{box-shadow:inset 0 1px 0 var(--line)}
@@ -872,8 +877,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=793a0a2262"></script>
-<script src="shim.js?v=793a0a2262"></script>
+<script src="config.js?v=94072fb6af"></script>
+<script src="shim.js?v=94072fb6af"></script>
 </head>
 <body>
 
@@ -1501,7 +1506,7 @@ function bindView(){
       const qs=q.replace(/[\s-]/g,'');
       const hits=S.equips.filter(e=>{const k=norm(e.codigo).replace(/[\s-]/g,'');return k.includes(qs)||norm([e.tipo,e.marca,e.modelo].join(' ')).includes(q)}).sort((a,b)=>{const sa=norm(a.codigo).replace(/[\s-]/g,'').startsWith(qs)?0:1,sb=norm(b.codigo).replace(/[\s-]/g,'').startsWith(qs)?0:1;return sa-sb||byCode(a,b)}).slice(0,8);
       box.hidden=false;box.innerHTML=hits.length?hits.map(e=>`<button type="button" class="tq" data-pqid="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo)}${e.modelo?` · ${esc([e.marca,e.modelo].filter(Boolean).join(' '))}`:''}</span>${I.chev}</button>`).join(''):'<div class="empty" style="border-radius:0">Nenhum equipamento encontrado.</div>';
-      box.querySelectorAll('[data-pqid]').forEach(b=>b.onclick=()=>{const id=b.dataset.pqid;pq.value='';box.hidden=true;box.innerHTML='';pq.blur();NAV.length=0;openEq(id)})};}
+      box.querySelectorAll('[data-pqid]').forEach(b=>b.onclick=()=>{const id=b.dataset.pqid;pq.value='';box.hidden=true;box.innerHTML='';pq.blur();NAV.length=0;const tem=S.trocas.some(t=>t.equipId===id&&t.tipo!=='reprog'&&t.tipo!=='hmtroca');tem?openEq(id):openSemPrev(id)})};}
 }
 
 /* ---------- gaveta ---------- */
@@ -1524,7 +1529,7 @@ function goBack(){dropPending();NAV.pop();const prev=NAV[NAV.length-1];if(prev)p
 function after(fn){NAV.pop();fn()}
 function finishReg(eqId){const i=NAV.findIndex(n=>n.key.startsWith('eq:'));const j=NAV.findIndex(n=>n.key==='reg');const cut=j>=0?j:NAV.length-1;
   if(i>=0&&i<cut){NAV.length=i+1;NAV[i].fn()}else if(cut>0){NAV.length=cut;NAV[cut-1].fn()}else closeSheet()}
-let rsT;function refreshSheet(){clearTimeout(rsT);rsT=setTimeout(()=>{const top=NAV[NAV.length-1];if(!sheetOpen||!top||!/^(eq|tr|lst|mv|pd|cr|cart|listas|alq):/.test(top.key))return;const ae=document.activeElement;if(ae&&ae.closest&&ae.closest('#sheet')&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.value)return;
+let rsT;function refreshSheet(){clearTimeout(rsT);rsT=setTimeout(()=>{const top=NAV[NAV.length-1];if(!sheetOpen||!top||!/^(eq|tr|lst|mv|pd|cr|cart|listas|alq|sp):/.test(top.key))return;const ae=document.activeElement;if(ae&&ae.closest&&ae.closest('#sheet')&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.value)return;
   const b=$('#sheet .sh-body'),y=b?b.scrollTop:0;top.fn();const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y},60)}
 function closeSheet(){dropPending();NAV.length=0;$('#scrim').hidden=true;$('#sheet').innerHTML='';sheetOpen=false;document.documentElement.style.overflow='';render();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true})}
 $('#scrim').addEventListener('click',e=>{if(e.target.id==='scrim')closeSheet()});
@@ -1703,7 +1708,7 @@ function paintAj(){const b=$('#sideaj');b.classList.toggle('on',!!S.ajuste);b.se
 function setAjuste(v){S.ajuste=v;paintAj();toast(S.ajuste?'Registra sem dar baixa no <span style="white-space:nowrap">estoque'+AJS+'</span>':'Lançamentos voltam a alterar o estoque','aj',S.ajuste?'Modo ajuste ligado':'Modo ajuste desligado',true)}
 $('#sideaj').onclick=()=>{S.ajuste=!S.ajuste;paintAj();
   toast(S.ajuste?'Registra sem dar baixa no <span style="white-space:nowrap">estoque'+AJS+'</span>':'Lançamentos voltam a alterar o estoque','aj',S.ajuste?'Modo ajuste ligado':'Modo ajuste desligado',true);
-  if(sheetOpen){const top=NAV[NAV.length-1];if(top&&/^(fp|ar):/.test(top.key)){const b=$('#sheet .aj-b');if(S.ajuste&&!b)$('#sheet .sh-body').insertAdjacentHTML('afterbegin',AJ_BANNER);else if(!S.ajuste&&b)b.remove()}}};
+  if(sheetOpen){const top=NAV[NAV.length-1];if(top&&/^sp:/.test(top.key)){refreshSheet();return}if(top&&/^(fp|ar):/.test(top.key)){const b=$('#sheet .aj-b');if(S.ajuste&&!b)$('#sheet .sh-body').insertAdjacentHTML('afterbegin',AJ_BANNER);else if(!S.ajuste&&b)b.remove()}}};
 paintAj();
 /* barra do topo com o nome do app = início */
 function goHome(){S.esQ='';S.esFoc=false;S.esAll=false;if(sheetOpen){NAV.length=0;closeSheet()}S.focus='';S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)}
@@ -2578,6 +2583,21 @@ function eqSearch(sel){if(sel.dataset.eqsOn)return;sel.dataset.eqsOn=1;
   inp.oninput=busca;inp.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const f=box.querySelector('[data-eo]');if(f)f.click()}};
   inp.onblur=()=>setTimeout(()=>{if(!w.contains(document.activeElement))box.innerHTML=''},200);
   inp.onfocus=()=>{if(inp.value&&!sel.value)busca()}}
+/* Preventivas › busca: equipamento ainda sem preventiva registrada.
+   Mostra só o básico e leva ao registro, avisando da baixa no estoque. */
+function openSemPrev(id){
+  nav('sp:'+id,()=>openSemPrev(id));
+  const e=eqById(id);if(!e){goBack();return}
+  const hm=e.horimetro!==''&&e.horimetro!=null;
+  openSheet({title:`<span class="code" style="font-size:16px">${esc(e.codigo)}</span>${esc(e.tipo||'')}`,sub:'Sem preventiva registrada',
+  body:`<div class="spec"><div class="r"><span>Marca / modelo</span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</b></div><div class="r"><span>Alocado em</span><b>${esc(alocTxt(e)||'—')}</b></div>
+    <div class="r"><span>Última leitura</span><b class="num">${hm?`${nf(e.horimetro)} h${e.horimetroData?` <small class="sp-d">${fdate(e.horimetroData)}</small>`:''}`:'—'}</b></div></div>
+    <div class="empty" style="margin-top:12px"><b>Nenhuma preventiva registrada</b>Este equipamento ainda não tem preventivas lançadas.</div>
+    <div class="sp-aj${S.ajuste?' on':''}"><div><b>${S.ajuste?'Ajuste ligado':'O lançamento dá baixa no estoque'}</b><span>${S.ajuste?'Os itens usados não serão baixados do estoque.':'Os itens usados saem do estoque. Se não for a intenção, ligue o Ajuste.'}</span></div>
+    <button type="button" class="sp-sw" role="switch" aria-checked="${!!S.ajuste}" aria-label="Ajuste"></button></div>`,
+  foot:`<button type="button" class="btn pri" id="sp-go">${I.manut}<span>Registrar preventiva</span></button>`,
+  mount:sh=>{sh.querySelector('.sp-sw').onclick=()=>{setAjuste(!S.ajuste);refreshSheet()};sh.querySelector('#sp-go').onclick=()=>formRegistrar(id)}});
+}
 /* item do estoque pelo código exato (código, referência ou código de barras) */
 function stFind(v){const t=nzCod(v);if(t.length<3)return null;const l=S.estoque.filter(x=>[stCod(x),x.codigo,x.ref,...(x.eans||[])].some(c=>c&&nzCod(c)===t));return l.length===1?l[0]:null}
 /* tela: preventivas realizadas de um equipamento (cada linha abre o detalhamento) */

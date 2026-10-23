@@ -883,10 +883,18 @@ body.kb .sh-foot{display:none}
 .toast.aj{width:max-content;max-width:min(330px,calc(100vw - 32px))}.toast .ajs{background:#3a2600;cursor:default;vertical-align:-2px;margin-left:6px}.toast .ajs svg{fill:#ffc21a}
 .ajtip{position:fixed;z-index:60;white-space:nowrap;max-width:calc(100vw - 16px);background:#ffc21a;color:#2b1c00;border:1px solid #e0a400;font-size:12.5px;line-height:1.35;padding:7px 10px;border-radius:9px;box-shadow:0 6px 20px rgba(255,194,26,.35);pointer-events:none}
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
+
+/* ===== padronização da escrita =====
+   Marca: maiúsculas. Títulos (telas, tópicos, seções, cartões): forma de frase.
+   Rótulos pequenos de seção e legendas de valores: um único estilo, em maiúsculas pequenas. */
+.ch h2,.hero h3,.quick .qt b,.pv-t,.tsec-h,.ar-h,.site-n,.sel-h .st,.ph h2,.acc-h h2,.subbar h2,.sh-head h2,.rdr-h h2,.sit{text-transform:none;letter-spacing:.005em}
+.lbl,.fset>h3,.ti-g,.lr-t,.cb-abh,.ig-h,.es-g,.hz-lbl,.mgrp,.fr-h,.cb-mh{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.lbl,.fset>h3,.ti-g,.lr-t,.cb-abh,.ig-h,.es-g,.hz-lbl,.mgrp,.fr-h{color:var(--muted)}
+.cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=5bf6d950f4"></script>
-<script src="shim.js?v=5bf6d950f4"></script>
+<script src="config.js?v=dea3ea0b0b"></script>
+<script src="shim.js?v=dea3ea0b0b"></script>
 </head>
 <body>
 

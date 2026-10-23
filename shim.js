@@ -103,7 +103,7 @@
   .lg-top{background:var(--ink,#0b2470);color:#fff;padding:calc(18px + env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) 18px max(20px,env(safe-area-inset-left,0px))}
   .lg-top .brand{font-size:24px}
   .lg-c{width:100%;max-width:400px;margin:28px auto;padding:0 max(16px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));display:flex;flex-direction:column;gap:14px}
-  .lg-c h1{font-family:var(--display);font-size:24px;text-transform:uppercase;letter-spacing:.02em;margin:0}
+  .lg-c h1{font-family:var(--display);font-size:26px;letter-spacing:.005em;margin:0}
   .lg-c p{margin:0;color:var(--muted);font-size:14px}
   .lg-f{background:var(--surface,#fff);border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
   .lg-e{font-size:13px;color:var(--bad);font-weight:600;min-height:0}.lg-e:empty{display:none}

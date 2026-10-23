@@ -1,6 +1,6 @@
 /* Controle de Frota · funcionamento com internet ruim
    Páginas e bibliotecas ficam guardadas no aparelho; os dados sempre vêm do servidor. */
-const VER='frota-16c9afd66d';
+const VER='frota-c76f0f2ddf';
 const SHELL=['./','index.html','shim.js','config.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VER).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VER).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});

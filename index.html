@@ -855,6 +855,7 @@ body.kb .sh-foot{display:none}
 .av-btn{flex:1;background:var(--surface);border:1.5px solid var(--accent,#0033a0);color:var(--accent,#0033a0)}
 
 /* cartao Identificar */
+.tsec-h.eqt{cursor:pointer}
 .fr-g{display:flex;flex-direction:column;gap:10px}.fr-b{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface,#fff);font:inherit;color:var(--fg);text-align:left;cursor:pointer;box-shadow:var(--shadow)}
 .fr-b .ic{width:44px;height:44px;border-radius:12px;background:var(--sunk);display:grid;place-items:center;flex:none}.fr-b .ic svg{width:22px;height:22px;color:var(--accent)}
 .fr-b .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fr-b b{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:.005em}.fr-b small{font-size:13px;color:var(--muted)}.fr-b>svg{width:18px;height:18px;color:var(--faint);flex:none}
@@ -932,8 +933,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=16c9afd66d"></script>
-<script src="shim.js?v=16c9afd66d"></script>
+<script src="config.js?v=c76f0f2ddf"></script>
+<script src="shim.js?v=c76f0f2ddf"></script>
 </head>
 <body>
 
@@ -1363,8 +1364,9 @@ function vEquip(){
   const tipos=[...new Set(S.equips.map(e=>e.tipo||'Sem tipo'))].sort((a,b)=>{const ia=TIPOS.indexOf(a),ib=TIPOS.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b,'pt-BR')});
   return toolbar(`${S.equips.length} equipamentos · ${tipos.length} tipos`)+
   `<div class="tsec-wrap">${tipos.map(t=>{const l=S.equips.filter(e=>(e.tipo||'Sem tipo')===t).sort(byCode);
-    return `<section class="tsec"><h3 class="tsec-h"><span>${esc(t)}</span><em>${l.length}</em></h3>
-    <div class="tsec-l">${l.map(e=>`<button class="tq" data-eq="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</span>${I.chev}</button>`).join('')}</div></section>`}).join('')}</div>`;
+    const ab=S.eqTipo===t;
+    return `<section class="tsec"><h3 class="tsec-h eqt" data-eqt="${esc(t)}" role="button" tabindex="0" aria-expanded="${ab}"><span>${esc(t)}</span><em>${l.length}</em></h3>
+    <div class="tsec-l"${ab?'':' hidden'}>${l.map(e=>`<button class="tq" data-eq=""${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</span>${I.chev}</button>`).join('')}</div></section>`}).join('')}</div>`;
 }
 function vAloc(){
   /* equipamento na alocacao: abre uma tela com 2 linhas (motorista e alocar/realocar); a ficha nao abre por aqui */
@@ -1547,6 +1549,11 @@ function bindView(){
     render();SCR().scrollTo(0,0);const h=document.querySelector(`[data-acc="${k}"]`);h&&h.focus({preventScroll:true})});
   const topAloc=()=>{const h=document.querySelector('[data-acc="aloc"]');h&&h.scrollIntoView({block:'start'})};
   bindIdent(app);
+  /* Equipamentos: categorias recolhidas; abre uma por vez, ali mesmo */
+  app.querySelectorAll('[data-eqt]').forEach(h=>{const go=()=>{const t=h.dataset.eqt,ab=S.eqTipo!==t;S.eqTipo=ab?t:'';
+      app.querySelectorAll('[data-eqt]').forEach(x=>{const on=ab&&x===h;x.setAttribute('aria-expanded',on);x.nextElementSibling.hidden=!on});
+      if(ab)h.scrollIntoView({block:'start',behavior:'smooth'})};
+    h.onclick=go;h.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go()}}});
   app.querySelectorAll('[data-cbe]').forEach(b=>b.onclick=()=>{NAV.length=0;openCombEq(b.dataset.cbe)});
   app.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>{S.alocSite=b.dataset.site;S.alocSel='';render();topAloc()});
   app.querySelectorAll('[data-dmv]').forEach(b=>b.onclick=()=>{S.dmAll=b.dataset.dmv==='all';try{localStorage.setItem('frota.dmAll',S.dmAll?'1':'')}catch(e){}render();topAloc()});

@@ -929,8 +929,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=990d4e7fba"></script>
-<script src="shim.js?v=990d4e7fba"></script>
+<script src="config.js?v=c12af2f13b"></script>
+<script src="shim.js?v=c12af2f13b"></script>
 </head>
 <body>
 
@@ -1303,7 +1303,7 @@ function render(){
     const a=S.alocSel?(S.alocSel==='_'?'Sem area':S.alocSel):'';return `${esc(n)} <span>› ${esc(S.alocSite)}${a?' › '+esc(a):''}</span>`};
   document.body.classList.toggle('focus',!!S.focus);
   TB_SUB='';
-  const cards=[['equip',vEquip],['manut',vManut],['estoque',vEstoque],['ident',vIdent],['comb',vComb],['aloc',vAloc]].filter(([k])=>!S.focus||S.focus===k).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
+  const cards=[['equip',vEquip],['manut',vManut],['estoque',vEstoque],['comb',vComb],['aloc',vAloc],['ident',vIdent]].filter(([k])=>!S.focus||S.focus===k).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
       return `<section class="card acc${o?' open':''}" id="sec-${k}">${o?'':`<button class="acc-h" data-acc="${k}" aria-expanded="${o}" aria-controls="b-${k}"><span class="ic">${I[k]}</span><h2>${n}</h2><span class="tg">${I.chev}</span></button>`}
       <div class="acc-b" id="b-${k}"${o?'':' hidden'}>${o?f():''}</div></section>`}).join('');
   $('#app').innerHTML=(S.focus?`<div class="subbar"><button class="homebar" data-a="up" aria-label="Voltar" title="Voltar">${I.back}</button><h2>${subT()}</h2>${TB_SUB?`<span class="sb-sub">${TB_SUB}</span>`:''}</div>`:exBanner()+`<section class="card" id="sec-painel" aria-label="Painel">${vPainel()}</section>`)+cards+(S.focus?'':`<div class="brandmark"><img src="${LOGO}" alt="Rondaflex" width="132" height="17"></div>`);

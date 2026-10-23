@@ -814,7 +814,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .confirm{background:var(--bad-bg);border-radius:14px;padding:13px;margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .confirm .b{display:flex;gap:8px}.confirm .b .btn{flex:1}
 .dv-ask{margin-top:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e7ee);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}.dv-ask>b{font-size:15px}
-.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.lt-r{display:flex;align-items:center;gap:12px;padding:10px 13px;border:0;border-left:3px solid transparent;width:100%;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lt-r:disabled{cursor:default}
+.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.eqs-o{width:100%;border-radius:10px}.eqs-v{padding:12px;color:var(--muted);font-size:13.5px}
+.lt-r{display:flex;align-items:center;gap:12px;padding:10px 13px;border:0;border-left:3px solid transparent;width:100%;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lt-r:disabled{cursor:default}
 .lt-k{flex:none;width:20px;height:20px;border-radius:6px;background:var(--accent,#0033a0);position:relative}.lt-k:after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
 .lt-r.off .lt-k{background:none;box-shadow:inset 0 0 0 2px var(--line-2,#c9cfda)}.lt-r.off .lt-k:after{display:none}.lt-r.off .lt-c,.lt-r.off .lt-m b{opacity:.5}.lt-r:disabled .lt-k{visibility:hidden}.lt-r+.lt-r{box-shadow:inset 0 1px 0 var(--line)}
 .lt-c{flex:none;width:64px;font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lt-r.fo .lt-c{width:96px}.lt-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.lt-m b{font-size:14px;font-weight:600}.lt-m small{font-size:12.5px;color:var(--muted)}
@@ -871,8 +872,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=92fa25ca56"></script>
-<script src="shim.js?v=92fa25ca56"></script>
+<script src="config.js?v=793a0a2262"></script>
+<script src="shim.js?v=793a0a2262"></script>
 </head>
 <body>
 
@@ -1082,7 +1083,7 @@ function formAbast(){
   const eqs=S.equips.filter(e=>e.status!=='inativo').sort(byCode);
   openSheet({title:'Abastecimento',sub:'Consumo por hora trabalhada',
   body:`<form id="fab-f"><div class="fset">
-    <label class="f">Equipamento<select id="ab-eq" required><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)} · ${esc(e.tipo||'')}</option>`).join('')}</select></label>
+    <label class="f">Equipamento<select id="ab-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)} · ${esc(e.tipo||'')}</option>`).join('')}</select></label>
     <p class="note" id="ab-base" style="margin:0"></p>
     <div class="grid"><label class="f">Data<input id="ab-dt" type="date" required value="${today()}"></label>
     <label class="f">Horímetro (h)<input id="ab-hm" type="number" step="0.1" inputmode="decimal" required></label></div>
@@ -1514,7 +1515,7 @@ function openSheet({title,sub='',body,foot='',mount}){
   $('#scrim').hidden=false;sheetOpen=true;document.documentElement.style.overflow='hidden';
   $('#sheet').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeSheet);
   $('#sheet').querySelectorAll('[data-back],[data-k="back"]').forEach(b=>b.onclick=goBack);
-  mount&&mount($('#sheet'));$('#sheet [data-back]').focus({preventScroll:true});
+  mount&&mount($('#sheet'));$('#sheet').querySelectorAll('select[data-eqs]').forEach(eqSearch);$('#sheet [data-back]').focus({preventScroll:true});
   stackLong($('#sheet'));
 }
 const NAV=[];
@@ -2124,7 +2125,7 @@ function formTrocaHm(eqId,novo0){
   openSheet({title:'Troca de horímetro',sub:'Relógio de horas substituído',
   body:`<div class="thm-warn"><b>Atenção: altera o cronograma do equipamento</b>Use só quando o relógio de horas foi trocado. As próximas trocas de cada item são recalculadas para a contagem do relógio novo.</div>
   <form id="fthm"><div class="fset">
-    <label class="f">Equipamento<select id="thm-eq" required><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${eqId===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
+    <label class="f">Equipamento<select id="thm-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${eqId===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     <label class="f">Relógio antigo (h) <span class="hint">leitura final</span><input id="thm-a" type="number" step="0.1" inputmode="decimal" required></label>
     <p class="warnline" id="thm-w"></p>
     <label class="f">Relógio novo (h) <span class="hint">leitura inicial</span><input id="thm-b" type="number" step="0.1" inputmode="decimal" required value="${esc(novo0??'')}" placeholder="Ex.: 0"></label>
@@ -2307,7 +2308,7 @@ function formFiltroAr(eqId,sub){
   const filtros=S.estoque.filter(s=>s.tipo==='filtro').sort(byCode);
   openSheet({title:'Filtro de ar · '+esc(sub),sub:'Registre a troca ou limpeza do filtro',
   body:`${S.ajuste?AJ_BANNER:''}<form id="fa"><div class="fset">
-    <label class="f">Equipamento<select id="a-eq" required><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
+    <label class="f">Equipamento<select id="a-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     <div class="f">Serviço<div class="seg" role="group" aria-label="Serviço"><button type="button" data-sv="Troca" aria-pressed="true">Troca</button><button type="button" data-sv="Limpeza" aria-pressed="false">Limpeza</button></div></div>
     <div class="grid"><label class="f">Data<input id="a-dt" type="date" required value="${today()}"></label>
     <label class="f">Horímetro (h)<input id="a-hm" type="number" step="0.1" inputmode="decimal" required></label></div>
@@ -2359,7 +2360,7 @@ function formTroca(eqId){
   const cur=eqId&&eqById(eqId)?eqId:'';
   openSheet({title:'Registrar preventiva',sub:'Cronograma e estoque se ajustam',
   body:`${S.ajuste?AJ_BANNER:''}<form id="ft"><div class="fset">
-    <label class="f">Equipamento<select id="t-eq" required><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
+    <label class="f">Equipamento<select id="t-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     <div class="grid"><label class="f">Data<input id="t-dt" type="date" required value="${today()}"></label>
     <label class="f">Horímetro (h)<input id="t-hm" type="number" step="0.1" inputmode="decimal" required></label></div>
     <label class="f">Responsável<input id="t-resp" placeholder="Mecânico ou oficina"></label></div>
@@ -2555,6 +2556,28 @@ function formEditTroca(id){
       if(Object.keys(menos).length)ask('Devolver ao estoque?','Peças retiradas do registro:',menos,'Não devolver','Devolver',passo2);
       else passo2(false)}}});
 }
+/* equipamento: digita TAG, tipo, modelo ou placa e escolhe nas sugestões (a lista fica escondida por trás) */
+function eqSearch(sel){if(sel.dataset.eqsOn)return;sel.dataset.eqsOn=1;
+  const obrig=sel.required;sel.required=false;sel.hidden=true;
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nz=v=>norm(v).replace(/[\s.\-\/]/g,'');
+  const ids=[...sel.options].map(o=>o.value).filter(Boolean),all=ids.map(eqById).filter(Boolean);
+  const lab=e=>e?`${e.codigo} · ${e.tipo||''}`:'';
+  const w=document.createElement('div');w.className='sug-w';
+  w.innerHTML=`<input type="search" class="eqs-in" autocomplete="off" autocapitalize="characters" placeholder="Digite a TAG, tipo, modelo ou placa" aria-label="Equipamento"><div class="sug"></div>`;
+  sel.after(w);const inp=w.querySelector('input'),box=w.querySelector('.sug');
+  const valid=()=>inp.setCustomValidity(sel.value||(!obrig&&!inp.value.trim())?'':'Escolha um equipamento nas sugestões');
+  const pick=e=>{sel.value=e?e.id:'';inp.value=lab(e);box.innerHTML='';valid();sel.dispatchEvent(new Event('change'))};
+  inp.value=lab(eqById(sel.value));valid();
+  const busca=()=>{const t=norm(inp.value.trim()),tz=nz(inp.value);
+    if(sel.value&&inp.value!==lab(eqById(sel.value))){sel.value='';sel.dispatchEvent(new Event('change'))}
+    valid();if(!t){box.innerHTML='';return}
+    const sc=e=>{const c=nz(e.codigo);return c===tz?0:c.startsWith(tz)?1:c.includes(tz)?2:[e.tipo,e.marca,e.modelo,e.placa,e.descricao].some(x=>norm(x).includes(t))||nz(e.placa).includes(tz)?3:9};
+    const m=all.map(e=>[sc(e),e]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,8).map(a=>a[1]);
+    box.innerHTML=m.length?m.map(e=>`<button type="button" class="tq eqs-o" data-eo="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc([e.tipo,e.modelo].filter(Boolean).join(' · '))}</span></button>`).join(''):'<div class="eqs-v">Nenhum equipamento encontrado.</div>';
+    box.querySelectorAll('[data-eo]').forEach(b=>b.onclick=ev=>{ev.preventDefault();pick(eqById(b.dataset.eo))})};
+  inp.oninput=busca;inp.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const f=box.querySelector('[data-eo]');if(f)f.click()}};
+  inp.onblur=()=>setTimeout(()=>{if(!w.contains(document.activeElement))box.innerHTML=''},200);
+  inp.onfocus=()=>{if(inp.value&&!sel.value)busca()}}
 /* item do estoque pelo código exato (código, referência ou código de barras) */
 function stFind(v){const t=nzCod(v);if(t.length<3)return null;const l=S.estoque.filter(x=>[stCod(x),x.codigo,x.ref,...(x.eans||[])].some(c=>c&&nzCod(c)===t));return l.length===1?l[0]:null}
 /* tela: preventivas realizadas de um equipamento (cada linha abre o detalhamento) */
@@ -2703,7 +2726,7 @@ function formMovEst(dir){
     <label class="f" data-mvx hidden>Data<input id="mv-dt" type="date" required value="${esc(D.dt)}"></label>
     <div class="w note" id="mv-prev" data-mvx hidden></div>
     ${ent?`<label class="f w" data-mvx hidden>Fornecedor<input id="mv-obs" placeholder="Opcional" value="${esc(D.forn||'')}"></label>`
-      :`<label class="f" data-mvx hidden>Equipamento<select id="mv-eq"><option value="">Nenhum (opcional)</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)}</option>`).join('')}</select></label><label class="f" data-mvx hidden>Motivo<input id="mv-obs" placeholder="Opcional"></label>`}
+      :`<label class="f" data-mvx hidden>Equipamento<select id="mv-eq" data-eqs><option value="">Nenhum (opcional)</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)}</option>`).join('')}</select></label><label class="f" data-mvx hidden>Motivo<input id="mv-obs" placeholder="Opcional"></label>`}
   </div></div></form>`,
   foot:`<button class="btn pri" form="mv-f" id="mv-go" style="flex:1" disabled>${ent?'Lançar entrada':'Lançar saída'}</button>`,
   mount:sh=>{
@@ -3069,7 +3092,7 @@ async function clearExamples(){
 }
 
 /* com o teclado aberto, o campo de busca sobe para o topo e as sugestões ficam visíveis logo abaixo */
-document.addEventListener('focusin',ev=>{const t=ev.target;if(!t.matches||!t.matches('#mv-c,#s-idq,.ct-c,#esq,#pe-q,#pd-q,#pq'))return;
+document.addEventListener('focusin',ev=>{const t=ev.target;if(!t.matches||!t.matches('#mv-c,#s-idq,.ct-c,#esq,#pe-q,#pd-q,#pq,.eqs-in'))return;
   setTimeout(()=>{if(document.activeElement===t)t.scrollIntoView({block:'start',behavior:'smooth'})},320)});
 /* ---------- leitor pela câmera (só no app baixável): código de barras, QR ou texto ----------
    Um botão de câmera aparece dentro dos campos onde se informa um item do estoque.

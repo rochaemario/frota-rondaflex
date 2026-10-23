@@ -815,13 +815,14 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .confirm .b{display:flex;gap:8px}.confirm .b .btn{flex:1}
 .dv-ask{margin-top:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e7ee);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}.dv-ask>b{font-size:15px}
 .dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.et-i+.et-i{box-shadow:inset 0 1px 0 var(--line)}
+.et-l{flex:none;color:var(--muted);font-size:14px}.et-v{flex:1;min-width:0;text-align:right;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.et-v.mud{color:var(--accent,#0033a0)}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
 .et-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.et-n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .et-n small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.et-n em{font-style:normal;color:var(--faint)}
 .et-q{flex:none;font-size:14px;font-weight:600;color:var(--fg)}.et-q.mud{color:var(--accent,#0033a0)}
 .et-b{padding:0 13px 13px;display:flex;flex-direction:column;gap:10px}.et-a{flex-direction:row}.et-a .btn{flex:1}
-.et-qw{display:flex;align-items:center;gap:8px}.et-qw input{flex:1;min-width:0}.et-qw .u{color:var(--muted);font-size:13px}
+.et-qw{display:flex;align-items:center;gap:8px}.et-qw input,.et-qw textarea{flex:1;min-width:0}.et-qw .u{color:var(--muted);font-size:13px}
 .et-fora{display:flex;flex-direction:column;gap:1px;width:100%;border:0;background:none;font:inherit;text-align:left;padding:10px 12px;border-radius:10px;font-weight:600;color:var(--fg);cursor:pointer}.et-fora span{font-weight:400;font-size:12.5px;color:var(--muted)}.et-fora:active{background:var(--line)}
 .note{font-size:13px;color:var(--muted)}
 .warnline{font-size:13px;color:var(--warn);min-height:1em;margin:0}
@@ -865,8 +866,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=84a7e60eec"></script>
-<script src="shim.js?v=84a7e60eec"></script>
+<script src="config.js?v=58a87217a6"></script>
+<script src="shim.js?v=58a87217a6"></script>
 </head>
 <body>
 
@@ -2433,12 +2434,9 @@ function formEditTroca(id){
   const t=S.trocas.find(x=>x.id===id),e=t&&eqById(t.equipId);if(!e){goBack();return}
   const ar=t.tipo==='filtro_ar',its=(t.itens||[]);
   openSheet({title:'Editar '+(ar?'filtro de ar':'preventiva'),sub:`${esc(e.codigo)} · ${fdate(t.data)}`,
-  body:`${t.ajuste?`<p class="note" style="margin:0 2px 10px">Lançada em ajuste ${AJS} · alterar peças não mexe no estoque.</p>`:''}<form id="fet"><div class="fset">
-    <div class="grid"><label class="f">Data<input id="et-dt" type="date" required value="${esc(t.data||'')}"></label>
-    <label class="f">Horímetro (h)<input id="et-hm" type="number" step="0.1" inputmode="decimal" required value="${esc(t.horimetro??'')}"></label></div>
-    <label class="f">Responsável<input id="et-resp" value="${esc(t.resp||'')}" placeholder="Mecânico ou oficina"></label></div>
+  body:`${t.ajuste?`<p class="note" style="margin:0 2px 10px">Lançada em ajuste ${AJS} · alterar peças não mexe no estoque.</p>`:''}<form id="fet"><div class="list" id="et-fs"></div>
     ${its.length?`<div class="lbl" style="margin-top:16px">Peças usadas <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">toque para editar ou substituir</span></div><div class="list" id="et-l"></div>`:''}
-    <div class="fset" style="margin-top:12px"><label class="f">Observações<textarea id="et-obs">${esc(t.obs||'')}</textarea></label></div><div id="et-conf"></div></form>`,
+    <div id="et-conf"></div></form>`,
   foot:`<button class="btn pri" form="fet">Salvar alterações</button>`,
   mount:sh=>{const f=sh.querySelector('#fet'),cf=sh.querySelector('#et-conf');
     f.addEventListener('input',()=>cf.innerHTML='');
@@ -2466,8 +2464,24 @@ function formEditTroca(id){
         L.querySelector('#et-x').onclick=()=>{modo='';draw()};
         const cm=L.querySelector('#et-cam');if(cm)cm.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&!isKit(v.item))pick(v.item);else{sq.value=v.text||'';sq.oninput()}}})}};
     const cur0=cur.map((c,k)=>codTx(k));draw();
+    /* campos do registro: cada um abre uma janela para digitar e confirmar */
+    const V={data:t.data||'',hm:t.horimetro??'',resp:t.resp||'',obs:t.obs||''};
+    const FD=[['data','Data','date',v=>v?fdate(v):'—'],['hm','Horímetro','number',v=>v===''?'—':nf(v)+' h'],['resp','Responsável','text',v=>v||'—'],['obs','Observações','textarea',v=>v||'—']];
+    const FS=sh.querySelector('#et-fs');
+    let fAb='';
+    const drawF=()=>{FS.innerHTML=FD.map(([k,l,tp,fmt])=>{const op=fAb===k,orig=k==='data'?t.data||'':k==='hm'?t.horimetro??'':t[k]||'';
+        const inp=tp==='textarea'?`<textarea id="ef-v" rows="3">${esc(V[k])}</textarea>`:`<input id="ef-v" type="${tp}"${tp==='number'?' step="0.1" inputmode="decimal"':''} value="${esc(V[k])}"${k==='resp'?' placeholder="Mecânico ou oficina"':''} autocomplete="off">`;
+        return `<div class="et-i${op?' op':''}"><button type="button" class="et-h" data-fd="${k}" aria-expanded="${op}"><span class="et-l">${l}</span><span class="et-v${String(V[k])!==String(orig)?' mud':''}">${esc(fmt(V[k]))}</span>${I.chev}</button>
+        ${op?`<div class="et-b"><div class="et-qw">${inp}${k==='hm'?'<span class="u">h</span>':''}</div><div class="et-a" style="display:flex;gap:8px"><button type="button" class="btn" id="ef-x">Cancelar</button><button type="button" class="btn pri" id="ef-ok">Confirmar</button></div></div>`:''}</div>`}).join('');
+      FS.querySelectorAll('[data-fd]').forEach(b=>b.onclick=()=>{fAb=fAb===b.dataset.fd?'':b.dataset.fd;drawF();const fi=FS.querySelector('#ef-v');fi&&setTimeout(()=>fi.focus(),40)});
+      const fi=FS.querySelector('#ef-v');if(!fi)return;const k=fAb,tp=FD.find(x=>x[0]===k)[2];
+      const ok=()=>{const v=fi.value.trim();if((k==='data'||k==='hm')&&v===''){fi.focus();return}if(tp==='number'&&(isNaN(Number(v))||Number(v)<0)){toast('Valor inválido.');return}
+        V[k]=k==='hm'?Number(v):v;fAb='';cf.innerHTML='';drawF()};
+      FS.querySelector('#ef-ok').onclick=ok;FS.querySelector('#ef-x').onclick=()=>{fAb='';drawF()};
+      if(tp!=='textarea')fi.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();ok()}}};
+    drawF();
     f.onsubmit=ev=>{ev.preventDefault();
-      const dt=sh.querySelector('#et-dt').value,h0=Number(sh.querySelector('#et-hm').value);
+      const dt=V.data,h0=Number(V.hm);
       if(!dt||isNaN(h0)||h0<0){toast('Confira a data e o horímetro.');return}
       const novos=its.map((i,k)=>({...i,qtd:cur[k].qtd,espec:cur[k].espec,estoqueId:cur[k].sid}));
       const A=pecasUsadas(t),B=pecasUsadas(t,novos),mais={},menos={};
@@ -2476,7 +2490,7 @@ function formEditTroca(id){
         const ok=await safe(async()=>{
           /* horímetro convertido (troca de relógio) segue a mesma diferença */
           const effOld=t.hmConv??t.horimetro,effNew=Math.round((h0+(Number(effOld)-Number(t.horimetro)||0))*10)/10,dh=Math.round((effNew-Number(effOld))*10)/10;
-          await S.db.doc('trocas/'+id).update({data:dt,horimetro:h0,...(t.hmConv!=null?{hmConv:effNew}:{}),resp:sh.querySelector('#et-resp').value.trim(),obs:sh.querySelector('#et-obs').value.trim(),itens:novos,editado:Date.now()});
+          await S.db.doc('trocas/'+id).update({data:dt,horimetro:h0,...(t.hmConv!=null?{hmConv:effNew}:{}),resp:V.resp.trim(),obs:V.obs.trim(),itens:novos,editado:Date.now()});
           /* o plano só muda nos itens que ainda apontam para este registro */
           const pids=new Set(novos.map(i=>i.pid).filter(Boolean));
           if((dh||dt!==t.data)&&pids.size){let mud=false;const its2=(e.itens||[]).map(i=>{if(!pids.has(i.pid)||Number(i.ultimaH)!==Number(effOld))return i;mud=true;

@@ -849,8 +849,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=a930d47644"></script>
-<script src="shim.js?v=a930d47644"></script>
+<script src="config.js?v=a41a3c2b39"></script>
+<script src="shim.js?v=a41a3c2b39"></script>
 </head>
 <body>
 
@@ -1524,13 +1524,16 @@ function openMenu(mode){
   /* + abre por área: Frota · Estoque · Combustível · Ajustes do app (sugestão A) */
   const T={
     '':{title:'Menu',sub:'Escolha a área',body:mi('frota',I.equip,'Frota','Preventivas, equipamentos e horímetro')+mi('est',I.estoque,'Estoque','Entrada, saída, filtros, óleos, kits e compras')+mi('comb',I.comb,'Combustível','Abastecimentos')+mi('aj',DB_IC,'Ajustes do app','Listas do app e cópia de segurança')},
-    frota:{title:'Frota',sub:'Preventivas, equipamentos e horímetro',body:mi('reg',I.manut,'Registrar preventiva','Troca de óleos e filtros, ou filtros de ar')+mi('g:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('thm',I.manut,'Troca de horímetro','O relógio de horas foi substituído')
+    frota:{title:'Frota',sub:'Preventivas, equipamentos e horímetro',body:mi('x:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('reg',I.manut,'Preventiva','Troca de óleos e filtros, ou filtros de ar')+mi('thm',I.manut,'Troca de horímetro','O relógio de horas foi substituído')
       +g('Correções')+mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')+mi('dl-tr',DEL,'Excluir preventiva','Apaga um registro de preventiva ou reprogramação')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saída do estoque','Retirada avulsa, fora das preventivas')
-      +mi('g:st',I.estoque,'Filtros e óleos','Novo, editar ou excluir')+mi('g:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')},
+      +mi('x:st',I.estoque,'Filtros e óleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')},
     comb:{title:'Combustível',sub:'Abastecimentos',body:mi('abast',I.comb,'Abastecimento','Litros e horímetro para o consumo por hora')+g('Correções')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o último abastecimento de um equipamento')},
     aj:{title:'Ajustes do app',sub:'Listas e cópia de segurança',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietários','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:locais',I.aloc,'Locais de alocação','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Áreas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
       +g('Dados')+mi('backup',BK_IC,'Cópia de segurança','Baixa um arquivo com todos os dados do app')}};
+  /* tela limpa: Novo · Editar · Excluir */
+  const X=(t,k,n)=>({title:t,sub:'O que você quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
+  T['x:eq']=X('Equipamentos','eq','equipamento');T['x:st']=X('Filtros e óleos','st','item do estoque');T['x:kit']=X('Kits','kit','kit');
   const v=T[mode||'']||T[''];
   openSheet({title:v.title,sub:v.sub,body:`<div class="menu">${v.body}</div>`,
     mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;

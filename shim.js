@@ -20,77 +20,138 @@
   const err=(e,code)=>{const x=new Error((e&&e.message)||String(e));x.code=code||(e&&e.code==='42501'?'permission_denied':(e&&e.code==='P0002'?'not_found':'unavailable'));x.cause=e;return x};
   const later=(fn,ms)=>{let t;return()=>{clearTimeout(t);t=setTimeout(fn,ms)}};
 
-  /* ---------- banco: coleções em memória sincronizadas em tempo real ---------- */
-  const cols=new Map();      // parent -> {rows:Map(path->data), ready:Promise, subs:Set, notify}
-  const docSubs=new Map();   // path -> Set(cb)
-  const qSubs=new Map();     // parent -> Set(refetch)
-  const snapDoc=(path,data)=>({id:idOf(path),exists:data!=null,data:()=>data==null?undefined:data,metadata:{fromCache:false,hasPendingWrites:false}});
-  const snapCol=rows=>{const docs=[...rows.entries()].sort((a,b)=>a[0]<b[0]?-1:a[0]>b[0]?1:0).map(([p,d])=>snapDoc(p,d));return {docs,size:docs.length,empty:!docs.length,docChanges:()=>[],metadata:{fromCache:false,hasPendingWrites:false}}};
-  async function fetchAll(parent){const rows=new Map();let from=0;const N=1000;
-    for(;;){const {data,error}=await sb.from('docs').select('path,data').eq('parent',parent).order('path').range(from,from+N-1);if(error)throw err(error);
-      data.forEach(r=>rows.set(r.path,r.data));if(data.length<N)break;from+=N}
-    return rows}
-  function colEntry(parent){let c=cols.get(parent);if(c)return c;
-    c={rows:new Map(),subs:new Set(),loaded:false};c.notify=later(()=>{const s=snapCol(c.rows);c.subs.forEach(cb=>{try{cb(s)}catch(e){console.error(e)}})},25);
-    c.ready=fetchAll(parent).then(r=>{c.rows=r;c.loaded=true}).catch(e=>{cols.delete(parent);throw e});
-    cols.set(parent,c);return c}
-  function apply(path,data){const parent=parentOf(path),c=cols.get(parent);
-    if(c&&c.loaded){if(data==null)c.rows.delete(path);else c.rows.set(path,data);c.notify()}
-    const ds=docSubs.get(path);if(ds)ds.forEach(cb=>{try{cb(snapDoc(path,data))}catch(e){console.error(e)}});
-    const qs=qSubs.get(parent);if(qs)qs.forEach(f=>f())}
-  async function refetchLoaded(){for(const [parent,c] of cols){if(!c.loaded)continue;try{c.rows=await fetchAll(parent);c.notify()}catch(e){console.error(e)}}
-    for(const [path,set] of docSubs){if(!set.size)continue;const c=cols.get(parentOf(path));if(c&&c.loaded){const d=c.rows.get(path);set.forEach(cb=>cb(snapDoc(path,d??null)));continue}
-      try{const {data}=await sb.from('docs').select('data').eq('path',path).maybeSingle();set.forEach(cb=>cb(snapDoc(path,data?data.data:null)))}catch(e){}}
-    for(const [,set] of qSubs)set.forEach(f=>f())}
+  /* ---------- banco: tudo guardado no aparelho (funciona sem internet) ----------
+     Os dados ficam numa cópia local (IndexedDB). Ler é sempre local.
+     Gravar muda a cópia local na hora e entra numa fila; a fila é enviada quando houver internet.
+     O que chega do servidor (tempo real ou recarga) é aplicado por cima, reaplicando o que ainda está na fila. */
+  const DOCS=new Map(),KIDS=new Map();          // path -> data · parent -> Set(path)
+  let OUT=[];                                    // fila de envio [{k,op,path,data,patch,id,type}]
+  const LOCALBLOB=new Map();                     // fotos ainda não enviadas: id -> objectURL
+  const remoteUrl=id=>`${CFG.url}/storage/v1/object/public/${BUCKET}/${encodeURIComponent(id)}`;
+  window.__blobUrl=id=>LOCALBLOB.get(id)||remoteUrl(id);
+  let IDBH=null;
+  const idbOpen=()=>new Promise((ok,no)=>{if(!('indexedDB' in window)){ok(null);return}const r=indexedDB.open('frota',1);
+    r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('docs');d.createObjectStore('meta');d.createObjectStore('outbox',{keyPath:'k',autoIncrement:true});d.createObjectStore('blobs')};
+    r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)});
+  const rq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+  const st=(name,mode)=>IDBH?IDBH.transaction(name,mode||'readonly').objectStore(name):null;
+  const idbPut=(name,key,val)=>{try{const o=st(name,'readwrite');if(o)return rq(key==null?o.put(val):o.put(val,key)).catch(e=>console.error(e))}catch(e){console.error(e)}return Promise.resolve()};
+  const idbDel=(name,key)=>{try{const o=st(name,'readwrite');if(o)return rq(o.delete(key)).catch(e=>console.error(e))}catch(e){console.error(e)}return Promise.resolve()};
+  const idbGet=(name,key)=>{try{const o=st(name);return o?rq(o.get(key)):Promise.resolve(undefined)}catch(e){return Promise.resolve(undefined)}};
+  const metaGet=k=>idbGet('meta',k),metaSet=(k,v)=>idbPut('meta',k,v);
+
+  const colSubs=new Map(),docSubs=new Map(),qSubs=new Map();
+  const snapDoc=(path,data)=>({id:idOf(path),exists:data!=null,data:()=>data==null?undefined:clone(data),metadata:{fromCache:true,hasPendingWrites:false}});
+  const rowsOf=parent=>[...(KIDS.get(parent)||[])].sort().map(p=>[p,DOCS.get(p)]);
+  const snapCol=parent=>{const docs=rowsOf(parent).map(([p,d])=>snapDoc(p,d));return {docs,size:docs.length,empty:!docs.length,docChanges:()=>[],metadata:{fromCache:true,hasPendingWrites:false}}};
+  const dirty=new Set();let notT=null;
+  function notifyLater(parent,path){dirty.add(parent+'\u0000'+path);if(notT)return;notT=setTimeout(()=>{notT=null;const ds=[...dirty];dirty.clear();const parents=new Set();
+    ds.forEach(x=>{const [pa,pt]=x.split('\u0000');parents.add(pa);const s=docSubs.get(pt);if(s)s.forEach(cb=>{try{cb(snapDoc(pt,DOCS.get(pt)??null))}catch(e){console.error(e)}})});
+    parents.forEach(pa=>{const s=colSubs.get(pa);if(s){const sn=snapCol(pa);s.forEach(cb=>{try{cb(sn)}catch(e){console.error(e)}})}const q=qSubs.get(pa);if(q)q.forEach(f=>f())});
+    setTimeout(updSync,0)},20)}
+  function setLocal(path,data,persist=true){const parent=parentOf(path);
+    if(data==null){DOCS.delete(path);const k=KIDS.get(parent);if(k)k.delete(path)}else{DOCS.set(path,data);let k=KIDS.get(parent);if(!k)KIDS.set(parent,k=new Set());k.add(path)}
+    if(persist){if(data==null)idbDel('docs',path);else idbPut('docs',path,{parent,data})}
+    notifyLater(parent,path)}
+  const replay=(base,o)=>o.op==='set'?clone(o.data):o.op==='update'?(base?{...base,...clone(o.patch)}:base):o.op==='delete'?null:base;
+  const pendingFor=path=>OUT.filter(o=>o.path===path&&(o.op==='set'||o.op==='update'||o.op==='delete'));
+  function remoteApply(path,data){let d=data==null?null:data;pendingFor(path).forEach(o=>{d=replay(d,o)});setLocal(path,d)}
+
+  /* fila de envio */
+  async function enqueue(o){o.ts=Date.now();OUT.push(o);
+    if(IDBH){try{o.k=await rq(st('outbox','readwrite').add(o))}catch(e){console.error(e)}}
+    updSync();flushSoon()}
+  let netOk=navigator.onLine,flushing=false,flushT=null;
+  const flushSoon=()=>{clearTimeout(flushT);flushT=setTimeout(flush,50)};
+  const isNet=e=>!e||/fetch|network|load failed|timeout|offline/i.test(String(e.message||e))||(!e.code&&!e.status);
+  async function runOp(o){
+    if(o.op==='set'){const {error}=await sb.from('docs').upsert({path:o.path,parent:parentOf(o.path),data:o.data,updated_at:new Date().toISOString()});if(error)throw error;return}
+    if(o.op==='update'){const {error}=await sb.rpc('doc_update',{p_path:o.path,p_patch:o.patch});
+      if(error&&error.code==='P0002'){const d=DOCS.get(o.path);if(d){const r=await sb.from('docs').upsert({path:o.path,parent:parentOf(o.path),data:d,updated_at:new Date().toISOString()});if(r.error)throw r.error}return}
+      if(error)throw error;return}
+    if(o.op==='delete'){const {error}=await sb.from('docs').delete().eq('path',o.path);if(error)throw error;return}
+    if(o.op==='upload'){const b=await idbGet('blobs',o.id);if(!b)return;const {error}=await sb.storage.from(BUCKET).upload(o.id,b.blob,{contentType:o.type,cacheControl:'31536000',upsert:true});if(error)throw error;idbDel('blobs',o.id);return}
+    if(o.op==='rmfile'){const {error}=await sb.storage.from(BUCKET).remove([o.id]);if(error)throw error;return}}
+  async function flush(){if(flushing||!OUT.length)return;if(!navigator.onLine){netOk=false;updSync();return}flushing=true;updSync();
+    try{while(OUT.length){const o=OUT[0];
+      try{await runOp(o);netOk=true}
+      catch(e){if(isNet(e)){netOk=false;break}console.error('envio recusado',o,e);avisar('Alteração não enviada','O servidor recusou uma alteração feita sem internet.')}
+      OUT.shift();if(o.k!=null)idbDel('outbox',o.k)}}
+    finally{flushing=false;updSync()}}
+  setInterval(()=>{if(OUT.length)flush()},20000);
+
+  /* recarga completa do servidor (ao abrir, ao voltar a internet e depois de importar) */
+  let pulling=null;
+  function pull(){if(pulling)return pulling;pulling=(async()=>{
+    const srv=new Map();let from=0;const N=1000;
+    for(;;){const {data,error}=await sb.from('docs').select('path,parent,data').order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>srv.set(r.path,r.data));if(data.length<N)break;from+=N}
+    const pend=new Set(OUT.map(o=>o.path).filter(Boolean));
+    [...DOCS.keys()].forEach(p=>{if(!srv.has(p)&&!pend.has(p))setLocal(p,null,false)});
+    srv.forEach((d,p)=>{let x=d;pendingFor(p).forEach(o=>{x=replay(x,o)});const cur=DOCS.get(p);if(JSON.stringify(cur)!==JSON.stringify(x))setLocal(p,x,false)});
+    if(IDBH){await new Promise(ok=>{const t=IDBH.transaction('docs','readwrite'),o=t.objectStore('docs');o.clear();DOCS.forEach((d,p)=>o.put({parent:parentOf(p),data:d},p));t.oncomplete=ok;t.onerror=ok;t.onabort=ok})}
+    await metaSet('pulled',Date.now());netOk=true})().catch(e=>{if(isNet(e))netOk=false;else console.error(e);throw e}).finally(()=>{pulling=null;updSync()});return pulling}
+  const sincronizar=()=>flush().then(()=>pull()).then(()=>flush()).catch(()=>{});
+
+  /* abre a cópia local */
+  async function dbInit(){IDBH=await idbOpen();if(!IDBH)return false;
+    try{const t=IDBH.transaction(['docs','outbox','blobs'],'readonly');
+      const [keys,vals,outs,bks,bvs]=await Promise.all([rq(t.objectStore('docs').getAllKeys()),rq(t.objectStore('docs').getAll()),rq(t.objectStore('outbox').getAll()),rq(t.objectStore('blobs').getAllKeys()),rq(t.objectStore('blobs').getAll())]);
+      keys.forEach((p,i)=>{const v=vals[i];DOCS.set(p,v.data);let k=KIDS.get(v.parent);if(!k)KIDS.set(v.parent,k=new Set());k.add(p)});
+      OUT=outs;bks.forEach((id,i)=>{try{LOCALBLOB.set(id,URL.createObjectURL(bvs[i].blob))}catch(e){}})}catch(e){console.error(e)}
+    return !!(await metaGet('pulled'))}
+
+  /* tempo real */
   let channel=null,wasSub=false;
   function realtime(){if(channel)return;channel=sb.channel('docs-all').on('postgres_changes',{event:'*',schema:'public',table:'docs'},p=>{
       const row=p.new&&p.new.path?p.new:null,old=p.old&&p.old.path?p.old:null;
-      if(p.eventType==='DELETE'){if(old)apply(old.path,null)}else if(row)apply(row.path,row.data)})
-    .subscribe(st=>{if(st==='SUBSCRIBED'){if(wasSub)refetchLoaded();wasSub=true;setSync(true)}else if(st==='CHANNEL_ERROR'||st==='TIMED_OUT'||st==='CLOSED')setSync(false)})}
-  function setSync(on){const s=document.getElementById('sync');if(!s)return;if(!on){s.textContent=navigator.onLine?'Reconectando':'Sem internet';s.className='sync off'}else if(/Reconectando|Sem internet/.test(s.textContent)){s.textContent='Sincronizado';s.className='sync on'}}
-  addEventListener('offline',()=>setSync(false));addEventListener('online',()=>{setSync(true);refetchLoaded()});
-  let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>60000)refetchLoaded()});
+      if(p.eventType==='DELETE'){if(old)remoteApply(old.path,null)}else if(row)remoteApply(row.path,row.data)})
+    .subscribe(s=>{if(s==='SUBSCRIBED'){if(wasSub)sincronizar();wasSub=true;netOk=true;updSync()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED'){netOk=false;updSync()}})}
+  function updSync(){const el=document.getElementById('sync');if(!el)return;const n=OUT.length,on=navigator.onLine&&netOk;
+    const t=!on?(n?`Sem internet · ${n} pendente${n>1?'s':''}`:'Sem internet'):n?'Sincronizando…':'Sincronizado';
+    if(el.textContent!==t)el.textContent=t;el.className='sync '+(on&&!n?'on':'off')}
+  addEventListener('offline',()=>{netOk=false;updSync()});addEventListener('online',()=>{netOk=true;updSync();sincronizar()});
+  let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>60000)sincronizar()});
 
-  const OPS={'==':'eq','!=':'neq','<':'lt','<=':'lte','>':'gt','>=':'gte'};
+  /* consultas feitas na cópia local */
+  const cmp=(a,b)=>{if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;if(typeof a==='number'&&typeof b==='number')return a-b;const x=String(a),y=String(b);return x<y?-1:x>y?1:0};
+  const TEST={'==':(a,b)=>a==b||String(a)===String(b),'!=':(a,b)=>!(a==b||String(a)===String(b)),'<':(a,b)=>a!=null&&cmp(a,b)<0,'<=':(a,b)=>a!=null&&cmp(a,b)<=0,'>':(a,b)=>a!=null&&cmp(a,b)>0,'>=':(a,b)=>a!=null&&cmp(a,b)>=0,
+    'in':(a,b)=>b.map(String).includes(String(a)),'not-in':(a,b)=>!b.map(String).includes(String(a))};
   function docRef(path){
     return {id:idOf(path),path,
-      async get(){const c=cols.get(parentOf(path));if(c&&c.loaded)return snapDoc(path,c.rows.get(path)??null);
-        const {data,error}=await sb.from('docs').select('data').eq('path',path).maybeSingle();if(error)throw err(error);return snapDoc(path,data?data.data:null)},
-      async set(d){const data=clone(d);const {error}=await sb.from('docs').upsert({path,parent:parentOf(path),data,updated_at:new Date().toISOString()});if(error)throw err(error);apply(path,data)},
-      async update(patch){const {data,error}=await sb.rpc('doc_update',{p_path:path,p_patch:clone(patch)});if(error)throw err(error,error.code==='P0002'?'not_found':undefined);apply(path,data)},
-      async delete(){const {error}=await sb.from('docs').delete().eq('path',path);if(error)throw err(error);apply(path,null)},
+      async get(){return snapDoc(path,DOCS.get(path)??null)},
+      async set(d){const data=clone(d);setLocal(path,data);await enqueue({op:'set',path,data})},
+      async update(patch){const cur=DOCS.get(path);if(!cur){const e=new Error('not_found');e.code='not_found';throw e}const p=clone(patch);setLocal(path,{...cur,...p});await enqueue({op:'update',path,patch:p})},
+      async delete(){setLocal(path,null);await enqueue({op:'delete',path})},
       onSnapshot(cb,onErr){let set=docSubs.get(path);if(!set)docSubs.set(path,set=new Set());set.add(cb);realtime();
-        this.get().then(s=>{if(set.has(cb))cb(s)}).catch(e=>onErr&&onErr(e));
-        return()=>set.delete(cb)}};
+        Promise.resolve().then(()=>{if(set.has(cb))cb(snapDoc(path,DOCS.get(path)??null))});return()=>set.delete(cb)}};
   }
   function query(parent,w,o,l){
-    async function run(){let q=sb.from('docs').select('path,data').eq('parent',parent);
-      for(const [f,op,v] of w){const col=`data->>${f}`;if(op==='in')q=q.in(col,v.map(String));else if(op==='not-in')q=q.not(col,'in',`(${v.map(x=>JSON.stringify(String(x))).join(',')})`);else if(OPS[op])q=q[OPS[op]](col,v===null?null:String(v));else throw err('operador não suportado: '+op,'invalid_argument')}
-      q=o?q.order(`data->${o[0]}`,{ascending:o[1]!=='desc',nullsFirst:false}):q.order('path');
-      const rows=new Map();
-      if(l){const {data,error}=await q.limit(l);if(error)throw err(error);data.forEach(r=>rows.set(r.path,r.data))}
-      else{let from=0;for(;;){const {data,error}=await q.range(from,from+999);if(error)throw err(error);data.forEach(r=>rows.set(r.path,r.data));if(data.length<1000)break;from+=1000}}
-      const docs=[...rows.entries()].map(([p,d])=>snapDoc(p,d));return {docs,size:docs.length,empty:!docs.length,docChanges:()=>[]}}
-    return {where:(f,op,v)=>query(parent,[...w,[f,op,v]],o,l),orderBy:(f,dir)=>query(parent,w,[f,dir||'asc'],l),limit:n=>query(parent,w,o,n),get:run,
-      onSnapshot(cb,onErr){realtime();let alive=true;const go=()=>run().then(s=>{if(alive)cb(s)}).catch(e=>onErr&&onErr(e));const f=later(go,120);
-        let set=qSubs.get(parent);if(!set)qSubs.set(parent,set=new Set());set.add(f);go();return()=>{alive=false;set.delete(f)}}};
+    function run(){let rows=rowsOf(parent).filter(([,d])=>w.every(([f,op,v])=>{const t=TEST[op];if(!t)throw err('operador não suportado: '+op,'invalid_argument');return t(d[f],v)}));
+      if(o)rows.sort((a,b)=>{const r=cmp(a[1][o[0]],b[1][o[0]]);return o[1]==='desc'?-r:r});if(l)rows=rows.slice(0,l);
+      const docs=rows.map(([p,d])=>snapDoc(p,d));return {docs,size:docs.length,empty:!docs.length,docChanges:()=>[]}}
+    return {where:(f,op,v)=>query(parent,[...w,[f,op,v]],o,l),orderBy:(f,dir)=>query(parent,w,[f,dir||'asc'],l),limit:n=>query(parent,w,o,n),get:async()=>run(),
+      onSnapshot(cb,onErr){realtime();let alive=true;const go=()=>{if(!alive)return;try{cb(run())}catch(e){onErr&&onErr(e)}};const f=later(go,60);
+        let set=qSubs.get(parent);if(!set)qSubs.set(parent,set=new Set());set.add(f);Promise.resolve().then(go);return()=>{alive=false;set.delete(f)}}};
   }
   function collection(parent){
     const q=query(parent,[],null,0);
     return {...q,path:parent,id:idOf(parent),
       doc:id=>docRef(parent+'/'+(id||rid())),
       async add(d){const r=docRef(parent+'/'+rid());await r.set(d);return r},
-      async get(){const c=colEntry(parent);await c.ready;return snapCol(c.rows)},
-      onSnapshot(cb,onErr){realtime();const c=colEntry(parent);c.subs.add(cb);c.ready.then(()=>{if(c.subs.has(cb))cb(snapCol(c.rows))}).catch(e=>{c.subs.delete(cb);onErr&&onErr(e)});return()=>c.subs.delete(cb)}};
+      async get(){return snapCol(parent)},
+      onSnapshot(cb,onErr){realtime();let set=colSubs.get(parent);if(!set)colSubs.set(parent,set=new Set());set.add(cb);
+        Promise.resolve().then(()=>{if(set.has(cb))cb(snapCol(parent))});return()=>set.delete(cb)}};
   }
   const DB=Object.freeze({doc:docRef,collection});
 
-  /* ---------- arquivos (fotos e PDFs) ---------- */
+  /* ---------- arquivos (fotos e PDFs): guardados no aparelho e enviados pela fila ---------- */
   const ASSETS=Object.freeze({
     async upload(blob,opts={}){const id=hex(32),type=opts.type||blob.type||'application/octet-stream';
-      const {error}=await sb.storage.from(BUCKET).upload(id,blob,{contentType:type,cacheControl:'31536000',upsert:false});if(error)throw err(error);
-      return {id,url:window.__blobUrl(id),sizeBytes:blob.size,contentType:type}},
-    async delete(id){const {error}=await sb.storage.from(BUCKET).remove([id]);if(error)throw err(error)},
+      await idbPut('blobs',id,{blob,type});try{LOCALBLOB.set(id,URL.createObjectURL(blob))}catch(e){}
+      await enqueue({op:'upload',id,type});return {id,url:window.__blobUrl(id),sizeBytes:blob.size,contentType:type}},
+    async delete(id){const i=OUT.findIndex(o=>o.op==='upload'&&o.id===id);
+      if(i>=0&&!(flushing&&i===0)){const o=OUT.splice(i,1)[0];if(o.k!=null)idbDel('outbox',o.k);idbDel('blobs',id);updSync();return}
+      await enqueue({op:'rmfile',id})},
     async list(){return {assets:[],usage:{}}}});
 
   /* ---------- baixar arquivo ---------- */
@@ -168,17 +229,28 @@
       const tentar=async()=>{if(ocupado)return;ocupado=true;x.textContent='';try{await dgConferir(d);ok()}catch(e){x.textContent=e&&e.name==='NotAllowedError'?'':'Não foi possível usar o desbloqueio do celular. Entre com e-mail e senha.'}ocupado=false};
       b.onclick=tentar;o.querySelector('#lk-o').onclick=async()=>{try{localStorage.removeItem(DGK)}catch(e){}await sb.auth.signOut()};
       setTimeout(tentar,250)})})}
+  /* sessão guardada no aparelho (para abrir sem internet) */
+  const sessaoGuardada=()=>{try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k));const s=v&&(v.currentSession||v);if(s&&s.user)return s}}}catch(e){}return null};
   async function start(){
-    const {data:{session}}=await sb.auth.getSession();
+    let session=null;try{({data:{session}}=await sb.auth.getSession())}catch(e){}
+    if(!session)session=sessaoGuardada();
     if(!session){loginForm();return}
     const dg=!acabouDeEntrar&&!started&&dgLer(session.user.id);if(dg){travaP=travaP||travar(dg);await travaP}
-    const {data,error}=await sb.from('perfis').select('user_id,email,nome,papel').eq('user_id',session.user.id).maybeSingle();
-    if(error){loginForm('Sem conexão com o servidor. Tente de novo.');return}
+    let pf=null;try{pf=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}if(pf&&pf.user_id!==session.user.id)pf=null;
+    let data=null,error=null;try{({data,error}=await sb.from('perfis').select('user_id,email,nome,papel').eq('user_id',session.user.id).maybeSingle())}catch(e){error=e}
+    if(error){if(!pf){loginForm('Sem conexão com o servidor. No primeiro acesso a internet é necessária.');return}data=pf}
     if(!data){waiting();return}
-    perfil=data;document.body.classList.remove('papel-admin','papel-editor','papel-consulta');document.body.classList.add('papel-'+perfil.papel);
-    closeScreen();if(!started){started=true;resolveReady()}
+    perfil=data;try{localStorage.setItem('frota.perfil',JSON.stringify(data))}catch(e){}
+    document.body.classList.remove('papel-admin','papel-editor','papel-consulta');document.body.classList.add('papel-'+perfil.papel);
+    if(!started){
+      const tem=await dbInit();
+      if(!tem){screen('<h1>Carregando os dados</h1><p>Baixando a frota para este aparelho…</p>');
+        try{await pull()}catch(e){screen('<h1>Sem internet</h1><p>No primeiro uso neste aparelho é preciso internet para baixar os dados. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="of-t">Tentar de novo</button>',o=>{o.querySelector('#of-t').onclick=()=>start()});return}}
+      else sincronizar();
+      closeScreen();started=true;resolveReady();setTimeout(updSync,300);realtime();return}
+    closeScreen()
   }
-  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'&&!started)start();if(ev==='SIGNED_OUT'){try{sessionStorage.clear()}catch(e){}location.reload()}});
+  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'&&!started)start();if(ev==='SIGNED_OUT'){try{sessionStorage.clear();localStorage.removeItem('frota.perfil')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
 
   /* ---------- conta e equipe (toque em "Sincronizado") ---------- */
   const PAPEL={admin:'Administrador',editor:'Editor',consulta:'Consulta'};
@@ -187,7 +259,7 @@
     if(!s||!perfil)return;ev.stopPropagation();ev.preventDefault();if(open)return;css();
     const d=document.createElement('div');d.id='acct';d.className='acct';
     d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
-    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>sb.auth.signOut();const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
+    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alterações ainda não enviadas',`Há ${OUT.length} ${OUT.length>1?'alterações':'alteração'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}sb.auth.signOut()};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
     const dr=d.querySelector('#ac-dg'),sw=dr.querySelector('.sw');const pinta=()=>sw.setAttribute('aria-checked',!!dgLer(perfil.user_id));pinta();
     dgPode().then(v=>{dr.hidden=!v});
     sw.onclick=async()=>{if(dgLer(perfil.user_id)){try{localStorage.removeItem(DGK)}catch(e){}pinta();avisar('Digital desativada','O app abre sem pedir a digital');return}
@@ -214,7 +286,7 @@
           let falhas=0,k=0;for(const [id,b64] of arqs){const tipo=(dados.tipos||{})[id]||'application/octet-stream';x.textContent=`Enviando fotos e documentos (${++k} de ${arqs.length})…`;
             const bin=atob(b64),u8=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)u8[j]=bin.charCodeAt(j);
             const {error}=await sb.storage.from(BUCKET).upload(id,new Blob([u8],{type:tipo}),{contentType:tipo,cacheControl:'31536000',upsert:true});if(error)falhas++;tick()}
-          x.style.color=falhas?'var(--bad)':'var(--ok)';x.textContent=falhas?`Concluído com ${falhas} arquivo(s) sem enviar. Importe de novo o mesmo pacote para tentar outra vez.`:`Pronto: ${docs.length} registros e ${arqs.length} arquivos importados.`;refetchLoaded()}
+          x.style.color=falhas?'var(--bad)':'var(--ok)';x.textContent=falhas?`Concluído com ${falhas} arquivo(s) sem enviar. Importe de novo o mesmo pacote para tentar outra vez.`:`Pronto: ${docs.length} registros e ${arqs.length} arquivos importados.`;pull().catch(()=>{})}
         catch(e){console.error(e);x.style.color='var(--bad)';x.textContent='Não foi possível importar: '+((e&&e.message)||'erro')+'. Confira a internet e tente de novo.'}}})}
 
   /* ---------- o que o app pede ---------- */

@@ -201,12 +201,12 @@
         o.querySelector('#eq-ok').onclick=closeScreen})}
 
   /* ---------- importar o pacote de mudança (dados + fotos e documentos do app antigo) ---------- */
-  function importar(){screen(`<h1>Importar dados</h1><p>Escolha o pacote de mudança (.json) que o Claude preparou. Dados com o mesmo caminho são substituídos; nada é apagado.</p>
+  function importar(){screen(`<h1>Importar dados</h1><p>Escolha o arquivo (.json) que o Claude preparou. Dados com o mesmo caminho são substituídos; nada é apagado.</p>
     <div class="lg-f"><label class="btn pri" style="position:relative;overflow:hidden">Escolher pacote<input id="imp-f" type="file" accept=".json,application/json" style="position:absolute;inset:0;opacity:0"></label>
     <div class="imp-p" hidden id="imp-pb"><i></i></div><div class="lg-e" id="imp-x" style="color:var(--muted)"></div></div><button type="button" class="btn" id="imp-ok">Fechar</button>`,o=>{
       o.querySelector('#imp-ok').onclick=closeScreen;const x=o.querySelector('#imp-x'),pb=o.querySelector('#imp-pb'),bar=pb.querySelector('i');
       o.querySelector('#imp-f').onchange=async ev=>{const f=ev.target.files[0];if(!f)return;x.style.color='var(--muted)';x.textContent='Lendo o pacote…';pb.hidden=false;bar.style.width='0';
-        try{const dados=JSON.parse(await f.text());if(!dados||!dados.docs)throw new Error('arquivo não é um pacote do app');
+        try{const dados=JSON.parse(await f.text());if(dados&&Array.isArray(dados.abast)&&window.__frotaLote){closeScreen();window.__frotaLote(dados.abast);return}if(!dados||!dados.docs)throw new Error('arquivo não é um pacote do app');
           const docs=Object.entries(dados.docs),arqs=Object.entries(dados.arquivos||{});
           const tot=docs.length+arqs.length||1;let feito=0;const tick=()=>{bar.style.width=Math.round(++feito/tot*100)+'%'};
           for(let i=0;i<docs.length;i+=200){const lote=docs.slice(i,i+200).map(([path,data])=>({path,parent:parentOf(path),data}));

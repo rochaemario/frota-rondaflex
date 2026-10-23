@@ -814,7 +814,12 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .confirm{background:var(--bad-bg);border-radius:14px;padding:13px;margin-top:12px;display:flex;flex-direction:column;gap:10px;font-size:14px}
 .confirm .b{display:flex;gap:8px}.confirm .b .btn{flex:1}
 .dv-ask{margin-top:14px;background:var(--card,#fff);border:1px solid var(--line,#e3e7ee);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px}.dv-ask>b{font-size:15px}
-.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.et-i+.et-i{box-shadow:inset 0 1px 0 var(--line)}
+.dv-l{margin:0;padding:0;background:none;border:0;box-shadow:none}.dv-l .r{padding:0!important;border:0!important}.dv-l .r.ls>span:empty{display:none}.lt-r{display:flex;align-items:center;gap:12px;padding:10px 13px;border:0;border-left:3px solid transparent;width:100%;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}.lt-r:disabled{cursor:default}
+.lt-k{flex:none;width:20px;height:20px;border-radius:6px;background:var(--accent,#0033a0);position:relative}.lt-k:after{content:'';position:absolute;left:7px;top:3px;width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.lt-r.off .lt-k{background:none;box-shadow:inset 0 0 0 2px var(--line-2,#c9cfda)}.lt-r.off .lt-k:after{display:none}.lt-r.off .lt-c,.lt-r.off .lt-m b{opacity:.5}.lt-r:disabled .lt-k{visibility:hidden}.lt-r+.lt-r{box-shadow:inset 0 1px 0 var(--line)}
+.lt-c{flex:none;width:64px;font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lt-r.fo .lt-c{width:96px}.lt-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.lt-m b{font-size:14px;font-weight:600}.lt-m small{font-size:12.5px;color:var(--muted)}
+.lt-r.av{border-left-color:#ffb800}.lt-r.er{border-left-color:#d6002e}.lt-r.er .lt-m small{color:#d6002e}.lt-r.fo{opacity:.6}
+.et-i+.et-i{box-shadow:inset 0 1px 0 var(--line)}
 .et-l{flex:none;color:var(--muted);font-size:14px}.et-v{flex:1;min-width:0;text-align:right;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.et-v.mud{color:var(--accent,#0033a0)}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
@@ -866,8 +871,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=97aafd6b41"></script>
-<script src="shim.js?v=97aafd6b41"></script>
+<script src="config.js?v=896275d0c1"></script>
+<script src="shim.js?v=896275d0c1"></script>
 </head>
 <body>
 
@@ -1113,18 +1118,57 @@ function formAbast(){
           box.innerHTML=`<div class="eqv-ask"><b>Consumo fora do normal</b><p class="note" style="margin:0">Este abastecimento dá <b>${nf(lh,1)} L/h</b>. A média de ${esc(e.codigo)} é ${nf(md0,1)} L/h. Confira o horímetro e os litros.</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-go>Os valores estão certos</button></div></div>`;
           box.querySelector('[data-x]').onclick=()=>box.innerHTML='';box.querySelector('[data-go]').onclick=()=>{hmSt.cons=true;box.innerHTML='';sh.querySelector('#fab-f').onsubmit({preventDefault(){}})};
           box.scrollIntoView({block:'start',behavior:'smooth'});return}}
-      const m=mesKey(dt),ref=S.db.collection('comb/'+m+'/abast').doc();
-      const ok=await safe(async()=>{
-        await ref.set({equipId:e.id,data:dt,horimetro:h0,...(g.dl?{hmConv:h}:{}),litros:l,cheio,horas,lh,litrosMedidos:horas?L:null,tipo:e.tipo||'',alocacao:e.alocacao||'',area:e.area||'',frente:e.frente||'',resp:sh.querySelector('#ab-r').value.trim(),obs:sh.querySelector('#ab-o').value.trim(),ts:Date.now(),
-          antBase:b||null,antUlt:e.combUlt||null,antUltData:e.combUltData||''});
-        const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},x=(d.eq||{})[e.id]||{lt:0,n:0,l:0,h:0};
-        const dk=dt.slice(8,10),dia={...(d.dia||{})};dia[dk]=Math.round(((dia[dk]||0)+l)*10)/10;
-        await md.set({...d,dia,eq:{...(d.eq||{}),[e.id]:{lt:Math.round((x.lt+l)*10)/10,n:x.n+1,l:Math.round((x.l+(horas?L:0))*10)/10,h:Math.round((x.h+(horas||0))*10)/10}}});
-        const up={combBase:nb,combUlt:{mes:m,id:ref.id},combUltData:dt};
-        if(h>(Number(e.horimetro)||0)){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
-        await S.db.doc('equipamentos/'+e.id).update(up)},lh!=null?`Abastecimento lançado · ${nf(lh,1)} L/h`:'Abastecimento lançado');
+      const ok=await safe(()=>abastGravar(e,{dt,h0,h,dl:g.dl,l,cheio,horas,lh,L,nb,b,resp:sh.querySelector('#ab-r').value.trim(),obs:sh.querySelector('#ab-o').value.trim()}),lh!=null?`Abastecimento lançado · ${nf(lh,1)} L/h`:'Abastecimento lançado');
       if(ok)goBack()};
   }});
+}
+/* grava um abastecimento: registro do mês, resumo do mês e base de consumo do equipamento */
+async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs=''}){
+  const m=mesKey(dt),ref=S.db.collection('comb/'+m+'/abast').doc();
+  await ref.set({equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),litros:l,cheio,horas,lh,litrosMedidos:horas?L:null,tipo:e.tipo||'',alocacao:e.alocacao||'',area:e.area||'',frente:e.frente||'',resp,obs,ts:Date.now(),
+    antBase:b||null,antUlt:e.combUlt||null,antUltData:e.combUltData||''});
+  const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},x=(d.eq||{})[e.id]||{lt:0,n:0,l:0,h:0};
+  const dk=dt.slice(8,10),dia={...(d.dia||{})};dia[dk]=Math.round(((dia[dk]||0)+l)*10)/10;
+  await md.set({...d,dia,eq:{...(d.eq||{}),[e.id]:{lt:Math.round((x.lt+l)*10)/10,n:x.n+1,l:Math.round((x.l+(horas?L:0))*10)/10,h:Math.round((x.h+(horas||0))*10)/10}}});
+  const up={combBase:nb,combUlt:{mes:m,id:ref.id},combUltData:dt};
+  if(h>(Number(e.horimetro)||0)){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
+  await S.db.doc('equipamentos/'+e.id).update(up);
+  Object.assign(e,up);return up}
+/* abastecimentos em lote (pacote preparado pelo Claude a partir das folhas):
+   confere cada linha como o lançamento manual e só grava depois de confirmar */
+function calcAbast(e,dt,h0,l,cheio){const dl=hmDeltaApos(e.id,dt),h=Math.round((h0+dl)*10)/10,b=e.combBase||null;let horas=null,lh=null,L=0,nb,erro='';
+  if(e.combUltData&&dt<e.combUltData)erro=`Há abastecimento mais recente (${fdate(e.combUltData)})`;
+  else if(hmRecua(e,h,dt))erro=`Horímetro menor que a última leitura (${nf(e.horimetro)} h)`;
+  else if(cheio&&b&&b.h!=null){horas=Math.round((h-b.h)*10)/10;if(!(horas>0))erro=`Horímetro menor que o do último tanque cheio (${nf(b.h)} h)`;else{L=Math.round((l+(b.pend||0))*10)/10;lh=Math.round(L/horas*100)/100;nb={h,data:dt,pend:0}}}
+  else if(cheio)nb={h,data:dt,pend:0};
+  else nb=b?{...b,pend:Math.round(((b.pend||0)+l)*10)/10}:null;
+  return {dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,erro}}
+window.__frotaLote=lista=>openLoteAbast(lista);
+async function openLoteAbast(lista){
+  nav('lote',()=>openLoteAbast(lista));
+  const achar=x=>{const c=nzCod(x.equip),pl=nzCod(x.placa);return S.equips.find(e=>c&&nzCod(e.codigo)===c)||S.equips.find(e=>pl&&e.placa&&nzCod(e.placa)===pl)};
+  const fora=[],rows=[];lista.forEach(x=>{const e=achar(x);if(e)rows.push({x,e});else fora.push(x)});
+  rows.sort((a,b)=>a.x.data.localeCompare(b.x.data)||a.e.codigo.localeCompare(b.e.codigo)||a.x.horimetro-b.x.horimetro);
+  /* simula em sequência: cada linha usa a base deixada pela anterior do mesmo equipamento */
+  const sim={};for(const r of rows){const e0=sim[r.e.id]||{...r.e};const c=calcAbast(e0,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);r.c=c;
+    if(!c.erro){if(c.lh!=null){const md=await combMedia(r.e.id,r.x.data);if(md&&(c.lh>md*1.5||c.lh<md*0.5))r.aviso=`Consumo fora do normal (média ${nf(md,1)} L/h)`}
+      const sj=hmSalto(e0,c.h,r.x.data);if(sj){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horímetro ${nf(sj.dif)} h acima do esperado`;r.fora=true}
+      sim[r.e.id]={...e0,combBase:c.nb,combUltData:r.x.data,...(c.h>(Number(e0.horimetro)||0)?{horimetro:c.h,horimetroData:r.x.data}:{})}}}
+  rows.forEach((r,i)=>{r.i=i;r.sel=!r.c.erro&&!r.fora});
+  const linha=r=>`<button type="button" class="lt-r${r.c.erro?' er':r.aviso?' av':''}${r.sel?'':' off'}" data-lt="${r.i}"${r.c.erro?' disabled':''}><span class="lt-k" aria-hidden="true"></span><span class="lt-c num">${esc(r.e.codigo)}</span><span class="lt-m"><b class="num">${nf(r.x.horimetro)} h · ${nf(r.x.litros,1)} L</b><small>${r.c.erro?esc(r.c.erro):r.aviso?esc(r.aviso):r.c.lh!=null?nf(r.c.lh,1)+' L/h':'Vira a base da medição'}</small></span></button>`;
+  const dias=[...new Set(rows.map(r=>r.x.data))];
+  const nSel=()=>rows.filter(r=>r.sel).length;
+  openSheet({title:'Abastecimentos',sub:`Folha de ${dias.map(d=>fdate(d).slice(0,5)).join(' e ')}${fora.length?` · ${fora.length} fora da base`:''}`,
+  body:`${dias.map(d=>`<div class="lbl" style="margin-top:12px">${fdate(d)}</div><div class="list">${rows.filter(r=>r.x.data===d).map(linha).join('')}</div>`).join('')}
+    ${fora.length?`<div class="lbl" style="margin-top:16px">Fora da base · não serão lançados</div><div class="list">${fora.map(x=>`<div class="lt-r fo"><span class="lt-c num">${esc(x.equip||'—')}</span><span class="lt-m"><b class="num">${fdate(x.data)} · ${nf(x.litros,1)} L</b>${x.placa?`<small>${esc(x.placa)}</small>`:''}</span></div>`).join('')}</div>`:''}
+    <p class="note" style="margin:12px 2px 0">Toque numa linha para incluir ou tirar do lançamento. Linhas com horímetro muito acima do esperado já vêm desmarcadas; confira antes. Todos como tanque cheio.</p><div id="lt-st"></div>`,
+  foot:`<button type="button" class="btn pri" id="lt-go"></button>`,
+  mount:sh=>{const go=sh.querySelector('#lt-go');const txt=()=>{const n=nSel();go.disabled=!n;go.textContent=n?`Lançar ${n} abastecimento${n===1?'':'s'}`:'Nada marcado'};txt();
+    sh.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const r=rows[Number(b.dataset.lt)];r.sel=!r.sel;b.classList.toggle('off',!r.sel);txt()});
+    go.onclick=async()=>{const ok=rows.filter(r=>r.sel);go.disabled=true;let n=0,f=0;
+    for(const r of ok){go.textContent=`Lançando ${n+f+1} de ${ok.length}…`;const e=eqById(r.e.id);const c=calcAbast(e,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);
+      if(c.erro){f++;continue}try{await abastGravar(e,c);n++}catch(er){console.error(er);f++}}
+    toast(f?`${n} lançados · ${f} não lançados`:`${n} abastecimentos lançados`);goBack()}}});
 }
 /* + › Cópia de segurança: um arquivo JSON com todas as coleções (fotos e documentos ficam só como referência) */
 async function backupAll(btn){if(backupAll.busy)return;

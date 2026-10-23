@@ -817,8 +817,10 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .sug-w{position:relative}.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:30;background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:0 12px 30px rgba(10,21,16,.2);max-height:min(46vh,380px);overflow-y:auto;padding:6px}
 .sug:empty{display:none}.sug .mv-hit{margin:0}
 #mv-c,#s-idq,.ct-c,#esq,#pe-q,#pd-q,#pq{scroll-margin-top:calc(70px + env(safe-area-inset-top,0px))}
+.gr-r{display:flex;align-items:stretch}.gr-r>:first-child{flex:1;min-width:0}.tsec-l>.gr-r+.gr-r{box-shadow:inset 0 1px 0 var(--line)}
+.gr-x{flex:none;width:48px;border:0;background:none;color:var(--faint);display:grid;place-items:center;cursor:pointer}.gr-x svg{width:19px;height:19px}.gr-x:active{color:var(--bad)}
 .rd-row{min-height:44px;gap:8px;color:var(--accent);border-color:var(--accent);background:var(--surface)}.rd-row svg{width:20px;height:20px}
-#mv-camw .rd-row,#s-idf .rd-row,.ct-pk .rd-row,#k-cam,#t-cam{margin-top:8px}#t-cam{margin-bottom:8px}#pd-cam,#pe-cam{margin-top:8px}
+#mv-camw .rd-row,#s-idf .rd-row,.ct-pk .rd-row,#k-cam,#t-cam{margin-top:8px}#t-cam{margin-bottom:8px}#pd-cam,#pe-cam,#gr-cam{margin-top:8px}
 .mv-card{display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:0;background:var(--ok-bg);font:inherit;color:var(--fg);cursor:pointer}
 .mv-card b{font-size:15px}.mv-card>span{font-size:13px;color:var(--muted)}.mv-card em{font-style:normal;font-size:12px;font-weight:600;color:var(--ok);margin-top:2px}
 .mv-tr{display:flex;justify-content:flex-end;margin-top:4px}.mv-tr .lnk{background:none;border:0;padding:6px 4px;font:inherit;font-size:13.5px;font-weight:600;color:var(--accent);cursor:pointer}
@@ -847,8 +849,8 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=356af4eea2"></script>
-<script src="shim.js?v=356af4eea2"></script>
+<script src="config.js?v=a930d47644"></script>
+<script src="shim.js?v=a930d47644"></script>
 </head>
 <body>
 
@@ -1516,20 +1518,29 @@ function openMenu(mode){
   const MV_IN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M4 20h16"/></svg>',MV_OUT='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>';
   const DEL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
   const EDI='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>';
-  const listas=`<div class="mgrp">Listas</div>${mi('donos',ICON_USER,'Proprietários','Donos dos equipamentos da frota')}${mi('tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')}
-    ${mi('locais',I.aloc,'Locais de alocação','Ex.: DM1, PQ')}${mi('areas',I.aloc,'Áreas do DM1','Ex.: Planta, Mina')}${mi('frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')}`;
-  if(!mode){
-    openSheet({title:'Cadastros',sub:'O que você quer fazer?',body:`<div class="menu">${mi('novo',I.plus,'Novo cadastro','Equipamento, filtros e óleos, kit e listas')}${mi('editar',EDI,'Editar cadastro','Alterar dados e fotos de um cadastro')}${mi('excluir',DEL,'Excluir cadastro','Apagar um equipamento, item, kit, preventiva ou nome de lista')}<div class="mgrp">Estoque</div>${mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')}${mi('mv-saida',MV_OUT,'Saída do estoque','Retirada avulsa, fora das preventivas')}${mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')}<div class="mgrp">Combustível</div>${mi('abast',I.comb,'Abastecimento','Litros e horímetro para o consumo por hora')}<div class="mgrp">Dados</div>${mi('backup','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/><path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5"/><path d="M17 15v6M14.5 18.5L17 21l2.5-2.5"/></svg>','Cópia de segurança','Baixa um arquivo com todos os dados do app')}</div>`,
-      mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;m==='backup'?backupAll(b):m==='abast'?formAbast():m==='cart'?openListas():m.startsWith('mv-')?(formMovEst.done=null,formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q=''),formMovEst(m.slice(3))):openMenu(m)})});return;
-  }
-  const body=mode==='excluir'
-    ?`<div class="menu"><div class="mgrp">Frota</div>${mi('dl-eq',I.equip,'Equipamento','Apaga o equipamento e as preventivas dele')}${mi('dl-tr',I.manut,'Preventiva','Apaga um registro de preventiva ou reprogramação')}<div class="mgrp">Estoque</div>${mi('dl-st',I.estoque,'Filtros e óleos','Apaga um item do estoque')}${mi('dl-kit',KIT_IC,'Kit','Apaga um kit; os itens continuam no estoque')}<div class="mgrp">Combustível</div>${mi('dl-ab',I.comb,'Abastecimento','Apaga o último abastecimento de um equipamento')}${listas}</div>`
-    :mode==='novo'
-    ?`<div class="menu"><div class="mgrp">Frota</div>${mi('eq',I.equip,'Equipamento','Máquina ou veículo com ficha completa')}${mi('thm',I.manut,'Troca de horímetro','O relógio de horas foi substituído')}${mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')}<div class="mgrp">Estoque</div>${mi('st',I.estoque,'Filtros e óleos','Item do almoxarifado com saldo e mínimo')}${mi('kit',KIT_IC,'Kit','Junta vários itens do estoque em um só')}${listas}</div>`
-    :`<div class="menu"><div class="mgrp">Frota</div>${mi('ed-eq',I.equip,'Equipamento','Alterar a ficha e a foto de um equipamento')}<div class="mgrp">Estoque</div>${mi('ed-st',I.estoque,'Filtros e óleos','Alterar dados e fotos de um item do estoque')}${mi('ed-kit',KIT_IC,'Kit','Alterar os itens e as quantidades de um kit')}${listas}</div>`;
-  openSheet({title:{novo:'Novo cadastro',editar:'Editar cadastro',excluir:'Excluir cadastro'}[mode],sub:'Escolha o tipo de cadastro',body,
+  const DB_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/><path d="M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg>';
+  const BK_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M4 20h16"/></svg>';
+  const g=t=>`<div class="mgrp">${t}</div>`;
+  /* + abre por área: Frota · Estoque · Combustível · Ajustes do app (sugestão A) */
+  const T={
+    '':{title:'Menu',sub:'Escolha a área',body:mi('frota',I.equip,'Frota','Preventivas, equipamentos e horímetro')+mi('est',I.estoque,'Estoque','Entrada, saída, filtros, óleos, kits e compras')+mi('comb',I.comb,'Combustível','Abastecimentos')+mi('aj',DB_IC,'Ajustes do app','Listas do app e cópia de segurança')},
+    frota:{title:'Frota',sub:'Preventivas, equipamentos e horímetro',body:mi('reg',I.manut,'Registrar preventiva','Troca de óleos e filtros, ou filtros de ar')+mi('g:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('thm',I.manut,'Troca de horímetro','O relógio de horas foi substituído')
+      +g('Correções')+mi('thm-x',I.back,'Desfazer troca de horímetro','Volta à contagem do relógio antigo')+mi('dl-tr',DEL,'Excluir preventiva','Apaga um registro de preventiva ou reprogramação')},
+    est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saída do estoque','Retirada avulsa, fora das preventivas')
+      +mi('g:st',I.estoque,'Filtros e óleos','Novo, editar ou excluir')+mi('g:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluídas: compartilhar, excluir ou mesclar')},
+    comb:{title:'Combustível',sub:'Abastecimentos',body:mi('abast',I.comb,'Abastecimento','Litros e horímetro para o consumo por hora')+g('Correções')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o último abastecimento de um equipamento')},
+    aj:{title:'Ajustes do app',sub:'Listas e cópia de segurança',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietários','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:locais',I.aloc,'Locais de alocação','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Áreas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
+      +g('Dados')+mi('backup',BK_IC,'Cópia de segurança','Baixa um arquivo com todos os dados do app')}};
+  const v=T[mode||'']||T[''];
+  openSheet({title:v.title,sub:v.sub,body:`<div class="menu">${v.body}</div>`,
     mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
-      if(m==='dl-ab')return openDelAbast();if(m.startsWith('dl-'))return formPickDel(m.slice(3));m==='ed-eq'?formPickEdit('eq'):m==='ed-st'?formPickEdit('st'):m==='ed-kit'?formPickEdit('kit'):m==='eq'?formEq():m==='thm'?formTrocaHm():m==='thm-x'?openDesfazHm():m==='st'?formStock():m==='kit'?formKit():formLista(m,mode)})});
+      if(T[m])return openMenu(m);
+      if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
+      if(m.startsWith('g:'))return formGerir(m.slice(2));
+      if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
+      const A={backup:()=>backupAll(b),abast:formAbast,cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar(''),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,st:()=>formStock(),kit:()=>formKit(),
+        'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
+      A[m]&&A[m]()})});
 }
 /* ---------- + › Excluir cadastro ---------- */
 function formPickDel(kind){
@@ -1594,12 +1605,12 @@ function formLista(k,mode='editar'){
   const L=LISTAS[k],list=cfgNow()[k];
   const uso=v=>S.equips.filter(e=>e[L.campo]===v).length;
   openSheet({title:L.t,sub:`${list.length} cadastrado${list.length===1?'':'s'}`,
-  body:`${mode==='novo'?'':'<!--'}<form id="fl" class="fset"><label class="f">Novo ${L.one}<div class="lst-add"><input id="l-v" required placeholder="${esc(L.ph)}" autocomplete="off"><button class="btn pri">Adicionar</button></div></label></form>${mode==='novo'?'':'-->'}
-    <div class="lbl">Cadastrados</div>${mode==='novo'?'':`<p class="note" style="margin:0 2px 8px">Toque num nome para ${mode==='excluir'?'excluir':'renomear'}.</p>`}
+  body:`${mode==='novo'||mode==='tudo'?'':'<!--'}<form id="fl" class="fset"><label class="f">Novo ${L.one}<div class="lst-add"><input id="l-v" required placeholder="${esc(L.ph)}" autocomplete="off"><button class="btn pri">Adicionar</button></div></label></form>${mode==='novo'||mode==='tudo'?'':'-->'}
+    <div class="lbl">Cadastrados</div>${mode==='novo'?'':`<p class="note" style="margin:0 2px 8px">Toque num nome para ${mode==='excluir'?'excluir':mode==='tudo'?'renomear ou excluir':'renomear'}.</p>`}
     <div class="list">${list.map((v,i)=>`<div class="lst-item" data-i="${i}"><button class="lst-row" data-sel="${i}" aria-expanded="false"${mode==='novo'?' disabled':''}><span>${esc(v)}</span><em>${uso(v)} equip.</em>${I.chev}</button>
-      <div class="lst-act" hidden>${isCore(k,v)?'<span class="note" style="margin-right:auto">Nome usado pela estrutura do app; não pode ser alterado.</span>':(mode==='excluir'?`<button class="btn sm danger" data-rm="${i}">Excluir</button>`:`<button class="btn sm" data-ren="${i}">Renomear</button>`)}</div><div class="lst-conf"></div></div>`).join('')||'<div class="empty">Nenhum cadastrado.</div>'}</div>`,
+      <div class="lst-act" hidden>${isCore(k,v)?'<span class="note" style="margin-right:auto">Nome usado pela estrutura do app; não pode ser alterado.</span>':(mode==='excluir'?`<button class="btn sm danger" data-rm="${i}">Excluir</button>`:mode==='tudo'?`<button class="btn sm danger" data-rm="${i}">Excluir</button><button class="btn sm" data-ren="${i}">Renomear</button>`:`<button class="btn sm" data-ren="${i}">Renomear</button>`)}</div><div class="lst-conf"></div></div>`).join('')||'<div class="empty">Nenhum cadastrado.</div>'}</div>`,
   mount:sh=>{
-    const save=async(arr,msg)=>{const c={...cfgNow(),[k]:arr};applyCfg(c);if(await safe(()=>S.db.doc('config/listas').set(c),msg))formLista(k)};
+    const save=async(arr,msg)=>{const c={...cfgNow(),[k]:arr};applyCfg(c);if(await safe(()=>S.db.doc('config/listas').set(c),msg))formLista(k,mode)};
     const fl=sh.querySelector('#fl');if(fl)fl.onsubmit=ev=>{ev.preventDefault();const v=sh.querySelector('#l-v').value.trim();if(!v)return;
       if(list.some(x=>x.toLowerCase()===v.toLowerCase())){toast('Esse nome já está cadastrado.');return}save([...list,v],`${v} cadastrado`)};
     sh.querySelectorAll('[data-sel]').forEach(b=>b.onclick=()=>{const it=b.closest('.lst-item'),open=b.getAttribute('aria-expanded')!=='true';
@@ -1612,7 +1623,7 @@ function formLista(k,mode='editar'){
       box.querySelector('[data-yes]').onclick=async()=>{const nv=inp.value.trim();if(!nv||nv===v){box.innerHTML='';return}
         if(list.some(x=>x!==v&&x.toLowerCase()===nv.toLowerCase())){toast('Esse nome já está cadastrado.');return}
         const c={...cfgNow(),[k]:list.map(x=>x===v?nv:x)};
-        if(await safe(async()=>{await S.db.doc('config/listas').set(c);applyCfg(c);for(const e of S.equips.filter(e=>e[L.campo]===v))await S.db.doc('equipamentos/'+e.id).update({[L.campo]:nv})},`${v} agora é ${nv}`))formLista(k)}});
+        if(await safe(async()=>{await S.db.doc('config/listas').set(c);applyCfg(c);for(const e of S.equips.filter(e=>e[L.campo]===v))await S.db.doc('equipamentos/'+e.id).update({[L.campo]:nv})},`${v} agora é ${nv}`))formLista(k,mode)}});
     sh.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const it=b.closest('.lst-item'),v=list[+b.dataset.rm],n=uso(v);it.querySelector('.lst-act').hidden=true;
       askDelete(it.querySelector('.lst-conf'),`Excluir <b>${esc(v)}</b> da lista?${n?` Os ${n} equipamentos que usam esse nome mantêm o valor até serem editados.`:''}`,()=>save(list.filter(x=>x!==v),`${v} excluído`));
       it.querySelector('.lst-conf [data-no]').addEventListener('click',()=>{it.querySelector('.lst-act').hidden=false})});
@@ -1849,6 +1860,29 @@ function formPickEdit(kind){
     q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.ref,x.desc].join(' ')).includes(t));
       l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind()};bind();
     const pc=sh.querySelector('#pe-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))K?formKit(v.item.id):formStock(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
+}
+/* + › Equipamentos / Filtros e óleos / Kits: novo, editar e excluir na mesma tela */
+function formGerir(kind){
+  nav('gr:'+kind,()=>formGerir(kind));
+  const isEq=kind==='eq',K=kind==='kit';
+  const all=(isEq?S.equips:S.estoque.filter(x=>isKit(x)===K)).slice().sort(byCode);
+  const TR='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
+  const inner=x=>!isEq?esRow(x,{attr:`data-ge="${esc(x.id)}"`}):`<button type="button" class="tq" data-ge="${esc(x.id)}"><span class="tq-c">${esc(x.codigo)}</span><span class="tq-m">${esc([x.marca,x.modelo].filter(Boolean).join(' ')||'—')}</span>${I.chev}</button>`;
+  const row=x=>`<div class="gr-r">${inner(x)}<button type="button" class="gr-x" data-gx="${esc(x.id)}" aria-label="Excluir ${esc(isEq?x.codigo:stCod(x))}">${TR}</button></div>`;
+  const draw=l=>isEq?porTipo(l,row):l.length?`<div class="tsec-l">${l.map(row).join('')}</div>`:'';
+  const nome=isEq?'equipamento':K?'kit':'item';
+  openSheet({title:isEq?'Equipamentos':K?'Kits':'Filtros e óleos',sub:'Toque para editar · lixeira para excluir',
+  body:`<button type="button" class="btn pri block" id="gr-new">${I.plus}Novo ${nome}</button>
+    <div class="search" style="margin-top:10px">${I.search}<input id="gr-q" type="search" placeholder="${isEq?'TAG, tipo ou modelo':'Código, referência ou descrição'}" autocomplete="off" aria-label="Buscar"></div>${isEq?'':rdBtn('gr-cam')}
+    <div id="gr-l" style="margin-top:8px">${draw(all)||'<div class="empty">Nada cadastrado ainda.</div>'}</div>`,
+  mount:sh=>{const l=sh.querySelector('#gr-l'),q=sh.querySelector('#gr-q');
+    const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+    const edit=id=>isEq?formEq(id):K?formKit(id):formStock(id);
+    sh.querySelector('#gr-new').onclick=()=>isEq?formEq():K?formKit():formStock();
+    const bind=()=>{l.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>edit(b.dataset.ge));l.querySelectorAll('[data-gx]').forEach(b=>b.onclick=()=>openDelete(kind,b.dataset.gx))};
+    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.ref,x.desc].join(' ')).includes(t));
+      l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind()};bind();
+    const pc=sh.querySelector('#gr-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))edit(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
 }
 /* atalhos que levam ao caminho oficial de edição */
 function goEditar(kind,id){kind==='eq'?formEq(id):isKit(stById(id))?formKit(id):formStock(id)}

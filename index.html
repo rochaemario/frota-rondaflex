@@ -819,7 +819,10 @@ button.chk{width:100%;border:0;background:none;text-align:left;font:inherit;colo
 .sp-aj.on{background:#fff6cc;border-color:#e0b100}
 .sp-sw{width:46px;height:28px;border-radius:14px;border:0;padding:0;background:#c9cfda;position:relative;flex:none;cursor:pointer;transition:background .15s}.sp-sw:after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:left .15s}
 .sp-sw[aria-checked="true"]{background:#e0a800}.sp-sw[aria-checked="true"]:after{left:21px}.sp-d{font-weight:400;color:var(--muted);font-size:12.5px;margin-left:4px}
-.t-add{margin-bottom:10px}#t-kits{margin-bottom:10px}#t-kits .ti-g{padding:0 2px 6px}
+.t-add{margin-bottom:10px}.t-add .search{margin:0}#t-cad{color:var(--accent,#0033a0)}
+.t-add .search input{min-height:54px;font-size:16.5px;background:var(--surface,#fff);border:2px solid var(--accent,#0033a0);box-shadow:0 4px 14px rgba(11,36,112,.12);padding-left:44px}
+.t-add .search svg{left:15px;width:20px;height:20px;color:var(--accent,#0033a0)}.t-add .search input::placeholder{color:var(--muted)}
+#t-kits{margin-bottom:10px}#t-kits .ti-g{padding:0 2px 6px}
 .kt-r{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:11px 13px;cursor:pointer}.kt-r+.kt-r{box-shadow:inset 0 1px 0 var(--line)}
 .kt-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.kt-n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kt-n small{font-size:12.5px;color:var(--muted)}
 .kt-a{flex:none;font-size:13.5px;font-weight:600;color:var(--accent,#0033a0);padding:7px 11px;border-radius:9px;background:#e4e9f4}.kt-r.on .kt-a{background:none;color:var(--ok,#12804a)}.t-add .search{margin:0}
@@ -882,8 +885,8 @@ body.kb .sh-foot{display:none}
 .ajtip::after{content:"";position:absolute;left:calc(var(--ax) - 5px);border:5px solid transparent}.ajtip.up::after{top:100%;border-top-color:#e0a400}.ajtip.dn::after{bottom:100%;border-bottom-color:#e0a400}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=7999299ce4"></script>
-<script src="shim.js?v=7999299ce4"></script>
+<script src="config.js?v=5bf6d950f4"></script>
+<script src="shim.js?v=5bf6d950f4"></script>
 </head>
 <body>
 
@@ -2431,7 +2434,7 @@ function formTroca(eqId){
       const score=x=>{const a=nzCod(stCod(x)),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
       const m=S.estoque.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]);
       const v=tq.value.trim().toUpperCase();
-      tqh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-tk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="t-cad">Cadastrar ${esc(v)} <span>novo item no estoque e adiciona aqui</span></button>`;
+      tqh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-tk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="t-cad">Cadastrar item ${esc(v)}</button>`;
       tqh.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{tq.value='';tqh.innerHTML='';addPeca(stById(b.dataset.tk))});
       tqh.querySelector('#t-cad').onclick=()=>{if(!eqById(sel.value)){toast('Escolha o equipamento antes.');return}const d=snap();tq.value='';tqh.innerHTML='';formTroca.draft=d;
         const cb=async sid=>{d.add=sid};cb.msg='Item cadastrado';formStock(null,{ref:v},cb)}};

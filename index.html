@@ -932,8 +932,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=e4effca129"></script>
-<script src="shim.js?v=e4effca129"></script>
+<script src="config.js?v=16c9afd66d"></script>
+<script src="shim.js?v=16c9afd66d"></script>
 </head>
 <body>
 
@@ -1887,13 +1887,8 @@ const FROTA_KIDS=['equip','manut','comb','aloc'];
 function abreCard(k){S.focus=k;S.esQ='';S.esFoc=false;S.esAll=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
   try{localStorage.setItem('frota.focus',k)}catch(e){}render();SCR().scrollTo(0,0)}
 function vFrota(){
-  const eqs=c=>new Set(allItems().filter(x=>x.st.cls===c).map(x=>x.eq.id)),vb=eqs('bad'),nv=vb.size,np=[...eqs('warn')].filter(i=>!vb.has(i)).length;
-  const al=S.equips.filter(e=>e.alocacao).length;
-  const b=(k,ic,t,d)=>`<button type="button" class="fr-b" data-fr="${k}"><span class="ic">${ic}</span><span class="tx"><b>${t}</b><small>${d}</small></span>${I.chev}</button>`;
-  return `<div class="fr-g">${b('equip',I.equip,'Equipamentos',`${S.equips.length} cadastrado${S.equips.length===1?'':'s'}`)}
-    ${b('manut',I.manut,'Manutencoes',nv?`Preventivas · ${nv} equipamento${nv>1?'s':''} com vencida`:np?`Preventivas · ${np} equipamento${np>1?'s':''} perto de vencer`:'Preventivas em dia')}
-    ${b('comb',I.comb,'Combustivel','Abastecimentos e consumo')}
-    ${b('aloc',I.aloc,'Alocacao',`${al} de ${S.equips.length} alocado${al===1?'':'s'}`)}</div>`}
+  const b=(k,ic,t)=>`<section class="card acc fr-c"><button type="button" class="acc-h" data-fr="${k}"><span class="ic">${ic}</span><h2>${t}</h2><span class="tg">${I.chev}</span></button></section>`;
+  return `<div class="fr-g">${b('equip',I.equip,'Equipamentos')}${b('manut',I.manut,'Manutencoes')}${b('comb',I.comb,'Combustivel')}${b('aloc',I.aloc,'Alocacao')}</div>`}
 /* ===================== Cartao Identificar =====================
    Peca desconhecida: tira a foto ou escolhe da galeria e o app abre o Google Lens com ela.
    A foto sobe so para o Lens conseguir abrir; e apagada na proxima vez que o app abrir. */

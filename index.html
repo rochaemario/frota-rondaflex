@@ -925,8 +925,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=39e10fbed7"></script>
-<script src="shim.js?v=39e10fbed7"></script>
+<script src="config.js?v=e99d843dd1"></script>
+<script src="shim.js?v=e99d843dd1"></script>
 </head>
 <body>
 
@@ -1873,9 +1873,9 @@ document.addEventListener('input',ev=>{const t=ev.target;if(!t||!(t.tagName==='T
 /* foto: pergunta se vem da camera ou da galeria */
 function pickPhoto(){return new Promise(ok=>{
   const w=document.createElement('div');w.className='pk-w';
-  w.innerHTML=`<div class="pk-c" role="dialog" aria-label="Adicionar foto"><b>Adicionar foto</b><button type="button" class="pk-o" data-pk="cam">${'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'}Tirar foto com a camera</button><button type="button" class="pk-o" data-pk="gal">${'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>'}Escolher da galeria</button><button type="button" class="btn" data-pk="x">Cancelar</button></div>`;
+  w.innerHTML=`<div class="pk-c" role="dialog" aria-label="Adicionar foto"><b>Adicionar foto</b><button type="button" class="pk-o" data-pk="cam">${'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'}Tirar foto com a camera</button><button type="button" class="pk-o" data-pk="gal">${'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 9"/></svg>'}Escolher da galeria</button></div>`;
   document.body.appendChild(w);const fim=f=>{w.remove();ok(f||null)};pickPhoto.close=()=>fim(null);
-  w.onclick=ev=>{if(ev.target===w)fim(null)};w.querySelector('[data-pk="x"]').onclick=()=>fim(null);
+  w.onclick=ev=>{if(ev.target===w)fim(null)};
   w.querySelectorAll('[data-pk="cam"],[data-pk="gal"]').forEach(b=>b.onclick=()=>{const i=document.createElement('input');i.type='file';i.accept='image/*';if(b.dataset.pk==='cam')i.setAttribute('capture','environment');i.style.display='none';document.body.appendChild(i);
     i.onchange=()=>{const f=i.files&&i.files[0];i.remove();fim(f)};w.style.display='none';i.click();
     /* se a pessoa desistir na camera/galeria, a janela some sozinha */

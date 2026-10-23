@@ -236,7 +236,7 @@
     if(!session)session=sessaoGuardada();
     /* sem sessão e sem internet: se este aparelho já foi usado, abre com os dados guardados (login volta a ser pedido quando houver internet) */
     if(!session&&!navigator.onLine&&!started){let pf0=null;try{pf0=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}
-      if(pf0&&await dbInit()){const dg0=dgLer(pf0.user_id);if(dg0){travaP=travaP||travar(dg0);await travaP}perfil=pf0;document.body.classList.add('papel-'+perfil.papel);closeScreen();started=true;semSessao=true;resolveReady();setTimeout(updSync,300);return}}
+      if(pf0&&await dbInit()){window.__frotaEu={uid:pf0.user_id,nome:pf0.nome||'',email:pf0.email||'',papel:pf0.papel};const dg0=dgLer(pf0.user_id);if(dg0){travaP=travaP||travar(dg0);await travaP}perfil=pf0;document.body.classList.add('papel-'+perfil.papel);closeScreen();started=true;semSessao=true;resolveReady();setTimeout(updSync,300);return}}
     if(!session){loginForm();return}
     const dg=!acabouDeEntrar&&!started&&dgLer(session.user.id);if(dg){travaP=travaP||travar(dg);await travaP}
     let pf=null;try{pf=JSON.parse(localStorage.getItem('frota.perfil')||'null')}catch(e){}if(pf&&pf.user_id!==session.user.id)pf=null;
@@ -250,7 +250,8 @@
       if(!tem){screen('<h1>Carregando os dados</h1><p>Baixando a frota para este aparelho…</p>');
         try{await pull()}catch(e){screen('<h1>Sem internet</h1><p>No primeiro uso neste aparelho é preciso internet para baixar os dados. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="of-t">Tentar de novo</button>',o=>{o.querySelector('#of-t').onclick=()=>start()});return}}
       else sincronizar();
-      closeScreen();started=true;resolveReady();setTimeout(updSync,300);realtime();return}
+      window.__frotaEu={uid:perfil.user_id,nome:perfil.nome||'',email:perfil.email||'',papel:perfil.papel};
+      closeScreen();started=true;resolveReady();setTimeout(updSync,300);realtime();equipeSync();return}
     closeScreen()
   }
   sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{semSessao=false;closeScreen();sincronizar()}return}
@@ -270,13 +271,19 @@
     dgPode().then(v=>{dr.hidden=!v});
     sw.onclick=async()=>{if(dgLer(perfil.user_id)){try{localStorage.removeItem(DGK)}catch(e){}pinta();avisar('Digital desativada','O app abre sem pedir a digital');return}
       try{await dgCriar(perfil);pinta();avisar('Digital ativada','O app vai pedir a digital ao abrir')}catch(e){if(!(e&&e.name==='NotAllowedError'))avisar('Não foi possível ativar','Este celular não liberou o uso da digital')}}},true);
+  /* lista da equipe para os avisos: o administrador publica nomes e papéis (sem dados sensíveis) */
+  async function equipeSync(){if(!perfil||perfil.papel!=='admin'||!navigator.onLine)return;
+    try{const {data,error}=await sb.from('perfis').select('user_id,email,nome,papel').order('nome');if(error||!data)return;
+      const pessoas=data.filter(p=>p.papel).map(p=>({uid:p.user_id,nome:p.nome||'',email:p.email||'',papel:p.papel}));
+      const cur=DOCS.get('config/equipe');if(cur&&JSON.stringify(cur.pessoas)===JSON.stringify(pessoas))return;
+      await DB.doc('config/equipe').set({pessoas})}catch(e){console.error(e)}}
   async function equipe(){
     const {data,error}=await sb.from('perfis').select('user_id,email,nome,papel').order('nome');
     screen(`<h1>Equipe</h1><p>Novas pessoas: crie o acesso no Supabase (Authentication › Add user). Elas aparecem aqui como Consulta; escolha o papel.</p>
       <div class="lg-f"><div class="eqp">${error?'<div class="lg-e">Não foi possível carregar.</div>':data.map(p=>`<div class="eqp-r"><div><b>${esc(p.nome||p.email)}</b><small>${esc(p.email||'')}</small></div><select data-u="${esc(p.user_id)}"${p.user_id===perfil.user_id?' disabled':''}>${Object.entries(PAPEL).map(([k,v])=>`<option value="${k}"${p.papel===k?' selected':''}>${v}</option>`).join('')}</select></div>`).join('')}</div></div>
       <button type="button" class="btn pri" id="eq-ok">Concluir</button>`,o=>{
         o.querySelectorAll('[data-u]').forEach(s=>s.onchange=async()=>{s.disabled=true;const {error}=await sb.from('perfis').update({papel:s.value}).eq('user_id',s.dataset.u);s.disabled=false;if(error){s.style.borderColor='var(--bad)'}else s.style.borderColor=''});
-        o.querySelector('#eq-ok').onclick=closeScreen})}
+        o.querySelector('#eq-ok').onclick=()=>{closeScreen();equipeSync()}})}
 
   /* ---------- importar o pacote de mudança (dados + fotos e documentos do app antigo) ---------- */
   function importar(){screen(`<h1>Importar dados</h1><p>Escolha o arquivo (.json) que o Claude preparou. Dados com o mesmo caminho são substituídos; nada é apagado.</p>

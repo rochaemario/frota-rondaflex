@@ -17,8 +17,8 @@ O app publicado na raiz do repositorio e SEMPRE gerado a partir daqui; nunca edi
 - Clonar o repositorio em `/home/claude/frota-rondaflex`
 
 ## Publicar
-`/home/claude/publicar.sh vNNN "mensagem"` — confere mudancas de fora, gera, guarda a fonte e marca a etiqueta vNNN.
+`/home/claude/publicar.sh vNNN "mensagem"` — confere mudancas de fora, gera, guarda a fonte e cria o ramo versao-vNNN.
 
 ## Desfazer ("voltar vNNN")
-Cada versao publicada tem uma etiqueta (tag) vNNN no repositorio, com a fonte junto.
-Para voltar: pegar `fonte/` da etiqueta desejada, restaurar e publicar como nova versao.
+Cada versao publicada tem um ramo `versao-vNNN` no repositorio, com a fonte junto.
+Para voltar: pegar `fonte/` desse ramo, restaurar e publicar como nova versao.

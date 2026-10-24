@@ -1,7 +1,7 @@
 #!/bin/bash
 # Publica o app. Uso: publicar.sh vNNN "mensagem"
 # 1) confere se o app foi mudado fora desta conversa (outro chat): se foi, PARA sem publicar
-# 2) gera o app a partir da fonte, guarda a fonte em fonte/ e marca a versao com a etiqueta vNNN
+# 2) gera o app a partir da fonte, guarda a fonte em fonte/ e guarda a versao no ramo versao-vNNN (ponto de desfazer)
 set -e
 V="$1"; MSG="$2"; [ -n "$V" ] && [ -n "$MSG" ] || { echo "uso: publicar.sh vNNN \"mensagem\""; exit 2; }
 R=/home/claude/frota-rondaflex; P=/home/claude/pwa
@@ -23,6 +23,5 @@ git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m "$MSG
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01QbG75wh77UffNvP6h7Xaws"
-git tag -f "$V"
-git push -q origin main && git push -q -f origin "refs/tags/$V"
-git log --oneline -1; echo "publicado e marcado como $V"
+git push -q origin main && git push -q -f origin "HEAD:refs/heads/versao-$V"
+git log --oneline -1; echo "publicado; ponto de desfazer: ramo versao-$V"

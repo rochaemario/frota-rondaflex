@@ -831,14 +831,6 @@ body.kb .sh-foot{display:none}
 
 /* avisos */
 .bell{position:relative;background:none;border:0;color:var(--ink-fg,#fff);padding:6px;margin:0 -2px 0 auto;cursor:pointer;display:flex;flex:none}.bell svg{width:22px;height:22px}
-.mic{position:relative;background:none;border:0;color:var(--ink-fg,#fff);padding:6px;margin:0 0 0 auto;cursor:pointer;display:flex;flex:none;border-radius:50%}.mic svg{width:22px;height:22px}.mic:not([hidden])+.bell{margin-left:0}
-.mic.on{background:#e8112d;color:#fff;animation:vzpu 1.2s infinite}@keyframes vzpu{0%{box-shadow:0 0 0 0 rgba(232,17,45,.55)}100%{box-shadow:0 0 0 10px rgba(232,17,45,0)}}
-#vband{position:fixed;left:0;right:0;top:var(--hdr,52px);z-index:25;display:flex;align-items:center;gap:10px;padding:9px max(16px,env(safe-area-inset-left,0px));background:var(--card,#fff);border-bottom:1px solid var(--line,#d6dbe4);box-shadow:0 6px 16px rgba(10,30,80,.12)}
-#vband .vb-d{width:10px;height:10px;border-radius:50%;background:#e8112d;flex:none;animation:vzpu 1.2s infinite}#vband.vb-ok .vb-d{background:var(--ok,#1b9a4b);animation:none}#vband.vb-warn .vb-d{background:var(--warn,#c98a00);animation:none}
-#vband .vb-t{flex:1;min-width:0;font-size:15px;line-height:1.3}#vband .vb-t b{display:block;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}#vband .vb-t span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-html.vz-on #sheet{height:calc(100dvh - var(--hdr,0px) - var(--vzh,58px) - 8px)}#vband .vb-t em{color:var(--faint);font-style:normal}
-#vband.vb-esp .vb-d{background:var(--faint,#9aa3b3);animation:none}#vband .vb-c{margin:2px 0 0 6px;padding:3px 10px;border-radius:9px;border:1px solid var(--line,#d6dbe4);background:var(--sunk,#eef1f6);font:600 13px var(--mono,monospace);color:var(--ink-2,#222);cursor:pointer}#vband.vb-warn .vb-t span{white-space:normal}
-#vband .vb-x{flex:none;width:34px;height:34px;border-radius:50%;border:1px solid var(--line,#d6dbe4);background:var(--card,#fff);color:var(--ink-2,#333);font-size:15px;cursor:pointer}
 .bell i{position:absolute;top:0;right:-3px;min-width:17px;height:17px;border-radius:9px;background:#e8112d;color:#fff;font:700 11px/17px system-ui,sans-serif;text-align:center;font-style:normal;padding:0 4px;box-shadow:0 0 0 2px var(--ink,#0b2470)}
 .top .sync{flex:none;white-space:nowrap}.top .brand{flex:none;white-space:nowrap}.top.cmp2 .brand{font-size:17px}.av-t .ph-miss,.icard .ph .ph-miss{font-size:9px;line-height:1.1;text-align:center;color:var(--faint)}.top.cmp .sync{font-size:0;gap:0}
 .av-tabs{grid-template-columns:1fr 1fr;margin-bottom:12px}.av-c{display:inline-block;min-width:18px;height:18px;line-height:18px;border-radius:9px;background:#e8112d;color:#fff;font-size:11px;margin-left:4px}
@@ -948,14 +940,14 @@ html.vz-on #sheet{height:calc(100dvh - var(--hdr,0px) - var(--vzh,58px) - 8px)}#
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=69abf38ae2"></script>
-<script src="shim.js?v=69abf38ae2"></script>
+<script src="config.js?v=669910e0af"></script>
+<script src="shim.js?v=669910e0af"></script>
 </head>
 <body>
 
 <div id="scroller">
 <header>
-  <div class="wrap top"><div class="brand"><i></i>Controle de Frota</div><button type="button" class="mic" id="mic" hidden aria-label="Comando de voz" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3.5"/></svg></button><button type="button" class="bell" id="bell" hidden aria-label="Avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i hidden>0</i></button><div class="sync" id="sync">Conectando</div></div>
+  <div class="wrap top"><div class="brand"><i></i>Controle de Frota</div><button type="button" class="bell" id="bell" hidden aria-label="Avisos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><i hidden>0</i></button><div class="sync" id="sync">Conectando</div></div>
 </header>
 <main class="wrap" id="app"><div class="card"><div class="empty"><b>Carregando a frota…</b>Buscando equipamentos, trocas e estoque.</div></div></main>
 </div>
@@ -2867,152 +2859,6 @@ function pintaSino(){const b=$('#bell');if(!b)return;const n=(S.avisos||[]).filt
 function fitTop(){const t=document.querySelector('.top');if(!t)return;setTimeout(()=>{try{setHdr()}catch(e){}},0);t.classList.remove('cmp','cmp2');const o=()=>t.scrollWidth>t.clientWidth+1;if(o()){t.classList.add('cmp');if(o())t.classList.add('cmp2')}}
 addEventListener('resize',fitTop);try{new MutationObserver(fitTop).observe($('#sync'),{childList:true,characterData:true,subtree:true})}catch(e){}
 $('#bell').addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();NAV.length=0;openAvisos()});
-/* ---------- comando de voz: toca no microfone do topo e vai falando; desliga no toque ou apos 15 s de silencio ---------- */
-const VZ={on:false,rec:null,tm:null,msgT:null,SR:window.SpeechRecognition||window.webkitSpeechRecognition};
-const vzNorm=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-const VZ_LET={a:'a',be:'b',ce:'c',se:'c',de:'d',e:'e',efe:'f',ge:'g',aga:'h',i:'i',jota:'j',ca:'k',ka:'k',ele:'l',eme:'m',ene:'n',o:'o',pe:'p',que:'q',erre:'r',esse:'s',te:'t',u:'u',ve:'v',xis:'x',ze:'z'};
-const VZ_UN={um:1,uma:1,dois:2,duas:2,tres:3,quatro:4,cinco:5,seis:6,sete:7,oito:8,nove:9,dez:10,onze:11,doze:12,treze:13,quatorze:14,catorze:14,quinze:15,dezesseis:16,dezessete:17,dezoito:18,dezenove:19,vinte:20,trinta:30,quarenta:40,cinquenta:50,sessenta:60,setenta:70,oitenta:80,noventa:90,cem:100,cento:100,duzentos:200,duzentas:200,trezentos:300,quatrocentos:400,quinhentos:500,seiscentos:600,setecentos:700,oitocentos:800,novecentos:900};
-/* texto falado -> lista de tokens, com numeros por extenso ja convertidos ("cento e vinte" -> 120, "6.200" -> 6200, "120 virgula 5" -> 120.5) */
-function vzTokens(txt){
-  let t=vzNorm(txt).replace(/(\d)\.(?=\d{3}\b)/g,'$1').replace(/(\d),(\d)/g,'$1.$2').replace(/\.(?!\d)|(^|[^\d])\./g,'$1 ').replace(/[^a-z0-9.\s-]/g,' ').replace(/-/g,' ');
-  const w=t.split(/\s+/).filter(Boolean),out=[];
-  for(let i=0;i<w.length;i++){const x=w[i];
-    if(x==='zero'){out.push('0');continue}
-    if(VZ_UN[x]!=null||(x==='mil'&&(out.length===0||!/^\d/.test(out[out.length-1])))){let tot=0,cur=0,j=i;
-      for(;j<w.length;j++){const y=w[j];if(VZ_UN[y]!=null)cur+=VZ_UN[y];else if(y==='mil'){tot+=(cur||1)*1000;cur=0}else if(y==='e'&&j+1<w.length&&(VZ_UN[w[j+1]]!=null||w[j+1]==='mil'))continue;else break}
-      out.push(String(tot+cur));i=j-1;continue}
-    if(x==='mil'&&/^\d+$/.test(out[out.length-1]||'')){out[out.length-1]=String(Number(out[out.length-1])*1000);continue}
-    if((x==='virgula'||x==='ponto')&&/^\d+$/.test(out[out.length-1]||'')&&/^\d+$/.test(w[i+1]||'')){out[out.length-1]+='.'+w[i+1];i++;continue}
-    out.push(x)}
-  return out}
-const vzCan=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'').replace(/\d+/g,d=>String(Number(d)));
-/* letras que o reconhecimento costuma trocar: B/P/V, C/S/Z, M/N, D/T */
-const vzConf=s=>vzCan(s).replace(/[bpv]/g,'b').replace(/[csz]/g,'c').replace(/[mn]/g,'m').replace(/[dt]/g,'d');
-/* "cebe" -> "cb", "pece" -> "pc" (letras faladas grudadas) */
-function vzLetras(t){if(VZ_LET[t])return VZ_LET[t];const r=(i)=>{if(i===t.length)return '';for(const k of Object.keys(VZ_LET).sort((a,b)=>b.length-a.length))if(k.length>1&&t.startsWith(k,i)){const x=r(i+k.length);if(x!=null)return VZ_LET[k]+x}return null};const x=r(0);return x&&x.length>=2?x:null}
-/* acha a TAG no inicio dos tokens; exata primeiro, depois tolerante; empate vira {amb:[...]} */
-function vzTag(tk){
-  const eqs=S.equips||[],mapa=new Map(eqs.map(e=>[vzCan(e.codigo),e])),N=Math.min(4,tk.length);
-  const junta=n=>tk.slice(0,n).map(x=>/^\d/.test(x)?x:n>1&&VZ_LET[x]?VZ_LET[x]:vzLetras(x)||x).join('');
-  for(let n=N;n>=1;n--){const e=mapa.get(vzCan(junta(n)))||mapa.get(vzCan(tk.slice(0,n).join('')));if(e)return {e,n}}
-  for(let n=N;n>=1;n--){const s=junta(n);if(!/\d/.test(s)||!/[a-z]/.test(s))continue;const c=vzConf(s),m=eqs.filter(e=>vzConf(e.codigo)===c);if(m.length===1)return {e:m[0],n};if(m.length>1)return {amb:m.sort(byCode),n}}
-  return null}
-const vzNum=x=>/^\d+(\.\d+)?$/.test(x||'')?Number(x):null;
-/* numero junto de uma palavra-chave: "120 litros" ou "litros 120" */
-function vzPega(tk,chaves){for(let i=0;i<tk.length;i++)if(chaves.test(tk[i])){const a=vzNum(tk[i+1]),b=vzNum(tk[i-1]);if(a!=null){tk.splice(i,2);return a}if(b!=null){tk.splice(i-1,2);return b}}return null}
-function vzSet(sel,val){const i=document.querySelector(sel);if(!i)return;i.value=val;i.dispatchEvent(new Event('input',{bubbles:true}))}
-function vzEq(sel,e){const s=document.querySelector(sel);if(!s)return;s.value=e.id;const inp=s.parentElement.querySelector('.eqs-in');if(inp){inp.value=`${e.codigo} · ${e.tipo||''}`;inp.setCustomValidity('')}s.dispatchEvent(new Event('change'))}
-const vzAbre=fn=>{if(!sheetOpen)NAV.length=0;fn()};
-/* TAG achada: executa; empate: devolve a escolha para a faixa */
-const vzComTag=(g,fn)=>g.amb?{pick:g.amb,go:e=>fn({e,n:g.n})}:fn(g);
-/* palavras parecidas: "istoque" -> estoque, "orimetro" -> horimetro */
-const VZ_VOC='abastecer abastecimento abrir ficha mostrar buscar procurar salvar gravar lancar confirmar cancelar fechar voltar parar desligar descer subir tocar clicar apertar selecionar excluir apagar horimetro preventiva preventivas registrar litros litro horas parcial inicio painel frota equipamentos equipamento estoque combustivel alocacao identificar avisos lista listas compras manutencao primeiro segundo terceiro quarto quinto sexto ultimo'.split(' ');
-function vzLev(a,b){if(Math.abs(a.length-b.length)>2)return 9;let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]}
-function vzCorrige(tk){return tk.map(x=>{if(x.length<4||/\d/.test(x)||VZ_VOC.includes(x)||VZ_LET[x]||VZ_ORD[x])return x;const lim=x.length<=5?1:2;let best=null,bd=9,dup=false;
-  for(const v of VZ_VOC){const d=vzLev(x,v);if(d<bd){bd=d;best=v;dup=false}else if(d===bd&&v!==best)dup=true}return bd<=lim&&!dup?best:x})}
-/* navegacao por voz: lugares do app, categorias, rolar, item pela posicao e botoes pelo nome (nunca excluir) */
-const vzStem=w=>w.replace(/oes$|aes$/,'ao').replace(/ns$/,'m').replace(/(r|z|s)es$/,'$1').replace(/s$/,'');
-const vzFr=t=>vzNorm(t).replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
-const vzSt=t=>vzFr(t).split(' ').filter(Boolean).map(vzStem).join(' ');
-const VZ_LUG=[[/^(inicio|tela inicial|tela principal|principal|home|comeco)$/,()=>goHome()],[/^painel$/,()=>{goHome();SCR().scrollTo(0,0)}],
-  [/^frota$/,'frota'],[/^equipamento$/,'equip'],[/^(preventiva|manutencao)$/,'manut'],[/^(estoque|filtro e oleo)$/,'estoque'],[/^(combustivel|abastecimento)$/,'comb'],[/^alocacao$/,'aloc'],[/^identificar$/,'ident'],
-  [/^aviso$/,()=>{const b=$('#bell');if(b&&!b.hidden){NAV.length=0;openAvisos()}else return 'Avisos indisponivel'}],[/^(lista de compra|lista|compra)$/,()=>{NAV.length=0;openListas()}]];
-const VZ_ORD={primeiro:1,primeira:1,segundo:2,segunda:2,terceiro:3,terceira:3,quarto:4,quarta:4,quinto:5,quinta:5,sexto:6,sexta:6,setimo:7,setima:7,oitavo:8,oitava:8,nono:9,nona:9,decimo:10,decima:10,ultimo:-1,ultima:-1};
-const vzRaiz=()=>sheetOpen?$('#sheet'):$('#app');
-const vzVis=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&!el.disabled&&!el.closest('[hidden]')};
-const vzRot=el=>vzFr(el.getAttribute('aria-label')&&!el.textContent.trim()?el.getAttribute('aria-label'):el.textContent);
-const vzTelaExcluir=()=>sheetOpen&&/exclu|apag/.test(vzNorm(($('#sheet .sh-tt')||{}).textContent||''));
-const vzExclui=el=>el.classList.contains('danger')||/^dl-/.test(el.id||'')||/exclu|apag|delet/.test(vzNorm((el.textContent||'')+' '+(el.getAttribute('aria-label')||'')))||(vzTelaExcluir()&&(el.classList.contains('pri')||el.closest('.sh-foot,.eqv-f,.ask')));
-const vzBotoes=()=>[...vzRaiz().querySelectorAll('button,[role=button],a[href],label.chk')].filter(vzVis);
-function vzToca(el){if(vzExclui(el))return 'Excluir so pelo toque';el.scrollIntoView({block:'center',behavior:'smooth'});el.click();return {ok:'Tocou em '+esc(vzRot(el).slice(0,40)||'botao')}}
-/* cada busca tem a parte que so procura (usada para escolher a melhor versao da fala) e a parte que age */
-function vzBotaoAcha(fr,solto){const q=vzSt(vzTokens(fr).join(' '));if(q.length<3)return null;let best=null;
-  for(const el of vzBotoes()){const r=vzSt(vzTokens(vzRot(el)).join(' '));if(!r)continue;const sc=r===q?0:r.startsWith(q)?1:solto&&r.includes(q)?2:9;if(sc<9&&(!best||sc<best[0]))best=[sc,el]}
-  return best&&best[1]}
-function vzBotao(fr,solto){const el=vzBotaoAcha(fr,solto);return el?vzToca(el):null}
-const vzLugarAcha=fr=>VZ_LUG.find(([re])=>re.test(vzSt(fr)));
-function vzLugar(fr){const l=vzLugarAcha(fr);if(!l)return null;if(sheetOpen)closeSheet();
-  if(typeof l[1]==='string'){abreCard(l[1]);return {ok:esc((TABS.find(t=>t[0]===l[1])||[])[1]||'')}}const r=l[1]();return typeof r==='string'?r:{ok:esc(fr)}}
-function vzCategoriaAcha(fr){const q=vzSt(fr);if(q.length<3)return null;const tipos=[...new Set((S.equips||[]).map(e=>e.tipo).filter(Boolean))];
-  return tipos.find(x=>vzSt(x)===q)||tipos.find(x=>vzSt(x).startsWith(q))||(()=>{const p=q.split(' ')[0];if(p.length<5)return null;const m=tipos.filter(x=>vzLev(vzSt(x).split(' ')[0],p)<=2);return m.length===1?m[0]:null})()}
-function vzCategoria(fr){const t=vzCategoriaAcha(fr);if(!t)return null;
-  if(sheetOpen)closeSheet();if(S.focus!=='equip')abreCard('equip');const h=[...$('#app').querySelectorAll('[data-eqt]')].find(x=>x.dataset.eqt===t);if(!h)return null;
-  if(h.getAttribute('aria-expanded')!=='true')h.click();return {ok:esc(t)}}
-function vzPosicaoAcha(fr){const w=vzFr(fr).split(' ').filter(x=>!/^(o|a|os|as|item|numero|linha)$/.test(x));if(w.length!==1)return null;return VZ_ORD[w[0]]??(/^\d+$/.test(w[0])&&Number(w[0])<=30?Number(w[0]):null)}
-function vzPosicao(fr){const n=vzPosicaoAcha(fr);if(n==null)return null;
-  const R=vzRaiz(),rw=R.getBoundingClientRect().width;const rows=vzBotoes().filter(el=>!el.closest('.sh-foot,.sh-top,.subbar,header,.sidetabs')&&!el.matches('.fab,.chk')&&el.getBoundingClientRect().width>=rw*0.6);const cab='.tsec-h,.acc-h,[data-fr]',so=rows.filter(el=>!el.matches(cab));const lst=so.length?so:rows;
-  const el=n<0?lst[lst.length-1]:lst[n-1];if(!el)return 'Nao ha item '+(n<0?'no fim':n)+' nesta tela';return vzToca(el)}
-function vzRola(dir){const sc=sheetOpen?$('#sheet .sh-body'):SCR(),h=sc===window?innerHeight:sc.clientHeight;sc.scrollBy({top:dir*h*0.7,behavior:'smooth'});return {ok:dir>0?'Descendo':'Subindo'}}
-/* "abrir X": posicao > TAG > lugar > categoria > botao */
-function vzAbrir(fr){const tk=vzTokens(fr);
-  return vzPosicao(fr)||(()=>{const g=vzTag(tk);if(g&&g.n===tk.length)return vzComTag(g,({e})=>{vzAbre(()=>openEq(e.id));return {ok:e.codigo}})})()||vzLugar(fr)||vzCategoria(fr)||vzBotao(fr,true)||'Nao achei '+esc(fr)+' nesta tela'}
-function vzAbast(g,tk){tk=tk.slice(g.n);const e=g.e;
-  const parcial=tk.some(x=>/^parcial/.test(x));let l=vzPega(tk,/^litro/),h=vzPega(tk,/^(horimetro|horas?)$/);const ns=tk.map(vzNum).filter(x=>x!=null);if(l==null)l=ns.shift()??null;if(h==null)h=ns.shift()??null;
-  vzAbre(formAbast);vzEq('#ab-eq',e);if(h!=null)vzSet('#ab-hm',h);if(l!=null)vzSet('#ab-l',l);if(parcial){const b=document.querySelector('#sheet [data-ch="0"]');b&&b.click()}
-  return {ok:`${e.codigo}${l!=null?` · ${nf(l,1)} L`:''}${h!=null?` · horimetro ${nf(h,1)}`:''}${parcial?' · parcial':''} · diga salvar`}}
-const VZ_CMD=[
-  [/^(excluir|exclui|apagar|apaga|deletar|deleta)$/,()=>'Excluir so pelo toque'],
-  [/^(descer|desce|descendo|baixo)$/,()=>vzRola(1)],[/^(subir|sobe|subindo|cima)$/,()=>vzRola(-1)],
-  [/^(tocar|toca|toque|clicar|clica|apertar|aperta|selecionar|seleciona)$/,(tk,fr)=>vzBotao(fr,true)||vzPosicao(fr)||'Nao achei '+esc(fr)+' nesta tela'],
-  [/^(abastec\w*|abasteci)$/,(tk,fr,w)=>{const g=vzTag(tk);if(!g){if(!tk.length&&/^abastecimento/.test(w))return vzLugar('combustivel');if(!tk.length){vzAbre(formAbast);return {ok:'Abastecimento · diga a TAG ou digite'}}return 'Diga a TAG: abastecer CB 07 120 litros'}
-    return vzComTag(g,g2=>vzAbast(g2,tk))}],
-  [/^horimetro$/,tk=>{const g=vzTag(tk);if(!g)return 'Diga a TAG: horimetro PC 02 2450';
-    return vzComTag(g,({e,n})=>{const h=tk.slice(n).map(vzNum).find(x=>x!=null);vzAbre(()=>formHm(e.id));if(h!=null)vzSet('#h-val',h);return {ok:`${e.codigo}${h!=null?` · ${nf(h,1)} h · diga salvar`:' · diga a leitura ou digite'}`}})}],
-  [/^(abrir|abre|ficha|ir|vai|mostrar|mostra)$/,(tk,fr)=>fr?vzAbrir(fr):'Diga o que abrir'],
-  [/^(preventiva|preventivas|registrar)$/,(tk,fr,w)=>{if(tk[0]==='preventiva')tk=tk.slice(1);const g=vzTag(tk);if(!g){if(w==='registrar')return vzBotao(w+' '+fr,true)||'Nao achei registrar '+esc(fr);if(!tk.length)return vzLugar('preventiva');return 'Diga a TAG: preventiva CB 03'}
-    return vzComTag(g,({e})=>{vzAbre(()=>formTroca(e.id));return {ok:`Preventiva ${e.codigo}`}})}],
-  [/^(buscar|busca|procurar|procura)$/,tk=>{const q=tk.join('').replace(/[^a-z0-9]/g,'');if(!q)return 'Diga o codigo: buscar 360 8960';
-    const score=x=>{const c=nzCod(stCod(x)),r=nzCod(x.ref);return c===q||r===q?0:c.includes(q)||r.includes(q)?1:nzCod(x.desc).includes(q)?2:9};
-    const m=(S.estoque||[]).map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1]));if(!m.length)return 'Nenhum item com '+tk.join(' ');
-    vzAbre(()=>formMov(m[0][1].id));return {ok:`${stCod(m[0][1])}${m.length>1?` · mais ${m.length-1} parecido${m.length>2?'s':''}`:''}`}}],
-  [/^(salvar|salva|gravar|grava|lancar|lanca|confirmar|confirma)$/,(tk,fr,w)=>{const x=vzBotao(w+(fr?' '+fr:''),false);if(x)return x;const b=sheetOpen&&[...document.querySelectorAll('#sheet .sh-foot .btn.pri')].find(vzVis);if(!b)return 'Nada para salvar nesta tela';if(vzExclui(b))return 'Excluir so pelo toque';b.click();return {ok:'Salvando'}}],
-  [/^(cancelar|cancela|fechar|fecha)$/,()=>{if(!sheetOpen)return 'Nada aberto';closeSheet();return {ok:'Fechado'}}],
-  [/^(voltar|volta)$/,()=>{if(!sheetOpen){const u=$('#app [data-a="up"]');if(!u)return 'Ja esta no inicio';u.click();return {ok:'Voltou'}}goBack();return {ok:'Voltou'}}],
-  [/^(parar|para|desligar|desliga)$/,()=>{vozStop();return null}]];
-const VZ_PRECISA_TAG=/^(abastec\w*|abasteci|horimetro|preventiva|preventivas)$/;
-/* nota de uma versao da fala (so procura, nao age): quanto maior, mais provavel ser o comando certo */
-function vzNota(tk){
-  for(let i=0;i<tk.length;i++){const c=VZ_CMD.find(([re])=>re.test(tk[i]));if(!c)continue;const w=tk[i],resto=tk.slice(i+1).filter(x=>!/^(do|da|no|na|para|pro|pra)$/.test(x)),fr=resto.filter(x=>!/^(o|a|os|as)$/.test(x)).join(' ');
-    if(VZ_PRECISA_TAG.test(w)){if(!resto.length)return 4;const g=vzTag(resto);return g?6+Math.min(resto.slice(g.n).filter(x=>vzNum(x)!=null).length,2)*0.4-(g.amb?0.5:0):2}
-    if(/^(abrir|abre|ficha|ir|vai|mostrar|mostra)$/.test(w)){if(!fr)return 1;const t=vzTokens(fr),g=vzTag(t);return vzPosicaoAcha(fr)!=null||(g&&g.n===t.length)||vzLugarAcha(fr)||vzCategoriaAcha(fr)?6:vzBotaoAcha(fr,true)?4:2}
-    if(/^(buscar|busca|procurar|procura)$/.test(w))return resto.length?4:2;
-    return 5-Math.min(i,2)}
-  const fr=tk.join(' ');return vzLugarAcha(fr)||vzCategoriaAcha(fr)||vzPosicaoAcha(fr)!=null?5:vzBotaoAcha(fr,false)?3:0}
-/* recebe as versoes que o celular ouviu; testa cada uma (como veio e com palavras corrigidas) e executa a melhor */
-function vozCmd(alts){if(!Array.isArray(alts))alts=[alts];let best=null;
-  for(const a of alts.filter(Boolean)){const t0=vzTokens(a);for(const tk of [t0,vzCorrige(t0)]){let n=0;try{n=vzNota(tk)}catch(e){}if(!best||n>best.n)best={n,tk,txt:a}}}
-  if(!best)return;vzExec(best.tk,best.txt)}
-function vzRes(r){if(r==null)return;if(typeof r==='string'){vzBand('warn',r);return}
-  if(r.pick){vzBand('warn','Qual equipamento? '+r.pick.slice(0,4).map((e,k)=>`<button type="button" class="vb-c" data-vzc="${k}">${esc(e.codigo)}</button>`).join(''),true);
-    $('#vband').querySelectorAll('[data-vzc]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();vzRes(r.go(r.pick[Number(b.dataset.vzc)]))});return}
-  vzBand('ok',r.ok)}
-function vzExec(tk,txt){
-  for(let i=0;i<tk.length;i++){const c=VZ_CMD.find(([re])=>re.test(tk[i]));if(!c)continue;
-    const resto=tk.slice(i+1).filter(x=>!/^(do|da|no|na|para|pro|pra)$/.test(x));let r;try{r=c[1](resto,resto.filter(x=>!/^(o|a|os|as)$/.test(x)).join(' '),tk[i])}catch(e){console.error(e);r='Nao consegui fazer isso'}
-    vzRes(r);return}
-  /* frase solta: lugar, categoria, posicao ou botao com o nome exato */
-  const fr=tk.join(' ');let r=null;try{r=vzLugar(fr)||vzCategoria(fr)||vzPosicao(fr)||vzBotao(fr,false)}catch(e){console.error(e)}
-  if(r){vzRes(r);return}
-  vzBand('warn','Nao entendi: '+esc(String(txt).trim()))}
-const vzPh=()=>VZ.ready?'<em>pode falar</em>':'<em>aguarde…</em>';
-function vzBand(kind,txt,fica){let b=$('#vband');if(!b){b=document.createElement('div');b.id='vband';b.innerHTML=`<span class="vb-d"></span><div class="vb-t"><b></b><span></span></div><button type="button" class="vb-x" aria-label="Desligar microfone">✕</button>`;document.body.append(b);document.documentElement.classList.add('vz-on');b.querySelector('.vb-x').onclick=ev=>{ev.stopPropagation();vozStop()}}
-  VZ.kind=kind;b.className='vb-'+kind+(kind==='on'&&!VZ.ready?' vb-esp':'');b.querySelector('b').textContent=kind==='ok'?'Entendi':kind==='warn'?'Atencao':VZ.ready?'Ouvindo':'Microfone';b.querySelector('.vb-t span').innerHTML=txt;document.documentElement.style.setProperty('--vzh',b.offsetHeight+'px');
-  clearTimeout(VZ.msgT);if(kind!=='on')VZ.msgT=setTimeout(()=>{if(VZ.on)vzBand('on',vzPh())},fica?12000:kind==='ok'?5000:4000)}
-const vzPronto=v=>{VZ.ready=v;if(VZ.on&&VZ.kind==='on'&&!VZ.interim)vzBand('on',vzPh())};
-const vzSilencio=()=>{clearTimeout(VZ.tm);VZ.tm=setTimeout(()=>{if(VZ.on){vozStop();toast('Microfone desligado por silencio')}},15000)};
-function vozStart(){if(!VZ.SR)return;if(!navigator.onLine){toast('Comando de voz precisa de internet');return}
-  VZ.on=true;VZ.ready=false;VZ.interim='';$('#mic').classList.add('on');$('#mic').setAttribute('aria-pressed','true');vzBand('on',vzPh());vzSilencio();
-  const r=new VZ.SR();VZ.rec=r;r.lang='pt-BR';r.continuous=true;r.interimResults=true;r.maxAlternatives=5;
-  r.onaudiostart=()=>{if(VZ.rec===r)vzPronto(true)};r.onstart=()=>{if(VZ.rec===r&&!VZ.ready)setTimeout(()=>{if(VZ.rec===r&&VZ.on&&!VZ.ready)vzPronto(true)},400)};
-  r.onresult=ev=>{let im='';for(let i=ev.resultIndex;i<ev.results.length;i++){const x=ev.results[i];if(x.isFinal){VZ.interim='';vozCmd(Array.from({length:x.length},(_,k)=>x[k].transcript))}else im+=x[0].transcript}
-    if(im&&VZ.on){VZ.interim=im;clearTimeout(VZ.msgT);vzBand('on',esc(im))}vzSilencio()};
-  r.onerror=ev=>{if(/not-allowed|service-not-allowed/.test(ev.error)){toast('Permita o uso do microfone para o app');vozStop()}else if(ev.error==='network'){toast('Comando de voz precisa de internet');vozStop()}else if(ev.error==='audio-capture'){toast('Microfone indisponivel');vozStop()}};
-  r.onend=()=>{if(VZ.rec!==r)return;VZ.interim='';vzPronto(false);if(VZ.on)setTimeout(()=>{if(VZ.on&&VZ.rec===r)try{r.start()}catch(e){}},250)};
-  try{r.start();setTimeout(()=>{if(VZ.rec===r&&VZ.on&&!VZ.ready)vzPronto(true)},1500)}catch(e){vozStop()}}
-function vozStop(){VZ.on=false;VZ.ready=false;VZ.interim='';clearTimeout(VZ.tm);clearTimeout(VZ.msgT);const r=VZ.rec;VZ.rec=null;try{r&&r.abort()}catch(e){}
-  const m=$('#mic');if(m){m.classList.remove('on');m.setAttribute('aria-pressed','false')}const b=$('#vband');b&&b.remove();document.documentElement.classList.remove('vz-on')}
-if(VZ.SR){$('#mic').hidden=false;$('#mic').addEventListener('click',ev=>{ev.stopPropagation();ev.preventDefault();VZ.on?vozStop():vozStart()});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden&&VZ.on)vozStop()});window.addEventListener('offline',()=>{if(VZ.on){vozStop();toast('Sem internet: microfone desligado')}});setTimeout(fitTop,0)}
 function avisarFoot(t,id){return podeEscrever()?`<button type="button" class="btn av-btn" data-avisar="${t}:${esc(id)}">Avisar sobre este ${t==='eq'?'equipamento':'item'}</button>`:''}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-avisar]');if(!b)return;const [t,id]=b.dataset.avisar.split(/:(.*)/s);formAviso({anexos:[{t,id}]})});
 /* cartoes dos anexos */

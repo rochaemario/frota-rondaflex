@@ -882,6 +882,11 @@ body.kb .sh-foot{display:none}
 .lt-r.av{border-left-color:#ffb800}.lt-r.er{border-left-color:#d6002e}.lt-r.er .lt-m small{color:#d6002e}.lt-r.fo{opacity:.6}
 .et-i+.et-i{box-shadow:inset 0 1px 0 var(--line)}
 .et-l{flex:none;color:var(--muted);font-size:14px}.et-v{flex:1;min-width:0;text-align:right;font-weight:600;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.et-v.mud{color:var(--accent,#0033a0)}
+.tr-i+.tr-i,.ti-g+.tr-i{box-shadow:inset 0 1px 0 var(--line)}.tr-i[hidden]{display:none}
+.tr-h{display:flex;align-items:center;gap:10px;padding:12px 13px;min-height:56px;cursor:pointer}.tr-h .main{flex:1;min-width:0}.tr-h .main b{font-weight:600}.tr-h .main .s{font-size:12.5px;color:var(--muted);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.tr-h .q{width:70px;flex:0 0 auto;text-align:right;min-height:40px;padding:0 8px;background:var(--surface)}.tr-h .u{font-size:12px;color:var(--muted);min-width:14px}
+.tr-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.tr-i.op .tr-h>svg{transform:rotate(90deg)}.tr-i.op{background:var(--sunk)}
+.tr-b{padding:2px 13px 14px;display:flex;flex-direction:column;gap:10px}.tr-b .f{margin:0}.tr-b .cd{font-family:var(--mono);text-transform:uppercase}.tr-b .ivw{margin:0;font-size:13.5px}.tr-b .ivw select.ivs{min-height:40px;font-size:14px}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
 .et-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.et-n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -940,8 +945,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=0625aee942"></script>
-<script src="shim.js?v=0625aee942"></script>
+<script src="config.js?v=c9d24e7f82"></script>
+<script src="shim.js?v=c9d24e7f82"></script>
 </head>
 <body>
 
@@ -2556,7 +2561,7 @@ function formTroca(eqId){
     <div class="fset" style="margin-top:12px"><div class="f">Intervalo <span class="hint">opcional</span><div class="seg iv-seg" role="group" aria-label="Intervalo">${[250,300,350,400,500].map(v=>`<button type="button" data-iv="${v}" aria-pressed="false">${nf(v)} h</button>`).join('')}</div></div>
     <label class="f">Proxima (h) <span class="hint">opcional</span><input id="t-prox" type="number" step="0.1" inputmode="decimal" placeholder="Automatico"></label>
     <p class="note" id="t-proxhint" style="margin:0">Em branco, a proxima e agendada sozinha pelo intervalo de cada item.</p></div>
-    <div class="lbl" style="margin-top:16px">Itens trocados <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">vencidos ja vem marcados</span></div>
+    <div class="lbl" style="margin-top:16px">Itens trocados <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">vencidos ja entram</span></div>
     <div id="t-kits" hidden></div><div class="sug-w t-add"><div class="search">${I.search}<input id="t-q" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="t-qh"></div></div>
     ${rdBtn('t-cam','Adicionar item pela camera')}<div class="list" id="t-items"></div><div class="list" id="t-extra" hidden></div>
     <div class="fset" style="margin-top:12px"><label class="f">Observacoes<textarea id="t-obs"></textarea></label></div><div id="t-eqv"></div></form>`,
@@ -2565,16 +2570,16 @@ function formTroca(eqId){
     const sel=sh.querySelector('#t-eq'),box=sh.querySelector('#t-items'),hm=sh.querySelector('#t-hm');
     const fill=()=>{const e=eqById(sel.value);if(!e){box.innerHTML='<div class="empty">Escolha o equipamento.</div>';sh.querySelector('#t-kits').hidden=true;return}
       hm.value=e.horimetro||'';
-      const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId);return `<label class="chk"><input type="checkbox" data-pid="${esc(it.pid)}"${s.cls==='bad'||s.cls==='warn'?' checked':''}><span class="box"></span>
-        <div class="main"><b>${esc(itNome(it))}</b><input class="cd" data-cd="${esc(it.pid)}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"><div class="s"><span class="pill ${s.cls}">${s.label}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev||it.intervalo,`data-ivp="${esc(it.pid)}"`)}</div>
-        <input class="q" type="number" step="0.1" inputmode="decimal" data-q="${esc(it.pid)}" value="${esc(it.qtd??'')}" aria-label="Quantidade usada de ${esc(it.desc)}"><span class="u">${esc(it.un||'')}</span></label>`};
-      const its=e.itens||[],due=it=>{const c=itemStatus(e,it).cls;return c==='bad'||c==='warn'},A=its.filter(due),B=its.filter(i=>!due(i));
-      box.innerHTML=!its.length?'':!A.length||!B.length?its.map(row).join(''):`<div class="ti-g">Vencidos e proximos</div>${A.map(row).join('')}<button type="button" class="ti-more" aria-expanded="false"><span>Itens em dia</span>${I.chev||'›'}</button><div class="ti-ok" hidden>${B.map(row).join('')}</div>`;
-      if(!its.length)box.innerHTML=`<div class="empty"><b>Sem oleos e filtros no plano</b>Monte o plano pelo + › Editar cadastro › Equipamento para registrar trocas.</div>`;
-      const mb=box.querySelector('.ti-more');mb&&(mb.onclick=()=>{const o=box.querySelector('.ti-ok'),x=o.hidden;o.hidden=!x;mb.setAttribute('aria-expanded',x)});
-      box.querySelectorAll('[data-ivp]').forEach(i=>{i.onclick=ev=>ev.stopPropagation();i.onchange=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(i.dataset.ivp)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
-      box.querySelectorAll('.ivw').forEach(w=>w.onclick=ev=>{if(ev.target===w||ev.target.tagName==='SPAN')ev.preventDefault()});
-      box.querySelectorAll('[data-cd]').forEach(i=>{i.onclick=ev=>ev.preventDefault();i.oninput=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(i.dataset.cd)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
+      /* lista mostra so o que esta no lancamento; tocar na linha abre codigo usado, intervalo e retirar */
+      const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId),on=s.cls==='bad'||s.cls==='warn',P=esc(it.pid);return `<div class="tr-i" data-row="${P}"${on?'':' hidden'}><input type="checkbox" hidden data-pid="${P}"${on?' checked':''}>
+        <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="false"><div class="main"><b>${esc(itNome(it))}</b><div class="s"><span class="pill ${s.cls}">${s.label}</span><span class="num" data-cdv="${P}">${esc(it.espec||(st?stCod(st):''))}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div></div>
+        <input class="q" type="number" step="0.1" inputmode="decimal" data-q="${P}" value="${esc(it.qtd??'')}" aria-label="Quantidade usada de ${esc(it.desc)}"><span class="u">${esc(it.un||'')}</span>${I.chev}</div>
+        <div class="tr-b" hidden><label class="f">Codigo usado<input class="cd" data-cd="${P}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"></label>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev||it.intervalo,`data-ivp="${P}"`)}<button type="button" class="btn" data-trm="${P}">Retirar do lancamento</button></div></div>`};
+      const its=e.itens||[];
+      box.innerHTML=its.length?its.map(row).join('')+'<div class="empty" id="t-none" hidden>Nenhum item no lancamento. Pesquise acima para adicionar.</div>':`<div class="empty"><b>Sem oleos e filtros no plano</b>Monte o plano pelo + › Editar cadastro › Equipamento para registrar trocas.</div>`;
+      box.querySelectorAll('[data-ivp]').forEach(i=>{i.onclick=ev=>ev.stopPropagation()});
+      box.querySelectorAll('[data-cd]').forEach(i=>{i.oninput=()=>{const p=i.dataset.cd,cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`),v=box.querySelector(`[data-cdv="${CSS.escape(p)}"]`);if(v)v.textContent=i.value.trim().toUpperCase();if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
+      box.querySelectorAll('[data-trm]').forEach(b=>b.onclick=()=>{const p=b.dataset.trm,cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.checked=false;const r=b.closest('.tr-i');r.classList.remove('op');r.querySelector('.tr-b').hidden=true;r.querySelector('[data-trh]').setAttribute('aria-expanded','false');box.dispatchEvent(new Event('change'));toast('Retirado do lancamento')});
       extras.length=0;drawX();
       /* kits que servem neste equipamento */
       const kb=sh.querySelector('#t-kits'),ks=eqCompat(e).kits;kb.hidden=!ks.length;
@@ -2583,24 +2588,32 @@ function formTroca(eqId){
       };
     /* adicionar item (texto ou camera): se e do plano, marca a linha; se nao, entra como item avulso com baixa no estoque */
     const extras=[],xb=sh.querySelector('#t-extra');
-    const drawX=()=>{xb.hidden=!extras.length;const em=box.querySelector('.empty');if(em)em.hidden=!!extras.length;xb.innerHTML=`<div class="ti-g">Itens adicionados</div>`+extras.map((x,k)=>{const st=x.s;return `<label class="chk"><input type="checkbox" checked data-xk="${k}"><span class="box"></span>
-        <div class="main"><b>${esc(st.desc)}</b><div class="s"><span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span></div>${isKit(st)?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}</div>
-        <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span></label>`}).join('');
-      xb.querySelectorAll('[data-xk]').forEach(c=>c.onchange=()=>{if(!c.checked){extras.splice(Number(c.dataset.xk),1);drawX();hint()}});
-      xb.querySelectorAll('[data-xq]').forEach(q=>{q.onclick=ev=>ev.preventDefault();q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});
-      xb.querySelectorAll('[data-xiv]').forEach(v=>{v.onclick=ev=>ev.stopPropagation();v.onchange=()=>{extras[Number(v.dataset.xiv)].iv=v.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=extras.some(x=>x.s.id===b.dataset.kit);b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)})};
+    const xOpen=new Set();
+    const drawX=()=>{xb.hidden=!extras.length;xb.innerHTML=`<div class="ti-g">Itens adicionados</div>`+extras.map((x,k)=>{const st=x.s,op=xOpen.has(st.id);return `<div class="tr-i${op?' op':''}" data-xrow="${k}">
+        <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${op}"><div class="main"><b>${esc(st.desc)}</b><div class="s"><span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span></div></div>
+        <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span>${I.chev}</div>
+        <div class="tr-b"${op?'':' hidden'}>${isKit(st)?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}<button type="button" class="btn" data-xr="${k}">Retirar do lancamento</button></div></div>`}).join('');
+      xb.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const x=extras.splice(Number(b.dataset.xr),1)[0];if(x)xOpen.delete(x.s.id);drawX();hint();toast('Retirado do lancamento')});
+      xb.querySelectorAll('[data-xq]').forEach(q=>{q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});
+      xb.querySelectorAll('[data-xiv]').forEach(v=>{v.onclick=ev=>ev.stopPropagation();v.onchange=()=>{extras[Number(v.dataset.xiv)].iv=v.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=extras.some(x=>x.s.id===b.dataset.kit);b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)});vis()};
+    /* mostra so as linhas que estao no lancamento */
+    const vis=()=>{let n=0;box.querySelectorAll('[data-row]').forEach(r=>{const on=r.querySelector('input[type=checkbox]').checked;r.hidden=!on;if(on)n++});const z=box.querySelector('#t-none');if(z)z.hidden=!!(n||extras.length)};
+    box.addEventListener('change',()=>vis());
+    sh.addEventListener('click',ev=>{const h=ev.target.closest('[data-trh]');if(!h||ev.target.closest('input,select,button:not([data-trh])'))return;const r=h.closest('.tr-i'),b=r.querySelector('.tr-b'),o=b.hidden;b.hidden=!o;r.classList.toggle('op',o);h.setAttribute('aria-expanded',o);
+      const xr=r.dataset.xrow;if(xr!=null){const x=extras[Number(xr)];if(x){o?xOpen.add(x.s.id):xOpen.delete(x.s.id)}}});
+    sh.addEventListener('keydown',ev=>{const h=ev.target.closest&&ev.target.closest('[data-trh]');if(h&&ev.target===h&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();h.click()}});
     const addPeca=st=>{const e2=eqById(sel.value);if(!e2){toast('Escolha o equipamento antes.');return}if(!st)return;
       const it=(e2.itens||[]).find(i=>i.estoqueId===st.id||(isKit(stById(i.estoqueId)||{})&&kitComps(stById(i.estoqueId)).some(c=>c.s.id===st.id))||(itCod(i)&&nzCod(itCod(i))===nzCod(stCod(st))));
-      if(it){const o=box.querySelector('.ti-ok');if(o&&o.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`)){o.hidden=false;const mb=box.querySelector('.ti-more');mb&&mb.setAttribute('aria-expanded','true')}
-        const cdI=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`);if(cdI){cdI.value=stCod(st);cdI.dispatchEvent(new Event('input'));cdI.closest('.chk').scrollIntoView({block:'center',behavior:'smooth'});toast(`${itNome(it)} marcado`)}return}
+      if(it){const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(it.pid)}"]`),cdI=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`);
+        if(cdI){cdI.value=stCod(st);cdI.dispatchEvent(new Event('input'))}if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}
+        const r=box.querySelector(`[data-row="${CSS.escape(it.pid)}"]`);r&&r.scrollIntoView({block:'center',behavior:'smooth'});toast(`${itNome(it)} adicionado`);return}
       if(!extras.some(x=>x.s.id===st.id))extras.push({s:st,q:1});drawX();hint();
-      const r=xb.querySelector(`[data-xk="${extras.findIndex(x=>x.s.id===st.id)}"]`);r&&r.closest('.chk').scrollIntoView({block:'center',behavior:'smooth'});toast(`${st.desc} adicionado`)};
+      const r=xb.querySelector(`[data-xrow="${extras.findIndex(x=>x.s.id===st.id)}"]`);r&&r.scrollIntoView({block:'center',behavior:'smooth'});toast(`${st.desc} adicionado`)};
     /* kit: entra como item adicionado (baixa dos componentes) e marca no plano os itens que ele cobre, sem baixa dupla */
     const addKit=k=>{const e2=eqById(sel.value);if(!e2||!k)return;
       const inPlan=(e2.itens||[]).find(i=>i.estoqueId===k.id);if(inPlan){addPeca(k);return}
       const comp=new Set(kitComps(k).map(x=>x.s.id));let n=0;
       (e2.itens||[]).forEach(it=>{const so=stOfIt(it);if(!so||!comp.has(so.id))return;const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(it.pid)}"]`);if(!cb)return;
-        const o=box.querySelector('.ti-ok');if(o&&o.contains(cb)){o.hidden=false;const mb=box.querySelector('.ti-more');mb&&mb.setAttribute('aria-expanded','true')}
         cb.checked=true;const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`);if(q)q.value=0;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`);if(cd&&!cd.value)cd.value=stCod(so);n++});
       box.dispatchEvent(new Event('change'));
       if(!extras.some(x=>x.s.id===k.id))extras.push({s:k,q:1});drawX();hint();
@@ -2624,7 +2637,7 @@ function formTroca(eqId){
       if(d.eq&&eqById(d.eq)){const e1=eqById(d.eq);sel.value=d.eq;fill();const ei=sh.querySelector('.eqs-in');if(ei){ei.value=`${e1.codigo} · ${e1.tipo||''}`;ei.setCustomValidity('')}}
       sh.querySelector('#t-dt').value=d.dt;hm.value=d.hm;sh.querySelector('#t-resp').value=d.resp;sh.querySelector('#t-obs').value=d.obs;sh.querySelector('#t-prox').value=d.prox;
       if(d.iv){iv=d.iv;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv))}
-      d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null)ci.value=cd});
+      d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null){ci.value=cd;const v=box.querySelector(`[data-cdv="${CSS.escape(p)}"]`);if(v&&cd)v.textContent=cd}});vis();
       d.ex.forEach(([id,q])=>{const st=stById(id);if(st)extras.push({s:st,q})});drawX();hint();
       if(d.add){const st=stById(d.add);if(st)addPeca(st);else setTimeout(()=>{const s2=stById(d.add);if(s2)addPeca(s2)},800)}};
     const ph=sh.querySelector('#t-proxhint'),pin=sh.querySelector('#t-prox');
@@ -2632,7 +2645,7 @@ function formTroca(eqId){
     const hint=()=>{const e=eqById(sel.value);if(e&&iv&&!pin.value.trim()){const h=Number(hm.value)||0;ph.textContent=`Intervalo de ${nf(iv)} h: a proxima fica para ${nf(h+iv)} h.`;return}
       if(!e||pin.value.trim()){ph.textContent=pin.value.trim()?'Todos os itens marcados ficam agendados para esse horimetro.':'Em branco, a proxima e agendada sozinha pelo intervalo de cada item.';return}
       const h=Number(hm.value)||0;const ivs=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>e.itens.find(i=>i.pid===c.dataset.pid)).filter(Boolean).map(i=>Number(i.intervalo)||0);
-      const w=ivs.filter(Boolean);ph.textContent=!ivs.length?'Marque os itens trocados.':!w.length?'Os itens marcados ainda nao tem intervalo. Anote a proxima aqui ou defina o intervalo no cadastro.':`Em branco, fica agendada automaticamente para ${[...new Set(w)].map(v=>nf(h+v)+' h').join(' / ')}.`};
+      const w=ivs.filter(Boolean);ph.textContent=!ivs.length?'Adicione os itens trocados.':!w.length?'Os itens marcados ainda nao tem intervalo. Anote a proxima aqui ou defina o intervalo no cadastro.':`Em branco, fica agendada automaticamente para ${[...new Set(w)].map(v=>nf(h+v)+' h').join(' / ')}.`};
     pin.oninput=hint;hm.addEventListener('input',hint);box.addEventListener('change',hint);
     sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));

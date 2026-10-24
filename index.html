@@ -860,6 +860,9 @@ body.kb .sh-foot{display:none}
 .fr-g{display:flex;flex-direction:column;gap:10px}.fr-b{display:flex;align-items:center;gap:14px;width:100%;min-height:72px;padding:12px 14px;border-radius:16px;border:1px solid var(--line);background:var(--surface,#fff);font:inherit;color:var(--fg);text-align:left;cursor:pointer;box-shadow:var(--shadow)}
 .fr-b .ic{width:44px;height:44px;border-radius:12px;background:var(--sunk);display:grid;place-items:center;flex:none}.fr-b .ic svg{width:22px;height:22px;color:var(--accent)}
 .fr-b .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.fr-b b{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:.005em}.fr-b small{font-size:13px;color:var(--muted)}.fr-b>svg{width:18px;height:18px;color:var(--faint);flex:none}
+.ivw{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12.5px;color:var(--muted)}.ivw select.ivs{flex:1;min-width:0;min-height:34px;padding:4px 30px 4px 10px;font-size:13px;border-radius:10px;width:auto}
+.enc-iv{padding:0 13px 10px}.enc-iv .ivw{margin:0}
+.ivd{display:flex;flex-direction:column;gap:10px;margin-top:10px;padding:12px;border-radius:12px;background:var(--sunk)}.ivd .ivw{margin:0;font-size:13.5px}
 .kl{background:var(--sunk);border-radius:14px;overflow:hidden;margin-top:12px}.kr{display:flex;align-items:center;gap:12px;padding:10px 12px}.kr+.kr{box-shadow:inset 0 1px 0 var(--line)}
 .kr .n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.kr .n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kr .n small{font-size:12.5px;color:var(--muted)}
 .kr input{width:68px;min-height:42px;text-align:right;flex:none}.kr .u{font-size:13px;color:var(--muted);width:22px;flex:none}.kr .x{flex:none;width:32px;height:32px;border-radius:50%;border:0;background:var(--surface,#fff);color:var(--muted);font-weight:700;cursor:pointer}
@@ -937,8 +940,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=66e4ce063d"></script>
-<script src="shim.js?v=66e4ce063d"></script>
+<script src="config.js?v=669910e0af"></script>
+<script src="shim.js?v=669910e0af"></script>
 </head>
 <body>
 
@@ -1014,6 +1017,7 @@ const TABS=[['painel','Painel'],['frota','Frota'],['equip','Equipamentos'],['alo
 
 /* ---------- regras ---------- */
 function itemStatus(eq,it){
+  if(it.ivSel==='aval')return {cls:'mut',label:'Sob avaliacao',rest:Infinity,prox:null,pct:0,aval:true};
   const h=Number(eq.horimetro)||0, iv=Number(it.intervalo)||0;
   const ult=it.ultimaH!==''&&it.ultimaH!=null?Number(it.ultimaH):0;
   const manual=it.proxH!==''&&it.proxH!=null&&!isNaN(Number(it.proxH));
@@ -1027,6 +1031,14 @@ function itemStatus(eq,it){
   else label=`Faltam ${nf(rest)} h`;
   return {cls,label,rest,prox,pct,prev,manual};
 }
+/* intervalo de troca escolhido so no momento de aplicar o item no equipamento
+   ('' = acompanha o intervalo do equipamento; numero = horas; 'aval' = Sob avaliacao, nunca vence) */
+const IV_OP=[250,300,350,400,500];
+const ivPad=(e,it)=>it&&it.ivSel!=null&&it.ivSel!==undefined?it.ivSel:((e&&e.ivEnc)||{})[it&&it.estoqueId]??'';
+function ivSelect(cur,eqIv,attr){cur=cur==null?'':String(cur);return `<label class="ivw"><span>Intervalo</span><select class="ivs" ${attr}><option value=""${cur===''?' selected':''}>Do equipamento${eqIv?` (${nf(eqIv)} h)`:''}</option>${IV_OP.map(n=>`<option value="${n}"${cur===String(n)?' selected':''}>A cada ${nf(n)} h</option>`).join('')}<option value="aval"${cur==='aval'?' selected':''}>Sob avaliacao</option></select></label>`}
+const ivVal=v=>v==='aval'?'aval':v===''||v==null?'':Number(v);
+const ivProx=(v,h,fb)=>v==='aval'?'':v!==''&&v!=null?Math.round((Number(h)+Number(v))*10)/10:fb;
+const novoPid=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function eqSituacao(e){
   if(!(e.itens||[]).length)return {cls:'mut',label:'Sem plano',mot:[],its:[],est:[]};
   const crit=[],aten=[],its=[],est=[];
@@ -2137,8 +2149,17 @@ function itemRows(e,its){
     <div class="facts"><div>Ultima troca<b>${it.ultimaH!==''&&it.ultimaH!=null?(()=>{const o=it.ultimaData?hmOrig(e.id,it.ultimaH,it.ultimaData):{v:Number(it.ultimaH),d:0};return nf(o.v)+' h'+(o.d?'<small class="rp-mk">relogio antigo</small>':'')})():'—'}</b>${it.ultimaData?sdate(it.ultimaData):''}</div><div>${st.cls==='bad'?'Venceu em':'Proxima'}<b>${st.prox!=null?(()=>{const lt=hmTrocas(e.id).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
       /* vencimento que caiu antes da troca do relogio: mostra no relogio antigo */
       if(st.cls==='bad'&&lt&&it.ultimaData&&(it.ultimaData<(lt.data||''))&&st.prox<=Number(lt.horimetro)){const o=hmOrig(e.id,st.prox,it.ultimaData);return nf(o.v)+' h<small class="rp-mk">relogio antigo</small>'}
-      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':st.cls!=='bad'&&st.prev?sdate(st.prev):''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${st.cls==='bad'?`<div class="pn-bt"><button type="button" class="btn sm" data-rp="${esc(e.id)}|${esc(it.pid)}">Reprogramar</button></div>`:''}</div></div>`}).join('')}</div>`;
+      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':st.cls!=='bad'&&st.prev?sdate(st.prev):''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.ivDef&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad';
+      return rp||def?`<div class="pn-bt">${def?`<button type="button" class="btn sm" data-ivd="${esc(e.id)}|${esc(it.pid)}">Intervalo</button>`:''}${rp?`<button type="button" class="btn sm" data-rp="${esc(e.id)}|${esc(it.pid)}">Reprogramar</button>`:''}</div><div class="ivd-box"></div>`:''})()}</div></div>`}).join('')}</div>`;
 }
+/* definicao unica do intervalo de um item ja aplicado: escolhido e salvo, o botao nao volta mais */
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-ivd]');if(!b)return;const [eid,pid]=b.dataset.ivd.split('|');const e=eqById(eid),it=e&&(e.itens||[]).find(i=>i.pid===pid);if(!it)return;
+  const box=b.closest('.ia-b').querySelector('.ivd-box');if(box.innerHTML){box.innerHTML='';return}
+  box.innerHTML=`<div class="ivd">${ivSelect(it.ivSel??'',e.intervaloPrev||it.intervalo,'data-ivdv')}<p class="note" style="margin:0">Definicao unica: depois de salvo, nao aparece mais para este item.</p><div class="eqv-f"><button type="button" class="btn" data-ivx>Cancelar</button><button type="button" class="btn pri" data-ivok>Salvar intervalo</button></div></div>`;
+  box.querySelector('[data-ivx]').onclick=()=>box.innerHTML='';
+  box.querySelector('[data-ivok]').onclick=async()=>{const v=ivVal(box.querySelector('[data-ivdv]').value),e2=eqById(eid);if(!e2)return;
+    const its=(e2.itens||[]).map(i=>{if(i.pid!==pid)return i;const ult=Number(i.ultimaH)||0,base=e2.intervaloPrev?Math.round((ult+Number(e2.intervaloPrev))*10)/10:i.proxH;return {...i,ivSel:v,ivDef:true,proxH:ivProx(v,ult,v===''?base:i.proxH),reprog:''}});
+    if(await safe(()=>S.db.doc('equipamentos/'+eid).update({itens:its}),v==='aval'?'Item sob avaliacao':'Intervalo definido'))refreshSheet()}});
 document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.closest('[data-ia]');if(!h)return;const o=h.getAttribute('aria-expanded')==='true';h.setAttribute('aria-expanded',!o);h.nextElementSibling.hidden=o});
 /* ---------- reprogramar vencimento (so o item daquele equipamento; o cadastro do estoque nao muda) ---------- */
 const RP_MOT=['Avaliado em bom estado','Sem peca no estoque','Aguardando parada','Outro'];
@@ -2545,12 +2566,14 @@ function formTroca(eqId){
     const fill=()=>{const e=eqById(sel.value);if(!e){box.innerHTML='<div class="empty">Escolha o equipamento.</div>';sh.querySelector('#t-kits').hidden=true;return}
       hm.value=e.horimetro||'';
       const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId);return `<label class="chk"><input type="checkbox" data-pid="${esc(it.pid)}"${s.cls==='bad'||s.cls==='warn'?' checked':''}><span class="box"></span>
-        <div class="main"><b>${esc(itNome(it))}</b><input class="cd" data-cd="${esc(it.pid)}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"><div class="s"><span class="pill ${s.cls}">${s.label}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div></div>
+        <div class="main"><b>${esc(itNome(it))}</b><input class="cd" data-cd="${esc(it.pid)}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"><div class="s"><span class="pill ${s.cls}">${s.label}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev||it.intervalo,`data-ivp="${esc(it.pid)}"`)}</div>
         <input class="q" type="number" step="0.1" inputmode="decimal" data-q="${esc(it.pid)}" value="${esc(it.qtd??'')}" aria-label="Quantidade usada de ${esc(it.desc)}"><span class="u">${esc(it.un||'')}</span></label>`};
       const its=e.itens||[],due=it=>{const c=itemStatus(e,it).cls;return c==='bad'||c==='warn'},A=its.filter(due),B=its.filter(i=>!due(i));
       box.innerHTML=!its.length?'':!A.length||!B.length?its.map(row).join(''):`<div class="ti-g">Vencidos e proximos</div>${A.map(row).join('')}<button type="button" class="ti-more" aria-expanded="false"><span>Itens em dia</span>${I.chev||'›'}</button><div class="ti-ok" hidden>${B.map(row).join('')}</div>`;
       if(!its.length)box.innerHTML=`<div class="empty"><b>Sem oleos e filtros no plano</b>Monte o plano pelo + › Editar cadastro › Equipamento para registrar trocas.</div>`;
       const mb=box.querySelector('.ti-more');mb&&(mb.onclick=()=>{const o=box.querySelector('.ti-ok'),x=o.hidden;o.hidden=!x;mb.setAttribute('aria-expanded',x)});
+      box.querySelectorAll('[data-ivp]').forEach(i=>{i.onclick=ev=>ev.stopPropagation();i.onchange=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(i.dataset.ivp)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
+      box.querySelectorAll('.ivw').forEach(w=>w.onclick=ev=>{if(ev.target===w||ev.target.tagName==='SPAN')ev.preventDefault()});
       box.querySelectorAll('[data-cd]').forEach(i=>{i.onclick=ev=>ev.preventDefault();i.oninput=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(i.dataset.cd)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'))}}});
       extras.length=0;drawX();
       /* kits que servem neste equipamento */
@@ -2561,10 +2584,11 @@ function formTroca(eqId){
     /* adicionar item (texto ou camera): se e do plano, marca a linha; se nao, entra como item avulso com baixa no estoque */
     const extras=[],xb=sh.querySelector('#t-extra');
     const drawX=()=>{xb.hidden=!extras.length;const em=box.querySelector('.empty');if(em)em.hidden=!!extras.length;xb.innerHTML=`<div class="ti-g">Itens adicionados</div>`+extras.map((x,k)=>{const st=x.s;return `<label class="chk"><input type="checkbox" checked data-xk="${k}"><span class="box"></span>
-        <div class="main"><b>${esc(st.desc)}</b><div class="s"><span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span></div></div>
+        <div class="main"><b>${esc(st.desc)}</b><div class="s"><span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span></div>${isKit(st)?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}</div>
         <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span></label>`}).join('');
       xb.querySelectorAll('[data-xk]').forEach(c=>c.onchange=()=>{if(!c.checked){extras.splice(Number(c.dataset.xk),1);drawX();hint()}});
-      xb.querySelectorAll('[data-xq]').forEach(q=>{q.onclick=ev=>ev.preventDefault();q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=extras.some(x=>x.s.id===b.dataset.kit);b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)})};
+      xb.querySelectorAll('[data-xq]').forEach(q=>{q.onclick=ev=>ev.preventDefault();q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});
+      xb.querySelectorAll('[data-xiv]').forEach(v=>{v.onclick=ev=>ev.stopPropagation();v.onchange=()=>{extras[Number(v.dataset.xiv)].iv=v.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=extras.some(x=>x.s.id===b.dataset.kit);b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)})};
     const addPeca=st=>{const e2=eqById(sel.value);if(!e2){toast('Escolha o equipamento antes.');return}if(!st)return;
       const it=(e2.itens||[]).find(i=>i.estoqueId===st.id||(isKit(stById(i.estoqueId)||{})&&kitComps(stById(i.estoqueId)).some(c=>c.s.id===st.id))||(itCod(i)&&nzCod(itCod(i))===nzCod(stCod(st))));
       if(it){const o=box.querySelector('.ti-ok');if(o&&o.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`)){o.hidden=false;const mb=box.querySelector('.ti-more');mb&&mb.setAttribute('aria-expanded','true')}
@@ -2614,8 +2638,8 @@ function formTroca(eqId){
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;
-      const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();return {...it,usado:q===''?0:Number(q),espec:cd||it.espec||''}});
-      const avul=extras.map(x=>({pid:'',desc:x.s.desc,espec:stCod(x.s),usado:Number(x.q)||0,un:isKit(x.s)?'kit':x.s.un||'un',estoqueId:x.s.id}));
+      const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();const ivI=box.querySelector(`[data-ivp="${CSS.escape(it.pid)}"]`);return {...it,usado:q===''?0:Number(q),espec:cd||it.espec||'',ivEsc:ivI?ivVal(ivI.value):undefined}});
+      const avul=extras.map(x=>({pid:isKit(x.s)?'':novoPid(),desc:x.s.desc,espec:stCod(x.s),usado:Number(x.q)||0,un:isKit(x.s)?'kit':x.s.un||'un',estoqueId:x.s.id,tipo:x.s.tipo||'',ivEsc:isKit(x.s)?undefined:ivVal(x.iv??((e.ivEnc||{})[x.s.id]??''))}));
       if(!picked.length&&!avul.length){toast('Marque pelo menos um item.');return}
       const h0=Number(hm.value),dt=sh.querySelector('#t-dt').value;
       const g=hmGuard(sh.querySelector('#t-eqv'),e,h0,dt,hmSt,()=>sh.querySelector('#ft').onsubmit({preventDefault(){},eqvOk:ev.eqvOk,rpOk:ev.rpOk,rp:ev.rp}));if(!g)return;
@@ -2662,7 +2686,11 @@ function formTroca(eqId){
         const ids=new Set(picked.map(p=>p.pid));
         /* peca diferente da do plano (marcada como "Diferentes") nao cumpre o item: ele continua pendente */
         const cumpre=new Set(picked.filter(p=>{const pc=(e.itens.find(i=>i.pid===p.pid)||{}).espec;return !pc||!p.espec||nzCod(pc)===nzCod(p.espec)||eqvDec(pc,p.espec)!=='dif'}).map(p=>p.pid));
-        const upd={itens:e.itens.map(i=>ids.has(i.pid)&&cumpre.has(i.pid)?{...i,ultimaH:h,ultimaData:dt,proxH:proxV,reprog:''}:rpM[i.pid]?rpApply(i,rpM[i.pid]):i)};
+        const ivOf={};picked.forEach(p=>{if(p.ivEsc!==undefined)ivOf[p.pid]=p.ivEsc});
+        const upd={itens:e.itens.map(i=>{if(ids.has(i.pid)&&cumpre.has(i.pid)){const v=ivOf[i.pid];return v===undefined?{...i,ultimaH:h,ultimaData:dt,proxH:proxV,reprog:''}:{...i,ultimaH:h,ultimaData:dt,proxH:ivProx(v,h,proxV),reprog:'',ivSel:v,ivDef:true}}return rpM[i.pid]?rpApply(i,rpM[i.pid]):i})};
+        /* itens adicionados (fora do plano, exceto kits) passam a seguir o proprio intervalo no plano do equipamento */
+        avul.filter(a=>a.pid).forEach(a=>{const v=a.ivEsc;const base=e.intervaloPrev?Math.round((h+Number(e.intervaloPrev))*10)/10:'';
+          upd.itens.push({pid:a.pid,desc:a.desc,espec:a.espec,estoqueId:a.estoqueId,qtd:a.usado,un:a.un,tipo:a.tipo||'outro',intervalo:'',ultimaH:h,ultimaData:dt,proxH:ivProx(v,h,base),reprog:'',ivSel:v,ivDef:true})});
         if(h>(Number(e.horimetro)||0)){upd.horimetro=h;upd.horimetroData=dt;upd.horimetroReg=today()}
         await S.db.doc('equipamentos/'+e.id).update(upd);
         const baixa={};if(!S.ajuste)[...picked,...avul].forEach(p=>{if(p.estoqueId)addBaixa(baixa,p.estoqueId,p.usado)});
@@ -2708,7 +2736,7 @@ function formEditTroca(id){
     const draw=()=>{if(!L)return;L.innerHTML=its.map((i,k)=>{const c=cur[k],x=c.sid&&stById(c.sid),op=aberto===k,ch=codTx(k)!==cur0[k],qch=Number(c.qtd)!==Number(i.qtd||0);
       return `<div class="et-i${op?' op':''}"><button type="button" class="et-h" data-k="${k}" aria-expanded="${op}"><span class="et-n"><b>${esc(itNome(i))}</b><small class="num">${esc(codTx(k))}${x?'':' · fora do estoque'}${ch?` <em>substituiu ${esc(cur0[k])}</em>`:''}</small></span><span class="et-q num${qch?' mud':''}">${nf(c.qtd,1)} ${esc(i.un||'')}</span>${I.chev}</button>
       ${!op?'':modo==='ed'?`<div class="et-b"><label class="f">Quantidade usada<div class="et-qw"><input type="number" step="0.1" min="0" inputmode="decimal" id="et-qv" value="${esc(c.qtd)}"><span class="u">${esc(i.un||'')}</span><button type="button" class="btn pri" id="et-ok">Pronto</button></div></label><p class="note" style="margin:0">0 = nao usou do estoque.</p></div>`
-       :modo==='sb'?`<div class="et-b"><div class="sug-w"><label class="f">Peca aplicada no lugar<input id="et-sq" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" style="font-family:var(--mono)"></label><div class="sug" id="et-sh"></div></div>${CAM_OK?rdBtn('et-cam'):''}<button type="button" class="btn" id="et-x">Cancelar</button></div>`
+       :modo==='sb'?`<div class="et-b"><div class="sug-w"><label class="f">Peca aplicada no lugar<input id="et-sq" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" style="font-family:var(--mono)"></label><div class="sug" id="et-sh"></div></div>${CAM_OK?rdBtn('et-cam'):''}${(()=>{const pi=(e.itens||[]).find(x=>x.pid===i.pid);return pi&&!(stById(pi.estoqueId)&&isKit(stById(pi.estoqueId)))?ivSelect(cur[k].iv??ivPad(e,pi),e.intervaloPrev||pi.intervalo,'id="et-iv"'):''})()}<button type="button" class="btn" id="et-x">Cancelar</button></div>`
        :`<div class="et-b et-a"><button type="button" class="btn" data-md="ed">Editar</button><button type="button" class="btn" data-md="sb">Substituir</button></div>`}</div>`}).join('');
       L.querySelectorAll('.et-h').forEach(b=>b.onclick=()=>{const k=Number(b.dataset.k);aberto=aberto===k?-1:k;modo='';draw()});
       L.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{modo=b.dataset.md;draw();const fi=L.querySelector('#et-qv,#et-sq');fi&&setTimeout(()=>fi.focus(),40)});
@@ -2716,7 +2744,8 @@ function formEditTroca(id){
       const qv=L.querySelector('#et-qv');if(qv){const ok=()=>{const v=qv.value===''?0:Math.round(Number(qv.value)*10)/10;if(!(v>=0)){toast('Quantidade invalida.');return}cur[k].qtd=v;aberto=-1;draw();cf.innerHTML=''};
         L.querySelector('#et-ok').onclick=ok;qv.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();ok()}}}
       const sq=L.querySelector('#et-sq');if(sq){const sh2=L.querySelector('#et-sh');
-        const pick=(x,cod)=>{cur[k].sid=x?x.id:'';cur[k].espec=x?stCod(x):cod;aberto=-1;draw();cf.innerHTML=''};
+        const ivE=L.querySelector('#et-iv');if(ivE)ivE.onchange=()=>{cur[k].iv=ivVal(ivE.value)};
+        const pick=(x,cod)=>{cur[k].sid=x?x.id:'';cur[k].espec=x?stCod(x):cod;if(ivE)cur[k].iv=ivVal(ivE.value);aberto=-1;draw();cf.innerHTML=''};
         sq.oninput=()=>{const k2=nzCod(sq.value);if(!k2){sh2.innerHTML='';return}
           const score=x=>{const a=nzCod(stCod(x)),b=nzCod(x.ref);return a===k2||b===k2?0:a.startsWith(k2)||b.startsWith(k2)?1:a.includes(k2)||b.includes(k2)||nzCod(x.desc).includes(k2)?2:9};
           const m=S.estoque.filter(x=>!isKit(x)).map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,5).map(a=>a[1]),v=sq.value.trim().toUpperCase();
@@ -2757,6 +2786,10 @@ function formEditTroca(id){
           if((dh||dt!==t.data)&&pids.size){let mud=false;const its2=(e.itens||[]).map(i=>{if(!pids.has(i.pid)||Number(i.ultimaH)!==Number(effOld))return i;mud=true;
               return {...i,ultimaH:effNew,ultimaData:dt,proxH:i.proxH===''||i.proxH==null||isNaN(Number(i.proxH))?i.proxH:Math.round((Number(i.proxH)+dh)*10)/10}});
             if(mud)await S.db.doc('equipamentos/'+e.id).update({itens:its2})}
+          /* peca substituida com intervalo escolhido: vale para o item do plano se este registro e a ultima troca dele */
+          const ivK=its.map((i,k)=>[i.pid,cur[k].iv]).filter(([pid,v])=>pid&&v!==undefined);
+          if(ivK.length){const eNow=eqById(e.id)||e;let mud2=false;const its3=(eNow.itens||[]).map(i=>{const m=ivK.find(x=>x[0]===i.pid);if(!m||Number(i.ultimaH)!==Number(effNew))return i;mud2=true;return {...i,ivSel:m[1],ivDef:true,proxH:ivProx(m[1],effNew,i.proxH)}});
+            if(mud2)await S.db.doc('equipamentos/'+e.id).update({itens:its3})}
           if(bx)for(const[sid,q]of Object.entries(mais)){const x=stById(sid);await logBaixa(sid,q,today(),e.id);await S.db.doc('estoque/'+sid).update({qtd:Math.round(((Number(x.qtd)||0)-q)*10)/10})}
           if(dev)for(const[sid,q]of Object.entries(menos)){const x=stById(sid);const saldo=Math.round(((Number(x.qtd)||0)+q)*10)/10;
             await S.db.doc('estoque/'+sid).update({qtd:saldo});try{await S.db.collection('movs').add({estoqueId:sid,tipo:'entrada',qtd:q,data:today(),obs:'Preventiva editada',equipId:e.id,origem:'estorno',saldo,ts:Date.now()})}catch(er){console.error(er)}}
@@ -2997,8 +3030,11 @@ function formStock(id,preset,onSaved){
     const fotoOrig=[...(s.fotos||[])],fotoNow=photoEditor(sh.querySelector('#s-ph'),[...fotoOrig],3);
     let enc=[...(s.encaixe||[])].filter(eqById);const encBox=sh.querySelector('#s-enc'),encQ=sh.querySelector('#s-encq'),encR=sh.querySelector('#s-encr');
     const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
-    const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
-      encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()})};drawEnc();
+    /* encaixe novo: escolhe o intervalo de troca deste item naquele equipamento (so neste momento) */
+    const encOrig=new Set(s.encaixe||[]),encIv={};const kitSt=isKit(s);
+    const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Tirar</button></div>${!encOrig.has(id)&&!kitSt?`<div class="enc-iv">${ivSelect(encIv[id]??'',e.intervaloPrev,`data-enciv="${esc(id)}"`)}</div>`:''}`}).join('');encBox.hidden=!enc.length;
+      encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);delete encIv[b.dataset.encrm];drawEnc()});
+      encBox.querySelectorAll('[data-enciv]').forEach(v=>v.onchange=()=>{encIv[v.dataset.enciv]=v.value})};drawEnc();
     const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const q=nz(encQ.value);if(!q){encR.hidden=true;return}
       const hits=S.equips.filter(e=>!enc.includes(e.id)&&nz([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(q)).sort(byCode).slice(0,8);
@@ -3020,7 +3056,8 @@ function formStock(id,preset,onSaved){
        if(dup){toast(`Esse codigo ja esta cadastrado em "${dup.desc}".`);return}}
       const body={codigo:g('codigo').toUpperCase(),ref:g('ref').toUpperCase(),desc:g('desc'),descFab:g('dfab'),marca:g('marca'),aplic:g('aplic'),encaixe:enc,tipo:g('tipo'),un:g('un')||'un',local:g('local'),qtd:Number(g('qtd'))||0,minimo:Number(g('min'))||0,fotos:fotoNow.slice(0,3),exemplo:!!s.exemplo,...(s.eans&&s.eans.length?{eans:s.eans}:{})};
       const ref=id?S.db.doc('estoque/'+id):S.db.collection('estoque').doc();
-      if(await safe(async()=>{await ref.set(body);if(onSaved)await onSaved(ref.id,body)},onSaved?(onSaved.msg||'Item cadastrado e entrada lancada'):'Item salvo')){commitPhotos(fotoOrig,fotoNow);id||onSaved?goBack():closeSheet()}}}});
+      if(await safe(async()=>{await ref.set(body);if(onSaved)await onSaved(ref.id,body);
+          for(const [eid,v] of Object.entries(encIv)){if(v===''||!enc.includes(eid))continue;const eq=eqById(eid);if(eq)await S.db.doc('equipamentos/'+eid).update({ivEnc:{...(eq.ivEnc||{}),[ref.id]:ivVal(v)}})}},onSaved?(onSaved.msg||'Item cadastrado e entrada lancada'):'Item salvo')){commitPhotos(fotoOrig,fotoNow);id||onSaved?goBack():closeSheet()}}}});
 }
 function movLine(m,un){const e=m.equipId&&eqById(m.equipId);const ent=m.tipo==='entrada';
   return `<div class="r"><span>${sdate(m.data)} · ${ent?(m.origem==='estorno'?'Devolucao':'Entrada'):m.origem==='preventiva'?'Preventiva':'Saida'}${e?' · '+esc(e.codigo):''}${m.ajuste?AJS:''}${m.obs?`<small class="mv-o">${esc(m.obs)}</small>`:''}</span><b class="num ${ent?'mv-in':'mv-out'}">${ent?'+':'−'}${nf(m.qtd,1)} ${esc(un)}</b></div>`}

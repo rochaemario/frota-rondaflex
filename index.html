@@ -945,8 +945,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=c9d24e7f82"></script>
-<script src="shim.js?v=c9d24e7f82"></script>
+<script src="config.js?v=bac62cdb7f"></script>
+<script src="shim.js?v=bac62cdb7f"></script>
 </head>
 <body>
 
@@ -1021,9 +1021,11 @@ const optList=(list,val,ph)=>`<option value="">${ph}</option>`+[...list,...(val&
 const TABS=[['painel','Painel'],['frota','Frota'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel']];
 
 /* ---------- regras ---------- */
+/* intervalo que vale para o item: o escolhido para ele naquele equipamento, senao o do equipamento */
+const itIv=(eq,it)=>it&&it.ivSel!==''&&it.ivSel!=null&&it.ivSel!=='aval'&&!isNaN(Number(it.ivSel))?Number(it.ivSel):Number((eq||{}).intervaloPrev)||0;
 function itemStatus(eq,it){
   if(it.ivSel==='aval')return {cls:'mut',label:'Sob avaliacao',rest:Infinity,prox:null,pct:0,aval:true};
-  const h=Number(eq.horimetro)||0, iv=Number(it.intervalo)||0;
+  const h=Number(eq.horimetro)||0, iv=itIv(eq,it);
   const ult=it.ultimaH!==''&&it.ultimaH!=null?Number(it.ultimaH):0;
   const manual=it.proxH!==''&&it.proxH!=null&&!isNaN(Number(it.proxH));
   if(!manual&&!iv) return {cls:'mut',label:'Sem intervalo',rest:Infinity,prox:null,pct:0};
@@ -1040,7 +1042,7 @@ function itemStatus(eq,it){
    ('' = acompanha o intervalo do equipamento; numero = horas; 'aval' = Sob avaliacao, nunca vence) */
 const IV_OP=[250,300,350,400,500];
 const ivPad=(e,it)=>it&&it.ivSel!=null&&it.ivSel!==undefined?it.ivSel:((e&&e.ivEnc)||{})[it&&it.estoqueId]??'';
-function ivSelect(cur,eqIv,attr){cur=cur==null?'':String(cur);return `<label class="ivw"><span>Intervalo</span><select class="ivs" ${attr}><option value=""${cur===''?' selected':''}>Do equipamento${eqIv?` (${nf(eqIv)} h)`:''}</option>${IV_OP.map(n=>`<option value="${n}"${cur===String(n)?' selected':''}>A cada ${nf(n)} h</option>`).join('')}<option value="aval"${cur==='aval'?' selected':''}>Sob avaliacao</option></select></label>`}
+function ivSelect(cur,eqIv,attr){cur=cur==null?'':String(cur);return `<label class="ivw"><span>Intervalo</span><select class="ivs" ${attr}><option value=""${cur===''?' selected':''}>Do equipamento${eqIv?` (${nf(eqIv)} h)`:' (sem intervalo na ficha)'}</option>${IV_OP.map(n=>`<option value="${n}"${cur===String(n)?' selected':''}>A cada ${nf(n)} h</option>`).join('')}<option value="aval"${cur==='aval'?' selected':''}>Sob avaliacao</option></select></label>`}
 const ivVal=v=>v==='aval'?'aval':v===''||v==null?'':Number(v);
 const ivProx=(v,h,fb)=>v==='aval'?'':v!==''&&v!=null?Math.round((Number(h)+Number(v))*10)/10:fb;
 const novoPid=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -2160,10 +2162,10 @@ function itemRows(e,its){
 /* definicao unica do intervalo de um item ja aplicado: escolhido e salvo, o botao nao volta mais */
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-ivd]');if(!b)return;const [eid,pid]=b.dataset.ivd.split('|');const e=eqById(eid),it=e&&(e.itens||[]).find(i=>i.pid===pid);if(!it)return;
   const box=b.closest('.ia-b').querySelector('.ivd-box');if(box.innerHTML){box.innerHTML='';return}
-  box.innerHTML=`<div class="ivd">${ivSelect(it.ivSel??'',e.intervaloPrev||it.intervalo,'data-ivdv')}<p class="note" style="margin:0">Definicao unica: depois de salvo, nao aparece mais para este item.</p><div class="eqv-f"><button type="button" class="btn" data-ivx>Cancelar</button><button type="button" class="btn pri" data-ivok>Salvar intervalo</button></div></div>`;
+  box.innerHTML=`<div class="ivd">${ivSelect(it.ivSel??'',e.intervaloPrev,'data-ivdv')}<p class="note" style="margin:0">Definicao unica: depois de salvo, nao aparece mais para este item.</p><div class="eqv-f"><button type="button" class="btn" data-ivx>Cancelar</button><button type="button" class="btn pri" data-ivok>Salvar intervalo</button></div></div>`;
   box.querySelector('[data-ivx]').onclick=()=>box.innerHTML='';
   box.querySelector('[data-ivok]').onclick=async()=>{const v=ivVal(box.querySelector('[data-ivdv]').value),e2=eqById(eid);if(!e2)return;
-    const its=(e2.itens||[]).map(i=>{if(i.pid!==pid)return i;const ult=Number(i.ultimaH)||0,base=e2.intervaloPrev?Math.round((ult+Number(e2.intervaloPrev))*10)/10:i.proxH;return {...i,ivSel:v,ivDef:true,proxH:ivProx(v,ult,v===''?base:i.proxH),reprog:''}});
+    const its=(e2.itens||[]).map(i=>{if(i.pid!==pid)return i;const ult=Number(i.ultimaH)||0,base=e2.intervaloPrev?Math.round((ult+Number(e2.intervaloPrev))*10)/10:i.proxH;return {...i,ivSel:v,ivDef:true,proxH:ivProx(v,ult,''),reprog:''}});
     if(await safe(()=>S.db.doc('equipamentos/'+eid).update({itens:its}),v==='aval'?'Item sob avaliacao':'Intervalo definido'))refreshSheet()}});
 document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.closest('[data-ia]');if(!h)return;const o=h.getAttribute('aria-expanded')==='true';h.setAttribute('aria-expanded',!o);h.nextElementSibling.hidden=o});
 /* ---------- reprogramar vencimento (so o item daquele equipamento; o cadastro do estoque nao muda) ---------- */
@@ -2393,7 +2395,7 @@ function planRow(it){
   <label class="f">Especificacao<input data-p="espec" value="${esc(it.espec||'')}" placeholder="15W-40 / cod."></label>
   <div class="tri"><label class="f">Qtd<input data-p="qtd" type="number" step="0.1" inputmode="decimal" value="${esc(it.qtd??'')}"></label>
   <label class="f">Unid.<input data-p="un" value="${esc(it.un||(it.tipo==='oleo'?'L':'un'))}"></label>
-  <label class="f">A cada (h)<input data-p="intervalo" type="number" inputmode="numeric" value="${esc(it.intervalo??'')}"></label></div>
+</div>
   ${(()=>{const o=planRow.eqId&&it.ultimaData&&it.ultimaH!==''&&it.ultimaH!=null?hmOrig(planRow.eqId,it.ultimaH,it.ultimaData):{v:it.ultimaH??'',d:0};
     return `<label class="f">Ultima troca (h)${o.d?' <span class="hint">relogio antigo</span>':''}<input data-p="ultimaH" data-dl="${o.d}" type="number" step="0.1" inputmode="decimal" value="${esc(o.v)}"></label>`})()}
   <label class="f">Estoque<select data-p="estoqueId">${stockOpts(it.estoqueId)}</select></label></div>`;
@@ -2423,7 +2425,7 @@ function formEq(id){
   <div class="fset"><h3>Preventivas</h3><div class="grid">
     <label class="f">Intervalo (h)<input id="e-ivp" type="number" step="1" min="0" inputmode="numeric" value="${esc(e.intervaloPrev??'')}" placeholder="Ex.: 300"></label>
     <p class="note ivp-n" id="e-ivpn">${e.intervaloPrev?`A cada ${nf(e.intervaloPrev)} h de uso.`:''}</p></div></div>
-  <div class="fset"><h3>Oleos e filtros</h3><p class="note" style="margin:0">Quantidade e intervalo em horas de cada item. Ligue ao estoque para dar baixa automatica nas trocas.</p>
+  <div class="fset"><h3>Oleos e filtros</h3><p class="note" style="margin:0">Quantidade de cada item; a troca segue o intervalo do equipamento. Ligue ao estoque para dar baixa automatica nas trocas.</p>
     <div id="plan" style="display:flex;flex-direction:column;gap:10px">${(e.itens||[]).map(planRow).join('')}</div>
     <div class="grid"><button type="button" class="btn ghost" id="p-add">${I.plus}Item</button><button type="button" class="btn ghost" id="p-copy">Copiar de outro</button></div><div id="p-copybox"></div></div>
   <div class="fset"><h3>Observacoes</h3><textarea id="e-obs" aria-label="Observacoes">${esc(e.obs||'')}</textarea></div>
@@ -2463,8 +2465,8 @@ function formEq(id){
     const saveEq=async()=>{
       const g=k=>sh.querySelector('#e-'+k).value.trim();
       const old=Object.fromEntries((e.itens||[]).map(i=>[i.pid,i]));
-      const itens=[...plan.querySelectorAll('.pe')].map(r=>{const o={pid:r.dataset.pid};r.querySelectorAll('[data-p]').forEach(i=>o[i.dataset.p]=i.value.trim());
-        ['qtd','intervalo','ultimaH'].forEach(k=>o[k]=o[k]===''?'':Number(o[k]));{const dl=Number(r.querySelector('[data-p="ultimaH"]').dataset.dl)||0;if(dl&&o.ultimaH!=='')o.ultimaH=Math.round((o.ultimaH+dl)*10)/10}o.ultimaData=old[o.pid]?.ultimaData||'';o.proxH=old[o.pid]?.proxH??'';return o}).filter(o=>o.desc);
+      const itens=[...plan.querySelectorAll('.pe')].map(r=>{const o={...(old[r.dataset.pid]||{}),pid:r.dataset.pid,intervalo:''};r.querySelectorAll('[data-p]').forEach(i=>o[i.dataset.p]=i.value.trim());
+        ['qtd','ultimaH'].forEach(k=>o[k]=o[k]===''?'':Number(o[k]));{const dl=Number(r.querySelector('[data-p="ultimaH"]').dataset.dl)||0;if(dl&&o.ultimaH!=='')o.ultimaH=Math.round((o.ultimaH+dl)*10)/10}o.ultimaData=old[o.pid]?.ultimaData||'';o.proxH=old[o.pid]?.proxH??'';return o}).filter(o=>o.desc);
       const hm=g('horimetro');
       /* horimetro menor que o atual so com troca de relogio */
       if(id&&hm!==''){let gb=sh.querySelector('#e-hmg');if(!gb){sh.querySelector('#e-horimetro').closest('label').insertAdjacentHTML('afterend','<div id="e-hmg" class="w"></div>');gb=sh.querySelector('#e-hmg')}
@@ -2574,7 +2576,7 @@ function formTroca(eqId){
       const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId),on=s.cls==='bad'||s.cls==='warn',P=esc(it.pid);return `<div class="tr-i" data-row="${P}"${on?'':' hidden'}><input type="checkbox" hidden data-pid="${P}"${on?' checked':''}>
         <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="false"><div class="main"><b>${esc(itNome(it))}</b><div class="s"><span class="pill ${s.cls}">${s.label}</span><span class="num" data-cdv="${P}">${esc(it.espec||(st?stCod(st):''))}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div></div>
         <input class="q" type="number" step="0.1" inputmode="decimal" data-q="${P}" value="${esc(it.qtd??'')}" aria-label="Quantidade usada de ${esc(it.desc)}"><span class="u">${esc(it.un||'')}</span>${I.chev}</div>
-        <div class="tr-b" hidden><label class="f">Codigo usado<input class="cd" data-cd="${P}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"></label>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev||it.intervalo,`data-ivp="${P}"`)}<button type="button" class="btn" data-trm="${P}">Retirar do lancamento</button></div></div>`};
+        <div class="tr-b" hidden><label class="f">Codigo usado<input class="cd" data-cd="${P}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"></label>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev,`data-ivp="${P}"`)}<button type="button" class="btn" data-trm="${P}">Retirar do lancamento</button></div></div>`};
       const its=e.itens||[];
       box.innerHTML=its.length?its.map(row).join('')+'<div class="empty" id="t-none" hidden>Nenhum item no lancamento. Pesquise acima para adicionar.</div>':`<div class="empty"><b>Sem oleos e filtros no plano</b>Monte o plano pelo + › Editar cadastro › Equipamento para registrar trocas.</div>`;
       box.querySelectorAll('[data-ivp]').forEach(i=>{i.onclick=ev=>ev.stopPropagation()});
@@ -2644,8 +2646,8 @@ function formTroca(eqId){
     let iv=0;sh.querySelectorAll('[data-iv]').forEach(b=>b.onclick=()=>{const v=Number(b.dataset.iv);iv=iv===v?0:v;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv));hint()});
     const hint=()=>{const e=eqById(sel.value);if(e&&iv&&!pin.value.trim()){const h=Number(hm.value)||0;ph.textContent=`Intervalo de ${nf(iv)} h: a proxima fica para ${nf(h+iv)} h.`;return}
       if(!e||pin.value.trim()){ph.textContent=pin.value.trim()?'Todos os itens marcados ficam agendados para esse horimetro.':'Em branco, a proxima e agendada sozinha pelo intervalo de cada item.';return}
-      const h=Number(hm.value)||0;const ivs=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>e.itens.find(i=>i.pid===c.dataset.pid)).filter(Boolean).map(i=>Number(i.intervalo)||0);
-      const w=ivs.filter(Boolean);ph.textContent=!ivs.length?'Adicione os itens trocados.':!w.length?'Os itens marcados ainda nao tem intervalo. Anote a proxima aqui ou defina o intervalo no cadastro.':`Em branco, fica agendada automaticamente para ${[...new Set(w)].map(v=>nf(h+v)+' h').join(' / ')}.`};
+      const h=Number(hm.value)||0;const ivs=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>e.itens.find(i=>i.pid===c.dataset.pid)).filter(Boolean).map(i=>itIv(e,i));
+      const w=ivs.filter(Boolean);ph.textContent=!ivs.length?'Adicione os itens trocados.':!w.length?'Sem intervalo na ficha do equipamento. Anote a proxima aqui ou preencha o intervalo na ficha.':`Em branco, fica agendada automaticamente para ${[...new Set(w)].map(v=>nf(h+v)+' h').join(' / ')}.`};
     pin.oninput=hint;hm.addEventListener('input',hint);box.addEventListener('change',hint);
     sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
@@ -2702,7 +2704,7 @@ function formTroca(eqId){
         const ivOf={};picked.forEach(p=>{if(p.ivEsc!==undefined)ivOf[p.pid]=p.ivEsc});
         const upd={itens:e.itens.map(i=>{if(ids.has(i.pid)&&cumpre.has(i.pid)){const v=ivOf[i.pid];return v===undefined?{...i,ultimaH:h,ultimaData:dt,proxH:proxV,reprog:''}:{...i,ultimaH:h,ultimaData:dt,proxH:ivProx(v,h,proxV),reprog:'',ivSel:v,ivDef:true}}return rpM[i.pid]?rpApply(i,rpM[i.pid]):i})};
         /* itens adicionados (fora do plano, exceto kits) passam a seguir o proprio intervalo no plano do equipamento */
-        avul.filter(a=>a.pid).forEach(a=>{const v=a.ivEsc;const base=e.intervaloPrev?Math.round((h+Number(e.intervaloPrev))*10)/10:'';
+        avul.filter(a=>a.pid).forEach(a=>{const v=a.ivEsc;const base=proxV;
           upd.itens.push({pid:a.pid,desc:a.desc,espec:a.espec,estoqueId:a.estoqueId,qtd:a.usado,un:a.un,tipo:a.tipo||'outro',intervalo:'',ultimaH:h,ultimaData:dt,proxH:ivProx(v,h,base),reprog:'',ivSel:v,ivDef:true})});
         if(h>(Number(e.horimetro)||0)){upd.horimetro=h;upd.horimetroData=dt;upd.horimetroReg=today()}
         await S.db.doc('equipamentos/'+e.id).update(upd);
@@ -2749,7 +2751,7 @@ function formEditTroca(id){
     const draw=()=>{if(!L)return;L.innerHTML=its.map((i,k)=>{const c=cur[k],x=c.sid&&stById(c.sid),op=aberto===k,ch=codTx(k)!==cur0[k],qch=Number(c.qtd)!==Number(i.qtd||0);
       return `<div class="et-i${op?' op':''}"><button type="button" class="et-h" data-k="${k}" aria-expanded="${op}"><span class="et-n"><b>${esc(itNome(i))}</b><small class="num">${esc(codTx(k))}${x?'':' · fora do estoque'}${ch?` <em>substituiu ${esc(cur0[k])}</em>`:''}</small></span><span class="et-q num${qch?' mud':''}">${nf(c.qtd,1)} ${esc(i.un||'')}</span>${I.chev}</button>
       ${!op?'':modo==='ed'?`<div class="et-b"><label class="f">Quantidade usada<div class="et-qw"><input type="number" step="0.1" min="0" inputmode="decimal" id="et-qv" value="${esc(c.qtd)}"><span class="u">${esc(i.un||'')}</span><button type="button" class="btn pri" id="et-ok">Pronto</button></div></label><p class="note" style="margin:0">0 = nao usou do estoque.</p></div>`
-       :modo==='sb'?`<div class="et-b"><div class="sug-w"><label class="f">Peca aplicada no lugar<input id="et-sq" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" style="font-family:var(--mono)"></label><div class="sug" id="et-sh"></div></div>${CAM_OK?rdBtn('et-cam'):''}${(()=>{const pi=(e.itens||[]).find(x=>x.pid===i.pid);return pi&&!(stById(pi.estoqueId)&&isKit(stById(pi.estoqueId)))?ivSelect(cur[k].iv??ivPad(e,pi),e.intervaloPrev||pi.intervalo,'id="et-iv"'):''})()}<button type="button" class="btn" id="et-x">Cancelar</button></div>`
+       :modo==='sb'?`<div class="et-b"><div class="sug-w"><label class="f">Peca aplicada no lugar<input id="et-sq" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" style="font-family:var(--mono)"></label><div class="sug" id="et-sh"></div></div>${CAM_OK?rdBtn('et-cam'):''}<button type="button" class="btn" id="et-x">Cancelar</button></div>`
        :`<div class="et-b et-a"><button type="button" class="btn" data-md="ed">Editar</button><button type="button" class="btn" data-md="sb">Substituir</button></div>`}</div>`}).join('');
       L.querySelectorAll('.et-h').forEach(b=>b.onclick=()=>{const k=Number(b.dataset.k);aberto=aberto===k?-1:k;modo='';draw()});
       L.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{modo=b.dataset.md;draw();const fi=L.querySelector('#et-qv,#et-sq');fi&&setTimeout(()=>fi.focus(),40)});
@@ -3045,7 +3047,7 @@ function formStock(id,preset,onSaved){
     const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
     /* encaixe novo: escolhe o intervalo de troca deste item naquele equipamento (so neste momento) */
     const encOrig=new Set(s.encaixe||[]),encIv={};const kitSt=isKit(s);
-    const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Tirar</button></div>${!encOrig.has(id)&&!kitSt?`<div class="enc-iv">${ivSelect(encIv[id]??'',e.intervaloPrev,`data-enciv="${esc(id)}"`)}</div>`:''}`}).join('');encBox.hidden=!enc.length;
+    const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);delete encIv[b.dataset.encrm];drawEnc()});
       encBox.querySelectorAll('[data-enciv]').forEach(v=>v.onchange=()=>{encIv[v.dataset.enciv]=v.value})};drawEnc();
     const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
@@ -3339,7 +3341,7 @@ function cartaoDados(t){
      Se o relogio foi trocado depois deste lancamento, o cartao informa a troca. */
   const e=eqById(t.equipId)||{};const h0=Number(t.horimetro)||0,hS=t.hmConv!=null?Number(t.hmConv):h0;
   let pS=t.proximaH!==''&&t.proximaH!=null?Number(t.proximaH):null;
-  if(pS==null&&t.tipo!=='filtro_ar'){const ivs=(t.itens||[]).map(i=>(e.itens||[]).find(p=>p.pid===i.pid)).filter(Boolean).map(p=>Number(p.intervalo)||0).filter(Boolean);if(ivs.length)pS=hS+Math.min(...ivs)}
+  if(pS==null&&t.tipo!=='filtro_ar'){const ivs=(t.itens||[]).map(i=>(e.itens||[]).find(p=>p.pid===i.pid)).filter(Boolean).map(p=>itIv(e,p)).filter(Boolean);if(ivs.length)pS=hS+Math.min(...ivs)}
   const dA=e.id?hmDeltaApos(e.id,t.data):0,dIn=Math.round((hS-h0)*10)/10,dNow=Math.round((dA-dIn)*10)/10;
   const prox=pS!=null?Math.round((pS+dNow)*10)/10:null,iv=t.intervalo||(pS!=null?Math.round((pS-hS)*10)/10:null);
   const cur=Number(e.horimetro)||0,last=!S.trocas.some(x=>x.equipId===t.equipId&&x.tipo===t.tipo&&(x.data||'')>(t.data||''));

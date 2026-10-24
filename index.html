@@ -216,6 +216,22 @@ body.focus .sidetabs{display:none!important}
 .quick:active{transform:scale(.99)}
 .lr-top{margin-bottom:10px}
 .lr-dt{max-width:220px}
+/* faixa de dias da leitura: desliza para os lados, hoje no fim, calendario no icone */
+.dstrip-l{font-size:13px;font-weight:600;color:var(--muted);margin:0 2px 6px;display:flex;justify-content:space-between;gap:8px}
+.dstrip-l b{color:var(--fg)}
+.dstrip-w{display:flex;align-items:center;gap:8px}
+.dstrip{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px}
+.dday{flex:0 0 50px;scroll-snap-align:end;display:flex;flex-direction:column;align-items:center;gap:1px;padding:7px 0 5px;border-radius:12px;border:1px solid var(--line-2);background:var(--surface);cursor:pointer;font:inherit;color:var(--fg)}
+.dday small{font-size:10.5px;font-weight:600;letter-spacing:.04em;color:var(--muted)}
+.dday b{font-family:var(--mono);font-size:18px;font-weight:600;line-height:1.1}
+.dday i{width:5px;height:5px;border-radius:50%;background:transparent}
+.dday i.on{background:var(--brand-red)}
+.dday[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.dday[aria-pressed="true"] small{color:var(--accent-ink)}
+.dday[aria-pressed="true"] i.on{background:#fff}
+.dcal{position:relative;flex:0 0 46px;height:46px;border-radius:50%;border:1px solid var(--line-2);background:var(--surface);display:flex;align-items:center;justify-content:center;color:var(--accent-tx);cursor:pointer;overflow:hidden}
+.dcal svg{width:22px;height:22px}
+.dcal input{position:absolute;inset:0;opacity:0;min-height:0;padding:0;border:0;cursor:pointer}
 .lr-chips{margin:0 -14px 10px;padding:0 14px}
 .lr-chips .chip em{font-style:normal;font-family:var(--mono);font-size:12px;opacity:.75;margin-left:3px}
 .lr-list{display:flex;flex-direction:column;gap:6px}
@@ -2290,6 +2306,19 @@ function quickHm(){
   $('#sidehm').setAttribute('aria-label',`Horimetros, ${lidos} de ${n} lidos hoje`);
 }
 const hmGroupOf=e=>e.alocacao||'';
+/* faixa de dias da leitura (ultimos 21 dias, hoje no fim). Ponto vermelho: dia com leitura lancada
+   em algum equipamento. O icone de calendario abre o seletor para datas mais antigas; datas futuras bloqueadas */
+const DSEM=['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
+const CAL_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>';
+function dayStrip(sel){
+  const t=today(),lidos=new Set(S.equips.map(e=>e.horimetroData).filter(Boolean));
+  const d0=new Date(t+'T12:00:00');d0.setDate(d0.getDate()-20);
+  let ini=iso(d0);if(sel&&sel<ini)ini=sel;
+  const out=[];for(const d=new Date(ini+'T12:00:00');iso(d)<=t;d.setDate(d.getDate()+1)){const k=iso(d);
+    const nome=k===t?'HOJE':DSEM[d.getDay()];
+    out.push(`<button type="button" class="dday" data-dd="${k}" aria-pressed="${k===sel}" aria-label="${nome} ${fdate(k)}"><small>${nome}</small><b>${d.getDate()}</b><i class="${lidos.has(k)?'on':''}"></i></button>`)}
+  return `<div class="dstrip-l"><span>Data da leitura</span><b>${sel===t?'Hoje':''} ${fdate(sel)}</b></div>
+  <div class="dstrip-w"><div class="dstrip">${out.join('')}</div><label class="dcal" aria-label="Escolher outra data">${CAL_IC}<input id="lr-dt" type="date" max="${t}" value="${esc(sel)}"></label></div>`}
 function formLeituras(focusId){
   nav('leit',()=>formLeituras());
   const D=hmDraft();D.v=D.v||{};D.jok=false;/* data da leitura: sempre hoje; uma data alterada vale so para aquele dia */if(!D.dt||D.dtDia!==today()){D.dt=today();delete D.dtDia}D.g=D.g??'';if(focusId)D.g='';
@@ -2313,13 +2342,20 @@ function formLeituras(focusId){
       <input class="lr-in" type="number" step="0.1" inputmode="decimal" enterkeyhint="next" placeholder="${e.horimetro!==''&&e.horimetro!=null?nf(e.horimetro):'—'}" value="${esc(v)}" aria-label="Horimetro de ${esc(e.codigo)}"></div>`}).join('');
   const cnt=Object.keys(D.v).length;
   openSheet({title:'Lancar horimetros',sub:'So as preenchidas sao salvas',
-  body:`<div class="lr-top"><label class="f lr-dt">Data da leitura<input id="lr-dt" type="date" value="${esc(D.dt)}"></label></div>
+  body:`<div class="lr-top">${dayStrip(D.dt)}</div>
     <div class="chips lr-chips">${groups.map(g=>`<button class="chip" data-g="${esc(g)}" aria-pressed="${D.g===g}">${esc(g||'Todos')} <em>${g?S.equips.filter(e=>hmGroupOf(e)===g).length:S.equips.length}</em></button>`).join('')}</div>
     <div class="lr-list">${rows||'<div class="empty">Nenhum equipamento neste grupo.</div>'}</div><div id="lr-conf"></div>`,
   foot:`<button class="btn pri" id="lr-save"${cnt?'':' disabled'}>${cnt?`Salvar ${cnt} leitura${cnt===1?'':'s'}`:'Salvar leituras'}</button>`,
   mount:sh=>{
     const upd=()=>{const c=Object.keys(D.v).length,b=sh.querySelector('#lr-save');b.disabled=!c;b.textContent=c?`Salvar ${c} leitura${c===1?'':'s'}`:'Salvar leituras';hmDraftSave(D)};
-    sh.querySelector('#lr-dt').onchange=ev=>{D.dt=ev.target.value||today();if(D.dt===today())delete D.dtDia;else D.dtDia=today();hmDraftSave(D)};
+    const setDt=v=>{v=v||today();if(v>today())v=today();D.dt=v;if(D.dt===today())delete D.dtDia;else D.dtDia=today();hmDraftSave(D);
+      const top=sh.querySelector('.lr-top');top.innerHTML=dayStrip(D.dt);bindStrip()};
+    const bindStrip=()=>{const top=sh.querySelector('.lr-top');
+      top.querySelectorAll('[data-dd]').forEach(b=>b.onclick=()=>setDt(b.dataset.dd));
+      top.querySelector('#lr-dt').onchange=ev=>setDt(ev.target.value);
+      const st=top.querySelector('.dstrip'),sel=st.querySelector('[aria-pressed="true"]');
+      st.scrollLeft=st.scrollWidth;if(sel&&sel.offsetLeft<st.scrollLeft)st.scrollLeft=sel.offsetLeft-4};
+    bindStrip();
     sh.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{D.g=b.dataset.g;hmDraftSave(D);formLeituras();sh.querySelector('.sh-body').scrollTop=0});
     const ins=[...sh.querySelectorAll('.lr-in')];
     ins.forEach((inp,i)=>{const row=inp.closest('.lr'),e=eqById(row.dataset.id);

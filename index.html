@@ -946,8 +946,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=f48c4afe58"></script>
-<script src="shim.js?v=f48c4afe58"></script>
+<script src="config.js?v=22466101a5"></script>
+<script src="shim.js?v=22466101a5"></script>
 </head>
 <body>
 
@@ -1022,15 +1022,28 @@ const optList=(list,val,ph)=>`<option value="">${ph}</option>`+[...list,...(val&
 const TABS=[['painel','Painel'],['frota','Frota'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel']];
 
 /* ---------- regras ---------- */
+/* base do equipamento: horimetro da ultima preventiva registrada (no relogio de hoje); sem nenhuma, zero.
+   A Proxima gravada na preventiva so vale se a ficha nao tiver intervalo. */
+const _eb={t:null,m:{}};
+function eqBase(e){if(_eb.t!==S.trocas){_eb.t=S.trocas;_eb.m={}}if(_eb.m[e.id]!==undefined)return _eb.m[e.id];
+  let t=null;(S.trocas||[]).forEach(x=>{if(x.equipId!==e.id||x.tipo==='reprog'||x.tipo==='hmtroca'||x.tipo==='filtro_ar')return;if(!t||(x.data||'')>(t.data||'')||((x.data||'')===(t.data||'')&&Number(x.horimetro)>Number(t.horimetro)))t=x});
+  let r={h:0,prox:null};
+  if(t){const d=hmDeltaApos(e.id,t.data),h0=Number(t.horimetro)||0,dIn=t.hmConv!=null?Number(t.hmConv)-h0:0,pS=t.proximaH!==''&&t.proximaH!=null&&!isNaN(Number(t.proximaH))?Number(t.proximaH):null;
+    r={h:Math.round((h0+d)*10)/10,prox:pS!=null?Math.round((pS+d-dIn)*10)/10:null}}
+  return _eb.m[e.id]=r}
 /* intervalo que vale para o item: o escolhido para ele naquele equipamento, senao o do equipamento */
 const itIv=(eq,it)=>it&&it.ivSel!==''&&it.ivSel!=null&&it.ivSel!=='aval'&&!isNaN(Number(it.ivSel))?Number(it.ivSel):Number((eq||{}).intervaloPrev)||0;
 function itemStatus(eq,it){
   if(it.ivSel==='aval')return {cls:'mut',label:'Sob avaliacao',rest:Infinity,prox:null,pct:0,aval:true};
-  const h=Number(eq.horimetro)||0, iv=itIv(eq,it);
-  const ult=it.ultimaH!==''&&it.ultimaH!=null?Number(it.ultimaH):0;
-  const manual=it.proxH!==''&&it.proxH!=null&&!isNaN(Number(it.proxH));
-  if(!manual&&!iv) return {cls:'mut',label:'Sem intervalo',rest:Infinity,prox:null,pct:0};
-  const prox=manual?Number(it.proxH):ult+iv, span=Math.max(1,prox-ult), rest=prox-h, pct=Math.max(0,Math.min(1,(h-ult)/span));
+  /* regra: o item vence junto com o equipamento (ultima preventiva + intervalo da ficha).
+     Excecao so no proprio item: intervalo escolhido para ele ao registrar (ou definicao unica) e reprogramacao. */
+  const h=Number(eq.horimetro)||0,ivI=it.ivSel!==''&&it.ivSel!=null&&!isNaN(Number(it.ivSel))?Number(it.ivSel):0,exc=!!ivI||!!it.reprog;
+  let ult,prox;
+  if(exc){ult=it.ultimaH!==''&&it.ultimaH!=null?Number(it.ultimaH):0;const mp=it.proxH!==''&&it.proxH!=null&&!isNaN(Number(it.proxH));prox=mp?Number(it.proxH):ivI?ult+ivI:null}
+  else{const b=eqBase(eq),iv=Number(eq.intervaloPrev)||0;ult=b.h;prox=iv?Math.round((b.h+iv)*10)/10:b.prox}
+  const manual=exc;
+  if(prox==null) return {cls:'mut',label:'Sem intervalo',rest:Infinity,prox:null,pct:0};
+  const span=Math.max(1,prox-ult), rest=prox-h, pct=Math.max(0,Math.min(1,(h-ult)/span));
   const uso=Number(eq.usoDiario)||0;
   const prev=rest>0&&uso>0?addDays(rest/uso):(rest<=0?today():null);
   let cls='ok',label=`${nf(rest)} h`;
@@ -1067,13 +1080,13 @@ function eqSituacao(e){
 /* equipamento novo (veio zerado de fabrica): sem preventiva registrada, a primeira conta do zero.
    Sem itens no plano, entra como uma linha "Primeira preventiva" pelo intervalo da ficha. */
 const semPrev=e=>!S.trocas.some(t=>t.equipId===e.id&&t.tipo!=='reprog'&&t.tipo!=='hmtroca'&&t.tipo!=='filtro_ar');
-const eqItens=e=>(e.itens||[]).length?e.itens:e.novo0&&Number(e.intervaloPrev)?[{pid:'__prev',desc:'Primeira preventiva',tipo:'outro',ultimaH:'',proxH:'',virt:true}]:[];
+const eqItens=e=>(e.itens||[]).length?e.itens:Number(e.intervaloPrev)?[{pid:'__prev',desc:semPrev(e)?'Primeira preventiva':'Preventiva',tipo:'outro',ultimaH:'',proxH:'',virt:true}]:[];
 const _ai={};
 function allItems(){
-  const d=today();if(_ai.e===S.equips&&_ai.s===S.estoque&&_ai.d===d)return _ai.r;
+  const d=today();if(_ai.e===S.equips&&_ai.s===S.estoque&&_ai.t===S.trocas&&_ai.d===d)return _ai.r;
   const out=[];
   S.equips.forEach(eq=>{if(eq.status==='inativo')return;eqItens(eq).forEach(it=>out.push({eq,it,st:itemStatus(eq,it)}))});
-  _ai.e=S.equips;_ai.s=S.estoque;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
+  _ai.e=S.equips;_ai.s=S.estoque;_ai.t=S.trocas;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
 }
 const isKit=s=>!!(s&&s.kit);
 /* ---------- equivalencia de filtros entre preventivas ---------- */
@@ -1547,6 +1560,8 @@ function vManut(){
   return `<div class="tb" style="justify-content:center"><button class="btn dark sm" data-a="new-tr">${I.manut}<span>Registrar preventiva</span></button></div>`+
   (S.equips.length?`<div class="finder"><div class="search">${I.search}<input id="pq" type="search" placeholder="Buscar equipamento: TAG, tipo ou modelo" autocomplete="off" aria-label="Buscar equipamento"></div><div class="fres" id="pq-r" hidden></div></div>`:'')+
   `<section class="tsec pvs">${head('Cronograma',grp.length)}<p class="pv-note">Proxima preventiva de cada equipamento, comecando pelo que falta menos.</p>${grp.length?`<div class="tsec-l">${grp.map(cRow).join('')}</div>`:'<div class="empty"><b>Sem cronograma</b>Cadastre oleos e filtros nos equipamentos.</div>'}</section>`+
+  /* sem intervalo na ficha o equipamento nao tem como vencer: fica listado para nao passar despercebido */
+  (()=>{const si=S.equips.filter(e=>e.status!=='inativo'&&!Number(e.intervaloPrev)).sort(byCode);return si.length?`<section class="tsec pvs">${head('Sem intervalo na ficha',si.length)}<p class="pv-note">Sem o intervalo de preventivas na ficha, o equipamento nao entra no cronograma. Toque para abrir a ficha.</p><div class="tsec-l">${si.map(e=>`<button class="tq" data-sif="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${I.chev}</button>`).join('')}</div></section>`:''})()+
   `<section class="tsec pvs">${head('Historico',hist.length)}<p class="pv-note">Toque no equipamento para ver as preventivas realizadas.</p>${hist.length?`<div class="tsec-l">${hist.map(hRow).join('')}</div>`:'<div class="empty"><b>Nenhuma preventiva registrada</b>As preventivas lancadas aparecem aqui.</div>'}</section>`;
 }
 /* item de plano (troca) no mesmo padrao: horas em destaque, nome e codigo ao lado */
@@ -1599,7 +1614,7 @@ function bindView(){
   app.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>openEq(b.dataset.eq));
   app.querySelectorAll('[data-pend]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.pend)});
   app.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{const k=b.dataset.pv;S.pv[k]=!S.pv[k];render()});
-  app.querySelectorAll('[data-cron]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.cron,true)});
+  app.querySelectorAll('[data-cron]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.cron,true)});app.querySelectorAll('[data-sif]').forEach(b=>b.onclick=()=>{NAV.length=0;openEq(b.dataset.sif)});
   app.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>openTroca(b.dataset.tr));
   app.querySelectorAll('[data-hist]').forEach(b=>b.onclick=()=>{NAV.length=0;openHistEq(b.dataset.hist)});
   app.querySelectorAll('[data-cartadd]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.cartadd.split(':');

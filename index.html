@@ -907,6 +907,7 @@ body.kb .sh-foot{display:none}
 .tr-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.tr-i.op .tr-h>svg{transform:rotate(90deg)}.tr-i.op{background:var(--sunk)}
 .tr-b{padding:2px 13px 14px;display:flex;flex-direction:column;gap:10px}.tr-b .f{margin:0}.tr-b .cd{font-family:var(--mono);text-transform:uppercase}.tr-b .ivw{margin:0;font-size:13.5px}.tr-b .ivw select.ivs{min-height:40px;font-size:14px}
 .hm-3{flex-wrap:wrap}.hm-3 .btn{flex:1 1 auto}
+.k-tg{padding:8px 4px 6px}.es-r.k-in{opacity:.6}.k-ok{flex:none;font-size:12px;font-weight:600;color:var(--ok,#1b7a3d);margin-left:6px}
 .nv-b{display:flex;align-items:center;gap:12px;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft,#e8eefc)}.nv-b>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px}.nv-b b,.nv-b span{text-align:left!important;margin:0}.nv-b span{color:var(--muted)}.nv-b.on{background:var(--sunk)}.r>.nv-b{margin:0}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
@@ -966,8 +967,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=f9961d61bf"></script>
-<script src="shim.js?v=f9961d61bf"></script>
+<script src="config.js?v=d9316a0f25"></script>
+<script src="shim.js?v=d9316a0f25"></script>
 </head>
 <body>
 
@@ -3613,6 +3614,11 @@ function formKit(id){
     const add=x=>{if(!x||isKit(x)){toast('Escolha um filtro ou oleo do estoque.');return}if(C.some(c=>c.id===x.id)){toast(`${x.desc} ja esta no kit`);return}C.push({id:x.id,qtd:1});draw()};
     const q=sh.querySelector('#k-q'),qh=sh.querySelector('#k-qh');
     q.oninput=()=>{const kk=nzCod(q.value);if(!kk){qh.innerHTML='';return}
+      /* TAG de equipamento: mostra os itens com encaixe de fabrica nele */
+      const eqT=S.equips.find(e=>nzCod(e.codigo)===kk);
+      if(eqT){const l=encaixeDe(eqT.id).filter(x=>!isKit(x));
+        qh.innerHTML=`<div class="ti-g k-tg">Encaixe em ${esc(eqT.codigo)} · ${l.length} ${l.length===1?'item':'itens'}</div>`+(l.length?`<div class="tsec-l">${l.map(x=>esRow(x,{attr:`data-kp="${esc(x.id)}"`,cls2:C.some(c=>c.id===x.id)?'k-in':'',end:C.some(c=>c.id===x.id)?'<span class="k-ok">no kit</span>':''})).join('')}</div>`:'<div class="eqs-v">Nenhum item com encaixe neste equipamento.</div>');
+        qh.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>{add(stById(b.dataset.kp));q.oninput()});return}
       const sc=x=>{const a=nzCod(stCod(x)),b=nzCod(x.ref),c2=nzCod(x.codigo);return a===kk||b===kk||c2===kk?0:a.startsWith(kk)||b.startsWith(kk)||c2.startsWith(kk)?1:a.includes(kk)||b.includes(kk)||c2.includes(kk)||nzCod(x.desc).includes(kk)?2:9};
       const m=its.map(x=>[sc(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]),v=q.value.trim().toUpperCase();
       qh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-kp="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="k-cad" style="color:var(--accent,#0033a0)">Cadastrar item ${esc(v)}</button>`;

@@ -786,6 +786,8 @@ body.focus .tsec-h{top:calc(var(--hdr,52px) + var(--subh,47px))}
 
 /* editor de plano */
 .pe{background:var(--sunk);border-radius:14px;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#plan{background:var(--surface);border-radius:16px;overflow:hidden}#plan:empty{display:none}.pe-b{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pe-b .w{grid-column:1/-1}.pe-q{font-size:13.5px;color:var(--ink-2,var(--text));white-space:nowrap}
+.ivp-seg{margin-top:2px}.p-add{margin-top:10px}
 .pe .w{grid-column:1/-1}
 .pe .hd{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .pe .hd b{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
@@ -887,6 +889,7 @@ body.kb .sh-foot{display:none}
 .tr-h .q{width:70px;flex:0 0 auto;text-align:right;min-height:40px;padding:0 8px;background:var(--surface)}.tr-h .u{font-size:12px;color:var(--muted);min-width:14px}
 .tr-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.tr-i.op .tr-h>svg{transform:rotate(90deg)}.tr-i.op{background:var(--sunk)}
 .tr-b{padding:2px 13px 14px;display:flex;flex-direction:column;gap:10px}.tr-b .f{margin:0}.tr-b .cd{font-family:var(--mono);text-transform:uppercase}.tr-b .ivw{margin:0;font-size:13.5px}.tr-b .ivw select.ivs{min-height:40px;font-size:14px}
+.hm-3{flex-wrap:wrap}.hm-3 .btn{flex:1 1 auto}
 .nv-b{display:flex;align-items:center;gap:12px;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft,#e8eefc)}.nv-b>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px}.nv-b b,.nv-b span{text-align:left!important;margin:0}.nv-b span{color:var(--muted)}.nv-b.on{background:var(--sunk)}.r>.nv-b{margin:0}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
@@ -946,8 +949,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=22466101a5"></script>
-<script src="shim.js?v=22466101a5"></script>
+<script src="config.js?v=62f415b784"></script>
+<script src="shim.js?v=62f415b784"></script>
 </head>
 <body>
 
@@ -1880,7 +1883,7 @@ function openEq(id){
     ${f('Nº de serie / chassi',e.serie?`<button type="button" class="cp num" data-copy="${esc(e.serie)}" aria-label="Copiar numero de serie">${esc(e.serie)}</button>`:'')}${f('Nº do motor',e.motor?`<button type="button" class="cp num" data-copy="${esc(e.motor)}" aria-label="Copiar numero do motor">${esc(e.motor)}</button>`:'')}${f('Motorista',esc(e.motorista||''))}${f('Placa',e.placa?`<button type="button" class="cp num" data-copy="${esc(e.placa)}" aria-label="Copiar placa">${esc(e.placa)}</button>`:'')}
     ${novoBox(e)?`<div class="r" style="display:block">${novoBox(e)}</div>`:''}${(()=>{const si=eqSituacao(e);return f('Situacao',`<span class="sit ${si.cls}">${si.label}</span>`)+(si.its.length?`<div class="r sit-l"><div class="es-l">${si.its.map(x=>itRow(x)).join('')}</div></div>`:'')+(si.est.length?`<div class="r ls sit-e"><span>Estoque</span><ul class="sl">${si.est.map(x=>`<li><span class="sl-n">${esc(x.s.desc)}<small class="num">${esc(stCod(x.s))}</small></span><b class="${x.c==='bad'?'sit-bad':'sit-warn'}">${x.t}</b></li>`).join('')}</ul></div>`:'')})()}
     ${f('Proprietario',esc(e.locador))}${f('Posse','Rondaflex Ltda')}${f('Alocado em',esc(e.alocacao))}${e.alocacao==='DM1'?f('Area',e.area===RES?'Reserva (compartilhada no DM1)':esc(e.area))+(e.area===RES?'':f('Frente',esc(e.frente))):''}
-    ${f('Horimetro',`${e.horimetro===''||e.horimetro==null?'<span style="color:var(--faint)">sem leitura</span>':`<span class="hm">${hmTxt(e)}<small>H</small></span>`}${e.horimetroData?`<div class="note" style="margin-top:3px">leitura de ${fdate(e.horimetroData)}</div>`:''}`)}
+    ${f('Horimetro',`${e.horimetro===''||e.horimetro==null?'<span style="color:var(--faint)">sem leitura</span>':`<span class="hm">${hmTxt(e)}<small>H</small></span>`}${e.horimetroData?`<div class="note" style="margin-top:3px">leitura de ${fdate(e.horimetroData)}</div>`:''}${(e.hmCorr||[]).length?(()=>{const c=e.hmCorr[e.hmCorr.length-1];return `<div class="note" style="margin-top:3px">corrigido de ${nf(c.de)} h em ${fdate(c.data)}${c.por?' por '+esc(c.por):''}</div>`})():''}`)}
     ${f('Intervalo preventivas',e.intervaloPrev?`<span class="num">${nf(e.intervaloPrev)} h</span>`:'')}${f('Uso medio',e.usoDiario?`${nf(e.usoDiario,1)} h/dia`:'')}${f('Oleos e filtros no plano',String((e.itens||[]).length))}${f('Trocas registradas',String(hist.length))}${f('Observacoes',esc(e.obs))}</div>
 
   ${docsHTML(e)}
@@ -2329,7 +2332,14 @@ function hmSalto(e,h,dt){if(e.horimetro===''||e.horimetro==null||!e.horimetroDat
 function hmGuard(box,e,h0,dt,st,again){
   const dl=hmDeltaApos(e.id,dt),h=Math.round((h0+dl)*10)/10;
   const show=(html,go)=>{box.innerHTML=`<div class="eqv-ask">${html}</div>`;box.querySelector('[data-x]').onclick=()=>box.innerHTML='';go(box.querySelector('[data-go]'));box.scrollIntoView({block:'start',behavior:'smooth'})};
-  if(hmRecua(e,h,dt)){show(`<b>Horimetro menor que o atual</b><p class="note" style="margin:0">${nf(h0)} h e menor que a ultima leitura de ${esc(e.codigo)} (${nf(e.horimetro)} h). Confira o valor. Se o relogio foi trocado, registre a troca primeiro.</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-go>Troca de horimetro</button></div>`,b=>b.onclick=()=>{box.innerHTML='';formTrocaHm(e.id,h0)});return null}
+  if(hmRecua(e,h,dt)&&!st.corr){show(`<b>Horimetro menor que o atual</b><p class="note" style="margin:0">${nf(h0)} h e menor que a ultima leitura de ${esc(e.codigo)} (${nf(e.horimetro)} h). Confira o valor. Se a leitura anterior estava errada, corrija. Se o relogio foi trocado, registre a troca.</p><div class="eqv-f hm-3"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn" data-cor>Leitura anterior errada</button><button type="button" class="btn pri" data-go>Troca de horimetro</button></div>`,b=>b.onclick=()=>{box.innerHTML='';formTrocaHm(e.id,h0)});
+    /* leitura anterior errada: o horimetro passa a ser o valor menor, sem troca de relogio; fica registrado na ficha */
+    box.querySelector('[data-cor]').onclick=()=>{box.innerHTML=`<div class="eqv-ask"><b>Corrigir leitura anterior</b><p class="note" style="margin:0">A leitura de <b>${nf(e.horimetro)} h</b> estava errada. O horimetro de ${esc(e.codigo)} passa a ser <b>${nf(h)} h</b>, sem troca de relogio.</p><div class="eqv-f"><button type="button" class="btn" data-x>Cancelar</button><button type="button" class="btn pri" data-go>Confirmar correcao</button></div></div>`;
+      box.querySelector('[data-x]').onclick=()=>box.innerHTML='';
+      box.querySelector('[data-go]').onclick=async()=>{const cur=eqById(e.id)||e,u=EU();const reg={data:today(),de:Number(cur.horimetro),para:h,por:(u&&u.nome)||''};
+        if(!await safe(()=>S.db.doc('equipamentos/'+e.id).update({horimetro:h,horimetroData:dt||today(),hmCorr:[...(cur.hmCorr||[]),reg]}),'Leitura corrigida'))return;
+        st.corr=true;box.innerHTML='';setTimeout(again,150)}};
+    return null}
   if(!st.salto){const sj=hmSalto(e,h,dt);if(sj){show(`<b>Horimetro muito acima do esperado</b><p class="note" style="margin:0">${nf(h0)} h fica ${nf(sj.dif)} h acima da ultima leitura de ${esc(e.codigo)} (${nf(e.horimetro)} h em ${fdate(e.horimetroData)}). Em ${sj.days} dia${sj.days>1?'s':''} a maquina trabalha no maximo ${nf(sj.lim)} h. Confira se nao houve erro de digitacao.</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-go>O valor esta certo</button></div>`,b=>b.onclick=()=>{st.salto=true;box.innerHTML='';again()});return null}}
   if(dl&&!st.ok){const t=hmTrocas(e.id).filter(t=>(t.data||'')>(dt||'')).sort((a,b)=>(a.data||'').localeCompare(b.data||''))[0];
     show(`<b>Lancamento de antes da troca do relogio</b><p class="note" style="margin:0">O relogio de ${esc(e.codigo)} foi trocado em ${fdate(t.data)}. ${nf(h0)} h e do relogio antigo e equivale a <b>${nf(h)} h</b> no relogio atual. O cronograma usa o valor convertido.</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-go>Converter e continuar</button></div>`,b=>b.onclick=()=>{st.ok=true;box.innerHTML='';again()});return null}
@@ -2402,23 +2412,23 @@ function formHm(id){
     <label class="f">Data da leitura<input id="h-dt" type="date" value="${today()}"></label></div></form>`,
   foot:`<button class="btn pri" form="fh">Salvar leitura</button>`,
   mount:sh=>{const v=sh.querySelector('#h-val'),w=sh.querySelector('#h-warn');
-    v.oninput=()=>{w.textContent=v.value!==''&&hmLow(e,v.value)?`Nao pode ser menor que ${nf(e.horimetro)} h.`:''};
-    sh.querySelector('#fh').onsubmit=async ev=>{ev.preventDefault();if(hmLow(e,v.value)){w.textContent=`Nao pode ser menor que ${nf(e.horimetro)} h.`;v.focus();return}if(await safe(()=>S.db.doc('equipamentos/'+id).update({horimetro:Number(v.value),horimetroData:sh.querySelector('#h-dt').value,horimetroReg:today()}),'Horimetro atualizado'))after(()=>openEq(id))}}});
+    v.oninput=()=>{w.textContent=v.value!==''&&hmLow(e,v.value)?`Menor que a ultima leitura (${nf(e.horimetro)} h).`:''};
+    const hmStH={ok:true,salto:true};sh.querySelector('#h-warn').insertAdjacentHTML('afterend','<div id="h-g"></div>');
+    sh.querySelector('#fh').onsubmit=async ev=>{ev.preventDefault();const e1=eqById(id)||e,dtH=sh.querySelector('#h-dt').value||today();if(!hmStH.corr&&hmLow(e1,v.value)){w.textContent='';if(!hmGuard(sh.querySelector('#h-g'),e1,Number(v.value),dtH,hmStH,()=>sh.querySelector('#fh').onsubmit({preventDefault(){}})))return}if(await safe(()=>S.db.doc('equipamentos/'+id).update({horimetro:Number(v.value),horimetroData:sh.querySelector('#h-dt').value,horimetroReg:today()}),'Horimetro atualizado'))after(()=>openEq(id))}}});
 }
 function stockOpts(sel){const o=s=>`<option value="${esc(s.id)}"${sel===s.id?' selected':''}>${esc(stCod(s))} · ${esc(s.desc)}</option>`,its=S.estoque.filter(s=>!isKit(s)).sort(byCode),kits=S.estoque.filter(isKit).sort(byCode);
   return `<option value="">Nao ligar ao estoque</option>`+(kits.length?`<optgroup label="Itens">${its.map(o).join('')}</optgroup><optgroup label="Kits">${kits.map(o).join('')}</optgroup>`:its.map(o).join(''))}
-function planRow(it){
-  return `<div class="pe" data-pid="${esc(it.pid||uid())}">
-  <div class="hd"><b>${it.tipo==='oleo'?'Oleo':it.tipo==='filtro'?'Filtro':it.tipo==='kit'?'Kit':'Item'}</b><button type="button" class="btn sm danger" data-rm>Remover</button></div>
+/* item do plano no Editar equipamento: linha fechada (nome, codigo, quantidade); tocar abre os campos e o Remover */
+function planRow(it,aberto){const P=esc(it.pid||uid());const cod=it.espec||(it.estoqueId&&stById(it.estoqueId)?stCod(stById(it.estoqueId)):'');
+  return `<div class="tr-i pe2${aberto?' op':''}" data-pid="${P}"><div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${!!aberto}"><div class="main"><b data-pn>${esc(it.desc||'Novo item')}</b><div class="s"><span class="num" data-pc>${esc(cod)}</span></div></div><span class="pe-q num" data-pq>${it.qtd!==''&&it.qtd!=null?nf(it.qtd,1)+' '+esc(it.un||''):''}</span>${I.chev}</div>
+  <div class="tr-b pe-b"${aberto?'':' hidden'}>
   <label class="f w">Descricao<input data-p="desc" value="${esc(it.desc||'')}" placeholder="Oleo do motor"></label>
   <label class="f">Tipo<select data-p="tipo"><option value="oleo"${it.tipo==='oleo'?' selected':''}>Oleo</option><option value="filtro"${it.tipo==='filtro'?' selected':''}>Filtro</option><option value="outro"${it.tipo==='outro'?' selected':''}>Outro</option><option value="kit"${it.tipo==='kit'?' selected':''}>Kit</option></select></label>
   <label class="f">Especificacao<input data-p="espec" value="${esc(it.espec||'')}" placeholder="15W-40 / cod."></label>
-  <div class="tri"><label class="f">Qtd<input data-p="qtd" type="number" step="0.1" inputmode="decimal" value="${esc(it.qtd??'')}"></label>
+  <label class="f">Qtd<input data-p="qtd" type="number" step="0.1" inputmode="decimal" value="${esc(it.qtd??'')}"></label>
   <label class="f">Unid.<input data-p="un" value="${esc(it.un||(it.tipo==='oleo'?'L':'un'))}"></label>
-</div>
-  ${(()=>{const o=planRow.eqId&&it.ultimaData&&it.ultimaH!==''&&it.ultimaH!=null?hmOrig(planRow.eqId,it.ultimaH,it.ultimaData):{v:it.ultimaH??'',d:0};
-    return `<label class="f">Ultima troca (h)${o.d?' <span class="hint">relogio antigo</span>':''}<input data-p="ultimaH" data-dl="${o.d}" type="number" step="0.1" inputmode="decimal" value="${esc(o.v)}"></label>`})()}
-  <label class="f">Estoque<select data-p="estoqueId">${stockOpts(it.estoqueId)}</select></label></div>`;
+  <label class="f w">Estoque<select data-p="estoqueId">${stockOpts(it.estoqueId)}</select></label>
+  <button type="button" class="btn danger w" data-rm>Remover do plano</button></div></div>`;
 }
 function formEq(id){
   planRow.eqId=id||'';
@@ -2443,11 +2453,13 @@ function formEq(id){
     <label class="f" data-dm data-fw ${e.alocacao==='DM1'&&e.area!==RES?'':'hidden'}>Frente<select id="e-frente">${optList(frentesDe(e.area),e.frente||'','Escolha…')}</select></label></div>
     <label class="f">Proprietario<select id="e-locador">${optList(DONOS,e.locador||'','Escolha…')}</select></label></div>
   <div class="fset"><h3>Preventivas</h3><div class="grid">
-    <label class="f">Intervalo (h)<input id="e-ivp" type="number" step="1" min="0" inputmode="numeric" value="${esc(e.intervaloPrev??'')}" placeholder="Ex.: 300"></label>
-    <p class="note ivp-n" id="e-ivpn">${e.intervaloPrev?`A cada ${nf(e.intervaloPrev)} h de uso.`:''}</p></div></div>
+    <div class="f w">Intervalo<input type="hidden" id="e-ivp" value="${esc(e.intervaloPrev??'')}"><div class="seg iv-seg ivp-seg" role="group" aria-label="Intervalo de preventivas">${[...new Set([...IV_OP,...(e.intervaloPrev&&!IV_OP.includes(Number(e.intervaloPrev))?[Number(e.intervaloPrev)]:[])])].sort((a,b)=>a-b).map(v=>`<button type="button" data-ivb="${v}" aria-pressed="${Number(e.intervaloPrev)===v}">${nf(v)} h</button>`).join('')}</div></div>
+    <p class="note ivp-n w" id="e-ivpn" style="margin:0">${e.intervaloPrev?`Preventiva a cada ${nf(e.intervaloPrev)} h de uso.`:'Escolha o intervalo: sem ele o equipamento nao entra no cronograma.'}</p></div></div>
   <div class="fset"><h3>Oleos e filtros</h3><p class="note" style="margin:0">Quantidade de cada item; a troca segue o intervalo do equipamento. Ligue ao estoque para dar baixa automatica nas trocas.</p>
-    <div id="plan" style="display:flex;flex-direction:column;gap:10px">${(e.itens||[]).map(planRow).join('')}</div>
-    <div class="grid"><button type="button" class="btn ghost" id="p-add">${I.plus}Item</button><button type="button" class="btn ghost" id="p-copy">Copiar de outro</button></div><div id="p-copybox"></div></div>
+    <div class="sug-w t-add p-add"><div class="search">${I.search}<input id="p-q" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item ao plano"></div><div class="sug" id="p-qh"></div></div>
+    ${rdBtn('p-cam','Adicionar item pela camera')}
+    <div id="plan" class="list">${(e.itens||[]).slice().sort((a,b)=>String(a.desc||'').localeCompare(String(b.desc||''),'pt',{numeric:true,sensitivity:'base'})).map(it=>planRow(it)).join('')}</div>
+    <button type="button" class="btn ghost" id="p-copy" style="margin-top:10px">Copiar de outro equipamento</button><div id="p-copybox"></div></div>
   <div class="fset"><h3>Observacoes</h3><textarea id="e-obs" aria-label="Observacoes">${esc(e.obs||'')}</textarea></div>
   <div class="fset"><h3>Foto (opcional)</h3><div id="e-ph"></div></div>
   <div class="fset" style="margin-top:12px"><h3>Documentos (opcional)</h3><div id="e-docs"></div></div>
@@ -2460,14 +2472,31 @@ function formEq(id){
     const vis=()=>{const dmv=sh.querySelector('#e-aloc').value==='DM1',res=sh.querySelector('#e-area').value===RES;sh.querySelectorAll('[data-dm]').forEach(x=>x.hidden=!dmv||(x.hasAttribute('data-fw')&&res))};
     sh.querySelector('#e-aloc').onchange=vis;
     sh.querySelector('#e-area').onchange=ev=>{vis();const f=sh.querySelector('#e-frente'),cur=f.value;f.innerHTML=optList(frentesDe(ev.target.value),frentesDe(ev.target.value).includes(cur)?cur:'','Escolha…')};
-    const ivp=sh.querySelector('#e-ivp');ivp.oninput=()=>{const v=Number(ivp.value);sh.querySelector('#e-ivpn').textContent=v>0?`A cada ${nf(v)} h de uso.`:''};
+    const ivp=sh.querySelector('#e-ivp');sh.querySelectorAll('[data-ivb]').forEach(b=>b.onclick=()=>{const v=Number(b.dataset.ivb),on=Number(ivp.value)!==v;ivp.value=on?v:'';
+      sh.querySelectorAll('[data-ivb]').forEach(x=>x.setAttribute('aria-pressed',on&&x===b));sh.querySelector('#e-ivpn').textContent=on?`Preventiva a cada ${nf(v)} h de uso.`:'Escolha o intervalo: sem ele o equipamento nao entra no cronograma.'});
     const plan=sh.querySelector('#plan');
-    const bind=()=>plan.querySelectorAll('.pe').forEach(p=>{p.querySelector('[data-rm]').onclick=()=>p.remove();
-      p.querySelector('[data-p="tipo"]').onchange=ev=>{p.querySelector('.hd b').textContent={oleo:'Oleo',filtro:'Filtro',outro:'Item',kit:'Kit'}[ev.target.value];const u=p.querySelector('[data-p="un"]');if(!u.value||['un','L','kit'].includes(u.value))u.value=ev.target.value==='oleo'?'L':ev.target.value==='kit'?'kit':'un'};
+    const head=p=>{const f=n=>p.querySelector(`[data-p="${n}"]`);p.querySelector('[data-pn]').textContent=f('desc').value.trim()||'Novo item';const k=stById(f('estoqueId').value);p.querySelector('[data-pc]').textContent=f('espec').value.trim()||(k?stCod(k):'');p.querySelector('[data-pq]').textContent=f('qtd').value!==''?nf(Number(f('qtd').value),1)+' '+f('un').value.trim():''};
+    plan.addEventListener('click',ev=>{const h=ev.target.closest('[data-trh]');if(!h)return;const r=h.closest('.tr-i'),b=r.querySelector('.tr-b'),o=b.hidden;b.hidden=!o;r.classList.toggle('op',o);h.setAttribute('aria-expanded',o)});
+    plan.addEventListener('keydown',ev=>{const h=ev.target.closest&&ev.target.closest('[data-trh]');if(h&&ev.target===h&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();h.click()}});
+    plan.addEventListener('input',ev=>{const r=ev.target.closest('.pe2');if(r)head(r)});plan.addEventListener('change',ev=>{const r=ev.target.closest('.pe2');if(r)head(r)});
+    const bind=()=>plan.querySelectorAll('.pe2').forEach(p=>{p.querySelector('[data-rm]').onclick=()=>{p.remove();toast('Removido do plano · confirme ao salvar')};
+      p.querySelector('[data-p="tipo"]').onchange=ev=>{const u=p.querySelector('[data-p="un"]');if(!u.value||['un','L','kit'].includes(u.value))u.value=ev.target.value==='oleo'?'L':ev.target.value==='kit'?'kit':'un'};
       p.querySelector('[data-p="estoqueId"]').onchange=ev=>{const k=stById(ev.target.value);if(!isKit(k))return;const f=n=>p.querySelector(`[data-p="${n}"]`);
-        f('tipo').value='kit';p.querySelector('.hd b').textContent='Kit';f('un').value='kit';f('qtd').value=1;if(!f('desc').value.trim())f('desc').value=k.desc;if(!f('espec').value.trim())f('espec').value=k.codigo}});
+        f('tipo').value='kit';f('un').value='kit';f('qtd').value=1;if(!f('desc').value.trim())f('desc').value=k.desc;if(!f('espec').value.trim())f('espec').value=k.codigo}});
     bind();
-    sh.querySelector('#p-add').onclick=()=>{plan.insertAdjacentHTML('beforeend',planRow({tipo:'filtro',un:'un',qtd:1}));bind();const l=plan.lastElementChild;l.scrollIntoView({block:'center',behavior:'smooth'});l.querySelector('[data-p="desc"]').focus({preventScroll:true})};
+    /* adicionar: pela busca do estoque (ou camera); o item ja vem com descricao, codigo e unidade */
+    const addRow=(it,focar)=>{plan.insertAdjacentHTML('beforeend',planRow(it,focar));bind();const l=plan.lastElementChild;l.scrollIntoView({block:'center',behavior:'smooth'});if(focar)l.querySelector('[data-p="desc"]').focus({preventScroll:true});return l};
+    const addSt=st=>{if(!st)return;const ja=[...plan.querySelectorAll('.pe2')].find(r=>r.querySelector('[data-p="estoqueId"]').value===st.id);
+      if(ja){ja.scrollIntoView({block:'center',behavior:'smooth'});toast(`${st.desc} ja esta no plano`);return}
+      addRow({desc:st.desc,espec:stCod(st),un:isKit(st)?'kit':st.un||'un',tipo:isKit(st)?'kit':st.tipo||'filtro',qtd:1,estoqueId:st.id});toast(`${st.desc} adicionado`)};
+    const pq=sh.querySelector('#p-q'),pqh=sh.querySelector('#p-qh');
+    pq.oninput=()=>{const k=nzCod(pq.value);if(!k){pqh.innerHTML='';return}
+      const score=x=>{const a=nzCod(stCod(x)),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
+      const m=S.estoque.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]),v=pq.value.trim();
+      pqh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-pk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="p-livre">Adicionar ${esc(v)} <span>sem ligar ao estoque</span></button>`;
+      pqh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{pq.value='';pqh.innerHTML='';addSt(stById(b.dataset.pk))});
+      pqh.querySelector('#p-livre').onclick=()=>{pq.value='';pqh.innerHTML='';addRow({desc:v,tipo:'filtro',un:'un',qtd:1},true)}};
+    const pc=sh.querySelector('#p-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item){toast('Peca nao encontrada no estoque.');return}addSt(v.item)}});
     /* cada equipamento tem o seu plano; da para copiar o de outro (equipamentos iguais aparecem primeiro) */
     sh.querySelector('#p-copy').onclick=()=>{const cb=sh.querySelector('#p-copybox');if(cb.innerHTML){cb.innerHTML='';return}
       const curId=id||'',mm=x=>nzCod([x.marca,x.modelo].join(' ')),me=mm({marca:sh.querySelector('#e-marca').value,modelo:sh.querySelector('#e-modelo').value});
@@ -2476,25 +2505,28 @@ function formEq(id){
       cb.innerHTML=`<label class="f" style="margin-top:10px">Copiar o plano de<select id="p-src"><option value="">Escolha o equipamento…</option>${src.map(x=>`<option value="${esc(x.id)}">${esc(x.codigo)} · ${esc([x.marca,x.modelo].filter(Boolean).join(' ')||x.tipo)}${me&&mm(x)===me?' (mesmo modelo)':''} · ${x.itens.length} itens</option>`).join('')}</select></label>`;
       cb.querySelector('#p-src').onchange=ev=>{const o=eqById(ev.target.value);if(!o)return;const have=[...plan.querySelectorAll('[data-p="desc"]')].map(i=>i.value.trim().toLowerCase());
         const add=o.itens.filter(it=>!have.includes(String(it.desc||'').trim().toLowerCase())).map(it=>({tipo:it.tipo,desc:it.desc,espec:it.espec,qtd:it.qtd,un:it.un,intervalo:it.intervalo,estoqueId:it.estoqueId}));
-        add.forEach(it=>plan.insertAdjacentHTML('beforeend',planRow(it)));bind();cb.innerHTML='';
+        add.forEach(it=>plan.insertAdjacentHTML('beforeend',planRow(it)));bind();plan.querySelectorAll('.pe2').forEach(head);cb.innerHTML='';
         toast(add.length?`${add.length} ${add.length===1?'item copiado':'itens copiados'} de ${o.codigo}. Confira antes de salvar.`:'Esses itens ja estao no plano.')}};
     sh.querySelector('#fe').onsubmit=ev=>{ev.preventDefault();
-      const keep=new Set([...plan.querySelectorAll('.pe')].map(x=>x.dataset.pid));
+      const keep=new Set([...plan.querySelectorAll('.pe2')].map(x=>x.dataset.pid));
       const removed=[...(e.itens||[]).filter(i=>!keep.has(i.pid)).map(i=>i.desc||'item do plano'),...fotoOrig.filter(x=>!fotoNow.includes(x)).map(()=>'foto')];
       confirmRemovals(sh.querySelector('#delbox'),removed,saveEq)};
+    const hmStE={ok:true,salto:true};
     const saveEq=async()=>{
       const g=k=>sh.querySelector('#e-'+k).value.trim();
       const old=Object.fromEntries((e.itens||[]).map(i=>[i.pid,i]));
-      const itens=[...plan.querySelectorAll('.pe')].map(r=>{const o={...(old[r.dataset.pid]||{}),pid:r.dataset.pid,intervalo:''};r.querySelectorAll('[data-p]').forEach(i=>o[i.dataset.p]=i.value.trim());
-        ['qtd','ultimaH'].forEach(k=>o[k]=o[k]===''?'':Number(o[k]));{const dl=Number(r.querySelector('[data-p="ultimaH"]').dataset.dl)||0;if(dl&&o.ultimaH!=='')o.ultimaH=Math.round((o.ultimaH+dl)*10)/10}o.ultimaData=old[o.pid]?.ultimaData||'';o.proxH=old[o.pid]?.proxH??'';return o}).filter(o=>o.desc);
+      const itens=[...plan.querySelectorAll('.pe2')].map(r=>{const o0=old[r.dataset.pid]||{},o={...o0,pid:r.dataset.pid,intervalo:''};r.querySelectorAll('[data-p]').forEach(i=>o[i.dataset.p]=i.value.trim());
+        o.qtd=o.qtd===''?'':Number(o.qtd);o.ultimaH=o0.ultimaH??'';o.ultimaData=o0.ultimaData||'';o.proxH=o0.proxH??'';return o}).filter(o=>o.desc);
       const hm=g('horimetro');
       /* horimetro menor que o atual so com troca de relogio */
       if(id&&hm!==''){let gb=sh.querySelector('#e-hmg');if(!gb){sh.querySelector('#e-horimetro').closest('label').insertAdjacentHTML('afterend','<div id="e-hmg" class="w"></div>');gb=sh.querySelector('#e-hmg')}
-        if(!hmGuard(gb,e,Number(hm),today(),{ok:true,salto:true},()=>{}))return;gb.innerHTML=''}
+        if(!hmGuard(gb,eqById(id)||e,Number(hm),today(),hmStE,()=>saveEq()))return;gb.innerHTML=''}
       const body={codigo:g('codigo').toUpperCase(),tipo:g('tipo'),marca:g('marca'),modelo:g('modelo'),ano:g('ano'),serie:g('serie'),placa:g('placa').toUpperCase(),status:e.status||'ativo',
         horimetro:hm===''?'':Number(hm),intervaloPrev:g('ivp')===''?'':Number(g('ivp')),usoDiario:g('uso')===''?'':Number(g('uso')),alocacao:g('aloc'),area:g('aloc')==='DM1'?g('area'):'',frente:g('aloc')==='DM1'&&g('area')!==RES?g('frente'):'',motor:g('motor'),posse:'Rondaflex Ltda',locador:g('locador'),obs:g('obs'),itens,foto:fotoNow[0]||'',docVeiculo:docNow.docVeiculo||null,notaFiscal:docNow.notaFiscal||null,
         horimetroData:(id&&Number(hm)===Number(e.horimetro))?(e.horimetroData||''):today(),horimetroReg:(hm!==''&&(!id||Number(hm)>(Number(e.horimetro)||0)))?today():(e.horimetroReg||''),exemplo:!!e.exemplo};
       if(S.equips.some(x=>x.id!==id&&String(x.codigo).toLowerCase()===body.codigo.toLowerCase())){toast('Ja existe um equipamento com essa TAG.');return}
+      /* edicao: mantem os campos que este formulario nao mostra (base do combustivel, equipamento novo, correcoes...) */
+      if(id){const cur=eqById(id)||e,{id:_x,...resto}=cur;Object.keys(body).forEach(k=>delete resto[k]);Object.assign(body,resto,{...body})}
       const ref=id?S.db.doc('equipamentos/'+id):S.db.collection('equipamentos').doc();
       if(await safe(()=>ref.set(body),id?'Equipamento atualizado':'Equipamento cadastrado')){commitPhotos(fotoOrig,fotoNow);const docIds=d=>d?[d.id,...(d.pages||[])].filter((x,i,a)=>x&&a.indexOf(x)===i):[];DOCS.forEach(([k])=>{const n=docNow[k],o=docOrig[k];docIds(n).forEach(x=>PEND.delete(x));if(o&&(!n||n.id!==o.id))docIds(o).forEach(dropAsset)});after(()=>openEq(ref.id))}
     };

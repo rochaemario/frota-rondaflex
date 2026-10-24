@@ -966,8 +966,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=674e8201a6"></script>
-<script src="shim.js?v=674e8201a6"></script>
+<script src="config.js?v=f9961d61bf"></script>
+<script src="shim.js?v=f9961d61bf"></script>
 </head>
 <body>
 
@@ -1145,10 +1145,11 @@ const itNome=i=>{const s=stOfIt(i);return s?s.desc:(i&&i.desc)||''};
 const itCod=i=>{const s=stOfIt(i);return s?[s.codigo,s.ref].filter(Boolean).join(' · '):(i&&i.espec)||''};
 const stCod=s=>s?(s.codigo||s.ref||'—'):'—';
 /* pecas com encaixe de fabrica num equipamento */
-const encaixeDe=eqId=>S.estoque.filter(s=>(s.encaixe||[]).includes(eqId)).sort(byCode);
+const encaixeDe=eqId=>S.estoque.filter(s=>(s.encaixe||[]).includes(eqId)).sort((a,b)=>(isKit(b)-isKit(a))||byCode(a,b));
 /* o que serve num equipamento: itens do plano, pecas com encaixe e kits dele (pelo plano, encaixe ou TAG no codigo/nome do kit) */
 function eqCompat(e){const plan=(e.itens||[]).map(stOfIt).filter(Boolean),enc=encaixeDe(e.id),tag=nzCod(e.codigo);
-  const kits=S.estoque.filter(x=>isKit(x)&&(plan.some(p=>p.id===x.id)||enc.some(p=>p.id===x.id)||nzCod(x.codigo).includes(tag)||nzCod(x.desc).includes(tag))).sort(byCode);
+  /* kit compativel = o equipamento esta no encaixe de fabrica do kit */
+  const kits=S.estoque.filter(x=>isKit(x)&&(x.encaixe||[]).includes(e.id)).sort(byCode);
   const ids=new Set();[...plan,...enc].filter(x=>!isKit(x)).forEach(x=>ids.add(x.id));kits.forEach(k=>kitComps(k).forEach(({s:y})=>ids.add(y.id)));
   return {kits,its:S.estoque.filter(x=>ids.has(x.id)).sort(byCode)}}
 const isAr=s=>/\bar\b/i.test([s.desc,s.aplic].join(' '));
@@ -2219,7 +2220,7 @@ function specList(lab,rows){if(!rows.length)return `<div class="r"><span>${esc(l
 function goEditar(kind,id){kind==='eq'?formEq(id):isKit(stById(id))?formKit(id):formStock(id)}
 function itemList(e,its,empty){
   if(!its.length)return empty;
-  const G=[['filtro','Filtros'],['kit','Kits'],['oleo','Oleos'],['outro','Outros']];
+  const G=[['kit','Kits'],['filtro','Filtros'],['oleo','Oleos'],['outro','Outros']];
   return G.map(([k,lab])=>{const g=its.filter(x=>(x.it.tipo||'outro')===k||(k==='outro'&&!['filtro','oleo','kit'].includes(x.it.tipo)));return g.length?`<div class="ig-h">${lab} <span>${g.length}</span></div>${itemRows(e,g)}`:''}).join('');
 }
 function itemRows(e,its){
@@ -3582,6 +3583,9 @@ function formKit(id){
     <label class="f">Codigo do kit<input id="k-codigo" required value="${esc(k.codigo||'')}" placeholder="Ex.: KIT-250" autocapitalize="characters"></label>
     <label class="f">Minimo de kits<input id="k-min" type="number" step="1" min="0" inputmode="numeric" value="${esc(k.minimo??1)}"></label>
     <label class="f w">Descricao<input id="k-desc" required value="${esc(k.desc||'')}" placeholder="Ex.: Preventiva 250 h · Caminhao"></label></div></div>
+    <div class="fset" style="margin-top:12px"><h3>Encaixe de fabrica</h3><p class="note" style="margin:0">Equipamentos em que este kit encaixa. Ele aparece sozinho no Registrar preventiva e na ficha de cada um.</p>
+      <div class="tsec-l enc-sel" id="k-enc"></div>
+      <div class="search">${I.search}<input id="k-encq" type="search" placeholder="Adicionar: TAG, modelo ou nº de serie" autocomplete="off" aria-label="Buscar equipamento"></div><div class="tsec-l enc-res" id="k-encr" hidden></div></div>
     <div class="fset" style="margin-top:12px"><h3>Itens do kit</h3><div class="sug-w t-add"><div class="search">${I.search}<input id="k-q" type="search" placeholder="Codigo ou referencia do item" autocomplete="off" autocapitalize="characters" aria-label="Adicionar item"></div><div class="sug" id="k-qh"></div></div>
       ${rdBtn('k-cam','Adicionar item pela camera')}<div id="k-comps"></div></div>
     <div class="fset" style="margin-top:12px"><h3>Fotos (opcional, ate 3)</h3><div id="k-ph"></div></div>
@@ -3590,6 +3594,16 @@ function formKit(id){
   mount:sh=>{if(id)atBind(sh,'kit',id);
     const fotoOrig=[...(k.fotos||[])],fotoNow=photoEditor(sh.querySelector('#k-ph'),dr?dr.fotos.slice():[...fotoOrig],3);
     if(dr){sh.querySelector('#k-codigo').value=dr.codigo;sh.querySelector('#k-min').value=dr.min;sh.querySelector('#k-desc').value=dr.desc}
+    /* encaixe de fabrica do kit: um ou varios equipamentos */
+    let enc=[...(dr&&dr.enc?dr.enc:(k.encaixe||[]))].filter(eqById);const encBox=sh.querySelector('#k-enc'),encQ=sh.querySelector('#k-encq'),encR=sh.querySelector('#k-encr');
+    const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
+    const drawEnc=()=>{encBox.innerHTML=enc.slice().sort((a,b)=>byCode(eqById(a),eqById(b))).map(i=>{const e=eqById(i);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(i)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
+      encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()})};drawEnc();
+    const nzE=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
+    encQ.oninput=()=>{const qq=nzE(encQ.value);if(!qq){encR.hidden=true;return}
+      const hits=S.equips.filter(e=>!enc.includes(e.id)&&nzE([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(qq)).sort(byCode).slice(0,8);
+      encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
+      encR.querySelectorAll('[data-encadd]').forEach(b=>b.onclick=()=>{enc.push(b.dataset.encadd);encQ.value='';encR.hidden=true;drawEnc()})};
     const box=sh.querySelector('#k-comps');
     const draw=()=>{box.innerHTML=C.length?`<div class="kl">${C.map((c,i)=>{const x=stById(c.id);return `<div class="kr"><span class="n"><b>${esc(x?x.desc:'Item removido')}</b><small class="num">${esc(x?stCod(x):'')}</small></span><input type="number" step="0.1" min="0" inputmode="decimal" value="${esc(c.qtd)}" data-kq="${i}" aria-label="Quantidade por kit"><span class="u">${esc(x?stUn(x):'')}</span><button type="button" class="x" data-kx="${i}" aria-label="Tirar do kit">✕</button></div>`}).join('')}</div>`:'<p class="note" style="margin:10px 2px 0">Adicione pelo menos 2 itens.</p>';
       box.querySelectorAll('[data-kq]').forEach(q=>q.oninput=()=>{C[Number(q.dataset.kq)].qtd=q.value});
@@ -3603,7 +3617,7 @@ function formKit(id){
       const m=its.map(x=>[sc(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]),v=q.value.trim().toUpperCase();
       qh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-kp="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="k-cad" style="color:var(--accent,#0033a0)">Cadastrar item ${esc(v)}</button>`;
       qh.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>{q.value='';qh.innerHTML='';add(stById(b.dataset.kp))});
-      qh.querySelector('#k-cad').onclick=()=>{const d={key:id||'novo',comps:C.map(c=>({...c})),fotos:fotoNow.slice(),codigo:sh.querySelector('#k-codigo').value,min:sh.querySelector('#k-min').value,desc:sh.querySelector('#k-desc').value};
+      qh.querySelector('#k-cad').onclick=()=>{const d={key:id||'novo',comps:C.map(c=>({...c})),enc:enc.slice(),fotos:fotoNow.slice(),codigo:sh.querySelector('#k-codigo').value,min:sh.querySelector('#k-min').value,desc:sh.querySelector('#k-desc').value};
         q.value='';qh.innerHTML='';formKit.draft=d;const cb=async sid=>{d.comps.push({id:sid,qtd:1})};cb.msg='Item cadastrado';formStock(null,{ref:v},cb)}};
     draw();
     const kc=sh.querySelector('#k-cam');if(kc)kc.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item){toast('Item nao encontrado no estoque.');return}add(v.item)}});
@@ -3612,10 +3626,10 @@ function formKit(id){
       const comps=Object.entries(m).map(([cid,q])=>({id:cid,qtd:Math.round(q*10)/10}));
       if(comps.length<2){toast('Um kit precisa de pelo menos 2 itens com quantidade.');return}
       const keep=new Set(comps.map(c=>c.id));
-      const rem=[...(k.comps||[]).filter(c=>!keep.has(c.id)).map(c=>{const s=stById(c.id);return s?`${stCod(s)} do kit`:'item do kit'}),...fotoOrig.filter(x=>!fotoNow.includes(x)).map(()=>'foto')];
+      const rem=[...(k.comps||[]).filter(c=>!keep.has(c.id)).map(c=>{const s=stById(c.id);return s?`${stCod(s)} do kit`:'item do kit'}),...fotoOrig.filter(x=>!fotoNow.includes(x)).map(()=>'foto'),...(k.encaixe||[]).filter(x=>!enc.includes(x)&&eqById(x)).map(x=>`encaixe em ${eqById(x).codigo}`)];
       confirmRemovals(sh.querySelector('#delbox'),rem,()=>save(comps))};
     const save=async comps=>{const g=n=>sh.querySelector('#k-'+n).value.trim();
-      const body={kit:true,tipo:'kit',codigo:g('codigo').toUpperCase(),desc:g('desc'),minimo:Number(g('min'))||0,un:'kit',comps,fotos:fotoNow.slice(0,3),...(k.inativo?{inativo:true}:{})};
+      const body={kit:true,tipo:'kit',codigo:g('codigo').toUpperCase(),desc:g('desc'),minimo:Number(g('min'))||0,un:'kit',comps,encaixe:enc,fotos:fotoNow.slice(0,3),...(k.inativo?{inativo:true}:{})};
       if(S.estoque.some(x=>x.id!==id&&String(x.codigo).toLowerCase()===body.codigo.toLowerCase())){toast('Ja existe um item ou kit com esse codigo.');return}
       const ref=id?S.db.doc('estoque/'+id):S.db.collection('estoque').doc();
       if(await safe(()=>ref.set(body),id?'Kit atualizado':'Kit montado')){commitPhotos(fotoOrig,fotoNow);id?goBack():closeSheet()}}}});

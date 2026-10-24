@@ -887,6 +887,7 @@ body.kb .sh-foot{display:none}
 .tr-h .q{width:70px;flex:0 0 auto;text-align:right;min-height:40px;padding:0 8px;background:var(--surface)}.tr-h .u{font-size:12px;color:var(--muted);min-width:14px}
 .tr-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.tr-i.op .tr-h>svg{transform:rotate(90deg)}.tr-i.op{background:var(--sunk)}
 .tr-b{padding:2px 13px 14px;display:flex;flex-direction:column;gap:10px}.tr-b .f{margin:0}.tr-b .cd{font-family:var(--mono);text-transform:uppercase}.tr-b .ivw{margin:0;font-size:13.5px}.tr-b .ivw select.ivs{min-height:40px;font-size:14px}
+.nv-b{display:flex;align-items:center;gap:12px;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft,#e8eefc)}.nv-b>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px}.nv-b b,.nv-b span{text-align:left!important;margin:0}.nv-b span{color:var(--muted)}.nv-b.on{background:var(--sunk)}.r>.nv-b{margin:0}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
 .et-n{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.et-n b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -945,8 +946,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=bac62cdb7f"></script>
-<script src="shim.js?v=bac62cdb7f"></script>
+<script src="config.js?v=f48c4afe58"></script>
+<script src="shim.js?v=f48c4afe58"></script>
 </head>
 <body>
 
@@ -1047,9 +1048,9 @@ const ivVal=v=>v==='aval'?'aval':v===''||v==null?'':Number(v);
 const ivProx=(v,h,fb)=>v==='aval'?'':v!==''&&v!=null?Math.round((Number(h)+Number(v))*10)/10:fb;
 const novoPid=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 function eqSituacao(e){
-  if(!(e.itens||[]).length)return {cls:'mut',label:'Sem plano',mot:[],its:[],est:[]};
+  if(!eqItens(e).length)return {cls:'mut',label:'Sem plano',mot:[],its:[],est:[]};
   const crit=[],aten=[],its=[],est=[];
-  (e.itens||[]).forEach(it=>{const st=itemStatus(e,it),sk=it.estoqueId&&stById(it.estoqueId);
+  eqItens(e).forEach(it=>{const st=itemStatus(e,it),sk=it.estoqueId&&stById(it.estoqueId);
     if(st.cls==='bad'||st.cls==='warn')its.push({it,st});
     const need=Number(it.qtd)||0,saldo=sk?stQtd(sk):null;
     if(st.cls==='bad')crit.push(`${itNome(it)}: troca vencida`);
@@ -1063,11 +1064,15 @@ function eqSituacao(e){
   if(aten.length)return {cls:'warn',label:'Atencao',mot:aten,its,est};
   return {cls:'ok',label:'Regular',mot:[],its,est};
 }
+/* equipamento novo (veio zerado de fabrica): sem preventiva registrada, a primeira conta do zero.
+   Sem itens no plano, entra como uma linha "Primeira preventiva" pelo intervalo da ficha. */
+const semPrev=e=>!S.trocas.some(t=>t.equipId===e.id&&t.tipo!=='reprog'&&t.tipo!=='hmtroca'&&t.tipo!=='filtro_ar');
+const eqItens=e=>(e.itens||[]).length?e.itens:e.novo0&&Number(e.intervaloPrev)?[{pid:'__prev',desc:'Primeira preventiva',tipo:'outro',ultimaH:'',proxH:'',virt:true}]:[];
 const _ai={};
 function allItems(){
   const d=today();if(_ai.e===S.equips&&_ai.s===S.estoque&&_ai.d===d)return _ai.r;
   const out=[];
-  S.equips.forEach(eq=>{if(eq.status==='inativo')return;(eq.itens||[]).forEach(it=>out.push({eq,it,st:itemStatus(eq,it)}))});
+  S.equips.forEach(eq=>{if(eq.status==='inativo')return;eqItens(eq).forEach(it=>out.push({eq,it,st:itemStatus(eq,it)}))});
   _ai.e=S.equips;_ai.s=S.estoque;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
 }
 const isKit=s=>!!(s&&s.kit);
@@ -1858,14 +1863,14 @@ function openEq(id){
   body:`<div class="lbl">Ficha do equipamento</div>
   <div class="spec">${f('TAG',`<span class="num">${esc(e.codigo)}</span>`)}${f('Tipo',esc(e.tipo))}${f('Marca',esc(e.marca))}${f('Modelo',esc(e.modelo))}${f('Ano',esc(e.ano))}
     ${f('Nº de serie / chassi',e.serie?`<button type="button" class="cp num" data-copy="${esc(e.serie)}" aria-label="Copiar numero de serie">${esc(e.serie)}</button>`:'')}${f('Nº do motor',e.motor?`<button type="button" class="cp num" data-copy="${esc(e.motor)}" aria-label="Copiar numero do motor">${esc(e.motor)}</button>`:'')}${f('Motorista',esc(e.motorista||''))}${f('Placa',e.placa?`<button type="button" class="cp num" data-copy="${esc(e.placa)}" aria-label="Copiar placa">${esc(e.placa)}</button>`:'')}
-    ${(()=>{const si=eqSituacao(e);return f('Situacao',`<span class="sit ${si.cls}">${si.label}</span>`)+(si.its.length?`<div class="r sit-l"><div class="es-l">${si.its.map(x=>itRow(x)).join('')}</div></div>`:'')+(si.est.length?`<div class="r ls sit-e"><span>Estoque</span><ul class="sl">${si.est.map(x=>`<li><span class="sl-n">${esc(x.s.desc)}<small class="num">${esc(stCod(x.s))}</small></span><b class="${x.c==='bad'?'sit-bad':'sit-warn'}">${x.t}</b></li>`).join('')}</ul></div>`:'')})()}
+    ${novoBox(e)?`<div class="r" style="display:block">${novoBox(e)}</div>`:''}${(()=>{const si=eqSituacao(e);return f('Situacao',`<span class="sit ${si.cls}">${si.label}</span>`)+(si.its.length?`<div class="r sit-l"><div class="es-l">${si.its.map(x=>itRow(x)).join('')}</div></div>`:'')+(si.est.length?`<div class="r ls sit-e"><span>Estoque</span><ul class="sl">${si.est.map(x=>`<li><span class="sl-n">${esc(x.s.desc)}<small class="num">${esc(stCod(x.s))}</small></span><b class="${x.c==='bad'?'sit-bad':'sit-warn'}">${x.t}</b></li>`).join('')}</ul></div>`:'')})()}
     ${f('Proprietario',esc(e.locador))}${f('Posse','Rondaflex Ltda')}${f('Alocado em',esc(e.alocacao))}${e.alocacao==='DM1'?f('Area',e.area===RES?'Reserva (compartilhada no DM1)':esc(e.area))+(e.area===RES?'':f('Frente',esc(e.frente))):''}
     ${f('Horimetro',`${e.horimetro===''||e.horimetro==null?'<span style="color:var(--faint)">sem leitura</span>':`<span class="hm">${hmTxt(e)}<small>H</small></span>`}${e.horimetroData?`<div class="note" style="margin-top:3px">leitura de ${fdate(e.horimetroData)}</div>`:''}`)}
     ${f('Intervalo preventivas',e.intervaloPrev?`<span class="num">${nf(e.intervaloPrev)} h</span>`:'')}${f('Uso medio',e.usoDiario?`${nf(e.usoDiario,1)} h/dia`:'')}${f('Oleos e filtros no plano',String((e.itens||[]).length))}${f('Trocas registradas',String(hist.length))}${f('Observacoes',esc(e.obs))}</div>
 
   ${docsHTML(e)}
   <div class="lbl">Oleos e filtros <span class="c">${(e.itens||[]).length}</span></div>
-  ${itemList(e,(e.itens||[]).map(it=>({it,st:itemStatus(e,it)})),'<div class="empty">Sem oleos e filtros. Monte o plano pelo + › Editar cadastro.</div>')}
+  ${itemList(e,eqItens(e).map(it=>({it,st:itemStatus(e,it)})),'<div class="empty">Sem oleos e filtros. Monte o plano pelo + › Editar cadastro.</div>')}
   ${(()=>{const pc=encaixeDe(id);return pc.length?`<div class="lbl">Pecas com encaixe <span class="c">${pc.length}</span></div><div class="es-l">${pc.map(s=>esRow(s,{attr:`data-encst="${esc(s.id)}"`})).join('')}</div>`:''})()}
   <div class="lbl">Historico <span class="c">${hist.length}</span></div>
   ${hist.length?`<div class="ilist">${hist.map(t=>`<div class="ia"><button type="button" class="ia-h hh" data-ia aria-expanded="false"><span class="ia-t">${tTit(t)}${t.ajuste?AJS:''}</span><span class="hh-hm num">${nf(t.horimetro)} h</span><span class="hh-d">${fdate(t.data)}</span>${I.chev}</button>
@@ -1874,7 +1879,7 @@ function openEq(id){
       <button type="button" class="btn sm" data-tr="${esc(t.id)}">${t.tipo==='reprog'||t.tipo==='hmtroca'?'Abrir':'Abrir preventiva'}</button></div></div>`).join('')}</div>`:'<div class="empty">Sem preventivas registradas.</div>'}
   ${fotoEqHTML(e)}`,
   foot:avisarFoot('eq',id),
-  mount:sh=>{bindFotoEq(sh);bindDocs(sh,e);
+  mount:sh=>{bindFotoEq(sh);bindDocs(sh,e);novoBind(sh,e);
     sh.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>openTroca(b.dataset.tr));sh.querySelectorAll('[data-encst]').forEach(b=>b.onclick=()=>formMov(b.dataset.encst))}});
 }
 /* ---------- fotos ---------- */
@@ -2156,7 +2161,7 @@ function itemRows(e,its){
     <div class="facts"><div>Ultima troca<b>${it.ultimaH!==''&&it.ultimaH!=null?(()=>{const o=it.ultimaData?hmOrig(e.id,it.ultimaH,it.ultimaData):{v:Number(it.ultimaH),d:0};return nf(o.v)+' h'+(o.d?'<small class="rp-mk">relogio antigo</small>':'')})():'—'}</b>${it.ultimaData?sdate(it.ultimaData):''}</div><div>${st.cls==='bad'?'Venceu em':'Proxima'}<b>${st.prox!=null?(()=>{const lt=hmTrocas(e.id).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
       /* vencimento que caiu antes da troca do relogio: mostra no relogio antigo */
       if(st.cls==='bad'&&lt&&it.ultimaData&&(it.ultimaData<(lt.data||''))&&st.prox<=Number(lt.horimetro)){const o=hmOrig(e.id,st.prox,it.ultimaData);return nf(o.v)+' h<small class="rp-mk">relogio antigo</small>'}
-      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':st.cls!=='bad'&&st.prev?sdate(st.prev):''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.ivDef&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad';
+      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':st.cls!=='bad'&&st.prev?sdate(st.prev):''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.virt&&!it.ivDef&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad'&&!it.virt;
       return rp||def?`<div class="pn-bt">${def?`<button type="button" class="btn sm" data-ivd="${esc(e.id)}|${esc(it.pid)}">Intervalo</button>`:''}${rp?`<button type="button" class="btn sm" data-rp="${esc(e.id)}|${esc(it.pid)}">Reprogramar</button>`:''}</div><div class="ivd-box"></div>`:''})()}</div></div>`}).join('')}</div>`;
 }
 /* definicao unica do intervalo de um item ja aplicado: escolhido e salvo, o botao nao volta mais */
@@ -2204,7 +2209,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.clos
 function openPend(id,all){
   nav((all?'cr:':'pd:')+id,()=>openPend(id,all));
   const e=eqById(id);if(!e){openSheet({title:'Carregando…',body:'<div class="empty">Abrindo…</div>'});return}
-  const its=(e.itens||[]).map(it=>({it,st:itemStatus(e,it)})).filter(x=>all?true:(x.st.cls==='bad'||x.st.cls==='warn')).sort((a,b)=>a.st.rest-b.st.rest);
+  const its=eqItens(e).map(it=>({it,st:itemStatus(e,it)})).filter(x=>all?true:(x.st.cls==='bad'||x.st.cls==='warn')).sort((a,b)=>a.st.rest-b.st.rest);
   const npend=its.filter(x=>x.st.cls==='bad'||x.st.cls==='warn').length;
   const si=eqSituacao(e),stk=si.mot.filter(m=>/estoque/.test(m));
   openSheet({title:esc(e.codigo),sub:`Horimetro ${hmTxt(e)} h${e.horimetroData?` em ${sdate(e.horimetroData)}`:''}`,
@@ -2706,6 +2711,7 @@ function formTroca(eqId){
         /* itens adicionados (fora do plano, exceto kits) passam a seguir o proprio intervalo no plano do equipamento */
         avul.filter(a=>a.pid).forEach(a=>{const v=a.ivEsc;const base=proxV;
           upd.itens.push({pid:a.pid,desc:a.desc,espec:a.espec,estoqueId:a.estoqueId,qtd:a.usado,un:a.un,tipo:a.tipo||'outro',intervalo:'',ultimaH:h,ultimaData:dt,proxH:ivProx(v,h,base),reprog:'',ivSel:v,ivDef:true})});
+        if(e.novo0)upd.novo0=false;
         if(h>(Number(e.horimetro)||0)){upd.horimetro=h;upd.horimetroData=dt;upd.horimetroReg=today()}
         await S.db.doc('equipamentos/'+e.id).update(upd);
         const baixa={};if(!S.ajuste)[...picked,...avul].forEach(p=>{if(p.estoqueId)addBaixa(baixa,p.estoqueId,p.usado)});
@@ -2843,6 +2849,14 @@ function eqSearch(sel){if(sel.dataset.eqsOn)return;sel.dataset.eqsOn=1;
   inp.onfocus=()=>{if(inp.value&&!sel.value)busca()}}
 /* Preventivas › busca: equipamento ainda sem preventiva registrada.
    Mostra so o basico e leva ao registro, avisando da baixa no estoque. */
+/* botao "Equipamento novo": aparece sem preventiva registrada e com horimetro abaixo do intervalo da ficha */
+function novoBox(e){const iv=Number(e.intervaloPrev)||0,h=Number(e.horimetro)||0;if(!iv||!semPrev(e))return '';
+  if(e.novo0)return `<div class="nv-b on"><div><b>Equipamento novo · conta do zero</b><span>${h>=iv?`Primeira preventiva vencida ha ${nf(h-iv)} h.`:`Primeira preventiva em ${nf(iv)} h (faltam ${nf(iv-h)} h).`}</span></div><button type="button" class="btn sm" data-nv="0">Desfazer</button></div>`;
+  if(h>=iv)return '';
+  return `<div class="nv-b"><div><b>Veio zerado de fabrica?</b><span>Marque como novo: a primeira preventiva vence em ${nf(iv)} h (faltam ${nf(iv-h)} h).</span></div><button type="button" class="btn sm pri" data-nv="1">Equipamento novo</button></div>`}
+function novoBind(sh,e){sh.querySelectorAll('[data-nv]').forEach(b=>b.onclick=async()=>{const on=b.dataset.nv==='1';const e2=eqById(e.id);if(!e2)return;
+  const upd={novo0:on};if(on)upd.itens=(e2.itens||[]).map(i=>i.reprog?i:{...i,ultimaH:'',ultimaData:'',proxH:''});
+  if(await safe(()=>S.db.doc('equipamentos/'+e.id).update(upd),on?'Marcado como novo':'Desfeito'))refreshSheet()})}
 function openSemPrev(id){
   nav('sp:'+id,()=>openSemPrev(id));
   const e=eqById(id);if(!e){goBack();return}
@@ -2850,11 +2864,11 @@ function openSemPrev(id){
   openSheet({title:`<span class="code" style="font-size:16px">${esc(e.codigo)}</span>${esc(e.tipo||'')}`,sub:'Sem preventiva registrada',
   body:`<div class="spec"><div class="r"><span>Marca / modelo</span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</b></div><div class="r"><span>Alocado em</span><b>${esc(alocTxt(e)||'—')}</b></div>
     <div class="r"><span>Ultima leitura</span><b class="num">${hm?`${nf(e.horimetro)} h${e.horimetroData?` <small class="sp-d">${fdate(e.horimetroData)}</small>`:''}`:'—'}</b></div></div>
-    <div class="empty" style="margin-top:12px"><b>Nenhuma preventiva registrada</b>Este equipamento ainda nao tem preventivas lancadas.</div>
+    <div class="empty" style="margin-top:12px"><b>Nenhuma preventiva registrada</b>Este equipamento ainda nao tem preventivas lancadas.</div>${novoBox(e)}
     <div class="sp-aj${S.ajuste?' on':''}"><div><b>${S.ajuste?'Ajuste ligado':'O lancamento da baixa no estoque'}</b><span>${S.ajuste?'Os itens usados nao serao baixados do estoque.':'Os itens usados saem do estoque. Se nao for a intencao, ligue o Ajuste.'}</span></div>
     <button type="button" class="sp-sw" role="switch" aria-checked="${!!S.ajuste}" aria-label="Ajuste"></button></div>`,
   foot:`<button type="button" class="btn pri" id="sp-go">${I.manut}<span>Registrar preventiva</span></button>`,
-  mount:sh=>{sh.querySelector('.sp-sw').onclick=()=>{setAjuste(!S.ajuste);refreshSheet()};sh.querySelector('#sp-go').onclick=()=>formRegistrar(id)}});
+  mount:sh=>{novoBind(sh,e);sh.querySelector('.sp-sw').onclick=()=>{setAjuste(!S.ajuste);refreshSheet()};sh.querySelector('#sp-go').onclick=()=>formRegistrar(id)}});
 }
 
 /* ===================== Avisos entre a equipe =====================
@@ -3604,6 +3618,10 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
       sy.textContent='Sincronizado';sy.className='sync on';if(!sheetOpen)render();else refreshSheet()},
     err=>{sy.textContent='Sem sincronia';sy.className='sync off';console.error(err)});
   db.doc('config/equivalencias').onSnapshot(d=>{S.equiv=(d.exists&&d.data().pares)||[];if(!sheetOpen)render();else refreshSheet()},err=>console.error(err));
+  /* correcao pedida em 24/10: RE-04 veio zerada de fabrica e ainda nao tem preventiva -> conta do zero */
+  const fixRE04=()=>{try{if(localStorage.getItem('frota.fixRE04'))return}catch(e){}if(!(S.loaded.e&&S.loaded.t)){setTimeout(fixRE04,2000);return}
+    const e=eqById('RE-04');if(e&&!e.novo0&&semPrev(e)){const upd={novo0:true,itens:(e.itens||[]).map(i=>i.reprog?i:{...i,ultimaH:'',ultimaData:'',proxH:''})};db.doc('equipamentos/RE-04').update(upd).catch(()=>{})}
+    try{localStorage.setItem('frota.fixRE04','1')}catch(e){}};setTimeout(fixRE04,2500);
   db.doc('config/listas').onSnapshot(d=>{applyCfg(d.exists?d.data():null);S.loaded.c=1;if(!sheetOpen)render();else refreshSheet()},err=>{S.loaded.c=1;console.error(err)});
   $('#fab').hidden=false;
   sub('equipamentos','equips','e');sub('trocas','trocas','t');sub('estoque','estoque','s');sub('listas','listas','l');

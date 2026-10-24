@@ -947,8 +947,8 @@ html.vz-on #sheet{height:calc(100dvh - var(--hdr,0px) - var(--vzh,58px) - 8px)}#
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=54c14afe57"></script>
-<script src="shim.js?v=54c14afe57"></script>
+<script src="config.js?v=17036c536f"></script>
+<script src="shim.js?v=17036c536f"></script>
 </head>
 <body>
 
@@ -2896,28 +2896,66 @@ function vzPega(tk,chaves){for(let i=0;i<tk.length;i++)if(chaves.test(tk[i])){co
 function vzSet(sel,val){const i=document.querySelector(sel);if(!i)return;i.value=val;i.dispatchEvent(new Event('input',{bubbles:true}))}
 function vzEq(sel,e){const s=document.querySelector(sel);if(!s)return;s.value=e.id;const inp=s.parentElement.querySelector('.eqs-in');if(inp){inp.value=`${e.codigo} · ${e.tipo||''}`;inp.setCustomValidity('')}s.dispatchEvent(new Event('change'))}
 const vzAbre=fn=>{if(!sheetOpen)NAV.length=0;fn()};
+/* navegacao por voz: lugares do app, categorias, rolar, item pela posicao e botoes pelo nome (nunca excluir) */
+const vzStem=w=>w.replace(/oes$|aes$/,'ao').replace(/ns$/,'m').replace(/(r|z|s)es$/,'$1').replace(/s$/,'');
+const vzFr=t=>vzNorm(t).replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
+const vzSt=t=>vzFr(t).split(' ').filter(Boolean).map(vzStem).join(' ');
+const VZ_LUG=[[/^(inicio|tela inicial|tela principal|principal|home|comeco)$/,()=>goHome()],[/^painel$/,()=>{goHome();SCR().scrollTo(0,0)}],
+  [/^frota$/,'frota'],[/^equipamento$/,'equip'],[/^(preventiva|manutencao)$/,'manut'],[/^(estoque|filtro e oleo)$/,'estoque'],[/^(combustivel|abastecimento)$/,'comb'],[/^alocacao$/,'aloc'],[/^identificar$/,'ident'],
+  [/^aviso$/,()=>{const b=$('#bell');if(b&&!b.hidden){NAV.length=0;openAvisos()}else return 'Avisos indisponivel'}],[/^(lista de compra|lista|compra)$/,()=>{NAV.length=0;openListas()}]];
+const VZ_ORD={primeiro:1,primeira:1,segundo:2,segunda:2,terceiro:3,terceira:3,quarto:4,quarta:4,quinto:5,quinta:5,sexto:6,sexta:6,setimo:7,setima:7,oitavo:8,oitava:8,nono:9,nona:9,decimo:10,decima:10,ultimo:-1,ultima:-1};
+const vzRaiz=()=>sheetOpen?$('#sheet'):$('#app');
+const vzVis=el=>{const r=el.getBoundingClientRect();return r.width>0&&r.height>0&&!el.disabled&&!el.closest('[hidden]')};
+const vzRot=el=>vzFr(el.getAttribute('aria-label')&&!el.textContent.trim()?el.getAttribute('aria-label'):el.textContent);
+const vzTelaExcluir=()=>sheetOpen&&/exclu|apag/.test(vzNorm(($('#sheet .sh-tt')||{}).textContent||''));
+const vzExclui=el=>el.classList.contains('danger')||/^dl-/.test(el.id||'')||/exclu|apag|delet/.test(vzNorm((el.textContent||'')+' '+(el.getAttribute('aria-label')||'')))||(vzTelaExcluir()&&(el.classList.contains('pri')||el.closest('.sh-foot,.eqv-f,.ask')));
+const vzBotoes=()=>[...vzRaiz().querySelectorAll('button,[role=button],a[href],label.chk')].filter(vzVis);
+function vzToca(el){if(vzExclui(el))return 'Excluir so pelo toque';el.scrollIntoView({block:'center',behavior:'smooth'});el.click();return {ok:'Tocou em '+esc(vzRot(el).slice(0,40)||'botao')}}
+/* botao pelo nome: exato > comeca com > contem (contem so com "abrir/tocar") */
+function vzBotao(fr,solto){const q=vzSt(vzTokens(fr).join(' '));if(q.length<3)return null;let best=null;
+  for(const el of vzBotoes()){const r=vzSt(vzTokens(vzRot(el)).join(' '));if(!r)continue;const sc=r===q?0:r.startsWith(q+' ')||r.startsWith(q)?1:solto&&r.includes(q)?2:9;if(sc<9&&(!best||sc<best[0]))best=[sc,el]}
+  return best?vzToca(best[1]):null}
+function vzLugar(fr){const q=vzSt(fr);const l=VZ_LUG.find(([re])=>re.test(q));if(!l)return null;if(sheetOpen)closeSheet();
+  if(typeof l[1]==='string'){abreCard(l[1]);return {ok:esc((TABS.find(t=>t[0]===l[1])||[])[1]||'')}}const r=l[1]();return typeof r==='string'?r:{ok:esc(fr)}}
+function vzCategoria(fr){const q=vzSt(fr);if(q.length<3)return null;const tipos=[...new Set((S.equips||[]).map(e=>e.tipo).filter(Boolean))];
+  const t=tipos.find(x=>vzSt(x)===q)||tipos.find(x=>vzSt(x).startsWith(q));if(!t)return null;
+  if(sheetOpen)closeSheet();if(S.focus!=='equip')abreCard('equip');const h=[...$('#app').querySelectorAll('[data-eqt]')].find(x=>x.dataset.eqt===t);if(!h)return null;
+  if(h.getAttribute('aria-expanded')!=='true')h.click();return {ok:esc(t)}}
+function vzPosicao(fr){const w=vzFr(fr).split(' ').filter(x=>!/^(o|a|os|as|item|numero|linha)$/.test(x));if(w.length!==1)return null;let n=VZ_ORD[w[0]]??(/^\d+$/.test(w[0])?Number(w[0]):null);if(n==null)return null;
+  const R=vzRaiz(),rw=R.getBoundingClientRect().width;const rows=vzBotoes().filter(el=>!el.closest('.sh-foot,.sh-top,.subbar,header,.sidetabs')&&!el.matches('.fab,.chk')&&el.getBoundingClientRect().width>=rw*0.6);const cab='.tsec-h,.acc-h,[data-fr]',so=rows.filter(el=>!el.matches(cab));const lst=so.length?so:rows;
+  const el=n<0?lst[lst.length-1]:lst[n-1];if(!el)return 'Nao ha item '+(n<0?'no fim':n)+' nesta tela';return vzToca(el)}
+function vzRola(dir){const sc=sheetOpen?$('#sheet .sh-body'):SCR(),h=sc===window?innerHeight:sc.clientHeight;sc.scrollBy({top:dir*h*0.7,behavior:'smooth'});return {ok:dir>0?'Descendo':'Subindo'}}
+/* "abrir X": posicao > TAG > lugar > categoria > botao */
+function vzAbrir(fr){const tk=vzTokens(fr);
+  return vzPosicao(fr)||(()=>{const g=vzTag(tk);if(g&&g.n===tk.length){vzAbre(()=>openEq(g.e.id));return {ok:g.e.codigo}}})()||vzLugar(fr)||vzCategoria(fr)||vzBotao(fr,true)||'Nao achei '+esc(fr)+' nesta tela'}
 const VZ_CMD=[
-  [/^(abastec\w*|abasteci)$/,tk=>{const g=vzTag(tk);if(!g)return 'Diga a TAG: abastecer CB 07 120 litros';tk=tk.slice(g.n);
+  [/^(excluir|exclui|apagar|apaga|deletar|deleta)$/,()=>'Excluir so pelo toque'],
+  [/^(descer|desce|descendo|baixo)$/,()=>vzRola(1)],[/^(subir|sobe|subindo|cima)$/,()=>vzRola(-1)],
+  [/^(tocar|toca|toque|clicar|clica|apertar|aperta|selecionar|seleciona)$/,(tk,fr)=>vzBotao(fr,true)||vzPosicao(fr)||'Nao achei '+esc(fr)+' nesta tela'],
+  [/^(abastec\w*|abasteci)$/,(tk,fr,w)=>{const g=vzTag(tk);if(!g){if(!tk.length&&/^abastecimento/.test(w))return vzLugar('combustivel');if(!tk.length){vzAbre(formAbast);return {ok:'Abastecimento · diga a TAG ou digite'}}return 'Diga a TAG: abastecer CB 07 120 litros'}tk=tk.slice(g.n);
     const parcial=tk.some(x=>/^parcial/.test(x));let l=vzPega(tk,/^litro/),h=vzPega(tk,/^(horimetro|horas?)$/);const ns=tk.map(vzNum).filter(x=>x!=null);if(l==null)l=ns.shift()??null;if(h==null)h=ns.shift()??null;
     vzAbre(formAbast);vzEq('#ab-eq',g.e);if(h!=null)vzSet('#ab-hm',h);if(l!=null)vzSet('#ab-l',l);if(parcial){const b=document.querySelector('#sheet [data-ch="0"]');b&&b.click()}
     return {ok:`${g.e.codigo}${l!=null?` · ${nf(l,1)} L`:''}${h!=null?` · horimetro ${nf(h,1)}`:''}${parcial?' · parcial':''} · diga salvar`}}],
   [/^horimetro$/,tk=>{const g=vzTag(tk);if(!g)return 'Diga a TAG: horimetro PC 02 2450';const h=tk.slice(g.n).map(vzNum).find(x=>x!=null);
     vzAbre(()=>formHm(g.e.id));if(h!=null)vzSet('#h-val',h);return {ok:`${g.e.codigo}${h!=null?` · ${nf(h,1)} h · diga salvar`:' · diga a leitura ou digite'}`}}],
-  [/^(abrir|abre|ficha)$/,tk=>{const g=vzTag(tk);if(!g)return 'Diga a TAG: abrir PC 04';vzAbre(()=>openEq(g.e.id));return {ok:g.e.codigo}}],
-  [/^(preventiva|registrar)$/,tk=>{if(tk[0]==='preventiva')tk=tk.slice(1);const g=vzTag(tk);if(!g)return 'Diga a TAG: preventiva CB 03';vzAbre(()=>formTroca(g.e.id));return {ok:`Preventiva ${g.e.codigo}`}}],
-  [/^(buscar|busca|procurar|procura|item)$/,tk=>{const q=tk.join('').replace(/[^a-z0-9]/g,'');if(!q)return 'Diga o codigo: buscar 360 8960';
+  [/^(abrir|abre|ficha|ir|vai|mostrar|mostra)$/,(tk,fr)=>fr?vzAbrir(fr):'Diga o que abrir'],
+  [/^(preventiva|preventivas|registrar)$/,(tk,fr,w)=>{if(tk[0]==='preventiva')tk=tk.slice(1);const g=vzTag(tk);if(!g){if(w==='registrar')return vzBotao(w+' '+fr,true)||'Nao achei registrar '+esc(fr);if(!tk.length)return vzLugar('preventiva');return 'Diga a TAG: preventiva CB 03'}vzAbre(()=>formTroca(g.e.id));return {ok:`Preventiva ${g.e.codigo}`}}],
+  [/^(buscar|busca|procurar|procura)$/,tk=>{const q=tk.join('').replace(/[^a-z0-9]/g,'');if(!q)return 'Diga o codigo: buscar 360 8960';
     const score=x=>{const c=nzCod(stCod(x)),r=nzCod(x.ref);return c===q||r===q?0:c.includes(q)||r.includes(q)?1:nzCod(x.desc).includes(q)?2:9};
     const m=(S.estoque||[]).map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1]));if(!m.length)return 'Nenhum item com '+tk.join(' ');
     vzAbre(()=>formMov(m[0][1].id));return {ok:`${stCod(m[0][1])}${m.length>1?` · mais ${m.length-1} parecido${m.length>2?'s':''}`:''}`}}],
-  [/^(salvar|salva|gravar|grava|lancar|confirmar)$/,()=>{const b=sheetOpen&&document.querySelector('#sheet .sh-foot .btn.pri');if(!b)return 'Nada para salvar nesta tela';b.click();return {ok:'Salvando'}}],
+  [/^(salvar|salva|gravar|grava|lancar|lanca|confirmar|confirma)$/,(tk,fr,w)=>{const x=vzBotao(w+(fr?' '+fr:''),false);if(x)return x;const b=sheetOpen&&[...document.querySelectorAll('#sheet .sh-foot .btn.pri')].find(vzVis);if(!b)return 'Nada para salvar nesta tela';if(vzExclui(b))return 'Excluir so pelo toque';b.click();return {ok:'Salvando'}}],
   [/^(cancelar|cancela|fechar|fecha)$/,()=>{if(!sheetOpen)return 'Nada aberto';closeSheet();return {ok:'Fechado'}}],
-  [/^(voltar|volta)$/,()=>{if(!sheetOpen)return 'Nada aberto';goBack();return {ok:'Voltou'}}],
+  [/^(voltar|volta)$/,()=>{if(!sheetOpen){const u=$('#app [data-a="up"]');if(!u)return 'Ja esta no inicio';u.click();return {ok:'Voltou'}}goBack();return {ok:'Voltou'}}],
   [/^(parar|para|desligar|desliga)$/,()=>{vozStop();return null}]];
 function vozCmd(txt){const tk=vzTokens(txt);
   for(let i=0;i<tk.length;i++){const c=VZ_CMD.find(([re])=>re.test(tk[i]));if(!c)continue;
-    let r;try{r=c[1](tk.slice(i+1).filter(x=>!/^(do|da|no|na|para|pro|pra)$/.test(x)))}catch(e){console.error(e);r='Nao consegui fazer isso'}
+    const resto=tk.slice(i+1).filter(x=>!/^(do|da|no|na|para|pro|pra)$/.test(x));let r;try{r=c[1](resto,resto.filter(x=>!/^(o|a|os|as)$/.test(x)).join(' '),tk[i])}catch(e){console.error(e);r='Nao consegui fazer isso'}
     if(r==null)return;vzBand(typeof r==='string'?'warn':'ok',typeof r==='string'?r:r.ok);return}
-  vzBand('warn','Nao entendi: '+txt.trim())}
+  /* frase solta: lugar, categoria, posicao ou botao com o nome exato */
+  let r=null;try{r=vzLugar(txt)||vzCategoria(txt)||vzPosicao(txt)||vzBotao(txt,false)}catch(e){console.error(e)}
+  if(r){vzBand(typeof r==='string'?'warn':'ok',typeof r==='string'?r:r.ok);return}
+  vzBand('warn','Nao entendi: '+esc(txt.trim()))}
 function vzBand(kind,txt){let b=$('#vband');if(!b){b=document.createElement('div');b.id='vband';b.innerHTML=`<span class="vb-d"></span><div class="vb-t"><b></b><span></span></div><button type="button" class="vb-x" aria-label="Desligar microfone">✕</button>`;document.body.append(b);document.documentElement.classList.add('vz-on');b.querySelector('.vb-x').onclick=ev=>{ev.stopPropagation();vozStop()}}
   b.className='vb-'+kind;b.querySelector('b').textContent=kind==='ok'?'Entendi':kind==='warn'?'Atencao':'Ouvindo';b.querySelector('.vb-t span').innerHTML=txt;document.documentElement.style.setProperty('--vzh',b.offsetHeight+'px');
   clearTimeout(VZ.msgT);if(kind!=='on')VZ.msgT=setTimeout(()=>{if(VZ.on)vzBand('on','<em>fale um comando…</em>')},kind==='ok'?5000:4000)}

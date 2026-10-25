@@ -24,4 +24,5 @@ git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m "$MSG
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01QbG75wh77UffNvP6h7Xaws"
 git push -q origin main && git push -q -f origin "HEAD:refs/heads/versao-$V"
+git fetch -q origin main:refs/remotes/origin/main --force
 git log --oneline -1; echo "publicado; ponto de desfazer: ramo versao-$V"

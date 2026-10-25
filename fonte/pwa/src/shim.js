@@ -7,7 +7,7 @@
   const CFG=window.FROTA_CFG||{};
   const sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   window.__sb=sb;
-  const BUCKET='arquivos';
+  const BUCKET='arquivos',BUCKET_DOC='documentos';  /* documentos (veiculo, nota fiscal) ficam no armazenamento privado */
   window.__blobUrl=id=>`${CFG.url}/storage/v1/object/public/${BUCKET}/${encodeURIComponent(id)}`;
 
   /* ---------- utilidades ---------- */
@@ -30,6 +30,14 @@
   const remoteUrl=id=>`${CFG.url}/storage/v1/object/public/${BUCKET}/${encodeURIComponent(id)}`;
   window.__blobUrl=id=>LOCALBLOB.get(id)||remoteUrl(id);
   window.__remoteUrl=remoteUrl;
+  /* documento privado: link temporario (1 h) so para quem esta logado; depois de aberto fica guardado no aparelho (abre sem internet).
+     Documento antigo, ainda no armazenamento publico, continua abrindo pelo link de antes. */
+  window.__docUrl=async id=>{if(LOCALBLOB.has(id))return LOCALBLOB.get(id);
+    try{const c=await idbGet('blobs','doc:'+id);if(c&&c.blob){const u=URL.createObjectURL(c.blob);LOCALBLOB.set(id,u);return u}}catch(e){}
+    try{const {data,error}=await sb.storage.from(BUCKET_DOC).createSignedUrl(id,3600);if(!error&&data&&data.signedUrl){
+        try{const r=await fetch(data.signedUrl);if(r.ok){const b=await r.blob();await idbPut('blobs','doc:'+id,{blob:b,type:b.type});const u=URL.createObjectURL(b);LOCALBLOB.set(id,u);return u}}catch(e){}
+        return data.signedUrl}}catch(e){}
+    return remoteUrl(id)};
   let IDBH=null;
   const idbOpen=()=>new Promise((ok,no)=>{if(!('indexedDB' in window)){ok(null);return}const r=indexedDB.open('frota',1);
     r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('docs');d.createObjectStore('meta');d.createObjectStore('outbox',{keyPath:'k',autoIncrement:true});d.createObjectStore('blobs')};
@@ -73,8 +81,8 @@
       if(error&&error.code==='P0002'){const d=DOCS.get(o.path);if(d){const r=await sb.from('docs').upsert({path:o.path,parent:parentOf(o.path),data:d,updated_at:new Date().toISOString()});if(r.error)throw r.error}return}
       if(error)throw error;return}
     if(o.op==='delete'){const {error}=await sb.from('docs').delete().eq('path',o.path);if(error)throw error;return}
-    if(o.op==='upload'){const b=await idbGet('blobs',o.id);if(!b)return;const {error}=await sb.storage.from(BUCKET).upload(o.id,b.blob,{contentType:o.type,cacheControl:'31536000',upsert:true});if(error)throw error;idbDel('blobs',o.id);return}
-    if(o.op==='rmfile'){const {error}=await sb.storage.from(BUCKET).remove([o.id]);if(error)throw error;return}}
+    if(o.op==='upload'){const b=await idbGet('blobs',o.id);if(!b)return;const {error}=await sb.storage.from(o.bkt||BUCKET).upload(o.id,b.blob,{contentType:o.type,cacheControl:'31536000',upsert:true});if(error)throw error;idbDel('blobs',o.id);return}
+    if(o.op==='rmfile'){const {error}=await sb.storage.from(BUCKET).remove([o.id]);if(error)throw error;try{await sb.storage.from(BUCKET_DOC).remove([o.id])}catch(e){}return}}
   async function flush(){if(flushing||!OUT.length)return;if(!navigator.onLine){netOk=false;updSync();return}flushing=true;updSync();
     try{while(OUT.length){const o=OUT[0];
       try{await runOp(o);netOk=true}
@@ -154,7 +162,7 @@
   const ASSETS=Object.freeze({
     async upload(blob,opts={}){const id=hex(32),type=opts.type||blob.type||'application/octet-stream';
       await idbPut('blobs',id,{blob,type});try{LOCALBLOB.set(id,URL.createObjectURL(blob))}catch(e){}
-      await enqueue({op:'upload',id,type});return {id,url:window.__blobUrl(id),sizeBytes:blob.size,contentType:type}},
+      await enqueue({op:'upload',id,type,...(opts.priv?{bkt:BUCKET_DOC}:{})});return {id,url:window.__blobUrl(id),sizeBytes:blob.size,contentType:type}},
     async delete(id){const i=OUT.findIndex(o=>o.op==='upload'&&o.id===id);
       if(i>=0&&!(flushing&&i===0)){const o=OUT.splice(i,1)[0];if(o.k!=null)idbDel('outbox',o.k);idbDel('blobs',id);updSync();return}
       await enqueue({op:'rmfile',id})},

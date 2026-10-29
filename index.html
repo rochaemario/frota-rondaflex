@@ -511,7 +511,7 @@ body.focus .sidetabs{display:none!important}
 .card-wait{display:grid;place-items:center;min-height:300px;color:var(--muted)}
 .ph-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .ph-th{aspect-ratio:1;max-width:100%;padding:0;border:0;border-radius:12px;overflow:hidden;background:var(--sunk);cursor:zoom-in}
-.ph-th img{width:100%;height:100%;object-fit:contain;display:block;background:#fff}
+.ph-th img{width:100%;height:100%;object-fit:contain;display:block;mix-blend-mode:multiply}
 .ph-full{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:20px}
 .ph-full button{display:flex;justify-content:center;width:100%;padding:0;border:0;background:none;cursor:zoom-in}
 .ph-full img{display:block;width:auto;height:auto;max-width:100%;max-height:calc(100vh - 250px);max-height:calc(100dvh - 250px);object-fit:contain;mix-blend-mode:multiply}
@@ -910,6 +910,12 @@ body.kb .sh-foot{display:none}
 .k-tg{padding:8px 4px 6px}.es-r.k-in{opacity:.6}.k-ok{flex:none;font-size:12px;font-weight:600;color:var(--ok,#1b7a3d);margin-left:6px}
 .kv-l{display:flex;flex-direction:column;background:var(--surface);border-radius:12px;overflow:hidden}.kv-r{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13.5px}.kv-r+.kv-r{box-shadow:inset 0 1px 0 var(--line)}.kv-r>span{flex:1;min-width:0;display:flex;flex-direction:column}.kv-r small{color:var(--muted);font-size:12px}
 .ar-seg{width:100%}.ar-seg button{flex:1;min-height:46px;font-size:15px}.ar-sg{padding:0 2px 6px}#a-sug .tsec-l{margin-bottom:10px}.ar-kl{margin-top:10px}.ar-kl .kr .n b{white-space:normal;overflow:visible;text-overflow:clip}
+.fe-w{position:fixed;inset:0;z-index:70;background:rgba(6,14,10,.55);display:flex;align-items:flex-end;justify-content:center}
+.fe-c{background:var(--surface,#fff);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
+.fe-t{font-size:17px}.fe-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fe-o{display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px;border:1.5px solid var(--line-2,#ccd);border-radius:16px;background:var(--bg,#f2f4f8);cursor:pointer;font:inherit;color:inherit}
+.fe-o:active{border-color:var(--accent)}.fe-i{width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:12px;background:var(--sunk)}
+.fe-i img{max-width:100%;max-height:100%;object-fit:contain;mix-blend-mode:multiply}.fe-o b{font-size:15px}.fe-o small{font-size:12px;color:var(--muted)}
 .nv-b{display:flex;align-items:center;gap:12px;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft,#e8eefc)}.nv-b>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px}.nv-b b,.nv-b span{text-align:left!important;margin:0}.nv-b span{color:var(--muted)}.nv-b.on{background:var(--sunk)}.r>.nv-b{margin:0}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
@@ -969,8 +975,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=703b4adf6b"></script>
-<script src="shim.js?v=703b4adf6b"></script>
+<script src="config.js?v=b0fc461449"></script>
+<script src="shim.js?v=b0fc461449"></script>
 </head>
 <body>
 
@@ -1312,7 +1318,7 @@ function openLoteItens(lista){
       for(const r of ok){go.textContent=`Cadastrando ${k+f+1} de ${ok.length}…`;const x=r.x;
         try{let fotos=[];
           if(x.foto&&S.assets){try{const bin=atob(x.foto),u8=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)u8[j]=bin.charCodeAt(j);
-            const fl=new File([u8],(x.ref||'foto')+'.png',{type:'image/png'}),bl=await shrink(fl);const up=await S.assets.upload(bl,{type:bl.type&&/^image\/(jpeg|png)$/.test(bl.type)?bl.type:'image/jpeg'});fotos=[up.id]}catch(e){console.error(e)}}
+            const fl=new File([u8],(x.ref||'foto')+'.png',{type:'image/png'}),bl=await shrink(fl,'orig');const up=await S.assets.upload(bl,{type:bl.type&&/^image\/(jpeg|png)$/.test(bl.type)?bl.type:'image/jpeg'});fotos=[up.id]}catch(e){console.error(e)}}
           const id='cat-'+String(x.ref).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');const ref=stById(id)?S.db.collection('estoque').doc():S.db.doc('estoque/'+id);
           await ref.set({ref:x.ref,codigo:x.codigo||'',desc:x.desc,descFab:x.descFab||'',aplic:x.aplic||'',marca:x.marca||'',tipo:x.tipo||'filtro',un:x.un||'un',minimo:x.minimo??1,qtd:0,local:'',encaixe:r.eqs.map(e=>e.id),fotos,exemplo:false});k++}
         catch(e){console.error(e);f++}}
@@ -1967,7 +1973,9 @@ function openEq(id){
 const blobUrl=id=>window.__blobUrl(id);
 /* prepara a foto antes de enviar: recorta o fundo branco em volta do objeto,
    centraliza com margem estreita e igual nos 4 lados, sem ampliar e sem mudar a proporcao */
-async function shrink(file){
+/* modo 'proc' (Processada): limpa o fundo claro e recorta; modo 'orig' (Original): nao mexe no fundo,
+   so deixa o quase-branco branco, recorta as margens brancas e redimensiona */
+async function shrink(file,modo='proc'){
   const url=URL.createObjectURL(file);
   try{const img=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});
     const M=2400,k=Math.min(1,M/Math.max(img.naturalWidth,img.naturalHeight));
@@ -1980,16 +1988,24 @@ async function shrink(file){
       bp.forEach(q=>{r+=d[q*4];g+=d[q*4+1];b+=d[q*4+2];n++});r/=n;g/=n;b/=n;
       const far=q=>Math.max(Math.abs(d[q*4]-r),Math.abs(d[q*4+1]-g),Math.abs(d[q*4+2]-b));
       const light=q=>Math.min(d[q*4],d[q*4+1],d[q*4+2])>175&&Math.abs((d[q*4]-d[q*4+2])-(r-b))<16&&Math.abs((d[q*4+1]-d[q*4+2])-(g-b))<16;
-      if(Math.min(r,g,b)>185&&bp.filter(q=>light(q)&&far(q)<45).length/bp.length>.8){
-        const seen=new Uint8Array(W*H),st=[],band=[];for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++)if(X<4||Y<4||X>=W-4||Y>=H-4)band.push(Y*W+X);band.forEach(q=>{if(light(q)&&far(q)<55){seen[q]=1;st.push(q)}});
-        const step=(a,c)=>Math.max(Math.abs(d[a*4]-d[c*4]),Math.abs(d[a*4+1]-d[c*4+1]),Math.abs(d[a*4+2]-d[c*4+2]))<=9;
+      if(modo==='proc'&&Math.min(r,g,b)>185&&bp.filter(q=>light(q)&&far(q)<35).length/bp.length>.8){
+        const seen=new Uint8Array(W*H),st=[],band=[];for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++)if(X<4||Y<4||X>=W-4||Y>=H-4)band.push(Y*W+X);band.forEach(q=>{if(light(q)&&far(q)<35){seen[q]=1;st.push(q)}});
+        const step=(a,c)=>Math.max(Math.abs(d[a*4]-d[c*4]),Math.abs(d[a*4+1]-d[c*4+1]),Math.abs(d[a*4+2]-d[c*4+2]))<=6;
         const done=[];
         while(st.length){const q=st.pop();done.push(q);const X=q%W;
-          for(const nq of [X>0?q-1:-1,X<W-1?q+1:-1,q-W,q+W])if(nq>=0&&nq<W*H&&!seen[nq]&&light(nq)&&far(nq)<55&&step(q,nq)){seen[nq]=1;st.push(nq)}}
+          for(const nq of [X>0?q-1:-1,X<W-1?q+1:-1,q-W,q+W])if(nq>=0&&nq<W*H&&!seen[nq]&&light(nq)&&far(nq)<35&&step(q,nq)){seen[nq]=1;st.push(nq)}}
         // devolve o que foi apagado por engano dentro do contorno do objeto (linha e coluna)
         const rx0=new Int32Array(H).fill(W),rx1=new Int32Array(H).fill(-1),cy0=new Int32Array(W).fill(H),cy1=new Int32Array(W).fill(-1);
         for(let Y=0;Y<H;Y++)for(let X=0;X<W;X++)if(!seen[Y*W+X]){if(X<rx0[Y])rx0[Y]=X;if(X>rx1[Y])rx1[Y]=X;if(Y<cy0[X])cy0[X]=Y;if(Y>cy1[X])cy1[X]=Y}
-        done.forEach(q=>{const X=q%W,Y=(q-X)/W;if(X>rx0[Y]&&X<rx1[Y]&&Y>cy0[X]&&Y<cy1[X]&&!(X<4||Y<4||X>=W-4||Y>=H-4))return;d[q*4]=d[q*4+1]=d[q*4+2]=255});x.putImageData(id,0,0)}}
+        done.forEach(q=>{const X=q%W,Y=(q-X)/W;if(X>rx0[Y]&&X<rx1[Y]&&Y>cy0[X]&&Y<cy1[X]&&!(X<4||Y<4||X>=W-4||Y>=H-4))return;d[q*4]=d[q*4+1]=d[q*4+2]=255});
+        /* conferencia: se o contorno da peca ficou serrilhado (pedacos comidos), desiste e usa a Original */
+        {const wb=i=>d[i]>236&&d[i+1]>236&&d[i+2]>236;let pl=-1,pr=-1,sj=0,sw=0,n=0;
+          for(let Y=0;Y<H;Y+=2){let l=-1,r2=-1;for(let X=0;X<W;X++)if(!wb((Y*W+X)*4)){l=X;break}if(l<0){pl=-1;continue}for(let X=W-1;X>=0;X--)if(!wb((Y*W+X)*4)){r2=X;break}
+            if(pl>=0){sj+=Math.abs(l-pl)+Math.abs(r2-pr);sw+=r2-l;n++}pl=l;pr=r2}
+          if(n>10&&sj/Math.max(1,sw)>(shrink.lim||.028))return await shrink(file,'orig')}
+        x.putImageData(id,0,0)}}
+    /* original: so o quase-branco vira branco (fundo branco fica limpo e some na tela) */
+    if(modo==='orig'){for(let i=0;i<d.length;i+=4){const mn=Math.min(d[i],d[i+1],d[i+2]),mx=Math.max(d[i],d[i+1],d[i+2]);if(mn>244&&mx-mn<8){d[i]=d[i+1]=d[i+2]=255}}x.putImageData(id,0,0)}
     const bg=i=>d[i]>236&&d[i+1]>236&&d[i+2]>236;
     // so recorta quando a borda da imagem e praticamente toda branca (foto de produto)
     let edge=0,white=0;for(let X=0;X<W;X++){for(const Y of [0,H-1]){edge++;if(bg((Y*W+X)*4))white++}}for(let Y=0;Y<H;Y++){for(const X of [0,W-1]){edge++;if(bg((Y*W+X)*4))white++}}
@@ -2054,12 +2070,21 @@ function pickPhoto(){return new Promise(ok=>{
     i.onchange=()=>{const f=i.files&&i.files[0];i.remove();fim(f)};w.style.display='none';i.click();
     /* se a pessoa desistir na camera/galeria, a janela some sozinha */
     const back=()=>{removeEventListener('focus',back);setTimeout(()=>{if(document.body.contains(w)&&!(i.files&&i.files.length)){i.remove();fim(null)}},800)};addEventListener('focus',back)})})}
-async function uploadPhoto(){
+/* foto de item: mostra a Processada e a Original lado a lado; a pessoa escolhe qual vai */
+function escolheFoto(bp,bo){return new Promise(ok=>{const up=URL.createObjectURL(bp),uo=URL.createObjectURL(bo);
+  const o=document.createElement('div');o.className='fe-w';o.innerHTML=`<div class="fe-c" role="dialog" aria-label="Escolha a foto"><b class="fe-t">Qual foto usar?</b>
+    <div class="fe-g"><button type="button" class="fe-o" data-fe="proc"><span class="fe-i"><img src="${up}" alt=""></span><b>Processada</b><small>fundo limpo e recortada</small></button>
+    <button type="button" class="fe-o" data-fe="orig"><span class="fe-i"><img src="${uo}" alt=""></span><b>Original</b><small>so encaixada e reduzida</small></button></div>
+    <button type="button" class="btn block" data-fe="">Cancelar</button></div>`;
+  document.body.appendChild(o);const fim=v=>{o.remove();URL.revokeObjectURL(up);URL.revokeObjectURL(uo);ok(v)};
+  o.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>fim(b.dataset.fe==='proc'?bp:b.dataset.fe==='orig'?bo:null));o.onclick=ev=>{if(ev.target===o)fim(null)}})}
+async function uploadPhoto(escolha){
   if(!S.assets){toast('So quem pode editar o app consegue adicionar fotos.');return null}
   const f=await pickPhoto();if(!f)return null;
   if(!/^image\//.test(f.type||'image/')){toast('Escolha um arquivo de imagem.');return null}
+  let pre=null;if(escolha){const [bp,bo]=await Promise.all([shrink(f,'proc'),shrink(f,'orig')]);pre=await escolheFoto(bp,bo);if(!pre)return null}
   toast('Enviando foto…');
-  try{const b=await shrink(f);const r=await S.assets.upload(b,{type:b.type&&/^image\/(jpeg|png|webp|gif)$/.test(b.type)?b.type:'image/jpeg'});return r.id}
+  try{const b=pre||await shrink(f);const r=await S.assets.upload(b,{type:b.type&&/^image\/(jpeg|png|webp|gif)$/.test(b.type)?b.type:'image/jpeg'});return r.id}
   catch(e){console.error(e);toast(e&&e.code==='too_large'?'Foto grande demais.':e&&e.code==='quota_or_state'?'Espaco de fotos esgotado. Remova fotos antigas.':'Nao foi possivel enviar a foto. Tente de novo.');return null}
 }
 async function dropAsset(id){if(!id||!S.assets)return;try{await S.assets.delete(id)}catch(e){console.error(e)}}
@@ -2179,12 +2204,12 @@ function docEditor(box,st,ctx={}){
 const PEND=new Set();
 function dropPending(){PEND.forEach(id=>dropAsset(id));PEND.clear()}
 /* editor de fotos dentro do formulario (salva junto com o cadastro) */
-function photoEditor(box,list,max){
+function photoEditor(box,list,max,escolha){
   const draw=()=>{box.innerHTML=`${list.length?`<div class="ph-grid">${list.map((id,i)=>`<div class="ph-ed"><button type="button" class="ph-th" data-pi="${i}">${imgTag(id)}</button><button type="button" class="btn sm danger ph-rm" data-pr="${i}" hidden>Remover</button></div>`).join('')}</div>`:''}
     ${list.length<max?(S.assets?`<button type="button" class="ph-add" data-pa>${I.plus}${max===1?'Adicionar foto':`Adicionar foto (${list.length}/${max})`}</button>`:'<p class="note" style="margin:0">So quem pode editar o app consegue adicionar fotos.</p>'):''}`;
     box.querySelectorAll('[data-pi]').forEach(b=>b.onclick=()=>{const r=box.querySelector(`[data-pr="${b.dataset.pi}"]`);const was=r.hidden;box.querySelectorAll('.ph-rm').forEach(x=>x.hidden=true);r.hidden=!was});
     box.querySelectorAll('[data-pr]').forEach(b=>b.onclick=()=>{list.splice(+b.dataset.pr,1);draw()});
-    const a=box.querySelector('[data-pa]');a&&(a.onclick=async()=>{const id=await uploadPhoto();if(!id)return;PEND.add(id);list.push(id);draw()});};
+    const a=box.querySelector('[data-pa]');a&&(a.onclick=async()=>{const id=await uploadPhoto(escolha);if(!id)return;PEND.add(id);list.push(id);draw()});};
   draw();return list;
 }
 function commitPhotos(orig,now){now.forEach(id=>PEND.delete(id));orig.filter(x=>!now.includes(x)).forEach(dropAsset)}
@@ -3222,7 +3247,7 @@ function formStock(id,preset,onSaved){
       iq.oninput=busca;iq.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const b=ih.querySelector('#s-go');b&&b.click()}};setTimeout(()=>iq.focus(),60);
       const scm=sh.querySelector('#s-cam');if(scm)scm.onclick=()=>rdOpen({mode:'raw',use:v=>{iq.value=v.text||'';busca()}})}
 
-    const fotoOrig=[...(s.fotos||[])],fotoNow=photoEditor(sh.querySelector('#s-ph'),[...fotoOrig],3);
+    const fotoOrig=[...(s.fotos||[])],fotoNow=photoEditor(sh.querySelector('#s-ph'),[...fotoOrig],3,true);
     let enc=[...(s.encaixe||[])].filter(eqById);const encBox=sh.querySelector('#s-enc'),encQ=sh.querySelector('#s-encq'),encR=sh.querySelector('#s-encr');
     const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
     /* encaixe novo: escolhe o intervalo de troca deste item naquele equipamento (so neste momento) */
@@ -3639,7 +3664,7 @@ function formKit(id){
     ${atBox('kit',id?stById(id):null)}<div id="delbox"></div></form>`,
   foot:`<button class="btn pri" form="fk">Salvar kit</button>`,
   mount:sh=>{if(id)atBind(sh,'kit',id);
-    const fotoOrig=[...(k.fotos||[])],fotoNow=photoEditor(sh.querySelector('#k-ph'),dr?dr.fotos.slice():[...fotoOrig],3);
+    const fotoOrig=[...(k.fotos||[])],fotoNow=photoEditor(sh.querySelector('#k-ph'),dr?dr.fotos.slice():[...fotoOrig],3,true);
     if(dr){sh.querySelector('#k-codigo').value=dr.codigo;sh.querySelector('#k-min').value=dr.min;sh.querySelector('#k-desc').value=dr.desc}
     /* encaixe de fabrica do kit: um ou varios equipamentos */
     let enc=[...(dr&&dr.enc?dr.enc:(k.encaixe||[]))].filter(eqById);const encBox=sh.querySelector('#k-enc'),encQ=sh.querySelector('#k-encq'),encR=sh.querySelector('#k-encr');

@@ -983,8 +983,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=db937a6da6"></script>
-<script src="shim.js?v=db937a6da6"></script>
+<script src="config.js?v=4f5c4e0779"></script>
+<script src="shim.js?v=4f5c4e0779"></script>
 </head>
 <body>
 
@@ -1002,7 +1002,7 @@ body.kb .sh-foot{display:none}
 <script>
 (function(){
 const SCR=()=>document.getElementById('scroller')||window;
-const S={cart:[],listas:[],equiv:[],equips:[],equipsAll:[],trocas:[],estoque:[],estoqueAll:[],movs:[],loaded:{e:0,t:0,s:0,c:0},mf:{equip:''},db:null,showAllSched:false,focus:'',alocSel:'',alocSite:'',showAllHist:false,pv:{},dmAll:false,ajuste:false};
+const S={cart:[],listas:[],equiv:[],equips:[],eqCtl:[],equipsAll:[],trocas:[],estoque:[],estoqueAll:[],movs:[],loaded:{e:0,t:0,s:0,c:0},mf:{equip:''},db:null,showAllSched:false,focus:'',alocSel:'',alocSite:'',showAllHist:false,pv:{},dmAll:false,ajuste:false};
 /* o app sempre abre com o Ajuste desligado */
 S.ajuste=false;try{localStorage.removeItem('frota.ajuste')}catch(e){}
 try{S.dmAll=localStorage.getItem('frota.dmAll')==='1'}catch(e){}
@@ -1029,6 +1029,9 @@ let toastT;function toast(m,cls,tt,html){document.querySelectorAll('.toast').for
 const _ix=(arr,c)=>{if(c.a!==arr){c.a=arr;c.m=new Map(arr.map(x=>[x.id,x]))}return c.m};const _eqIx={},_stIx={};
 /* S.equips e S.estoque so tem os ativos (listas, buscas, cronograma); os inativos ficam em *All e continuam achaveis pelo id */
 const eqById=id=>_ix(S.equipsAll,_eqIx).get(id);
+/* Veiculo leve: "Somente cadastro" ligado por padrao; fica so em Equipamentos e Alocacao, fora de manutencao, horimetro, combustivel e encaixes */
+const ehVL=e=>!!e&&String(e.tipo||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()==='veiculo leve';
+const soCad=e=>ehVL(e)&&e.soCad!==false;
 const stById=id=>_ix(S.estoqueAll,_stIx).get(id);
 
 const I={
@@ -1123,10 +1126,10 @@ const semPrev=e=>!S.trocas.some(t=>t.equipId===e.id&&t.tipo!=='reprog'&&t.tipo!=
 const eqItens=e=>(e.itens||[]).length?e.itens:Number(e.intervaloPrev)?[{pid:'__prev',desc:semPrev(e)?'Primeira preventiva':'Preventiva',tipo:'outro',ultimaH:'',proxH:'',virt:true}]:[];
 const _ai={};
 function allItems(){
-  const d=today();if(_ai.e===S.equips&&_ai.s===S.estoque&&_ai.t===S.trocas&&_ai.d===d)return _ai.r;
+  const d=today();if(_ai.e===S.eqCtl&&_ai.s===S.estoque&&_ai.t===S.trocas&&_ai.d===d)return _ai.r;
   const out=[];
-  S.equips.forEach(eq=>{if(eq.status==='inativo')return;eqItens(eq).forEach(it=>out.push({eq,it,st:itemStatus(eq,it)}))});
-  _ai.e=S.equips;_ai.s=S.estoque;_ai.t=S.trocas;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
+  S.eqCtl.forEach(eq=>{if(eq.status==='inativo')return;eqItens(eq).forEach(it=>out.push({eq,it,st:itemStatus(eq,it)}))});
+  _ai.e=S.eqCtl;_ai.s=S.estoque;_ai.t=S.trocas;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
 }
 const isKit=s=>!!(s&&s.kit);
 /* categorias de itens do estoque (lista editavel em Ajustes): Filtro, Oleo e Outros guardam as chaves antigas */
@@ -1221,7 +1224,7 @@ const lhTxt=v=>v==null||!isFinite(v)?'—':nf(v,1)+' L/h';
 function vComb(){
   if(S.focus!=='comb')return '';
   const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);
-  const eqs=S.equips.filter(e=>e.status!=='inativo');
+  const eqs=S.eqCtl.filter(e=>e.status!=='inativo');
   const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
   if(!G.length)return '<div class="empty"><b>Nenhum equipamento</b>Cadastre pelo botao +.</div>';
   return `<div class="tsec-wrap">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>`<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${I.chev}</button>`).join('')}</div></section>`).join('')}</div>`;
@@ -1248,7 +1251,7 @@ function openCombEq(id){
 /* ---------- + › Abastecimento ---------- */
 function formAbast(){
   nav('ab:new',()=>formAbast());
-  const eqs=S.equips.filter(e=>e.status!=='inativo').sort(byCode);
+  const eqs=S.eqCtl.filter(e=>e.status!=='inativo').sort(byCode);
   openSheet({title:'Abastecimento',sub:'Consumo por hora trabalhada',
   body:`<form id="fab-f"><div class="fset">
     <label class="f">Equipamento<select id="ab-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}">${esc(e.codigo)} · ${esc(e.tipo||'')}</option>`).join('')}</select></label>
@@ -1320,7 +1323,7 @@ function openLoteItens(lista){
   nav('loteit',()=>openLoteItens(lista));
   const nzs=v=>nzCod(String(v||'').replace(/^\s+|\s+$/g,''));
   const jaTem=x=>S.estoqueAll.find(s=>[s.ref,s.codigo].some(c=>c&&(nzs(c)===nzs(x.ref)||(x.codigo&&nzs(c)===nzs(x.codigo)))));
-  const eqDe=x=>(x.encaixe||[]).map(k=>S.equips.find(e=>(e.serie&&nzs(e.serie)===nzs(k))||nzs(e.codigo)===nzs(k))).filter(Boolean);
+  const eqDe=x=>(x.encaixe||[]).map(k=>S.eqCtl.find(e=>(e.serie&&nzs(e.serie)===nzs(k))||nzs(e.codigo)===nzs(k))).filter(Boolean);
   const rows=lista.map((x,i)=>{const ja=jaTem(x),eqs=eqDe(x);return {x,i,ja,eqs,sel:!ja}});
   const TL={filtro:'Filtro',oleo:'Oleo',outro:'Outro'};
   const linha=r=>`<button type="button" class="li-r${r.sel?'':' off'}" data-li="${r.i}"${r.ja?' disabled':''}><span class="lt-k" aria-hidden="true"></span>
@@ -1345,7 +1348,7 @@ function openLoteItens(lista){
 }
 async function openLoteAbast(lista){
   nav('lote',()=>openLoteAbast(lista));
-  const achar=x=>{const c=nzCod(x.equip),pl=nzCod(x.placa);return S.equips.find(e=>c&&nzCod(e.codigo)===c)||S.equips.find(e=>pl&&e.placa&&nzCod(e.placa)===pl)};
+  const achar=x=>{const c=nzCod(x.equip),pl=nzCod(x.placa);return S.eqCtl.find(e=>c&&nzCod(e.codigo)===c)||S.eqCtl.find(e=>pl&&e.placa&&nzCod(e.placa)===pl)};
   const fora=[],rows=[];lista.forEach(x=>{const e=achar(x);if(e)rows.push({x,e});else fora.push(x)});
   rows.sort((a,b)=>a.x.data.localeCompare(b.x.data)||a.e.codigo.localeCompare(b.e.codigo)||a.x.horimetro-b.x.horimetro);
   /* simula em sequencia: cada linha usa a base deixada pela anterior do mesmo equipamento */
@@ -1622,7 +1625,7 @@ function vManut(){
   (S.equips.length?`<div class="finder"><div class="search">${I.search}<input id="pq" type="search" placeholder="Buscar equipamento: TAG, tipo ou modelo" autocomplete="off" aria-label="Buscar equipamento"></div><div class="fres" id="pq-r" hidden></div></div>`:'')+
   `<section class="tsec pvs">${head('Cronograma',grp.length)}<p class="pv-note">Proxima preventiva de cada equipamento, comecando pelo que falta menos.</p>${grp.length?`<div class="tsec-l">${grp.map(cRow).join('')}</div>`:'<div class="empty"><b>Sem cronograma</b>Cadastre oleos e filtros nos equipamentos.</div>'}</section>`+
   /* sem intervalo na ficha o equipamento nao tem como vencer: fica listado para nao passar despercebido */
-  (()=>{const si=S.equips.filter(e=>e.status!=='inativo'&&!Number(e.intervaloPrev)).sort(byCode);return si.length?`<section class="tsec pvs">${head('Sem intervalo na ficha',si.length)}<p class="pv-note">Sem o intervalo de preventivas na ficha, o equipamento nao entra no cronograma. Toque para abrir a ficha.</p><div class="tsec-l">${si.map(e=>`<button class="tq" data-sif="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${I.chev}</button>`).join('')}</div></section>`:''})()+
+  (()=>{const si=S.eqCtl.filter(e=>e.status!=='inativo'&&!Number(e.intervaloPrev)).sort(byCode);return si.length?`<section class="tsec pvs">${head('Sem intervalo na ficha',si.length)}<p class="pv-note">Sem o intervalo de preventivas na ficha, o equipamento nao entra no cronograma. Toque para abrir a ficha.</p><div class="tsec-l">${si.map(e=>`<button class="tq" data-sif="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${I.chev}</button>`).join('')}</div></section>`:''})()+
   `<section class="tsec pvs">${head('Historico',hist.length)}<p class="pv-note">Toque no equipamento para ver as preventivas realizadas.</p>${hist.length?`<div class="tsec-l">${hist.map(hRow).join('')}</div>`:'<div class="empty"><b>Nenhuma preventiva registrada</b>As preventivas lancadas aparecem aqui.</div>'}</section>`;
 }
 /* item de plano (troca) no mesmo padrao: horas em destaque, nome e codigo ao lado */
@@ -1634,8 +1637,8 @@ function esRow(s,o={}){const c=stockCls(s),k=isKit(s),q=stQtd(s),btn=o.tag!=='di
   return `<${btn?'button type="button"':'div'} class="es-r${o.hl?' hl':''}${btn?'':' st'}${o.cls2?' '+o.cls2:''}" ${o.attr||''}><span class="es-b ${o.cls||c}"><b>${nf(o.q!=null?o.q:q,1)}</b><small>${esc(o.un||(k?(q===1?'kit':'kits'):(s.un||'un')))}</small></span>
     <span class="es-t"><span class="es-n">${esc(s.desc)}</span><span class="es-c">${sub}</span></span>${o.end||''}</${btn?'button':'div'}>`}
 /* busca do estoque: texto de cada item (codigo, referencia, marca, aplicacao, categoria e TAGs dos equipamentos onde serve) */
-const _esIx={};function esEqIx(){if(_esIx.a===S.estoque&&_esIx.b===S.equips)return _esIx.m;const m={};
-  S.equips.forEach(e=>{const c=eqCompat(e);[...c.kits,...c.its].forEach(x=>{(m[x.id]=m[x.id]||new Set()).add(e.codigo)})});_esIx.a=S.estoque;_esIx.b=S.equips;_esIx.m=m;return m}
+const _esIx={};function esEqIx(){if(_esIx.a===S.estoque&&_esIx.b===S.eqCtl)return _esIx.m;const m={};
+  S.eqCtl.forEach(e=>{const c=eqCompat(e);[...c.kits,...c.its].forEach(x=>{(m[x.id]=m[x.id]||new Set()).add(e.codigo)})});_esIx.a=S.estoque;_esIx.b=S.eqCtl;_esIx.m=m;return m}
 const esNorm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ES_CAT={filtro:'filtro filtros',oleo:'oleo oleos lubrificante',kit:'kit kits',outro:'outro outros'};
 /* Estoque > Filtrar: selecao por criterios (categoria, saldo, encaixe, marca, local, movimento, cadastro, situacao) */
@@ -1763,7 +1766,7 @@ function bindView(){
     const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     pq.oninput=()=>{const q=norm(pq.value.trim());if(!q){box.hidden=true;box.innerHTML='';return}
       const qs=q.replace(/[\s-]/g,'');
-      const hits=S.equips.filter(e=>{const k=norm(e.codigo).replace(/[\s-]/g,'');return k.includes(qs)||norm([e.tipo,e.marca,e.modelo].join(' ')).includes(q)}).sort((a,b)=>{const sa=norm(a.codigo).replace(/[\s-]/g,'').startsWith(qs)?0:1,sb=norm(b.codigo).replace(/[\s-]/g,'').startsWith(qs)?0:1;return sa-sb||byCode(a,b)}).slice(0,8);
+      const hits=S.eqCtl.filter(e=>{const k=norm(e.codigo).replace(/[\s-]/g,'');return k.includes(qs)||norm([e.tipo,e.marca,e.modelo].join(' ')).includes(q)}).sort((a,b)=>{const sa=norm(a.codigo).replace(/[\s-]/g,'').startsWith(qs)?0:1,sb=norm(b.codigo).replace(/[\s-]/g,'').startsWith(qs)?0:1;return sa-sb||byCode(a,b)}).slice(0,8);
       box.hidden=false;box.innerHTML=hits.length?hits.map(e=>`<button type="button" class="tq" data-pqid="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo)}${e.modelo?` · ${esc([e.marca,e.modelo].filter(Boolean).join(' '))}`:''}</span>${I.chev}</button>`).join(''):'<div class="empty" style="border-radius:0">Nenhum equipamento encontrado.</div>';
       box.querySelectorAll('[data-pqid]').forEach(b=>b.onclick=()=>{const id=b.dataset.pqid;pq.value='';box.hidden=true;box.innerHTML='';pq.blur();NAV.length=0;const tem=S.trocas.some(t=>t.equipId===id&&t.tipo!=='reprog'&&t.tipo!=='hmtroca');tem?openEq(id):openSemPrev(id)})};}
 }
@@ -2300,7 +2303,7 @@ function formPickEdit(kind){
     <div id="pe-l" style="margin-top:8px">${draw(all)||'<div class="empty">Nada cadastrado ainda.</div>'}</div>`,
   mount:sh=>{const l=sh.querySelector('#pe-l'),q=sh.querySelector('#pe-q');
     const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
-    const bind=()=>l.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>isEq?formEq(b.dataset.pe):K?formKit(b.dataset.pe):formStock(b.dataset.pe));
+    const bind=()=>l.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>isEq?formEq(b.dataset.pe,1):K?formKit(b.dataset.pe):formStock(b.dataset.pe));
     q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.ref,x.desc].join(' ')).includes(t));
       l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind()};bind();
     const pc=sh.querySelector('#pe-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))K?formKit(v.item.id):formStock(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
@@ -2321,7 +2324,7 @@ function formGerir(kind){
     <div id="gr-l" style="margin-top:8px">${draw(all)||'<div class="empty">Nada cadastrado ainda.</div>'}</div>`,
   mount:sh=>{const l=sh.querySelector('#gr-l'),q=sh.querySelector('#gr-q');
     const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-    const edit=id=>isEq?formEq(id):K?formKit(id):formStock(id);
+    const edit=id=>isEq?formEq(id,1):K?formKit(id):formStock(id);
     sh.querySelector('#gr-new').onclick=()=>isEq?formEq():K?formKit():formStock();
     const bind=()=>{l.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>edit(b.dataset.ge));l.querySelectorAll('[data-gx]').forEach(b=>b.onclick=()=>openDelete(kind,b.dataset.gx))};
     q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.ref,x.desc].join(' ')).includes(t));
@@ -2418,8 +2421,8 @@ const hmLow=(e,v,dt)=>e.horimetro!==''&&e.horimetro!=null&&Number(v)+(dt?hmDelta
 const lidoHoje=e=>e.horimetroData===today()||e.horimetroReg===today();
 function quickHm(){
   const el=$('#sidetabs');if(!el)return;
-  if(!S.db||!S.equips.length){el.hidden=true;return}
-  const t=today(),lidos=S.equips.filter(lidoHoje).length,n=S.equips.length;
+  if(!S.db||!S.eqCtl.length){el.hidden=true;return}
+  const t=today(),lidos=S.eqCtl.filter(lidoHoje).length,n=S.eqCtl.length;
   el.hidden=false;const sn=el.querySelector('.sh-n');sn.textContent=`${lidos}/${n}`;sn.classList.toggle('zero',!lidos);sn.classList.toggle('all',lidos>=n);quickHm.day=t;
   $('#sidehm').setAttribute('aria-label',`Horimetros, ${lidos} de ${n} lidos hoje`);
 }
@@ -2429,7 +2432,7 @@ const hmGroupOf=e=>e.alocacao||'';
 const DSEM=['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
 const CAL_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>';
 function dayStrip(sel){
-  const t=today(),lidos=new Set(S.equips.map(e=>e.horimetroData).filter(Boolean));
+  const t=today(),lidos=new Set(S.eqCtl.map(e=>e.horimetroData).filter(Boolean));
   const d0=new Date(t+'T12:00:00');d0.setDate(d0.getDate()-20);
   let ini=iso(d0);if(sel&&sel<ini)ini=sel;
   const out=[];for(const d=new Date(ini+'T12:00:00');iso(d)<=t;d.setDate(d.getDate()+1)){const k=iso(d);
@@ -2442,7 +2445,7 @@ function formLeituras(focusId){
   const D=hmDraft();D.v=D.v||{};D.jok=false;/* data da leitura: sempre hoje; uma data alterada vale so para aquele dia */if(!D.dt||D.dtDia!==today()){D.dt=today();delete D.dtDia}D.g=D.g??'';if(focusId)D.g='';
   const t=today();
   const groups=['','PQ','DM1'];if(!groups.includes(D.g))D.g='';
-  const list=S.equips.filter(e=>!D.g||hmGroupOf(e)===D.g).sort((a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b));
+  const list=S.eqCtl.filter(e=>!D.g||hmGroupOf(e)===D.g).sort((a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b));
   let lastT='';
   /* faixa lateral pela idade da leitura: verde < 7 dias, amarelo 7–15, vermelho > 15.
      Com preventiva a menos de 100 h: verde < 3 dias, amarelo 3–4, vermelho 5 ou mais. Sem leitura: vermelho */
@@ -2461,7 +2464,7 @@ function formLeituras(focusId){
   const cnt=Object.keys(D.v).length;
   openSheet({title:'Lancar horimetros',sub:'So as preenchidas sao salvas',
   body:`<div class="lr-top">${dayStrip(D.dt)}</div>
-    <div class="chips lr-chips">${groups.map(g=>`<button class="chip" data-g="${esc(g)}" aria-pressed="${D.g===g}">${esc(g||'Todos')} <em>${g?S.equips.filter(e=>hmGroupOf(e)===g).length:S.equips.length}</em></button>`).join('')}</div>
+    <div class="chips lr-chips">${groups.map(g=>`<button class="chip" data-g="${esc(g)}" aria-pressed="${D.g===g}">${esc(g||'Todos')} <em>${g?S.eqCtl.filter(e=>hmGroupOf(e)===g).length:S.equips.length}</em></button>`).join('')}</div>
     <div class="lr-list">${rows||'<div class="empty">Nenhum equipamento neste grupo.</div>'}</div><div id="lr-conf"></div>`,
   foot:`<button class="btn pri" id="lr-save"${cnt?'':' disabled'}>${cnt?`Salvar ${cnt} leitura${cnt===1?'':'s'}`:'Salvar leituras'}</button>`,
   mount:sh=>{
@@ -2535,7 +2538,7 @@ function hmGuard(box,e,h0,dt,st,again){
 }
 function formTrocaHm(eqId,novo0){
   nav('thm:'+(eqId||''),()=>formTrocaHm(eqId,novo0));
-  const eqs=S.equips.slice().sort(byCode);
+  const eqs=S.eqCtl.slice().sort(byCode);
   openSheet({title:'Troca de horimetro',sub:'Relogio de horas substituido',
   body:`<div class="thm-warn"><b>Atencao: altera o cronograma do equipamento</b>Use so quando o relogio de horas foi trocado. As proximas trocas de cada item sao recalculadas para a contagem do relogio novo.</div>
   <form id="fthm"><div class="fset">
@@ -2618,9 +2621,9 @@ function planRow(it,aberto){const P=esc(it.pid||uid());const cod=it.espec||(it.e
   <label class="f w">Estoque<select data-p="estoqueId">${stockOpts(it.estoqueId)}</select></label>
   <button type="button" class="btn danger w" data-rm>Remover do plano</button></div></div>`;
 }
-function formEq(id){
+function formEq(id,mais){
   planRow.eqId=id||'';
-  nav('fe:'+(id||'novo'),()=>formEq(id));
+  nav('fe:'+(id||'novo'),()=>formEq(id,mais));
   const e=id?eqById(id):{posse:'proprio',status:'ativo',usoDiario:8,itens:[]};
   openSheet({title:id?'Editar equipamento':'Novo equipamento',sub:id?esc(e.codigo):'',
   body:`<form id="fe">
@@ -2651,11 +2654,15 @@ function formEq(id){
   <div class="fset"><h3>Observacoes</h3><textarea id="e-obs" aria-label="Observacoes">${esc(e.obs||'')}</textarea></div>
   <div class="fset"><h3>Foto (opcional)</h3><div id="e-ph"></div></div>
   <div class="fset" style="margin-top:12px"><h3>Documentos (opcional)</h3><div id="e-docs"></div></div>
+  ${mais&&id&&ehVL(eqById(id))?`<div class="fset at-f" id="sc-f"><h3>Somente cadastro</h3><p class="note" id="sc-n" style="margin:0 0 10px"></p><button type="button" class="btn block" id="sc-b"></button></div>`:''}
   ${atBox('eq',id?eqById(id):null)}<div id="delbox"></div>
 </form>`,
   foot:`<button class="btn pri" form="fe">Salvar</button>`,
   mount:sh=>{
     if(id)atBind(sh,'eq',id);
+    {const sb=sh.querySelector('#sc-b');if(sb){const pinta=()=>{const on=soCad(eqById(id));sb.textContent='Somente cadastro: '+(on?'ligado':'desligado');sb.classList.toggle('pri',on);sb.setAttribute('aria-pressed',on);
+        sh.querySelector('#sc-n').innerHTML=on?'Ligado: este veiculo fica so no cadastro e na Alocacao, <b>fora</b> de manutencao, horimetro, combustivel e encaixes.':'Desligado: este veiculo participa de todos os controles, como os demais equipamentos.'};pinta();
+      sb.onclick=async()=>{const on=soCad(eqById(id));if(await safe(()=>S.db.doc('equipamentos/'+id).update({soCad:!on}),on?'Somente cadastro desligado':'Somente cadastro ligado')){const e2=eqById(id);if(e2)e2.soCad=!on;pinta()}}}}
     const fotoOrig=e.foto?[e.foto]:[],fotoNow=photoEditor(sh.querySelector('#e-ph'),[...fotoOrig],1);
     const docOrig={},docNow=docEditor(sh.querySelector('#e-docs'),Object.fromEntries(DOCS.map(([k])=>{docOrig[k]=e[k]&&e[k].id?e[k]:null;return [k,docOrig[k]]})),{eqId:id||'',orig:docOrig});
     const vis=()=>{const dmv=sh.querySelector('#e-aloc').value==='DM1',res=sh.querySelector('#e-area').value===RES;sh.querySelectorAll('[data-dm]').forEach(x=>x.hidden=!dmv||(x.hasAttribute('data-fw')&&res))};
@@ -2689,7 +2696,7 @@ function formEq(id){
     /* cada equipamento tem o seu plano; da para copiar o de outro (equipamentos iguais aparecem primeiro) */
     sh.querySelector('#p-copy').onclick=()=>{const cb=sh.querySelector('#p-copybox');if(cb.innerHTML){cb.innerHTML='';return}
       const curId=id||'',mm=x=>nzCod([x.marca,x.modelo].join(' ')),me=mm({marca:sh.querySelector('#e-marca').value,modelo:sh.querySelector('#e-modelo').value});
-      const src=S.equips.filter(x=>x.id!==curId&&(x.itens||[]).length).sort((a,b)=>((me&&mm(b)===me)-(me&&mm(a)===me))||byCode(a,b));
+      const src=S.eqCtl.filter(x=>x.id!==curId&&(x.itens||[]).length).sort((a,b)=>((me&&mm(b)===me)-(me&&mm(a)===me))||byCode(a,b));
       if(!src.length){toast('Nenhum outro equipamento tem plano cadastrado.');return}
       cb.innerHTML=`<label class="f" style="margin-top:10px">Copiar o plano de<select id="p-src"><option value="">Escolha o equipamento…</option>${src.map(x=>`<option value="${esc(x.id)}">${esc(x.codigo)} · ${esc([x.marca,x.modelo].filter(Boolean).join(' ')||x.tipo)}${me&&mm(x)===me?' (mesmo modelo)':''} · ${x.itens.length} itens</option>`).join('')}</select></label>`;
       cb.querySelector('#p-src').onchange=ev=>{const o=eqById(ev.target.value);if(!o)return;const have=[...plan.querySelectorAll('[data-p="desc"]')].map(i=>i.value.trim().toLowerCase());
@@ -2740,7 +2747,7 @@ function formFiltroAr(eqId,sub){
     return;
   }
   nav('ar:'+sub,()=>formFiltroAr(eqId,sub));
-  const eqs=S.equips.slice().sort(byCode);
+  const eqs=S.eqCtl.slice().sort(byCode);
   const cur=eqId&&eqById(eqId)?eqId:'';
   const filtros=S.estoque.filter(s=>s.tipo==='filtro'&&!isKit(s)).sort(byCode);
   openSheet({title:'Filtro de ar · '+esc(sub),sub:'Registre a troca ou limpeza do filtro',
@@ -2812,7 +2819,7 @@ function formFiltroAr(eqId,sub){
 /* ---------- troca ---------- */
 function formTroca(eqId){
   nav('fp:new',()=>formTroca(eqId));
-  const eqs=S.equips.slice().sort(byCode);
+  const eqs=S.eqCtl.slice().sort(byCode);
   if(!eqs.length){NAV.pop();toast('Cadastre um equipamento antes.');return}
   const cur=eqId&&eqById(eqId)?eqId:'';
   openSheet({title:'Registrar preventiva',sub:'Cronograma e estoque se ajustam',
@@ -3335,7 +3342,7 @@ function formStock(id,preset,onSaved){
       encBox.querySelectorAll('[data-enciv]').forEach(v=>v.onchange=()=>{encIv[v.dataset.enciv]=v.value})};drawEnc();
     const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const q=nz(encQ.value);if(!q){encR.hidden=true;return}
-      const hits=S.equips.filter(e=>!enc.includes(e.id)&&nz([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(q)).sort(byCode).slice(0,8);
+      const hits=S.eqCtl.filter(e=>!enc.includes(e.id)&&nz([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(q)).sort(byCode).slice(0,8);
       encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
       encR.querySelectorAll('[data-encadd]').forEach(b=>b.onclick=()=>{enc.push(b.dataset.encadd);encQ.value='';encR.hidden=true;drawEnc()})};
     sh.querySelector('#s-tipo').onchange=ev=>{const u=sh.querySelector('#s-un');if(UNS_AUTO().includes(u.value.trim()))u.value=catUn(ev.target.value)};
@@ -3394,7 +3401,7 @@ function formMovEst(dir){
       mount:sh=>{sh.querySelector('#mv-rel').onclick=()=>openRelEstoque(done.id);
         sh.querySelector('#mv-new').onclick=()=>{formMovEst.done=null;NAV.pop();formMovEst(dir)}}});
     return}
-  const eqs=S.equips.slice().sort(byCode);
+  const eqs=S.eqCtl.slice().sort(byCode);
   openSheet({title:ent?'Entrada no estoque':'Saida do estoque',sub:'Codigo do almoxarifado ou referencia',
   body:`${S.ajuste?'<div class="banner aj-b" id="aj-ask"><div>Desative o Ajuste para lancar.</div><button type="button" class="btn sm" id="aj-off">Desativar</button></div>':''}<form id="mv-f"><div class="fset"><div class="grid">
     <div class="w sug-w"><label class="f" id="mv-cl">Codigo ou referencia<input id="mv-c" autocomplete="off" autocapitalize="characters" placeholder="Ex.: 353-5058" style="font-family:var(--mono);font-size:19px;min-height:52px"></label>
@@ -3751,7 +3758,7 @@ function formKit(id){
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()})};drawEnc();
     const nzE=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const qq=nzE(encQ.value);if(!qq){encR.hidden=true;return}
-      const hits=S.equips.filter(e=>!enc.includes(e.id)&&nzE([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(qq)).sort(byCode).slice(0,8);
+      const hits=S.eqCtl.filter(e=>!enc.includes(e.id)&&nzE([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(qq)).sort(byCode).slice(0,8);
       encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
       encR.querySelectorAll('[data-encadd]').forEach(b=>b.onclick=()=>{enc.push(b.dataset.encadd);encQ.value='';encR.hidden=true;drawEnc()})};
     const box=sh.querySelector('#k-comps');
@@ -3901,7 +3908,7 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
   window.claude&&window.claude.use&&window.claude.use('assets').then(a=>{S.assets=a;setTimeout(idLimpa,4000);if(sheetOpen)refreshSheet()}).catch(()=>{});
   S.db=db;const sy=$('#sync');
   if(!db){sy.textContent='Offline';sy.className='sync off';render();return}
-  const sub=(col,key,lk)=>db.collection(col).onSnapshot(snap=>{const L0=snap.docs.map(d=>({id:d.id,...d.data()}));if(key==='equips'){S.equipsAll=L0;S[key]=L0.filter(e=>e.status!=='inativo')}else if(key==='estoque'){S.estoqueAll=L0;S[key]=L0.filter(x=>!x.inativo)}else S[key]=L0;S.loaded[lk]=1;
+  const sub=(col,key,lk)=>db.collection(col).onSnapshot(snap=>{const L0=snap.docs.map(d=>({id:d.id,...d.data()}));if(key==='equips'){S.equipsAll=L0;S[key]=L0.filter(e=>e.status!=='inativo');S.eqCtl=S[key].filter(e=>!soCad(e))}else if(key==='estoque'){S.estoqueAll=L0;S[key]=L0.filter(x=>!x.inativo)}else S[key]=L0;S.loaded[lk]=1;
       sy.textContent='Sincronizado';sy.className='sync on';if(!sheetOpen)render();else refreshSheet()},
     err=>{sy.textContent='Sem sincronia';sy.className='sync off';console.error(err)});
   db.doc('config/equivalencias').onSnapshot(d=>{S.equiv=(d.exists&&d.data().pares)||[];if(!sheetOpen)render();else refreshSheet()},err=>console.error(err));

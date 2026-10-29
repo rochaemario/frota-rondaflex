@@ -1204,7 +1204,7 @@ const lhTxt=v=>v==null||!isFinite(v)?'—':nf(v,1)+' L/h';
 /* topico: so a lista de equipamentos por alocacao (usa o cadastro ja carregado; nada de combustivel e buscado aqui) */
 function vComb(){
   if(S.focus!=='comb')return '';
-  const ord=(a,b)=>{const ia=TIPOS.indexOf(a.tipo),ib=TIPOS.indexOf(b.tipo);return (ia<0?99:ia)-(ib<0?99:ib)||byCode(a,b)};
+  const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);
   const eqs=S.equips.filter(e=>e.status!=='inativo');
   const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
   if(!G.length)return '<div class="empty"><b>Nenhum equipamento</b>Cadastre pelo botao +.</div>';
@@ -1444,7 +1444,8 @@ function schedRow(x){
   <div class="end"><span class="pill ${x.st.cls}">${x.st.label}</span></div></button>`;
 }
 /* agrupa uma lista de equipamentos por tipo, com titulo de categoria */
-function tipoOrd(a,b){const ia=TIPOS.indexOf(a),ib=TIPOS.indexOf(b);return (ia<0?99:ia)-(ib<0?99:ib)||a.localeCompare(b,'pt-BR')}
+/* categorias de equipamento sempre em ordem alfanumerica; Sem tipo por ultimo */
+function tipoOrd(a,b){a=a||'Sem tipo';b=b||'Sem tipo';return (a==='Sem tipo')-(b==='Sem tipo')||_an(a,b)}
 function porTipo(list,row,empty=''){if(!list.length)return empty;
   const ts=[...new Set(list.map(e=>e.tipo||'Sem tipo'))].sort(tipoOrd);
   return ts.map(t=>{const l=list.filter(e=>(e.tipo||'Sem tipo')===t).sort(byCode);return `<h3 class="tsec-h tg">${'<span>'+esc(t)+'</span>'}<em>${l.length}</em></h3><div class="tsec-l">${l.map(row).join('')}</div>`}).join('')}
@@ -2425,7 +2426,7 @@ function formLeituras(focusId){
   const D=hmDraft();D.v=D.v||{};D.jok=false;/* data da leitura: sempre hoje; uma data alterada vale so para aquele dia */if(!D.dt||D.dtDia!==today()){D.dt=today();delete D.dtDia}D.g=D.g??'';if(focusId)D.g='';
   const t=today();
   const groups=['','PQ','DM1'];if(!groups.includes(D.g))D.g='';
-  const list=S.equips.filter(e=>!D.g||hmGroupOf(e)===D.g).sort((a,b)=>{const ia=TIPOS.indexOf(a.tipo),ib=TIPOS.indexOf(b.tipo);return (ia<0?99:ia)-(ib<0?99:ib)||byCode(a,b)});
+  const list=S.equips.filter(e=>!D.g||hmGroupOf(e)===D.g).sort((a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b));
   let lastT='';
   /* faixa lateral pela idade da leitura: verde < 7 dias, amarelo 7–15, vermelho > 15.
      Com preventiva a menos de 100 h: verde < 3 dias, amarelo 3–4, vermelho 5 ou mais. Sem leitura: vermelho */

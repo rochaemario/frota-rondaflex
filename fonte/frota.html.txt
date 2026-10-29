@@ -905,7 +905,7 @@ body.kb .sh-foot{display:none}
 .hm-3{flex-wrap:wrap}.hm-3 .btn{flex:1 1 auto}
 .k-tg{padding:8px 4px 6px}.es-r.k-in{opacity:.6}.k-ok{flex:none;font-size:12px;font-weight:600;color:var(--ok,#1b7a3d);margin-left:6px}
 .kv-l{display:flex;flex-direction:column;background:var(--surface);border-radius:12px;overflow:hidden}.kv-r{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13.5px}.kv-r+.kv-r{box-shadow:inset 0 1px 0 var(--line)}.kv-r>span{flex:1;min-width:0;display:flex;flex-direction:column}.kv-r small{color:var(--muted);font-size:12px}
-.ar-seg{width:100%}.ar-seg button{flex:1;min-height:46px;font-size:15px}.ar-sg{padding:0 2px 6px}#a-sug .tsec-l{margin-bottom:10px}.ar-kl{margin-top:10px}.ar-kl .kr .n b{white-space:normal;overflow:visible;text-overflow:clip}
+.ar-seg{width:100%}.ar-seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);box-shadow:0 1px 2px rgba(11,36,112,.18)}.ar-seg button[aria-pressed="true"]::before{content:"\2713";margin-right:7px;font-weight:700}.ar-seg button{flex:1;min-height:46px;font-size:15px}.ar-sg{padding:0 2px 6px}#a-sug .tsec-l{margin-bottom:10px}.ar-kl{margin-top:10px}.ar-kl .kr .n b{white-space:normal;overflow:visible;text-overflow:clip}
 .fe-w{position:fixed;inset:0;z-index:70;background:rgba(6,14,10,.55);display:flex;align-items:flex-end;justify-content:center}
 .fe-c{background:var(--surface,#fff);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px}
 .fe-t{font-size:17px}.fe-g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -2729,7 +2729,7 @@ function formFiltroAr(eqId,sub){
   openSheet({title:'Filtro de ar · '+esc(sub),sub:'Registre a troca ou limpeza do filtro',
   body:`${S.ajuste?AJ_BANNER:''}<form id="fa"><div class="fset">
     <label class="f">Equipamento<select id="a-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
-    <div class="f">Servico<div class="seg ar-seg" role="group" aria-label="Servico"><button type="button" data-sv="Troca" aria-pressed="true">Troca</button><button type="button" data-sv="Limpeza" aria-pressed="false">Limpeza</button></div></div>
+    <div class="f">Servico <span class="hint">marque um ou os dois</span><div class="seg ar-seg" role="group" aria-label="Servico: marque um ou os dois"><button type="button" data-sv="Troca" aria-pressed="true">Troca</button><button type="button" data-sv="Limpeza" aria-pressed="false">Limpeza</button></div></div>
     <div class="grid"><label class="f">Data<input id="a-dt" type="date" required value="${today()}"></label>
     <label class="f">Horimetro (h)<input id="a-hm" type="number" step="0.1" inputmode="decimal" required></label></div></div>
     <div class="fset" id="a-stw" style="margin-top:12px"><h3>Filtros trocados</h3>
@@ -2741,7 +2741,8 @@ function formFiltroAr(eqId,sub){
     <label class="f">Observacoes<textarea id="a-obs"></textarea></label></div><div id="a-hmg"></div></form>`,
   foot:`<button class="btn pri" form="fa">Registrar ${esc(sub==='Motor'?'filtro de ar':'filtro da cabine')}</button>`,
   mount:sh=>{
-    let sv='Troca';const sel=sh.querySelector('#a-eq'),hm=sh.querySelector('#a-hm');
+    /* Troca e Limpeza podem ser marcadas juntas (servico "Troca e limpeza"); pelo menos uma fica marcada */
+    const SV={Troca:true,Limpeza:false};let sv='Troca';const tr=()=>SV.Troca;const sel=sh.querySelector('#a-eq'),hm=sh.querySelector('#a-hm');
     /* filtros do lancamento: um ou mais, cada um com a sua quantidade */
     const L=[];const box=sh.querySelector('#a-its'),sug=sh.querySelector('#a-sug');
     const drawL=()=>{box.innerHTML=L.length?`<div class="kl ar-kl">${L.map((c,i)=>{const x=stById(c.id);return `<div class="kr"><span class="n"><b>${esc(x?x.desc:'Item removido')}</b><small class="num">${esc(x?stCod(x):'')}${x?` · saldo ${nf(stQtd(x),1)}`:''}</small></span><input type="number" step="1" min="0" inputmode="numeric" value="${esc(c.q)}" data-aq="${i}" aria-label="Quantidade"><span class="u">${esc(x?stUn(x):'un')}</span><button type="button" class="x" data-ax="${i}" aria-label="Tirar">✕</button></div>`}).join('')}</div>`:'<p class="note" style="margin:10px 2px 0">Nenhum filtro adicionado. Sem filtro, o servico e registrado sem baixa no estoque.</p>';
@@ -2761,20 +2762,21 @@ function formFiltroAr(eqId,sub){
     const cm=sh.querySelector('#a-cam');if(cm)cm.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item){toast('Filtro nao encontrado no estoque.');return}add(v.item)}});
     /* itens do plano do equipamento que esta troca cumpre (pre-marcados pelo nome) */
     const fillPlan=()=>{const e=eqById(sel.value),bx=sh.querySelector('#a-plan');const its=(e&&e.itens||[]).filter(i=>/\bar\b/i.test(itNome(i)+' '+(i.desc||'')));
-      if(!its.length||sv!=='Troca'){bx.innerHTML='';return}
+      if(!its.length||!tr()){bx.innerHTML='';return}
       const cab=i=>/condicionad|cabine/i.test(itNome(i)+' '+(i.desc||'')),pre=i=>sub==='Motor'?!cab(i):cab(i);
       bx.innerHTML=`<div class="fset" style="margin-top:12px"><h3>Itens do plano cumpridos</h3><div class="list">${its.map(i=>`<label class="chk"><input type="checkbox" data-pl="${esc(i.pid)}"${pre(i)?' checked':''}><span class="box"></span><div class="main"><b>${esc(itNome(i))}</b></div></label>`).join('')}</div></div>`};
     const fillHm=()=>{const e=eqById(sel.value);hm.value=e&&e.horimetro!==''&&e.horimetro!=null?e.horimetro:'';
       /* troca de equipamento: sugere de novo o filtro de encaixe (so se a lista estiver vazia) */
       if(!L.length){const fit=filtros.filter(s=>(s.encaixe||[]).includes(sel.value)&&isAr(s)),pref=fit.filter(s=>sub==='Motor'?!isCabine(s):isCabine(s));if(pref.length===1)L.push({id:pref[0].id,q:1})}
       drawL();fillPlan()};sel.onchange=fillHm;fillHm();
-    sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{sv=b.dataset.sv;sh.querySelectorAll('[data-sv]').forEach(x=>x.setAttribute('aria-pressed',x===b));sh.querySelector('#a-stw').hidden=sv!=='Troca';fillPlan()});
+    sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{const k=b.dataset.sv;if(SV[k]&&!SV[k==='Troca'?'Limpeza':'Troca'])return;SV[k]=!SV[k];b.setAttribute('aria-pressed',SV[k]);
+      sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelector('#a-stw').hidden=!tr();fillPlan()});
     const hmSt={ok:false};[hm,sh.querySelector('#a-dt')].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false}));sel.addEventListener('change',()=>{hmSt.ok=false;hmSt.salto=false});
     sh.querySelector('#fa').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;
       const h0=Number(hm.value),dt0=sh.querySelector('#a-dt').value,g=hmGuard(sh.querySelector('#a-hmg'),e,h0,dt0,hmSt,()=>sh.querySelector('#fa').onsubmit({preventDefault(){}}));if(!g)return;
       const h=g.h,dl=g.dl,dt=dt0,nome=`Filtro de ar ${sub==='Motor'?'do motor':'do ar condicionado'}`;
-      const lst=sv==='Troca'?L.map(c=>({st:stById(c.id),q:Number(c.q)||0})).filter(x=>x.st):[];
+      const lst=tr()?L.map(c=>({st:stById(c.id),q:Number(c.q)||0})).filter(x=>x.st):[];
       const itens=lst.length?lst.map(({st,q})=>({pid:'',desc:st.desc,espec:stCod(st),qtd:q,un:st.un||'un',estoqueId:st.id})):[{pid:'',desc:`${nome} (${sv.toLowerCase()})`,espec:'',qtd:0,un:'un',estoqueId:''}];
       const ok=await safe(async()=>{
         const isAj=!!S.ajuste;

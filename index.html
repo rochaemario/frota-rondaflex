@@ -466,6 +466,13 @@ body.focus .sidetabs{display:none!important}
 .es-g em{font-style:normal;font-weight:600;letter-spacing:0;font-family:var(--mono)}
 .es-l{background:var(--surface);border-radius:16px;overflow:hidden}
 .esf{margin:0 0 2px;display:flex;flex-direction:column;gap:8px}.es-rel,.es-rel:hover{min-height:42px;font-size:14.5px;gap:8px;background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 1px 2px rgba(11,36,112,.15)}.es-rel:active{filter:brightness(.92)}.es-rel svg{width:17px;height:17px}.es-rel[hidden]{display:none}.esf .search{margin:0}.esf input{min-height:42px;border-radius:12px;background:var(--surface);border-color:var(--line)}.esf input::placeholder{color:var(--faint)}
+.es-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.es-tab,.es-tab:hover{min-height:42px;font-size:14.5px;gap:8px;background:var(--surface);border-color:var(--line-2,#d5dbe6);color:var(--accent)}.es-tab svg{width:17px;height:17px}.es-tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 1px 2px rgba(11,36,112,.15)}
+.ef{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px 12px 10px}.ef-s{padding:10px 0;border-bottom:1px solid var(--line)}.ef-s:last-child{border-bottom:0}.ef-h{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 7px;white-space:nowrap}
+.ef-cs{display:flex;flex-wrap:wrap;gap:6px}.ef-c{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2,#d5dbe6);background:#fff;font:inherit;font-size:13.5px;font-weight:500;color:var(--fg);cursor:pointer}.ef-c[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+#ef-res{margin-top:12px}#ef-top .ef-sum{margin-top:10px}.ef-q{margin:0 0 8px}.ef-q input{min-height:40px}
+.ef-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.ef-sum>div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:3px}.ef-sum b{font-size:18px;line-height:1.2}.ef-sum span{font-size:12px;color:var(--muted)}.ef-sum .w b{color:var(--warn,#b45309)}
+.ef-n{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 2px 6px;font-size:13.5px;color:var(--muted);min-height:34px}.es-res>.es-l{margin-top:0}
+.lst-un{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-right:auto}.lst-add .l-u{flex:0 0 74px}
 .es-blk>.es-g{margin-top:16px}.es-blk:first-child>.es-g{margin-top:6px}.esf+.es-blk>.es-g{margin-top:12px}.es-blk[hidden],.es-r[hidden]{display:none!important}.es-l>.es-r.es-first{box-shadow:none}.es-0{margin-top:10px}
 .es-r{display:flex;align-items:center;gap:14px;width:100%;padding:10px 14px;background:none;border:0;text-align:left;cursor:pointer;font:inherit;color:inherit}
 .es-r+.es-r{box-shadow:inset 0 1px 0 var(--line)}
@@ -976,8 +983,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=c6c1765599"></script>
-<script src="shim.js?v=c6c1765599"></script>
+<script src="config.js?v=5f5c737477"></script>
+<script src="shim.js?v=5f5c737477"></script>
 </head>
 <body>
 
@@ -1040,10 +1047,12 @@ const I={
   chev:'<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>'
 };
 const CFG_DEF={donos:['Serginho','Polidoro','Rondaflex'],locais:['DM1','PQ','Outros'],areas:['Planta','Mina'],frentes:['Britador','Geral','PDR II','Manutencao','UG'],
+  cats:['Filtro','Oleo','Graxa','Fluido','Correia','Mangueira','Eletrica','Rolamento / vedacao','Outros'],
+  catUn:{Filtro:'un',Oleo:'L',Graxa:'kg',Fluido:'L',Correia:'un',Mangueira:'un',Eletrica:'un','Rolamento / vedacao':'un',Outros:'un'},
   tipos:['Caminhao basculante','Caminhao pipa','Caminhao comboio','Caminhao prancha','Pa carregadeira','Motoniveladora','Manipulador telescopico','Retroescavadeira','Escavadeira hidraulica','Trator de esteira','Rolo compactador','Veiculo leve']};
-let DONOS=CFG_DEF.donos, LOCAIS=CFG_DEF.locais, AREAS=CFG_DEF.areas, FRENTES=CFG_DEF.frentes, TIPOS=CFG_DEF.tipos;
-function applyCfg(c){c=c||{};DONOS=c.donos||CFG_DEF.donos;LOCAIS=c.locais||CFG_DEF.locais;AREAS=c.areas||CFG_DEF.areas;FRENTES=c.frentes||CFG_DEF.frentes;TIPOS=c.tipos||CFG_DEF.tipos}
-const cfgNow=()=>({donos:DONOS,locais:LOCAIS,areas:AREAS,frentes:FRENTES,tipos:TIPOS});
+let DONOS=CFG_DEF.donos, LOCAIS=CFG_DEF.locais, AREAS=CFG_DEF.areas, FRENTES=CFG_DEF.frentes, TIPOS=CFG_DEF.tipos, CATS=CFG_DEF.cats, CATUN=CFG_DEF.catUn;
+function applyCfg(c){c=c||{};DONOS=c.donos||CFG_DEF.donos;LOCAIS=c.locais||CFG_DEF.locais;AREAS=c.areas||CFG_DEF.areas;FRENTES=c.frentes||CFG_DEF.frentes;TIPOS=c.tipos||CFG_DEF.tipos;CATS=c.cats||CFG_DEF.cats;CATUN={...CFG_DEF.catUn,...(c.catUn||{})}}
+const cfgNow=()=>({donos:DONOS,locais:LOCAIS,areas:AREAS,frentes:FRENTES,tipos:TIPOS,cats:CATS,catUn:CATUN});
 const RES='Reserva';
 const AREAS_DM=()=>[...AREAS.filter(a=>a!==RES),RES];
 const frentesDe=a=>a===RES?[]:a==='Mina'?['UG','Geral']:FRENTES.filter(f=>f!=='UG');
@@ -1120,6 +1129,15 @@ function allItems(){
   _ai.e=S.equips;_ai.s=S.estoque;_ai.t=S.trocas;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
 }
 const isKit=s=>!!(s&&s.kit);
+/* categorias de itens do estoque (lista editavel em Ajustes): Filtro, Oleo e Outros guardam as chaves antigas */
+const CAT_K={Filtro:'filtro',Oleo:'oleo',Outros:'outro'},CAT_N={filtro:'Filtro',oleo:'Oleo',outro:'Outros'};
+const CAT_PL={Filtro:'Filtros',Oleo:'Oleos',Graxa:'Graxas',Fluido:'Fluidos',Correia:'Correias',Mangueira:'Mangueiras','Rolamento / vedacao':'Rolamentos / vedacoes'};
+const catKey=n=>CAT_K[n]||n,catNm=t=>CAT_N[t]||t||'Outros',catPl=n=>CAT_PL[n]||n;
+const catUn=t=>t==='kit'?'kit':CATUN[catNm(t)]||'un';
+const UNS_AUTO=()=>['','un','L','kg','m','kit',...Object.values(CATUN)];
+const catGrp=s=>{if(isKit(s))return 'kit';const n=catNm(s.tipo);return CATS.includes(n)?catKey(n):'outro'};
+const catOpts=(sel,kit)=>{const l=CATS.map(c=>[catKey(c),c]);if(sel&&sel!=='kit'&&!l.some(x=>x[0]===sel))l.push([sel,catNm(sel)]);if(kit)l.push(['kit','Kit']);
+  return l.map(([v,t])=>`<option value="${esc(v)}"${v===sel?' selected':''}>${esc(t)}</option>`).join('')};
 /* itens de um kit (n kits): nome, codigo e quantidade de cada um */
 const kitLista=(k,n=1)=>`<div class="kv-l">${kitComps(k).map(({c,s})=>`<div class="kv-r"><span><b>${esc(s.desc)}</b><small class="num">${esc(stCod(s))}</small></span><b class="num">${nf((Number(n)||1)*(Number(c.qtd)||1),1)} ${esc(s.un||'un')}</b></div>`).join('')||'<div class="kv-r"><span>Kit sem itens</span></div>'}</div>`;
 /* itens de uma preventiva para o informe: kit vira os itens dele; o mesmo item aparece uma vez, com a quantidade somada */
@@ -1619,22 +1637,64 @@ const _esIx={};function esEqIx(){if(_esIx.a===S.estoque&&_esIx.b===S.equips)retu
   S.equips.forEach(e=>{const c=eqCompat(e);[...c.kits,...c.its].forEach(x=>{(m[x.id]=m[x.id]||new Set()).add(e.codigo)})});_esIx.a=S.estoque;_esIx.b=S.equips;_esIx.m=m;return m}
 const esNorm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ES_CAT={filtro:'filtro filtros',oleo:'oleo oleos lubrificante',kit:'kit kits',outro:'outro outros'};
+/* Estoque > Filtrar: selecao por criterios (categoria, saldo, encaixe, marca, local, movimento, cadastro, situacao) */
+const esSelDef=()=>({cat:[],sal:[],tag:'',etp:[],mar:[],loc:[],mov:[],inc:[],sit:['at'],ord:'az'});
+async function esMovLoad(){try{const q=await S.db.collection('movs').where('tipo','==','saida').get();const m={},d30=iso(new Date(Date.now()-30*864e5));
+  q.docs.map(d=>d.data()).forEach(x=>{if(!x.estoqueId)return;const r=m[x.estoqueId]=m[x.estoqueId]||{last:'',n30:0};if((x.data||'')>r.last)r.last=x.data||'';if((x.data||'')>=d30)r.n30+=Number(x.qtd)||0});S.esMov=m}catch(e){S.esMov=null}}
+const esSal=s=>{const q=stQtd(s),m=Number(s.minimo)||0;return q<=0?'zero':m>0&&q<=m?'baixo':m>0?'ok':'semmin'};
+function esFilPanel(){const E=S.esSel=S.esSel||esSelDef();const all=S.estoqueAll;
+  const c=(k,v,t)=>`<button type="button" class="ef-c" data-ef="${k}:${esc(v)}" aria-pressed="${k==='ord'?E.ord===v:E[k].includes(v)}">${esc(t)}</button>`;
+  const sec=(t,body)=>body?`<div class="ef-s"><div class="ef-h">${t}</div><div class="ef-cs">${body}</div></div>`:'';
+  const dist=f=>[...new Set(all.map(f).filter(Boolean))].sort(_an);
+  const cats=[];CATS.forEach(n=>{cats.push([catKey(n),n]);if(n==='Filtro')cats.push(['kit','Kits'])});if(!cats.some(x=>x[0]==='kit'))cats.unshift(['kit','Kits']);
+  const ix=esEqIx(),cs=new Set();Object.values(ix).forEach(st=>st.forEach(x=>cs.add(x)));all.forEach(s=>(s.encaixe||[]).forEach(id=>{const e=eqById(id);if(e)cs.add(e.codigo)}));
+  const tps=[...new Set(S.equips.filter(e=>cs.has(e.codigo)).map(e=>e.tipo).filter(Boolean))].sort(_an);
+  return `<div class="ef">`+sec('Categoria',cats.map(([k,n])=>c('cat',k,n)).join(''))
+   +sec('Saldo',c('sal','zero','Zerado')+c('sal','baixo','Abaixo do minimo')+c('sal','ok','Em dia')+c('sal','semmin','Sem minimo definido'))
+   +`<div class="ef-s"><div class="ef-h">Encaixe</div><div class="search ef-q">${I.search}<input id="ef-tag" type="search" value="${esc(E.tag)}" placeholder="TAG do equipamento" autocomplete="off" aria-label="TAG do equipamento"></div>${tps.length?`<div class="ef-cs">${tps.map(t=>c('etp',t,t)).join('')}</div>`:''}</div>`
+   +sec('Marca',dist(s=>s.marca).map(v=>c('mar',v,v)).join(''))+sec('Local',dist(s=>s.local).map(v=>c('loc',v,v)).join(''))
+   +sec('Movimento',c('mov','par','Parados (sem saida ha 90 dias)')+c('mov','uso','Mais usados (saidas em 30 dias)'))
+   +sec('Cadastro incompleto',c('inc','foto','Sem foto')+c('inc','enc','Sem encaixe')+c('inc','min','Sem minimo'))
+   +sec('Situacao',c('sit','at','Ativos')+c('sit','in','Inativos'))
+   +sec('Ordenar',c('ord','az','A–Z')+c('ord','menor','Menor saldo')+c('ord','maior','Maior saldo')+c('ord','uso','Mais usados'))+`</div>`}
+function esFilRes(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[\s.\-\/]/g,'');
+  const d90=iso(new Date(Date.now()-90*864e5)),mv=s=>(M&&M[s.id])||{last:'',n30:0};
+  const tpCods=E.etp.length?new Set(S.equips.filter(e=>E.etp.includes(e.tipo)).map(e=>e.codigo)):null,tag=nz(E.tag);
+  const cods=s=>[...(ix[s.id]||[]),...(s.encaixe||[]).map(id=>{const e=eqById(id);return e&&e.codigo}).filter(Boolean)];
+  let l=S.estoqueAll.filter(s=>{
+    if(E.sit.length===1&&(E.sit[0]==='at')===!!s.inativo)return false;
+    if(E.cat.length&&!E.cat.includes(catGrp(s)))return false;
+    if(E.sal.length&&!E.sal.includes(esSal(s)))return false;
+    if(tag||tpCods){const cs=cods(s);if(tag&&!cs.some(x=>nz(x).includes(tag)))return false;if(tpCods&&!cs.some(x=>tpCods.has(x)))return false}
+    if(E.mar.length&&!E.mar.includes(s.marca))return false;if(E.loc.length&&!E.loc.includes(s.local))return false;
+    if(E.mov.length&&M&&!E.mov.some(k=>k==='par'?!(mv(s).last>=d90):mv(s).n30>0))return false;
+    if(E.inc.length&&!E.inc.some(k=>k==='foto'?!(s.fotos||[]).length:k==='enc'?!cods(s).length:!(Number(s.minimo)>0)))return false;
+    return true});
+  const az=(a,b)=>_an(a.desc||'',b.desc||'')||byCode(a,b);
+  l.sort(E.ord==='menor'?(a,b)=>stQtd(a)-stQtd(b)||az(a,b):E.ord==='maior'?(a,b)=>stQtd(b)-stQtd(a)||az(a,b):E.ord==='uso'?(a,b)=>mv(b).n30-mv(a).n30||az(a,b):az);
+  const un={};l.forEach(s=>{const u=(s.un||catUn(isKit(s)?'kit':s.tipo)).trim();const k=u.toLowerCase()==='l'?'L':u;un[k]=(un[k]||0)+stQtd(s)});
+  const uk=Object.keys(un).sort((a,b)=>(a==='un'?-1:b==='un'?1:a==='L'?-1:b==='L'?1:_an(a,b)));
+  const baixo=l.filter(s=>stockCls(s)!=='ok').length,sel=E.cat.length+E.sal.length+E.etp.length+E.mar.length+E.loc.length+E.mov.length+E.inc.length+(E.tag?1:0)+(E.sit.join()!=='at'?1:0)+(E.ord!=='az'?1:0);
+  return [`<div class="ef-sum"><div><b class="num">${l.length}</b><span>Tipos de itens</span></div><div><b class="num">${uk.length?uk.map(u=>nf(un[u],1)+' '+esc(u)).join('<br>'):'0'}</b><span>Em estoque</span></div><div class="${baixo?'w':''}"><b class="num">${baixo}</b><span>Abaixo do minimo</span></div></div>
+  <div class="ef-n"><span id="es-n">${l.length} ${l.length===1?'item encontrado':'itens encontrados'}</span>${sel?'<button type="button" class="btn sm" id="ef-clr">Limpar selecao</button>':''}</div>
+  ${E.mov.length&&!M?'<p class="note">Movimento indisponivel agora (sem conexao); criterio ignorado.</p>':''}`,
+  l.length?`<div class="es-blk es-res"><div class="es-l">${l.map(s=>esRow(s,{attr:`data-mov="${esc(s.id)}" data-q="${esc(esNorm([s.desc,s.codigo,s.ref,s.marca,s.aplic,s.local,isKit(s)?'kit':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' ')))}"`})).join('')}</div></div>`:'<div class="empty">Nenhum item com essa selecao.</div>']}
 function vEstoque(){
   const ord={bad:0,warn:1,ok:2};
   const list=S.estoque.slice().sort(byCode);
-  const G=[['filtro','Filtros'],['kit','Kits'],['oleo','Oleos'],['outro','Outros']];
-  const grp=s=>isKit(s)?'kit':['filtro','oleo'].includes(s.tipo)?s.tipo:'outro';
+  const G=[];CATS.forEach(c=>{G.push([catKey(c),catPl(c)]);if(c==='Filtro')G.push(['kit','Kits'])});if(!G.some(x=>x[0]==='kit'))G.unshift(['kit','Kits']);
+  const grp=catGrp;
   const busca=S.focus==='estoque'&&list.length;const ix=busca?esEqIx():null;
-  const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],...(ix[s.id]||[])].filter(Boolean).join(' '));
+  const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],isKit(s)?'':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' '));
   const row=s=>esRow(s,{attr:`data-mov="${esc(s.id)}"${busca?` data-q="${esc(qOf(s))}"`:''}`});
   return toolbar('Filtros, oleos e kits da oficina')+
-  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<button type="button" class="btn block es-rel" id="es-rel"${S.esAll?' hidden':''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button></div>`:'')+
+  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button></div></div>${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div>${esFilPanel()}<div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
   (list.length?G.map(([k,lab])=>{const l=list.filter(s=>grp(s)===k);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>${lab}</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''}).join('')+(()=>{const l=S.estoqueAll.filter(x=>x.inativo).sort(byCode);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>Inativos</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''})()+(busca?'<div class="empty es-0" id="esq-0" hidden>Nenhum item encontrado.</div>':'')
   :'<div class="empty"><b>Estoque vazio</b>Toque no botao + para cadastrar filtros e oleos. Ligados ao plano da maquina, eles baixam sozinhos a cada troca.</div>');
 }
 function bindView(){
   const app=$('#app');
-  app.querySelectorAll('[data-acc]').forEach(b=>b.onclick=()=>{const k=b.dataset.acc;S.focus=S.focus===k?'':k;S.esQ='';S.esFoc=false;S.esAll=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
+  app.querySelectorAll('[data-acc]').forEach(b=>b.onclick=()=>{const k=b.dataset.acc;S.focus=S.focus===k?'':k;S.esQ='';S.esFoc=false;S.esAll=false;S.esFil=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
     try{localStorage.setItem('frota.focus',S.focus)}catch(e){}
     render();SCR().scrollTo(0,0);const h=document.querySelector(`[data-acc="${k}"]`);h&&h.focus({preventScroll:true})});
   const topAloc=()=>{const h=document.querySelector('[data-acc="aloc"]');h&&h.scrollIntoView({block:'start'})};
@@ -1667,13 +1727,21 @@ function bindView(){
   const esq=$('#esq');if(esq){
     const run=()=>{S.esQ=esq.value;const toks=esNorm(esq.value.trim()).split(/\s+/).filter(Boolean);let tot=0;
       /* sem busca, a listagem completa so aparece pelo botao Relatorio */
-      if(!toks.length&&!S.esAll){app.querySelectorAll('.es-blk').forEach(blk=>blk.hidden=true);const z=$('#esq-0');if(z)z.hidden=true;return}
-      app.querySelectorAll('.es-blk').forEach(blk=>{let n=0,first=null;blk.querySelectorAll('[data-q]').forEach(r=>{const t=r.dataset.q,w=t.split(/[\s(),·–]+/),c=t.replace(/[\s.\-\/]/g,'');
+      const fil=!!S.esFil,blks=[...app.querySelectorAll('.es-blk')].filter(b=>b.classList.contains('es-res')===fil);
+      if(fil)app.querySelectorAll('.es-blk:not(.es-res)').forEach(b=>b.hidden=true);
+      if(!toks.length&&!S.esAll&&!fil){blks.forEach(blk=>blk.hidden=true);const z=$('#esq-0');if(z)z.hidden=true;return}
+      blks.forEach(blk=>{let n=0,first=null;blk.querySelectorAll('[data-q]').forEach(r=>{const t=r.dataset.q,w=t.split(/[\s(),·–]+/),c=t.replace(/[\s.\-\/]/g,'');
         /* palavra comecando pelo termo; codigos com numeros tambem valem sem traco/ponto (cb05 = CB-05) */
         const ok=toks.every(k=>w.some(x=>x.startsWith(k))||(/\d/.test(k)&&c.includes(k.replace(/[.\-\/]/g,''))));r.hidden=!ok;r.classList.remove('es-first');if(ok){n++;if(!first){first=r;r.classList.add('es-first')}}});
         blk.hidden=!n;const em=blk.querySelector('.es-g em');if(em)em.textContent=n;tot+=n});
-      const z=$('#esq-0');if(z)z.hidden=!!tot};
-    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});const rel=$('#es-rel');if(rel)rel.onclick=()=>{S.esAll=true;rel.hidden=true;run()};esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
+      const z=$('#esq-0');if(z)z.hidden=!!tot||(fil&&!blks.length);const en=$('#es-n');if(en&&fil)en.textContent=`${tot} ${tot===1?'item encontrado':'itens encontrados'}`};
+    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});app.querySelectorAll('[data-estab]').forEach(b=>b.onclick=()=>{if(b.dataset.estab==='rel'){S.esAll=!S.esAll;S.esFil=false}else{S.esFil=!S.esFil;S.esAll=false}render();if(S.esFil&&!S.esMov)esMovLoad().then(()=>{if(S.esFil&&$('#ef-res'))render()})});
+    const ef=$('#es-fil');if(ef){const upd=()=>{const r=esFilRes();ef.querySelector('#ef-top').innerHTML=r[0];ef.querySelector('#ef-res').innerHTML=r[1];ef.querySelectorAll('#ef-res [data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));run()};
+      ef.querySelectorAll('[data-ef]').forEach(c=>c.onclick=()=>{const [k,v]=c.dataset.ef.split(':');const E=S.esSel;
+        if(k==='ord'){E.ord=v;ef.querySelectorAll('[data-ef^="ord:"]').forEach(x=>x.setAttribute('aria-pressed',x===c))}
+        else{const a=E[k],i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);c.setAttribute('aria-pressed',i<0)}upd()});
+      const tg=ef.querySelector('#ef-tag');if(tg)tg.oninput=()=>{S.esSel.tag=tg.value;upd()};
+      ef.querySelector('#ef-top').addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();render()}})}esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
     esq.onfocus=()=>{S.esFoc=true};esq.onblur=()=>setTimeout(()=>{if(esq.isConnected)S.esFoc=false},0);
     if(S.esQ){esq.value=S.esQ;run()}
     if(S.esFoc){esq.focus({preventScroll:true});const n=esq.value.length;try{esq.setSelectionRange(n,n)}catch(e){}}}
@@ -1685,7 +1753,7 @@ function bindView(){
     if(FROTA_KIDS.includes(S.focus)){abreCard('frota');return}
     goHome()});
   app.querySelectorAll('[data-fr]').forEach(b=>b.onclick=()=>abreCard(b.dataset.fr));
-  app.querySelectorAll('[data-a="home"]').forEach(b=>b.onclick=()=>{S.focus='';S.esQ='';S.esFoc=false;S.esAll=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)});
+  app.querySelectorAll('[data-a="home"]').forEach(b=>b.onclick=()=>{S.focus='';S.esQ='';S.esFoc=false;S.esAll=false;S.esFil=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)});
   const on=(k,fn)=>app.querySelectorAll(`[data-a="${k}"]`).forEach(b=>b.onclick=fn);
   on('new-tr',()=>{NAV.length=0;formRegistrar(S.mf.equip)});
   on('clear-ex',clearExamples);
@@ -1765,7 +1833,7 @@ async function safe(fn,okMsg){
 const ICON_USER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
 const ICON_TAG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.3"/></svg>';
 const ICON_FLAG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg>';
-const LISTAS={donos:{t:'Proprietarios',one:'proprietario',ph:'Nome do proprietario',campo:'locador',ic:ICON_USER},
+const LISTAS={cats:{t:'Categorias de itens',one:'categoria',ph:'Ex.: Correia',campo:'tipo',ic:ICON_TAG,est:1,f:1},donos:{t:'Proprietarios',one:'proprietario',ph:'Nome do proprietario',campo:'locador',ic:ICON_USER},
   tipos:{t:'Tipos de equipamento',one:'tipo',ph:'Ex.: Caminhao munck',campo:'tipo',ic:ICON_TAG},
   locais:{t:'Locais de alocacao',one:'local',ph:'Ex.: PQ',campo:'alocacao',ic:null},
   areas:{t:'Areas do DM1',one:'area',ph:'Ex.: Planta',campo:'area',ic:null},
@@ -1789,7 +1857,7 @@ function openMenu(mode){
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saida do estoque','Retirada avulsa, fora das preventivas')
       +mi('x:st',I.estoque,'Filtros e oleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')},
     comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('abast',I.comb,'Abastecimento','Litros e horimetro para o consumo por hora')+g('Correcoes')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o ultimo abastecimento de um equipamento')},
-    aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
+    aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:cats',ICON_TAG,'Categorias de itens','Filtro, oleo, graxa, correia e outros do estoque')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
       +g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
   /* tela limpa: Novo · Editar · Excluir */
   const X=(t,k,n)=>({title:t,sub:'O que voce quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
@@ -1892,34 +1960,38 @@ function openDelete(kind,id){
         bx.scrollIntoView({block:'center',behavior:'smooth'});return}}
       askDelete(bx,warn,async()=>{if(await safe(run,'Excluido'))goBack()})}}});
 }
-const CORE={locais:['DM1','PQ'],areas:['Planta','Mina'],frentes:['UG','Geral']};
+const CORE={cats:['Filtro','Oleo','Outros'],locais:['DM1','PQ'],areas:['Planta','Mina'],frentes:['UG','Geral']};
 const isCore=(k,v)=>(CORE[k]||[]).includes(v);
 function formLista(k,mode='editar'){
   nav('lst:'+k+':'+mode,()=>formLista(k,mode));
   const L=LISTAS[k],list=cfgNow()[k];
-  const uso=v=>S.equips.filter(e=>e[L.campo]===v).length;
+  const uso=v=>L.est?S.estoqueAll.filter(s=>catGrp(s)===catKey(v)).length:S.equips.filter(e=>e[L.campo]===v).length;
+  const UNL=['un','L','kg','m'],unSel=(v,attr)=>`<select ${attr} aria-label="Unidade">${[...new Set([...UNL,CATUN[v]||'un'])].map(u=>`<option${(CATUN[v]||'un')===u?' selected':''}>${u}</option>`).join('')}</select>`;
   openSheet({title:L.t,sub:`${list.length} cadastrado${list.length===1?'':'s'}`,
-  body:`${mode==='novo'||mode==='tudo'?'':'<!--'}<form id="fl" class="fset"><label class="f">Novo ${L.one}<div class="lst-add"><input id="l-v" required placeholder="${esc(L.ph)}" autocomplete="off"><button class="btn pri">Adicionar</button></div></label></form>${mode==='novo'||mode==='tudo'?'':'-->'}
+  body:`${mode==='novo'||mode==='tudo'?'':'<!--'}<form id="fl" class="fset"><label class="f">${L.f?'Nova':'Novo'} ${L.one}<div class="lst-add"><input id="l-v" required placeholder="${esc(L.ph)}" autocomplete="off">${L.est?unSel('','id="l-u" class="l-u"'):''}<button class="btn pri">Adicionar</button></div></label></form>${mode==='novo'||mode==='tudo'?'':'-->'}
     <div class="lbl">Cadastrados</div>${mode==='novo'?'':`<p class="note" style="margin:0 2px 8px">Toque num nome para ${mode==='excluir'?'excluir':mode==='tudo'?'renomear ou excluir':'renomear'}.</p>`}
-    <div class="list">${list.map((v,i)=>[v,i]).sort((a,b)=>_an(a[0],b[0])).map(([v,i])=>`<div class="lst-item" data-i="${i}"><button class="lst-row" data-sel="${i}" aria-expanded="false"${mode==='novo'?' disabled':''}><span>${esc(v)}</span><em>${uso(v)} equip.</em>${I.chev}</button>
-      <div class="lst-act" hidden>${isCore(k,v)?'<span class="note" style="margin-right:auto">Nome usado pela estrutura do app; nao pode ser alterado.</span>':(mode==='excluir'?`<button class="btn sm danger" data-rm="${i}">Excluir</button>`:mode==='tudo'?`<button class="btn sm danger" data-rm="${i}">Excluir</button><button class="btn sm" data-ren="${i}">Renomear</button>`:`<button class="btn sm" data-ren="${i}">Renomear</button>`)}</div><div class="lst-conf"></div></div>`).join('')||'<div class="empty">Nenhum cadastrado.</div>'}</div>`,
+    <div class="list">${list.map((v,i)=>[v,i]).sort((a,b)=>_an(a[0],b[0])).map(([v,i])=>`<div class="lst-item" data-i="${i}"><button class="lst-row" data-sel="${i}" aria-expanded="false"${mode==='novo'?' disabled':''}><span>${esc(v)}</span><em>${uso(v)} ${L.est?(uso(v)===1?'item':'itens')+' · '+esc(CATUN[v]||'un'):'equip.'}</em>${I.chev}</button>
+      <div class="lst-act" hidden>${L.est?`<label class="lst-un">Unidade ${unSel(v,`data-cu="${i}"`)}</label>`:''}${isCore(k,v)?'<span class="note" style="margin-right:auto">Nome usado pela estrutura do app; nao pode ser alterado.</span>':(mode==='excluir'?`<button class="btn sm danger" data-rm="${i}">Excluir</button>`:mode==='tudo'?`<button class="btn sm danger" data-rm="${i}">Excluir</button><button class="btn sm" data-ren="${i}">Renomear</button>`:`<button class="btn sm" data-ren="${i}">Renomear</button>`)}</div><div class="lst-conf"></div></div>`).join('')||'<div class="empty">Nenhum cadastrado.</div>'}</div>`,
   mount:sh=>{
-    const save=async(arr,msg)=>{const c={...cfgNow(),[k]:arr};applyCfg(c);if(await safe(()=>S.db.doc('config/listas').set(c),msg))formLista(k,mode)};
+    const save=async(arr,msg,ex)=>{const c={...cfgNow(),[k]:arr,...(ex||{})};applyCfg(c);if(await safe(()=>S.db.doc('config/listas').set(c),msg))formLista(k,mode)};
     const fl=sh.querySelector('#fl');if(fl)fl.onsubmit=ev=>{ev.preventDefault();const v=sh.querySelector('#l-v').value.trim();if(!v)return;
-      if(list.some(x=>x.toLowerCase()===v.toLowerCase())){toast('Esse nome ja esta cadastrado.');return}save([...list,v],`${v} cadastrado`)};
+      if(list.some(x=>x.toLowerCase()===v.toLowerCase())){toast('Esse nome ja esta cadastrado.');return}
+      if(L.est){const p=list.indexOf('Outros'),arr=p<0?[...list,v]:[...list.slice(0,p),v,...list.slice(p)];save(arr,`${v} cadastrada`,{catUn:{...CATUN,[v]:sh.querySelector('#l-u').value}});return}
+      save([...list,v],`${v} cadastrado`)};
+    sh.querySelectorAll('[data-cu]').forEach(sel=>sel.onchange=()=>{const v=list[+sel.dataset.cu];save(list,`Unidade de ${v}: ${sel.value}`,{catUn:{...CATUN,[v]:sel.value}})});
     sh.querySelectorAll('[data-sel]').forEach(b=>b.onclick=()=>{const it=b.closest('.lst-item'),open=b.getAttribute('aria-expanded')!=='true';
       sh.querySelectorAll('.lst-item').forEach(x=>{x.querySelector('.lst-row').setAttribute('aria-expanded','false');x.querySelector('.lst-act').hidden=true;x.querySelector('.lst-conf').innerHTML=''});
       if(open){b.setAttribute('aria-expanded','true');it.querySelector('.lst-act').hidden=false}});
     sh.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>{const it=b.closest('.lst-item'),v=list[+b.dataset.ren],n=uso(v);it.querySelector('.lst-act').hidden=true;
-      const box=it.querySelector('.lst-conf');box.innerHTML=`<div class="ren"><label class="f">Novo nome<input class="ren-in" value="${esc(v)}" autocomplete="off"></label>${n?`<p class="note" style="margin:0">Os ${n} equipamentos que usam “${esc(v)}” serao atualizados.</p>`:''}<div class="b"><button type="button" class="btn sm" data-no>Cancelar</button><button type="button" class="btn sm pri" data-yes>Salvar nome</button></div></div>`;
+      const box=it.querySelector('.lst-conf');box.innerHTML=`<div class="ren"><label class="f">Novo nome<input class="ren-in" value="${esc(v)}" autocomplete="off"></label>${n?`<p class="note" style="margin:0">Os ${n} ${L.est?'itens':'equipamentos'} que usam “${esc(v)}” serao atualizados.</p>`:''}<div class="b"><button type="button" class="btn sm" data-no>Cancelar</button><button type="button" class="btn sm pri" data-yes>Salvar nome</button></div></div>`;
       const inp=box.querySelector('.ren-in');inp.focus();inp.select();
       box.querySelector('[data-no]').onclick=()=>{box.innerHTML='';it.querySelector('.lst-act').hidden=false};
       box.querySelector('[data-yes]').onclick=async()=>{const nv=inp.value.trim();if(!nv||nv===v){box.innerHTML='';return}
         if(list.some(x=>x!==v&&x.toLowerCase()===nv.toLowerCase())){toast('Esse nome ja esta cadastrado.');return}
-        const c={...cfgNow(),[k]:list.map(x=>x===v?nv:x)};
-        if(await safe(async()=>{await S.db.doc('config/listas').set(c);applyCfg(c);for(const e of S.equips.filter(e=>e[L.campo]===v))await S.db.doc('equipamentos/'+e.id).update({[L.campo]:nv})},`${v} agora e ${nv}`))formLista(k,mode)}});
+        const c={...cfgNow(),[k]:list.map(x=>x===v?nv:x)};if(L.est){const u={...CATUN,[nv]:CATUN[v]||'un'};delete u[v];c.catUn=u}
+        if(await safe(async()=>{await S.db.doc('config/listas').set(c);applyCfg(c);if(L.est){for(const s of S.estoqueAll.filter(s=>!isKit(s)&&s.tipo===v))await S.db.doc('estoque/'+s.id).update({tipo:nv});return}for(const e of S.equips.filter(e=>e[L.campo]===v))await S.db.doc('equipamentos/'+e.id).update({[L.campo]:nv})},`${v} agora e ${nv}`))formLista(k,mode)}});
     sh.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const it=b.closest('.lst-item'),v=list[+b.dataset.rm],n=uso(v);it.querySelector('.lst-act').hidden=true;
-      askDelete(it.querySelector('.lst-conf'),`Excluir <b>${esc(v)}</b> da lista?${n?` Os ${n} equipamentos que usam esse nome mantem o valor ate serem editados.`:''}`,()=>save(list.filter(x=>x!==v),`${v} excluido`));
+      askDelete(it.querySelector('.lst-conf'),`Excluir <b>${esc(v)}</b> da lista?${n?` Os ${n} ${L.est?'itens':'equipamentos'} que usam esse nome mantem o valor ate serem editados.`:''}`,()=>save(list.filter(x=>x!==v),`${v} excluido`));
       it.querySelector('.lst-conf [data-no]').addEventListener('click',()=>{it.querySelector('.lst-act').hidden=false})});
   }});
 }
@@ -1935,7 +2007,7 @@ paintAj();
 (()=>{let mx=innerHeight;const chk=()=>{if(innerHeight>mx)mx=innerHeight;document.body.classList.toggle('kb',innerHeight<mx*0.8)};
   addEventListener('resize',chk);addEventListener('orientationchange',()=>{mx=0;setTimeout(chk,300)})})();
 /* barra do topo com o nome do app = inicio */
-function goHome(){S.esQ='';S.esFoc=false;S.esAll=false;if(sheetOpen){NAV.length=0;closeSheet()}S.focus='';S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)}
+function goHome(){S.esQ='';S.esFoc=false;S.esAll=false;S.esFil=false;if(sheetOpen){NAV.length=0;closeSheet()}S.focus='';S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)}
 document.querySelector('header').onclick=goHome;
 /* as telas que sobem de baixo param logo abaixo da barra do topo, que continua visivel e tocavel */
 const setHdr=()=>{const h=document.querySelector('header');if(h)document.documentElement.style.setProperty('--hdr',h.getBoundingClientRect().bottom+'px')};setHdr();addEventListener('resize',setHdr);
@@ -2025,7 +2097,7 @@ async function shrink(file,modo='proc'){
 /* ===================== Cartao Frota =====================
    Agrupa Equipamentos, Manutencoes (por enquanto: Preventivas), Combustivel e Alocacao. */
 const FROTA_KIDS=['equip','manut','comb','aloc'];
-function abreCard(k){S.focus=k;S.esQ='';S.esFoc=false;S.esAll=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
+function abreCard(k){S.focus=k;S.esQ='';S.esFoc=false;S.esAll=false;S.esFil=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
   try{localStorage.setItem('frota.focus',k)}catch(e){}render();SCR().scrollTo(0,0)}
 function vFrota(){
   const b=(k,ic,t)=>`<section class="card acc fr-c"><button type="button" class="acc-h" data-fr="${k}"><span class="ic">${ic}</span><h2>${t}</h2><span class="tg">${I.chev}</span></button></section>`;
@@ -2262,8 +2334,8 @@ function specList(lab,rows){if(!rows.length)return `<div class="r"><span>${esc(l
 function goEditar(kind,id){kind==='eq'?formEq(id):isKit(stById(id))?formKit(id):formStock(id)}
 function itemList(e,its,empty){
   if(!its.length)return empty;
-  const G=[['kit','Kits'],['filtro','Filtros'],['oleo','Oleos'],['outro','Outros']];
-  return G.map(([k,lab])=>{const g=its.filter(x=>(x.it.tipo||'outro')===k||(k==='outro'&&!['filtro','oleo','kit'].includes(x.it.tipo)));return g.length?`<div class="ig-h">${lab} <span>${g.length}</span></div>${itemRows(e,g)}`:''}).join('');
+  const G=[['kit','Kits'],...CATS.map(c=>[catKey(c),catPl(c)])],gk=t=>t==='kit'?'kit':CATS.includes(catNm(t))?catKey(catNm(t)):'outro';
+  return G.map(([k,lab])=>{const g=its.filter(x=>gk(x.it.tipo)===k);return g.length?`<div class="ig-h">${lab} <span>${g.length}</span></div>${itemRows(e,g)}`:''}).join('');
 }
 function itemRows(e,its){
   return `<div class="ilist">${its.map(({it,st},i)=>{const sk=it.estoqueId&&stById(it.estoqueId);return `<div class="ia"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="idot ${st.cls}"></span><span class="ia-t">${esc(itNome(it))}</span><span class="ist ${st.cls}">${st.label.toLowerCase()}</span>${I.chev}</button>
@@ -2538,10 +2610,10 @@ function planRow(it,aberto){const P=esc(it.pid||uid());const cod=it.espec||(it.e
   return `<div class="tr-i pe2${aberto?' op':''}" data-pid="${P}"><div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${!!aberto}"><div class="main"><b data-pn>${esc(it.desc||'Novo item')}</b><div class="s"><span class="num" data-pc>${esc(cod)}</span></div></div><span class="pe-q num" data-pq>${it.qtd!==''&&it.qtd!=null?nf(it.qtd,1)+' '+esc(it.un||''):''}</span>${I.chev}</div>
   <div class="tr-b pe-b"${aberto?'':' hidden'}>
   <label class="f w">Descricao<input data-p="desc" value="${esc(it.desc||'')}" placeholder="Oleo do motor"></label>
-  <label class="f">Tipo<select data-p="tipo"><option value="oleo"${it.tipo==='oleo'?' selected':''}>Oleo</option><option value="filtro"${it.tipo==='filtro'?' selected':''}>Filtro</option><option value="outro"${it.tipo==='outro'?' selected':''}>Outro</option><option value="kit"${it.tipo==='kit'?' selected':''}>Kit</option></select></label>
+  <label class="f">Tipo<select data-p="tipo">${catOpts(it.tipo||'oleo',true)}</select></label>
   <label class="f">Especificacao<input data-p="espec" value="${esc(it.espec||'')}" placeholder="15W-40 / cod."></label>
   <label class="f">Qtd<input data-p="qtd" type="number" step="0.1" inputmode="decimal" value="${esc(it.qtd??'')}"></label>
-  <label class="f">Unid.<input data-p="un" value="${esc(it.un||(it.tipo==='oleo'?'L':'un'))}"></label>
+  <label class="f">Unid.<input data-p="un" value="${esc(it.un||(it.tipo?catUn(it.tipo):'un'))}"></label>
   <label class="f w">Estoque<select data-p="estoqueId">${stockOpts(it.estoqueId)}</select></label>
   <button type="button" class="btn danger w" data-rm>Remover do plano</button></div></div>`;
 }
@@ -2596,7 +2668,7 @@ function formEq(id){
     plan.addEventListener('keydown',ev=>{const h=ev.target.closest&&ev.target.closest('[data-trh]');if(h&&ev.target===h&&(ev.key==='Enter'||ev.key===' ')){ev.preventDefault();h.click()}});
     plan.addEventListener('input',ev=>{const r=ev.target.closest('.pe2');if(r)head(r)});plan.addEventListener('change',ev=>{const r=ev.target.closest('.pe2');if(r)head(r)});
     const bind=()=>plan.querySelectorAll('.pe2').forEach(p=>{p.querySelector('[data-rm]').onclick=()=>{p.remove();toast('Removido do plano · confirme ao salvar')};
-      p.querySelector('[data-p="tipo"]').onchange=ev=>{const u=p.querySelector('[data-p="un"]');if(!u.value||['un','L','kit'].includes(u.value))u.value=ev.target.value==='oleo'?'L':ev.target.value==='kit'?'kit':'un'};
+      p.querySelector('[data-p="tipo"]').onchange=ev=>{const u=p.querySelector('[data-p="un"]');if(UNS_AUTO().includes(u.value.trim()))u.value=catUn(ev.target.value)};
       p.querySelector('[data-p="estoqueId"]').onchange=ev=>{const k=stById(ev.target.value);if(!isKit(k))return;const f=n=>p.querySelector(`[data-p="${n}"]`);
         f('tipo').value='kit';f('un').value='kit';f('qtd').value=1;if(!f('desc').value.trim())f('desc').value=k.desc;if(!f('espec').value.trim())f('espec').value=k.codigo}});
     bind();
@@ -3228,8 +3300,8 @@ function formStock(id,preset,onSaved){
     <label class="f w">Descricao do fabricante<textarea id="s-dfab" class="ag" rows="1" placeholder="Nome completo do catalogo (opcional)">${esc(s.descFab||'')}</textarea></label>
     <label class="f w">Aplicacao<textarea id="s-aplic" class="ag" rows="1" placeholder="Ex.: Ar da cabine">${esc(s.aplic||'')}</textarea></label>
     <label class="f">Marca<input id="s-marca" value="${esc(s.marca||'')}" placeholder="Ex.: Cat, Fleetguard"></label>
-    <label class="f">Tipo<select id="s-tipo"><option value="filtro">Filtro</option><option value="oleo"${s.tipo==='oleo'?' selected':''}>Oleo</option><option value="outro"${s.tipo==='outro'?' selected':''}>Outro</option></select></label>
-    <label class="f">Unidade<input id="s-un" value="${esc(s.un||'')}" placeholder="un, L"></label>
+    <label class="f">Tipo<select id="s-tipo">${catOpts(s.tipo||'filtro')}</select></label>
+    <label class="f">Unidade<input id="s-un" value="${esc(s.un||'')}" placeholder="un, L, kg, m"></label>
     <label class="f">Saldo atual<input id="s-qtd" type="number" step="0.1" inputmode="decimal" value="${esc(s.qtd??0)}"></label>
     <label class="f">Minimo<input id="s-min" type="number" step="0.1" inputmode="decimal" value="${esc(s.minimo??0)}"></label>
     <label class="f">Local<input id="s-local" value="${esc(s.local||'')}" placeholder="Almoxarifado"></label></div></div>
@@ -3263,7 +3335,7 @@ function formStock(id,preset,onSaved){
       const hits=S.equips.filter(e=>!enc.includes(e.id)&&nz([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(q)).sort(byCode).slice(0,8);
       encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
       encR.querySelectorAll('[data-encadd]').forEach(b=>b.onclick=()=>{enc.push(b.dataset.encadd);encQ.value='';encR.hidden=true;drawEnc()})};
-    sh.querySelector('#s-tipo').onchange=ev=>{const u=sh.querySelector('#s-un');if(!u.value||u.value==='un'||u.value==='L')u.value=ev.target.value==='oleo'?'L':'un'};
+    sh.querySelector('#s-tipo').onchange=ev=>{const u=sh.querySelector('#s-un');if(UNS_AUTO().includes(u.value.trim()))u.value=catUn(ev.target.value)};
     sh.querySelectorAll('textarea.ag').forEach(t=>{const g=()=>{t.style.height='auto';t.style.height=t.scrollHeight+2+'px'};t.oninput=()=>{if(/\n/.test(t.value))t.value=t.value.replace(/\s*\n\s*/g,' ');g()};requestAnimationFrame(g)});
     sh.querySelector('#fs').onsubmit=ev=>{ev.preventDefault();
       /* com o Ajuste ligado o saldo nao pode ser mexido pelo cadastro */
@@ -3290,7 +3362,7 @@ function formMov(id){
   const inKits=S.estoque.filter(k=>isKit(k)&&(k.comps||[]).some(x=>x.id===id)).sort(byCode).map(k=>stCod(k));
   const used=S.equips.filter(e=>(e.itens||[]).some(i=>i.estoqueId===id)).sort(byCode).map(e=>e.codigo);
   const enc=(s.encaixe||[]).map(eqById).filter(Boolean).sort(byCode);
-  openSheet({title:esc(s.desc),sub:`<span class="num">${esc(stCod(s))}</span> · ${s.tipo==='oleo'?'Oleo':s.tipo==='filtro'?'Filtro':'Outro'}${s.marca?` · ${esc(s.marca)}`:''}${s.local?` · ${esc(s.local)}`:''}`,
+  openSheet({title:esc(s.desc),sub:`<span class="num">${esc(stCod(s))}</span> · ${esc(catNm(s.tipo))}${s.marca?` · ${esc(s.marca)}`:''}${s.local?` · ${esc(s.local)}`:''}`,
   body:`${s.inativo?`<div class="nv-b on" style="margin:0 0 12px"><div><b>Item inativo</b><span>Fora das listas, buscas e dos alertas de estoque. Para reativar: + › Editar.</span></div></div>`:''}<div class="hmcard"><div><div class="k">Saldo</div><div class="v">${nf(s.qtd,1)}<small>${esc(s.un)}</small></div><div class="d">Minimo ${nf(s.minimo,1)} ${esc(s.un)}</div></div><span class="pill ${c}">${c==='bad'?'Zerado':c==='warn'?'Repor':'Ok'}</span></div>
   <div class="lbl">Dados do item</div><div class="spec"><div class="r"><span>Codigo almoxarifado</span><b class="num">${s.codigo?esc(s.codigo):'<span style="color:var(--faint)">—</span>'}</b></div>${s.ref?`<div class="r"><span>Referencia</span><b class="num">${esc(s.ref)}</b></div>`:''}${s.descFab?`<div class="r"><span>Descricao do fabricante</span><b>${esc(s.descFab)}</b></div>`:''}${s.marca?`<div class="r"><span>Marca</span><b>${esc(s.marca)}</b></div>`:''}${s.aplic?`<div class="r"><span>Aplicacao</span><b>${esc(s.aplic)}</b></div>`:''}${s.local?`<div class="r"><span>Local</span><b>${esc(s.local)}</b></div>`:''}</div>
   ${enc.length?`<div class="lbl">Encaixe de fabrica <span class="c">${enc.length}</span></div><div class="spec">${enc.map(e=>`<div class="r"><span><b class="num">${esc(e.codigo)}</b></span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' '))}${e.serie?` · <span class="num">${esc(e.serie)}</span>`:''}</b></div>`).join('')}</div>`:''}
@@ -3532,7 +3604,7 @@ async function mergeListas(ids){
 function openRelEstoque(hl){
   nav('rel:'+(hl||''),()=>openRelEstoque(hl));
   const its=S.estoque.filter(x=>!isKit(x));
-  const G=[['filtro','Filtros'],['oleo','Oleos'],['outro','Outros']],grp=x=>['filtro','oleo'].includes(x.tipo)?x.tipo:'outro';
+  const G=CATS.map(c=>[catKey(c),catPl(c)]),grp=catGrp;
   const lastIn=id=>{const x=stById(id);return x&&x.ultEnt||null};
   const row=x=>{const m=lastIn(x.id);return esRow(x,{tag:'div',hl:x.id===hl,attr:x.id===hl?'id="rel-hl"':'',sub:`${esc(stCod(x))} · min ${nf(x.minimo,1)} · ${m?`entrada ${sdate(m.data)} +${nf(m.qtd,1)}`:'sem entradas'}`})};
   const tot=its.length,falta=its.filter(x=>stockCls(x)!=='ok').length;

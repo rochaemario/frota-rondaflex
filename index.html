@@ -908,6 +908,7 @@ body.kb .sh-foot{display:none}
 .tr-b{padding:2px 13px 14px;display:flex;flex-direction:column;gap:10px}.tr-b .f{margin:0}.tr-b .cd{font-family:var(--mono);text-transform:uppercase}.tr-b .ivw{margin:0;font-size:13.5px}.tr-b .ivw select.ivs{min-height:40px;font-size:14px}
 .hm-3{flex-wrap:wrap}.hm-3 .btn{flex:1 1 auto}
 .k-tg{padding:8px 4px 6px}.es-r.k-in{opacity:.6}.k-ok{flex:none;font-size:12px;font-weight:600;color:var(--ok,#1b7a3d);margin-left:6px}
+.kv-l{display:flex;flex-direction:column;background:var(--surface);border-radius:12px;overflow:hidden}.kv-r{display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13.5px}.kv-r+.kv-r{box-shadow:inset 0 1px 0 var(--line)}.kv-r>span{flex:1;min-width:0;display:flex;flex-direction:column}.kv-r small{color:var(--muted);font-size:12px}
 .nv-b{display:flex;align-items:center;gap:12px;text-align:left;margin-top:12px;padding:12px 14px;border-radius:14px;background:var(--accent-soft,#e8eefc)}.nv-b>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:13.5px}.nv-b b,.nv-b span{text-align:left!important;margin:0}.nv-b span{color:var(--muted)}.nv-b.on{background:var(--sunk)}.r>.nv-b{margin:0}
 .et-h{display:flex;align-items:center;gap:12px;width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;padding:12px 13px;min-height:56px;cursor:pointer}
 .et-h>svg{flex:none;width:16px;height:16px;color:var(--faint);transition:transform .15s}.et-i.op .et-h>svg{transform:rotate(90deg)}
@@ -967,8 +968,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=5490d73483"></script>
-<script src="shim.js?v=5490d73483"></script>
+<script src="config.js?v=0096b929a5"></script>
+<script src="shim.js?v=0096b929a5"></script>
 </head>
 <body>
 
@@ -1111,6 +1112,15 @@ function allItems(){
   _ai.e=S.equips;_ai.s=S.estoque;_ai.t=S.trocas;_ai.d=d;return _ai.r=out.sort((a,b)=>a.st.rest-b.st.rest);
 }
 const isKit=s=>!!(s&&s.kit);
+/* itens de um kit (n kits): nome, codigo e quantidade de cada um */
+const kitLista=(k,n=1)=>`<div class="kv-l">${kitComps(k).map(({c,s})=>`<div class="kv-r"><span><b>${esc(s.desc)}</b><small class="num">${esc(stCod(s))}</small></span><b class="num">${nf((Number(n)||1)*(Number(c.qtd)||1),1)} ${esc(s.un||'un')}</b></div>`).join('')||'<div class="kv-r"><span>Kit sem itens</span></div>'}</div>`;
+/* itens de uma preventiva para o informe: kit vira os itens dele; o mesmo item aparece uma vez, com a quantidade somada */
+function itensInforme(t){const out=[],ix={};
+  const add=o=>{const k=o.estoqueId||('#'+(o.pid||o.desc));if(ix[k]){ix[k].qtd=Math.round(((Number(ix[k].qtd)||0)+(Number(o.qtd)||0))*10)/10;return}ix[k]={...o};out.push(ix[k])};
+  (t.itens||[]).forEach(i=>{const k=i.estoqueId&&stById(i.estoqueId);
+    if(k&&isKit(k)){const n=Number(i.qtd)||1;kitComps(k).forEach(({c,s})=>add({desc:s.desc,espec:stCod(s),estoqueId:s.id,un:s.un||'un',qtd:Math.round(n*(Number(c.qtd)||1)*10)/10}))}
+    else add(i)});
+  return out}
 /* ---------- equivalencia de filtros entre preventivas ---------- */
 const eqvKey=(a,b)=>{const x=nzCod(a),y=nzCod(b);return x<y?x+'|'+y:y+'|'+x};
 const eqvDec=(a,b)=>{const k=eqvKey(a,b);const p=S.equiv.find(p=>eqvKey(p.a,p.b)===k);return p?p.status:''};
@@ -2245,6 +2255,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.clos
   box.querySelector('[data-ivok]').onclick=async()=>{const v=ivVal(box.querySelector('[data-ivdv]').value),e2=eqById(eid);if(!e2)return;
     const its=(e2.itens||[]).map(i=>{if(i.pid!==pid)return i;const ult=Number(i.ultimaH)||0,base=e2.intervaloPrev?Math.round((ult+Number(e2.intervaloPrev))*10)/10:i.proxH;return {...i,ivSel:v,ivDef:true,proxH:ivProx(v,ult,''),reprog:''}});
     if(await safe(()=>S.db.doc('equipamentos/'+eid).update({itens:its}),v==='aval'?'Item sob avaliacao':'Intervalo definido'))refreshSheet()}});
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-kv]');if(!b)return;const w=b.nextElementSibling;if(!w)return;w.hidden=!w.hidden;b.textContent=w.hidden?'Ver itens do kit':'Ocultar itens do kit'});
 document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.closest('[data-ia]');if(!h)return;const o=h.getAttribute('aria-expanded')==='true';h.setAttribute('aria-expanded',!o);h.nextElementSibling.hidden=o});
 /* ---------- reprogramar vencimento (so o item daquele equipamento; o cadastro do estoque nao muda) ---------- */
 const RP_MOT=['Avaliado em bom estado','Sem peca no estoque','Aguardando parada','Outro'];
@@ -2704,7 +2715,7 @@ function formTroca(eqId){
       const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId),on=s.cls==='bad'||s.cls==='warn',P=esc(it.pid);return `<div class="tr-i" data-row="${P}"${on?'':' hidden'}><input type="checkbox" hidden data-pid="${P}"${on?' checked':''}>
         <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="false"><div class="main"><b>${esc(itNome(it))}</b><div class="s"><span class="pill ${s.cls}">${s.label}</span><span class="num" data-cdv="${P}">${esc(it.espec||(st?stCod(st):''))}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span>`:''}</div></div>
         <input class="q" type="number" step="0.1" inputmode="decimal" data-q="${P}" value="${esc(it.qtd??'')}" aria-label="Quantidade usada de ${esc(it.desc)}"><span class="u">${esc(it.un||'')}</span>${I.chev}</div>
-        <div class="tr-b" hidden><label class="f">Codigo usado<input class="cd" data-cd="${P}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"></label>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev,`data-ivp="${P}"`)}<button type="button" class="btn" data-trm="${P}">Retirar do lancamento</button></div></div>`};
+        <div class="tr-b" hidden><label class="f">Codigo usado<input class="cd" data-cd="${P}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"></label>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev,`data-ivp="${P}"`)}${st&&isKit(st)?`<button type="button" class="btn" data-kv>Ver itens do kit</button><div class="kv-w" hidden>${kitLista(st,it.qtd||1)}</div>`:''}<button type="button" class="btn" data-trm="${P}">Retirar do lancamento</button></div></div>`};
       const its=e.itens||[];
       box.innerHTML=its.length?its.map(row).join('')+'<div class="empty" id="t-none" hidden>Nenhum item no lancamento. Pesquise acima para adicionar.</div>':`<div class="empty"><b>Sem oleos e filtros no plano</b>Monte o plano pelo + › Editar cadastro › Equipamento para registrar trocas.</div>`;
       box.querySelectorAll('[data-ivp]').forEach(i=>{i.onclick=ev=>ev.stopPropagation()});
@@ -2722,7 +2733,7 @@ function formTroca(eqId){
     const drawX=()=>{xb.hidden=!extras.length;xb.innerHTML=`<div class="ti-g">Itens adicionados</div>`+extras.map((x,k)=>{const st=x.s,op=xOpen.has(st.id);return `<div class="tr-i${op?' op':''}" data-xrow="${k}">
         <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${op}"><div class="main"><b>${esc(st.desc)}</b><div class="s"><span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),1)} ${esc(stUn(st))}</span></div></div>
         <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span>${I.chev}</div>
-        <div class="tr-b"${op?'':' hidden'}>${isKit(st)?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}<button type="button" class="btn" data-xr="${k}">Retirar do lancamento</button></div></div>`}).join('');
+        <div class="tr-b"${op?'':' hidden'}>${isKit(st)?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}${isKit(st)?`<button type="button" class="btn" data-kv>Ver itens do kit</button><div class="kv-w" hidden>${kitLista(st,x.q)}</div>`:''}<button type="button" class="btn" data-xr="${k}">Retirar do lancamento</button></div></div>`}).join('');
       xb.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const x=extras.splice(Number(b.dataset.xr),1)[0];if(x)xOpen.delete(x.s.id);drawX();hint();toast('Retirado do lancamento')});
       xb.querySelectorAll('[data-xq]').forEach(q=>{q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});
       xb.querySelectorAll('[data-xiv]').forEach(v=>{v.onclick=ev=>ev.stopPropagation();v.onchange=()=>{extras[Number(v.dataset.xiv)].iv=v.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=extras.some(x=>x.s.id===b.dataset.kit);b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)});vis()};
@@ -2881,7 +2892,8 @@ function formEditTroca(id){
       return `<div class="et-i${op?' op':''}"><button type="button" class="et-h" data-k="${k}" aria-expanded="${op}"><span class="et-n"><b>${esc(itNome(i))}</b><small class="num">${esc(codTx(k))}${x?'':' · fora do estoque'}${ch?` <em>substituiu ${esc(cur0[k])}</em>`:''}</small></span><span class="et-q num${qch?' mud':''}">${nf(c.qtd,1)} ${esc(i.un||'')}</span>${I.chev}</button>
       ${!op?'':modo==='ed'?`<div class="et-b"><label class="f">Quantidade usada<div class="et-qw"><input type="number" step="0.1" min="0" inputmode="decimal" id="et-qv" value="${esc(c.qtd)}"><span class="u">${esc(i.un||'')}</span><button type="button" class="btn pri" id="et-ok">Pronto</button></div></label><p class="note" style="margin:0">0 = nao usou do estoque.</p></div>`
        :modo==='sb'?`<div class="et-b"><div class="sug-w"><label class="f">Peca aplicada no lugar<input id="et-sq" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" style="font-family:var(--mono)"></label><div class="sug" id="et-sh"></div></div>${CAM_OK?rdBtn('et-cam'):''}<button type="button" class="btn" id="et-x">Cancelar</button></div>`
-       :`<div class="et-b et-a"><button type="button" class="btn" data-md="ed">Editar</button><button type="button" class="btn" data-md="sb">Substituir</button></div>`}</div>`}).join('');
+       :modo==='kv'?`<div class="et-b">${kitLista(x,c.qtd||1)}<button type="button" class="btn" data-md="">Fechar lista</button></div>`
+       :`<div class="et-b et-a"><button type="button" class="btn" data-md="ed">Editar</button><button type="button" class="btn" data-md="sb">Substituir</button>${x&&isKit(x)?'<button type="button" class="btn" data-md="kv">Ver itens</button>':''}</div>`}</div>`}).join('');
       L.querySelectorAll('.et-h').forEach(b=>b.onclick=()=>{const k=Number(b.dataset.k);aberto=aberto===k?-1:k;modo='';draw()});
       L.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{modo=b.dataset.md;draw();const fi=L.querySelector('#et-qv,#et-sq');fi&&setTimeout(()=>fi.focus(),40)});
       const k=aberto;if(k<0)return;
@@ -3527,7 +3539,7 @@ async function drawCartao(t){
   if(falta!=null){y+=26;const txt=falta>0?`Faltam ${nf(falta)} h · horimetro atual ${nf(cur)} h`:`Vencida ha ${nf(-falta)} h · horimetro atual ${nf(cur)} h`;
     font(600,30,SAN);const tw=x.measureText(txt).width+44;rr(P,y,tw,56,28,falta>0?'#e5f3ea':'#fbe4e1');x.fillStyle=falta>0?C.ok:C.bad;x.fillText(txt,P+22,y+38);y+=56}
   // itens
-  const its=t.itens||[];
+  const its=itensInforme(t);
   y+=64;font(700,38,DSP);x.fillStyle=C.fg;x.fillText('MATERIAL APLICADO',P,y);
   font(600,30,MON);x.fillStyle=C.mut;const nIt=String(its.length);x.fillText(nIt,W-P-x.measureText(nIt).width,y);
   y+=20;x.fillStyle=C.acc;x.fillRect(P,y,W-2*P,4);y+=4;

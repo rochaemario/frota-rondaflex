@@ -503,7 +503,7 @@ body.focus .sidetabs{display:none!important}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .pn-list .ia+.ia>.ia-h,:root:not([data-theme="light"]) .es-r+.es-r{box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}}
 .es-b small{white-space:nowrap}
 .es-b.wide{width:58px}
-.es-b b i{font-style:normal;font-size:11px;font-weight:600;margin-left:2px}
+.es-b b{white-space:nowrap}.es-b b i{font-style:normal;font-size:11px;font-weight:600;margin-left:2px}
 .es-e{flex:0 0 auto;font-size:12px;color:var(--muted);display:grid;place-items:center}
 .es-e svg{width:18px;height:18px;color:var(--accent)}
 .tsec-l>.es-r{background:var(--surface)}
@@ -985,8 +985,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=1ac96ca76f"></script>
-<script src="shim.js?v=1ac96ca76f"></script>
+<script src="config.js?v=f62e6e7162"></script>
+<script src="shim.js?v=f62e6e7162"></script>
 </head>
 <body>
 
@@ -3953,6 +3953,21 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
   db.doc('config/compras').onSnapshot(d=>{S.cart=(d.exists&&d.data().itens)||[];cartBtn();if(!sheetOpen)render();else refreshSheet()},err=>console.error(err));
 })();
 })();
+
+/* AJUSTE AUTOMATICO DE CAIXAS (vale para todo o app): numero ou texto que nao cabe na caixa de tamanho fixo
+   1) se cabe, nada muda; 2) se nao cabe, a fonte reduz (ate 72%) e a caixa fica igual; 3) so se ainda nao couber, a caixa alarga o minimo necessario.
+   Nunca corta nem troca por reticencias. */
+const FIT_SEL='.es-b,.dday,.lt-c,.ef-sum>div,.ct-b';
+/* conteudo centralizado pode vazar para os dois lados (o scrollWidth nao ve o lado esquerdo): compara as caixas de cada parte */
+const fitOver=el=>{if(el.scrollWidth>el.clientWidth+1||el.scrollHeight>el.clientHeight+1)return true;const c=el.getBoundingClientRect(),pd=2;
+  return [...el.querySelectorAll('*')].some(x=>{if(x instanceof SVGElement)return false;const r=x.getBoundingClientRect();return r.width>0&&(r.left<c.left+pd||r.right>c.right-pd)})};
+function fitBox(el){const els=[el,...el.querySelectorAll('*')].filter(x=>!(x instanceof SVGElement));
+  const base=els.map(x=>parseFloat(getComputedStyle(x).fontSize)||14);el.dataset.fit='1';
+  for(const k of [.92,.85,.78,.72]){els.forEach((x,i)=>{x.style.fontSize=(base[i]*k).toFixed(1)+'px'});if(!fitOver(el))return}
+  const w=el.getBoundingClientRect().width;el.style.minWidth=Math.ceil(w)+'px';el.style.width='auto';el.style.flex='0 0 auto';el.style.paddingLeft=el.style.paddingRight='6px';el.style.textOverflow='clip';el.style.overflow='visible'}
+let fitT=0;function fitAll(){fitT=0;const l=[...document.querySelectorAll(FIT_SEL)].filter(x=>!x.dataset.fit&&x.offsetParent);const ov=l.filter(fitOver);ov.forEach(fitBox)}
+new MutationObserver(()=>{if(!fitT)fitT=requestAnimationFrame(fitAll)}).observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['hidden','aria-expanded','class']});
+addEventListener('resize',()=>{document.querySelectorAll('[data-fit]').forEach(x=>{delete x.dataset.fit;['fontSize','minWidth','width','flex','paddingLeft','paddingRight','textOverflow','overflow'].forEach(p=>x.style[p]='');x.querySelectorAll('*').forEach(c=>{if(!(c instanceof SVGElement))c.style.fontSize=''})});if(!fitT)fitT=requestAnimationFrame(fitAll)});
 </script>
 
 </body>

@@ -458,7 +458,9 @@ body.focus .sidetabs{display:none!important}
 .es-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px}.es-tab,.es-tab:hover{min-height:42px;font-size:14.5px;gap:8px;background:var(--surface);border-color:var(--line-2,#d5dbe6);color:var(--accent)}.es-tab svg{width:17px;height:17px}.es-tab[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);box-shadow:0 1px 2px rgba(11,36,112,.15)}
 .ef{margin-top:10px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px 12px 10px}.ef-s{padding:10px 0;border-bottom:1px solid var(--line)}.ef-s:last-child{border-bottom:0}.ef-h{font-size:12.5px;font-weight:600;color:var(--muted);margin:0 0 7px;white-space:nowrap}
 .ef-cs{display:flex;flex-wrap:wrap;gap:6px}.ef-c{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line-2,#d5dbe6);background:#fff;font:inherit;font-size:13.5px;font-weight:500;color:var(--fg);cursor:pointer}.ef-c[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-#ef-res{margin-top:12px}#ef-top .ef-sum{margin-top:10px}.ef-q{margin:0 0 8px}.ef-q input{min-height:40px}
+#ef-res{margin-top:4px}.ef-tg{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.ef-tg button{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 5px 0 12px;border-radius:999px;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-size:13.5px;font-weight:500;cursor:pointer}.ef-tg i{font-style:normal;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center;font-size:12px}
+.xf-top{display:flex;justify-content:flex-end;margin:-4px 0 8px}.xb{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}.xf-i+.xf-i{border-top:1px solid var(--line)}
+.xr{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:0 14px;background:#fff;border:0;font:inherit;color:var(--fg);cursor:pointer;text-align:left}.xr b{flex:0 0 auto;font-size:15px;font-weight:600}.xr .xv{flex:1;min-width:0;text-align:right}.xr .xv span{font-size:14px;color:var(--muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xr .xv span.on{color:var(--accent);font-weight:600}.xr svg{width:18px;height:18px;color:var(--muted);flex:0 0 auto;transition:transform .15s}.xr[aria-expanded="true"]{background:#e2e6ee}.xr[aria-expanded="true"] svg{transform:rotate(90deg)}.xo{padding:12px 14px 14px;background:#fff}.xo[hidden]{display:none}#ef-top .ef-sum{margin-top:10px}.ef-q{margin:0 0 8px}.ef-q input{min-height:40px}
 .ef-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.ef-sum>div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:3px}.ef-sum b{font-size:18px;line-height:1.2}.ef-sum span{font-size:12px;color:var(--muted)}.ef-sum .w b{color:var(--warn,#b45309)}
 .ef-n{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:12px 2px 6px;font-size:13.5px;color:var(--muted);min-height:34px}.es-res>.es-l{margin-top:0}
 .lst-un{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);margin-right:auto}.lst-add .l-u{flex:0 0 74px}
@@ -1630,24 +1632,49 @@ const esSelDef=()=>({cat:[],sal:[],tag:'',etp:[],mar:[],loc:[],mov:[],inc:[],sit
 async function esMovLoad(){try{const q=await S.db.collection('movs').where('tipo','==','saida').get();const m={},d30=iso(new Date(Date.now()-30*864e5));
   q.docs.map(d=>d.data()).forEach(x=>{if(!x.estoqueId)return;const r=m[x.estoqueId]=m[x.estoqueId]||{last:'',n30:0};if((x.data||'')>r.last)r.last=x.data||'';if((x.data||'')>=d30)r.n30+=Number(x.qtd)||0});S.esMov=m}catch(e){S.esMov=null}}
 const esSal=s=>{const q=stQtd(s),m=Number(s.minimo)||0;return q<=0?'zero':m>0&&q<=m?'baixo':m>0?'ok':'semmin'};
-function esFilPanel(){const E=S.esSel=S.esSel||esSelDef();const all=S.estoqueAll;
-  const c=(k,v,t)=>`<button type="button" class="ef-c" data-ef="${k}:${esc(v)}" aria-pressed="${k==='ord'?E.ord===v:E[k].includes(v)}">${esc(t)}</button>`;
-  const sec=(t,body)=>body?`<div class="ef-s"><div class="ef-h">${t}</div><div class="ef-cs">${body}</div></div>`:'';
-  const dist=f=>[...new Set(all.map(f).filter(Boolean))].sort(_an);
+/* opcoes de cada criterio do Filtrar: [valor, rotulo] */
+function esOpts(){const all=S.estoqueAll,dist=f=>[...new Set(all.map(f).filter(Boolean))].sort(_an).map(v=>[v,v]);
   const cats=[];CATS.forEach(n=>{cats.push([catKey(n),n]);if(n==='Filtro')cats.push(['kit','Kits'])});if(!cats.some(x=>x[0]==='kit'))cats.unshift(['kit','Kits']);
   const ix=esEqIx(),cs=new Set();Object.values(ix).forEach(st=>st.forEach(x=>cs.add(x)));all.forEach(s=>(s.encaixe||[]).forEach(id=>{const e=eqById(id);if(e)cs.add(e.codigo)}));
-  const tps=[...new Set(S.equips.filter(e=>cs.has(e.codigo)).map(e=>e.tipo).filter(Boolean))].sort(_an);
-  return `<div class="ef">`+sec('Categoria',cats.map(([k,n])=>c('cat',k,n)).join(''))
-   +sec('Saldo',c('sal','zero','Zerado')+c('sal','baixo','Abaixo do minimo')+c('sal','ok','Em dia')+c('sal','semmin','Sem minimo definido'))
-   +`<div class="ef-s"><div class="ef-h">Encaixe</div><div class="search ef-q">${I.search}<input id="ef-tag" type="search" value="${esc(E.tag)}" placeholder="TAG do equipamento" autocomplete="off" aria-label="TAG do equipamento"></div>${tps.length?`<div class="ef-cs">${tps.map(t=>c('etp',t,t)).join('')}</div>`:''}</div>`
-   +sec('Marca',dist(s=>s.marca).map(v=>c('mar',v,v)).join(''))+sec('Local',dist(s=>s.local).map(v=>c('loc',v,v)).join(''))
-   +sec('Movimento',c('mov','par','Parados (sem saida ha 90 dias)')+c('mov','uso','Mais usados (saidas em 30 dias)'))
-   +sec('Cadastro incompleto',c('inc','foto','Sem foto')+c('inc','enc','Sem encaixe')+c('inc','min','Sem minimo'))
-   +sec('Situacao',c('sit','at','Ativos')+c('sit','in','Inativos'))
-   +sec('Ordenar',c('ord','az','A–Z')+c('ord','menor','Menor saldo')+c('ord','maior','Maior saldo')+c('ord','uso','Mais usados'))+`</div>`}
-function esFilRes(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[\s.\-\/]/g,'');
+  return {cat:cats,sal:[['zero','Zerado'],['baixo','Abaixo do minimo'],['ok','Em dia'],['semmin','Sem minimo definido']],
+    etp:[...new Set(S.eqCtl.filter(e=>cs.has(e.codigo)).map(e=>e.tipo).filter(Boolean))].sort(_an).map(v=>[v,v]),mar:dist(s=>s.marca),loc:dist(s=>s.local),
+    mov:[['par','Parados (sem saida ha 90 dias)'],['uso','Mais usados (saidas em 30 dias)']],inc:[['foto','Sem foto'],['enc','Sem encaixe'],['min','Sem minimo']],
+    sit:[['at','Ativos'],['in','Inativos']],ord:[['az','A–Z'],['menor','Menor saldo'],['maior','Maior saldo'],['uso','Mais usados']]}}
+const ES_ROWS=[['cat','Categoria','Todas'],['sal','Saldo','Todos'],['eq','Equipamento','Todos'],['mar','Marca','Todas'],['loc','Local','Todos'],['mov','Movimento','Todos'],['inc','Cadastro incompleto','—'],['sit','Situacao','Todos'],['ord','Ordenar','']];
+/* escolhas ativas, para as etiquetas com X na tela do estoque */
+function esTags(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts(),lb=(k,v)=>((O[k]||[]).find(x=>x[0]===v)||[v,v])[1],t=[];
+  ['cat','sal'].forEach(k=>E[k].forEach(v=>t.push([k,v,lb(k,v)])));if(E.tag)t.push(['tag','',E.tag.toUpperCase()]);E.etp.forEach(v=>t.push(['etp',v,v]));
+  ['mar','loc'].forEach(k=>E[k].forEach(v=>t.push([k,v,v])));E.mov.forEach(v=>t.push(['mov',v,v==='par'?'Parados':'Mais usados']));E.inc.forEach(v=>t.push(['inc',v,lb('inc',v)]));
+  if(E.sit.join()!=='at')t.push(['sit','',E.sit.length===1?lb('sit',E.sit[0]):'Ativos e inativos']);if(E.ord!=='az')t.push(['ord','','Ordem: '+lb('ord',E.ord)]);return t}
+function esRowVal(k){const E=S.esSel,O=esOpts(),lb=(kk,v)=>((O[kk]||[]).find(x=>x[0]===v)||[v,v])[1];
+  if(k==='eq'){const l=[E.tag?E.tag.toUpperCase():'',...E.etp].filter(Boolean);return l.join(', ')}
+  if(k==='ord')return lb('ord',E.ord);if(k==='sit')return E.sit.length===1?lb('sit',E.sit[0]):'';if(k==='mov')return E.mov.map(v=>v==='par'?'Parados':'Mais usados').join(', ');
+  return E[k].map(v=>lb(k,v)).join(', ')}
+function esFilSheet(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts();
+  nav('esf',()=>esFilSheet());
+  const c=(k,v,t)=>`<button type="button" class="ef-c" data-ef="${k}:${esc(v)}" aria-pressed="${k==='ord'?E.ord===v:E[k].includes(v)}">${esc(t)}</button>`;
+  const opts=k=>k==='eq'?`<div class="search ef-q">${I.search}<input id="ef-tag" type="search" value="${esc(E.tag)}" placeholder="TAG do equipamento" autocomplete="off" aria-label="TAG do equipamento"></div>${O.etp.length?`<div class="ef-cs">${O.etp.map(([v,t])=>c('etp',v,t)).join('')}</div>`:''}`
+    :`<div class="ef-cs">${O[k].map(([v,t])=>c(k,v,t)).join('')}</div>`;
+  const val=(k,d)=>{const v=esRowVal(k);return `<span class="${v&&!(k==='ord'&&E.ord==='az')&&!(k==='sit'&&E.sit.join()==='at')?'on':''}">${esc(v||d)}</span>`};
+  const ver=()=>{const n=esFilList().length;return `Ver ${n} ${n===1?'item':'itens'}`};
+  openSheet({title:'Filtrar estoque',sub:'Toque num criterio para escolher',
+  body:`<div class="xf-top"><button type="button" class="btn sm" id="xf-clr">Limpar</button></div><div class="xb">${ES_ROWS.filter(([k])=>k==='eq'||k==='ord'||O[k].length).map(([k,t,d])=>`<div class="xf-i"><button type="button" class="xr" data-xr="${k}" aria-expanded="false"><b>${t}</b><span class="xv" data-xv="${k}">${val(k,d)}</span>${I.chev}</button><div class="xo" hidden>${opts(k)}</div></div>`).join('')}</div>`,
+  foot:`<button class="btn pri" id="xf-ver">${ver()}</button>`,
+  mount:sh=>{const upd=k=>{const r=ES_ROWS.find(x=>x[0]===k||(k==='etp'&&x[0]==='eq')||(k==='tag'&&x[0]==='eq'));if(r)sh.querySelector(`[data-xv="${r[0]}"]`).innerHTML=val(r[0],r[2]);sh.querySelector('#xf-ver').textContent=ver()};
+    sh.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const it=b.closest('.xf-i'),ab=b.getAttribute('aria-expanded')!=='true';
+      sh.querySelectorAll('.xf-i').forEach(x=>{x.querySelector('[data-xr]').setAttribute('aria-expanded','false');x.querySelector('.xo').hidden=true});
+      if(ab){b.setAttribute('aria-expanded','true');it.querySelector('.xo').hidden=false}});
+    sh.querySelectorAll('[data-ef]').forEach(cc=>cc.onclick=()=>{const [k,v]=cc.dataset.ef.split(':');
+      if(k==='ord'){E.ord=v;sh.querySelectorAll('[data-ef^="ord:"]').forEach(x=>x.setAttribute('aria-pressed',x===cc))}
+      else{const a=E[k],i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);cc.setAttribute('aria-pressed',i<0)}upd(k)});
+    const tg=sh.querySelector('#ef-tag');if(tg)tg.oninput=()=>{E.tag=tg.value.trim();upd('tag')};
+    sh.querySelector('#xf-clr').onclick=()=>{S.esSel=esSelDef();NAV.pop();esFilSheet()};
+    sh.querySelector('#xf-ver').onclick=()=>closeSheet();
+    if(!S.esMov)esMovLoad().then(()=>{const v=sh.querySelector('#xf-ver');if(v&&v.isConnected)v.textContent=ver()})}});
+}
+function esFilList(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[\s.\-\/]/g,'');
   const d90=iso(new Date(Date.now()-90*864e5)),mv=s=>(M&&M[s.id])||{last:'',n30:0};
-  const tpCods=E.etp.length?new Set(S.equips.filter(e=>E.etp.includes(e.tipo)).map(e=>e.codigo)):null,tag=nz(E.tag);
+  const tpCods=E.etp.length?new Set(S.eqCtl.filter(e=>E.etp.includes(e.tipo)).map(e=>e.codigo)):null,tag=nz(E.tag);
   const cods=s=>[...(ix[s.id]||[]),...(s.encaixe||[]).map(id=>{const e=eqById(id);return e&&e.codigo}).filter(Boolean)];
   let l=S.estoqueAll.filter(s=>{
     if(E.sit.length===1&&(E.sit[0]==='at')===!!s.inativo)return false;
@@ -1660,12 +1687,13 @@ function esFilRes(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz
     return true});
   const az=(a,b)=>_an(a.desc||'',b.desc||'')||byCode(a,b);
   l.sort(E.ord==='menor'?(a,b)=>stQtd(a)-stQtd(b)||az(a,b):E.ord==='maior'?(a,b)=>stQtd(b)-stQtd(a)||az(a,b):E.ord==='uso'?(a,b)=>mv(b).n30-mv(a).n30||az(a,b):az);
-  const un={};l.forEach(s=>{const u=(s.un||catUn(isKit(s)?'kit':s.tipo)).trim();const k=u.toLowerCase()==='l'?'L':u;un[k]=(un[k]||0)+stQtd(s)});
-  const uk=Object.keys(un).sort((a,b)=>(a==='un'?-1:b==='un'?1:a==='L'?-1:b==='L'?1:_an(a,b)));
-  const baixo=l.filter(s=>stockCls(s)!=='ok').length,sel=E.cat.length+E.sal.length+E.etp.length+E.mar.length+E.loc.length+E.mov.length+E.inc.length+(E.tag?1:0)+(E.sit.join()!=='at'?1:0)+(E.ord!=='az'?1:0);
-  return [`<div class="ef-sum"><div><b class="num">${l.length}</b><span>Tipos de itens</span></div><div><b class="num">${uk.length?uk.map(u=>nf(un[u],1)+' '+esc(u)).join('<br>'):'0'}</b><span>Em estoque</span></div><div class="${baixo?'w':''}"><b class="num">${baixo}</b><span>Abaixo do minimo</span></div></div>
-  <div class="ef-n"><span id="es-n">${l.length} ${l.length===1?'item encontrado':'itens encontrados'}</span>${sel?'<button type="button" class="btn sm" id="ef-clr">Limpar selecao</button>':''}</div>
-  ${E.mov.length&&!M?'<p class="note">Movimento indisponivel agora (sem conexao); criterio ignorado.</p>':''}`,
+  return l}
+function esFilRes(){const l=esFilList(),E=S.esSel,ix=esEqIx(),tags=esTags();
+  const tem=l.filter(s=>stQtd(s)>0).length,baixo=l.filter(s=>stockCls(s)!=='ok').length;
+  return [`<div class="ef-sum"><div><b class="num">${l.length}</b><span>Total de itens</span></div><div><b class="num">${tem}</b><span>Em estoque</span></div><div class="${baixo?'w':''}"><b class="num">${baixo}</b><span>Abaixo do minimo</span></div></div>
+  ${tags.length?`<div class="ef-tg">${tags.map(([k,v,t])=>`<button type="button" data-tgx="${k}:${esc(v)}" aria-label="Tirar ${esc(t)}">${esc(t)}<i>✕</i></button>`).join('')}</div>`:''}
+  <div class="ef-n"><span id="es-n">${l.length} ${l.length===1?'item encontrado':'itens encontrados'}</span>${tags.length?'<button type="button" class="btn sm" id="ef-clr">Limpar</button>':''}</div>
+  ${E.mov.length&&!S.esMov?'<p class="note">Movimento indisponivel agora (sem conexao); criterio ignorado.</p>':''}`,
   l.length?`<div class="es-blk es-res"><div class="es-l">${l.map(s=>esRow(s,{attr:`data-mov="${esc(s.id)}" data-q="${esc(esNorm([s.desc,s.codigo,s.ref,s.marca,s.aplic,s.local,isKit(s)?'kit':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' ')))}"`})).join('')}</div></div>`:'<div class="empty">Nenhum item com essa selecao.</div>']}
 function vEstoque(){
   const ord={bad:0,warn:1,ok:2};
@@ -1676,7 +1704,7 @@ function vEstoque(){
   const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],isKit(s)?'':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' '));
   const row=s=>esRow(s,{attr:`data-mov="${esc(s.id)}"${busca?` data-q="${esc(qOf(s))}"`:''}`});
   return toolbar('Filtros, oleos e kits da oficina')+
-  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button></div></div>${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div>${esFilPanel()}<div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
+  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button></div></div>${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
   (list.length?G.map(([k,lab])=>{const l=list.filter(s=>grp(s)===k);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>${lab}</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''}).join('')+(()=>{const l=S.estoqueAll.filter(x=>x.inativo).sort(byCode);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>Inativos</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''})()+(busca?'<div class="empty es-0" id="esq-0" hidden>Nenhum item encontrado.</div>':'')
   :'<div class="empty"><b>Estoque vazio</b>Toque no botao + para cadastrar filtros e oleos. Ligados ao plano da maquina, eles baixam sozinhos a cada troca.</div>');
 }
@@ -1723,13 +1751,11 @@ function bindView(){
         const ok=toks.every(k=>w.some(x=>x.startsWith(k))||(/\d/.test(k)&&c.includes(k.replace(/[.\-\/]/g,''))));r.hidden=!ok;r.classList.remove('es-first');if(ok){n++;if(!first){first=r;r.classList.add('es-first')}}});
         blk.hidden=!n;const em=blk.querySelector('.es-g em');if(em)em.textContent=n;tot+=n});
       const z=$('#esq-0');if(z)z.hidden=!!tot||(fil&&!blks.length);const en=$('#es-n');if(en&&fil)en.textContent=`${tot} ${tot===1?'item encontrado':'itens encontrados'}`};
-    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});app.querySelectorAll('[data-estab]').forEach(b=>b.onclick=()=>{if(b.dataset.estab==='rel'){S.esAll=!S.esAll;S.esFil=false}else{S.esFil=!S.esFil;S.esAll=false}render();if(S.esFil&&!S.esMov)esMovLoad().then(()=>{if(S.esFil&&$('#ef-res'))render()})});
-    const ef=$('#es-fil');if(ef){const upd=()=>{const r=esFilRes();ef.querySelector('#ef-top').innerHTML=r[0];ef.querySelector('#ef-res').innerHTML=r[1];ef.querySelectorAll('#ef-res [data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));run()};
-      ef.querySelectorAll('[data-ef]').forEach(c=>c.onclick=()=>{const [k,v]=c.dataset.ef.split(':');const E=S.esSel;
-        if(k==='ord'){E.ord=v;ef.querySelectorAll('[data-ef^="ord:"]').forEach(x=>x.setAttribute('aria-pressed',x===c))}
-        else{const a=E[k],i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);c.setAttribute('aria-pressed',i<0)}upd()});
-      const tg=ef.querySelector('#ef-tag');if(tg)tg.oninput=()=>{S.esSel.tag=tg.value;upd()};
-      ef.querySelector('#ef-top').addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();render()}})}esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
+    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});app.querySelectorAll('[data-estab]').forEach(b=>b.onclick=()=>{if(b.dataset.estab==='rel'){S.esAll=!S.esAll;S.esFil=false;render();return}
+      if(!S.esFil){S.esFil=true;S.esAll=false;render()}NAV.length=0;esFilSheet()});
+    const ef=$('#es-fil');if(ef){ef.addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();render();return}
+      const x=ev.target.closest('[data-tgx]');if(!x)return;const [k,v]=x.dataset.tgx.split(':'),E=S.esSel;
+      if(k==='tag')E.tag='';else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}render()})}esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
     esq.onfocus=()=>{S.esFoc=true};esq.onblur=()=>setTimeout(()=>{if(esq.isConnected)S.esFoc=false},0);
     if(S.esQ){esq.value=S.esQ;run()}
     if(S.esFoc){esq.focus({preventScroll:true});const n=esq.value.length;try{esq.setSelectionRange(n,n)}catch(e){}}}

@@ -98,18 +98,32 @@
     for(;;){const {data,error}=await sb.from('docs').select('path,parent,data').order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>srv.set(r.path,r.data));
       const pg=document.getElementById('dl-pg');if(pg)pg.textContent=`Baixando ${srv.size} registros…`;if(data.length<N)break;from+=N}
     const pend=new Set(OUT.map(o=>o.path).filter(Boolean));
-    [...DOCS.keys()].forEach(p=>{if(!srv.has(p)&&!pend.has(p))setLocal(p,null,false)});
-    srv.forEach((d,p)=>{let x=semAc(d);pendingFor(p).forEach(o=>{x=replay(x,o)});const cur=DOCS.get(p);if(JSON.stringify(cur)!==JSON.stringify(x))setLocal(p,x,false)});
-    if(IDBH){await new Promise(ok=>{const t=IDBH.transaction('docs','readwrite'),o=t.objectStore('docs');o.clear();DOCS.forEach((d,p)=>o.put({parent:parentOf(p),data:d},p));t.oncomplete=ok;t.onerror=ok;t.onabort=ok})}
+    const mud=new Set(),vazio=!DOCS.size;
+    [...DOCS.keys()].forEach(p=>{if(!srv.has(p)&&!pend.has(p)){setLocal(p,null,false);mud.add(p)}});
+    srv.forEach((d,p)=>{let x=semAc(d);pendingFor(p).forEach(o=>{x=replay(x,o)});const cur=DOCS.get(p);if(JSON.stringify(cur)!==JSON.stringify(x)){setLocal(p,x,false);mud.add(p)}});
+    /* so grava no aparelho o que mudou (antes regravava tudo a cada abertura) */
+    if(IDBH&&(mud.size||vazio)){await new Promise(ok=>{const t=IDBH.transaction('docs','readwrite'),o=t.objectStore('docs');
+      if(vazio){o.clear();DOCS.forEach((d,p)=>o.put({parent:parentOf(p),data:d},p))}else mud.forEach(p=>{const d=DOCS.get(p);if(d==null)o.delete(p);else o.put({parent:parentOf(p),data:d},p)});
+      t.oncomplete=ok;t.onerror=ok;t.onabort=ok})}
     await metaSet('pulled',Date.now());netOk=true})().catch(e=>{if(isNet(e))netOk=false;else console.error(e);throw e}).finally(()=>{pulling=null;updSync()});return pulling}
-  const sincronizar=()=>flush().then(()=>pull()).then(()=>flush()).catch(()=>{});
+  /* rede lenta: o app abre com o que esta guardado e atualiza depois, sem travar a abertura */
+  const LENTO='frota.lento';
+  const conLenta=()=>{if(!navigator.onLine)return true;const c=navigator.connection||{};if(c.saveData||/(^|-)2g$/.test(c.effectiveType||'')||(c.rtt&&c.rtt>=700)||(c.downlink&&c.downlink<0.4))return true;
+    try{return Date.now()-(+localStorage.getItem(LENTO)||0)<30*60000}catch(e){return false}};
+  window.__frotaLenta=conLenta;
+  const sincronizar=()=>{const t0=Date.now();return flush().then(()=>pull()).then(()=>{try{if(Date.now()-t0>6000)localStorage.setItem(LENTO,Date.now());else localStorage.removeItem(LENTO)}catch(e){}}).then(()=>flush()).catch(()=>{})};
+  /* depois de abrir: espera a tela aparecer (e mais um pouco se a rede estiver lenta) para atualizar */
+  const syncDepois=()=>{const go=()=>sincronizar();const ms=conLenta()?3500:400;setTimeout(()=>{'requestIdleCallback' in window?requestIdleCallback(go,{timeout:2500}):go()},ms)};
 
   /* abre a copia local */
   async function dbInit(){IDBH=await idbOpen();if(!IDBH)return false;
     try{const t=IDBH.transaction(['docs','outbox','blobs'],'readonly');
-      const [keys,vals,outs,bks,bvs]=await Promise.all([rq(t.objectStore('docs').getAllKeys()),rq(t.objectStore('docs').getAll()),rq(t.objectStore('outbox').getAll()),rq(t.objectStore('blobs').getAllKeys()),rq(t.objectStore('blobs').getAll())]);
+      const [keys,vals,outs,bks]=await Promise.all([rq(t.objectStore('docs').getAllKeys()),rq(t.objectStore('docs').getAll()),rq(t.objectStore('outbox').getAll()),rq(t.objectStore('blobs').getAllKeys())]);
       keys.forEach((p,i)=>{const v=vals[i];DOCS.set(p,semAc(v.data));let k=KIDS.get(v.parent);if(!k)KIDS.set(v.parent,k=new Set());k.add(p)});
-      OUT=outs;bks.forEach((id,i)=>{try{LOCALBLOB.set(id,URL.createObjectURL(bvs[i].blob))}catch(e){}})}catch(e){console.error(e)}
+      OUT=outs;
+      /* abertura rapida: documentos guardados (doc:) so sao lidos quando abertos; aqui so as fotos ainda nao enviadas */
+      const pend=bks.filter(k=>!String(k).startsWith('doc:'));if(pend.length){const t2=IDBH.transaction('blobs','readonly'),o2=t2.objectStore('blobs');
+        const bv=await Promise.all(pend.map(k=>rq(o2.get(k)).catch(()=>null)));pend.forEach((id,i)=>{try{if(bv[i]&&bv[i].blob)LOCALBLOB.set(id,URL.createObjectURL(bv[i].blob))}catch(e){}})}}catch(e){console.error(e)}
     return !!(await metaGet('pulled'))}
 
   /* tempo real */
@@ -245,10 +259,13 @@
       setTimeout(tentar,250)})})}
   /* sessao guardada no aparelho (para abrir sem internet) */
   const sessaoGuardada=()=>{try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k));const s=v&&(v.currentSession||v);if(s&&s.user)return s}}}catch(e){}return null};
-  async function start(){
+  /* uma abertura por vez (o aviso de sessao do servidor pode chegar enquanto a abertura ainda corre) */
+  let startP=null;function start(){if(startP)return startP;startP=start0().finally(()=>{startP=null});return startP}
+  async function start0(){
     /* sessao: nao espera mais que 1,5 s pelo servidor; segue com a guardada e renova em segundo plano */
     let session=null;const guard=sessaoGuardada();
-    try{const r=await Promise.race([sb.auth.getSession(),new Promise(ok=>setTimeout(()=>ok(guard&&!acabouDeEntrar?{data:{session:guard},lento:true}:null),1500))]);if(r)session=r.data.session}catch(e){}
+    if(guard&&!acabouDeEntrar&&!started){session=guard;sb.auth.getSession().catch(()=>{})}
+    else try{const r=await Promise.race([sb.auth.getSession(),new Promise(ok=>setTimeout(()=>ok(guard&&!acabouDeEntrar?{data:{session:guard},lento:true}:null),1500))]);if(r)session=r.data.session}catch(e){}
     if(!session&&!acabouDeEntrar)session=guard;
     if(!session&&acabouDeEntrar){try{({data:{session}}=await sb.auth.getSession())}catch(e){}}
     /* sem sessao e sem internet: se este aparelho ja foi usado, abre com os dados guardados (login volta a ser pedido quando houver internet) */
@@ -271,12 +288,12 @@
       const tem=await dbInit();
       if(!tem){screen('<h1>Carregando os dados</h1><p>Baixando a frota para este aparelho. So acontece no primeiro acesso.</p><p id="dl-pg" style="font-weight:600;color:var(--fg)">Conectando…</p>');
         try{await pull()}catch(e){screen('<h1>Sem internet</h1><p>No primeiro uso neste aparelho e preciso internet para baixar os dados. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="of-t">Tentar de novo</button>',o=>{o.querySelector('#of-t').onclick=()=>start()});return}}
-      else sincronizar();
+      else syncDepois();
       window.__frotaEu={uid:perfil.user_id,nome:perfil.nome||'',email:perfil.email||'',papel:perfil.papel};
-      closeScreen();started=true;resolveReady();setTimeout(updSync,300);realtime();equipeSync();return}
+      closeScreen();started=true;resolveReady();setTimeout(updSync,300);setTimeout(()=>{realtime();equipeSync()},conLenta()?3000:300);return}
     closeScreen()
   }
-  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{semSessao=false;closeScreen();sincronizar()}return}
+  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}
     /* sessao perdida sem o usuario pedir (ex.: senha trocada): pede login de novo, sem apagar o que esta guardado */
     if(ev==='SIGNED_OUT'&&!saindo){if(started)loginForm('Entre de novo para enviar o que esta guardado neste aparelho.');return}
     if(ev==='SIGNED_OUT'){try{sessionStorage.clear();localStorage.removeItem('frota.perfil')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});

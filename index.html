@@ -1009,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=b2a37fee5e"></script>
-<script src="shim.js?v=b2a37fee5e"></script>
+<script src="config.js?v=e081c88d28"></script>
+<script src="shim.js?v=e081c88d28"></script>
 </head>
 <body>
 
@@ -3841,11 +3841,14 @@ function openCartao(id){
 /* ---------- kits ---------- */
 function kitView(k){
   const id=k.id,c=stockCls(k),d=kitDisp(k),cs=kitComps(k);
-  const lim=cs.filter(x=>Number(x.c.qtd)>0&&Math.floor((Number(x.s.qtd)||0)/Number(x.c.qtd)+1e-9)===d).map(x=>stCod(x.s));
+  const limOk=x=>Number(x.c.qtd)>0&&Math.floor((Number(x.s.qtd)||0)/Number(x.c.qtd)+1e-9)===d,lim=cs.filter(limOk),sem=cs.filter(x=>(Number(x.s.qtd)||0)<Number(x.c.qtd)).length;
+  /* cartao: so a contagem (os itens ja estao listados abaixo); na lista, os que limitam o kit vem primeiro */
+  const pl=n=>`${n} ${n===1?'item':'itens'}`,limTx=!cs.length?'Kit sem itens':d===0?`${pl(sem)} sem saldo`:`Limitado por ${pl(lim.length)}`;
+  const ord=[...lim,...cs.filter(x=>!lim.includes(x))];
   const used=S.equips.filter(e=>(e.itens||[]).some(i=>i.estoqueId===id)).sort(byCode).map(e=>e.codigo);
   openSheet({title:esc(k.desc),sub:`<span class="num">${esc(stCod(k))}</span> · Kit · ${cs.length} ${cs.length===1?'item':'itens'}`,
-  body:`<div class="hmcard"><div><div class="k">Kits disponiveis</div><div class="v">${nf(d)}<small>${d===1?'kit':'kits'}</small></div><div class="d">${cs.length?`Limitado por ${esc(lim.join(', '))}`:'Kit sem itens'} · minimo ${nf(k.minimo,1)}</div></div><span class="pill ${c}">${c==='bad'?'Falta item':c==='warn'?'Repor':'Ok'}</span></div>
-  <div class="lbl">Itens do kit</div><div class="es-l">${cs.map(({c:x,s})=>{const falta=(Number(s.qtd)||0)<Number(x.qtd);return esRow(s,{tag:'div',cls:falta?'bad':undefined,sub:`${esc(stCod(s))} · ${nf(x.qtd,1)} ${esc(s.un||'')} por kit`})}).join('')||'<div class="empty">Nenhum item no kit.</div>'}</div>
+  body:`<div class="hmcard"><div><div class="k">Kits disponiveis</div><div class="v">${nf(d)}<small>${d===1?'kit':'kits'}</small></div><div class="d">${limTx} · minimo ${nf(k.minimo,1)}</div></div><span class="pill ${c}">${c==='bad'?'Falta item':c==='warn'?'Repor':'Ok'}</span></div>
+  <div class="lbl">Itens do kit</div><div class="es-l">${ord.map(({c:x,s})=>{const falta=(Number(s.qtd)||0)<Number(x.qtd);return esRow(s,{tag:'div',cls:falta?'bad':undefined,sub:`${esc(stCod(s))} · ${nf(x.qtd,1)} ${esc(s.un||'')} por kit`})}).join('')||'<div class="empty">Nenhum item no kit.</div>'}</div>
   <p class="note" style="margin:8px 2px 0">O saldo fica nos itens. Cada kit usado numa preventiva da baixa nessas quantidades.</p>
   <div class="lbl">Usado em</div><div class="spec"><div class="r"><span>Equipamentos</span><b>${esc(used.join(', ')||'Nenhum ligado')}</b></div></div>
   ${fotoStHTML(k)}`,

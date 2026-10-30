@@ -111,6 +111,8 @@
   const conLenta=()=>{if(!navigator.onLine)return true;const c=navigator.connection||{};if(c.saveData||/(^|-)2g$/.test(c.effectiveType||'')||(c.rtt&&c.rtt>=700)||(c.downlink&&c.downlink<0.4))return true;
     try{return Date.now()-(+localStorage.getItem(LENTO)||0)<30*60000}catch(e){return false}};
   window.__frotaLenta=conLenta;
+  /* aviso ainda na fila (sem internet): o app mostra o relogio na mensagem */
+  window.__frotaPend=path=>OUT.some(o=>o.path===path);
   const sincronizar=()=>{const t0=Date.now();return flush().then(()=>pull()).then(()=>{try{if(Date.now()-t0>6000)localStorage.setItem(LENTO,Date.now());else localStorage.removeItem(LENTO)}catch(e){}}).then(()=>flush()).catch(()=>{})};
   /* depois de abrir: espera a tela aparecer (e mais um pouco se a rede estiver lenta) para atualizar */
   const syncDepois=()=>{const go=()=>sincronizar();const ms=conLenta()?3500:400;setTimeout(()=>{'requestIdleCallback' in window?requestIdleCallback(go,{timeout:2500}):go()},ms)};

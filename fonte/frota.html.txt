@@ -866,7 +866,23 @@ body.kb .sh-foot{display:none}
 .icard .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-right:22px}.icard b{font-size:14.5px}.icard small{font-size:12.5px;color:var(--muted)}.icard .sd{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:var(--muted)}.icard .sd b{font-size:12.5px;color:var(--fg)}.icard .sd b.bad{color:#d6002e}
 .icard .x{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:50%;background:var(--sunk);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700;cursor:pointer}
 .ecard .ph{background:#e4e9f4;color:var(--accent,#0033a0);font:700 14px var(--mono)}.fcard{justify-content:center;cursor:default}.fcard img{max-width:100%;max-height:260px;border-radius:10px}
-.thr{display:flex;flex-direction:column;gap:6px;margin-top:14px}.thr small{font-size:11.5px;color:var(--muted);text-align:right;margin-bottom:4px}.thr small.l{text-align:left}
+.thr{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.av-m .l2{display:flex;align-items:center;gap:8px}.av-m .l2 .av-p{flex:1;min-width:0;display:flex;align-items:center;gap:4px}.av-r.nv b{font-weight:800}.av-r.nv .av-m em{color:var(--accent);font-weight:700}
+.av-n{flex:none;min-width:22px;height:22px;border-radius:11px;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;padding:0 6px}
+.tk{display:inline-flex;align-items:center;color:#8a96ab;flex:none}.tk.lido{color:#1a8cff}.tk.pd{color:#8a96ab}
+.cv-hd{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#fff;border-radius:14px;padding:9px 10px;box-shadow:var(--shadow);margin-bottom:6px}.cv-ps{flex:1;display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.cv-pc{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;padding:3px 10px 3px 3px;border-radius:999px;background:#eef1f6}.cv-pc em{font-style:normal;font-weight:600}.cv-pc em.ok{color:#127a3e}.cv-pc em.en{color:var(--muted)}.cv-pc em.nn{color:#8a4b00}
+.cv{display:flex;flex-direction:column;gap:3px;padding-bottom:6px}
+.cv-day{display:flex;justify-content:center;margin:10px 0 6px}.cv-day span{font-size:12px;font-weight:600;color:var(--muted);background:#e2e6ee;border-radius:8px;padding:4px 10px}
+.cv-new{display:flex;justify-content:center;margin:8px -14px;background:#e4e9f4;padding:6px}.cv-new span{font-size:12.5px;font-weight:700;color:var(--accent)}
+.cb{display:flex;margin:1px 0}.cb.me{justify-content:flex-end}.cb-b{max-width:84%;background:#fff;border-radius:14px 14px 14px 4px;padding:7px 10px 6px;box-shadow:0 1px 1px rgba(11,36,112,.08);display:flex;flex-direction:column;gap:2px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.cb.me .cb-b{background:#dfe8fb;border-radius:14px 14px 4px 14px}.cb-n{font-size:12.5px;color:var(--accent)}.cb-x{font-size:15px;line-height:1.38;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
+.cb-t{align-self:flex-end;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#7b8699;margin-top:1px;white-space:nowrap}
+.cb-ax .cb-b{padding:5px;min-width:240px}.cb-c .icard{margin:0;box-shadow:none;border:1px solid var(--line);text-align:left;width:100%}.cb-ok{font-size:12px;font-weight:600;color:#127a3e;padding:2px 4px}
+.cb-acts{display:flex;gap:6px;flex-wrap:wrap;padding:4px 2px 2px}.cb-acts[hidden]{display:none}.cb-ax .cb-t{padding:0 4px 2px}
+.cb-info{align-self:flex-end;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:2px 0 6px;font-size:12.5px;min-width:200px;display:flex;flex-direction:column;gap:4px}.cb-info div{display:flex;justify-content:space-between;gap:12px}.cb-info em{font-style:normal;color:var(--muted)}
+.sh-foot .cv-in{display:flex;align-items:flex-end;gap:8px;width:100%}.cv-in textarea{flex:1;min-height:44px;max-height:140px;resize:none;border-radius:22px;padding:11px 16px;font:inherit;font-size:15px;line-height:1.3}
+.cv-send{flex:0 0 46px;width:46px;height:46px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer}.cv-send:active{filter:brightness(.9)}.thr small{font-size:11.5px;color:var(--muted);text-align:right;margin-bottom:4px}.thr small.l{text-align:left}
 .chips{display:flex;flex-wrap:wrap;gap:8px}.chip{display:flex;align-items:center;gap:7px;padding:6px 12px 6px 6px;border-radius:999px;background:var(--surface);border:1px solid var(--line-2,#d5dbe6);font:inherit;font-size:14px;font-weight:500;color:var(--fg);cursor:pointer}
 .chip.on{background:var(--accent,#0033a0);color:#fff;border-color:var(--accent,#0033a0)}.chip .av-a{width:28px;height:28px;font-size:11px}.chip.on .av-a{background:#fff}
 .anx{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.anx button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px;border-radius:12px;background:var(--surface);border:1px dashed #9fb0d6;color:var(--accent,#0033a0);font:inherit;font-size:13.5px;font-weight:600;cursor:pointer}.anx svg{width:22px;height:22px}
@@ -3168,7 +3184,25 @@ const pessoa=uid=>(S.equipe||[]).find(p=>p.uid===uid)||(EU()&&EU().uid===uid?EU(
 const nomeP=p=>(p&&(p.nome||(p.email||'').split('@')[0]))||'Alguem';
 const iniP=p=>{const n=nomeP(p).trim().split(/\s+/);return ((n[0]||'?')[0]+(n.length>1?n[n.length-1][0]:(n[0]||'')[1]||'')).toUpperCase()};
 const avHora=ts=>{const d=new Date(ts||0),h=new Date();const dd=iso(d),hj=today(),on=iso(new Date(h.getTime()-864e5));return dd===hj?d.toTimeString().slice(0,5):dd===on?'ontem':sdate(dd)};
-const avNovo=a=>{const u=EU();return u&&(a.para||[]).includes(u.uid)&&!(a.estado||{})[u.uid]};
+/* AVISOS ESTILO CONVERSA: cada aviso e uma conversa (mensagem inicial + respostas).
+   Por pessoa: lido_<uid> = ate quando leu; entr_<uid> = quando a mensagem chegou ao app dela (campos separados, um nao apaga o outro).
+   Avisos de antes desta versao (sem lido_): conta como lido ate a ultima mensagem que a pessoa escreveu (e a inicial, se ja tinha aberto). */
+const avMsgs=a=>[{de:a.de,texto:a.texto||'',ts:a.ts||0,anexos:a.anexos||[],i:-1},...(a.resp||[]).map((r,i)=>({...r,i}))].sort((x,y)=>(x.ts||0)-(y.ts||0));
+const avPart=a=>[a.de,...(a.para||[])].filter((x,i,l)=>x&&l.indexOf(x)===i);
+const avLido=(a,uid)=>{const v=a['lido_'+uid];if(v!=null)return Number(v)||0;let t=(a.estado||{})[uid]?(a.ts||0):0;avMsgs(a).forEach(m=>{if(m.de===uid&&(m.ts||0)>t)t=m.ts||0});return t};
+const avTemHora=(a,uid,k)=>a[k+'_'+uid]!=null;
+const avEntr=(a,uid)=>Math.max(Number(a['entr_'+uid])||0,avLido(a,uid));
+const avNaoLidas=(a,uid)=>{if(!avPart(a).includes(uid))return 0;const t=avLido(a,uid);return avMsgs(a).filter(m=>m.de!==uid&&(m.ts||0)>t).length};
+const avNovo=a=>{const u=EU();return !!u&&avNaoLidas(a,u.uid)>0};
+/* tiques da minha mensagem: relogio (sem internet) · ✓ enviada · ✓✓ entregue · ✓✓ azul lida (por todos) */
+const TK1='<svg viewBox="0 0 16 11" width="15" height="11"><path d="M1.5 6l3 3 6-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const TK2='<svg viewBox="0 0 20 11" width="19" height="11"><path d="M1.5 6l3 3 6-7.5M7.5 8.6l.9.9 6-7.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const TKC='<svg viewBox="0 0 16 16" width="13" height="13"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 4.6V8l2.3 1.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+function avTick(a,m,pend){const me=m.de,ot=avPart(a).filter(x=>x!==me);if(pend)return `<span class="tk pd" title="Aguardando internet">${TKC}</span>`;
+  if(!ot.length)return `<span class="tk">${TK1}</span>`;if(ot.every(x=>avLido(a,x)>=m.ts))return `<span class="tk lido" title="Lida">${TK2}</span>`;
+  if(ot.every(x=>avEntr(a,x)>=m.ts))return `<span class="tk" title="Entregue">${TK2}</span>`;return `<span class="tk" title="Enviada">${TK1}</span>`}
+const avHH=ts=>new Date(ts||0).toTimeString().slice(0,5);
+const avQuando=ts=>{if(!ts||!isFinite(ts))return '';const d=iso(new Date(ts));return (d===today()?'':sdate(d)+' ')+avHH(ts)};
 function avSit(a){const u=EU(),e=a.estado||{};if(u&&(a.para||[]).includes(u.uid)){const x=e[u.uid];return x==='resolvido'?['r','Resolvido']:x==='visto'?['v','Visto']:['n','Novo']}
   const v=(a.para||[]).map(p=>e[p]);return v.length&&v.every(x=>x==='resolvido')?['r','Resolvido']:v.some(Boolean)?['v','Visto']:['n','Novo']}
 function pintaSino(){const b=$('#bell');if(!b)return;const n=(S.avisos||[]).filter(avNovo).length,i=b.querySelector('i');i.hidden=!n;i.textContent=n>9?'9+':n;b.setAttribute('aria-label',n?`Avisos: ${n} novo${n>1?'s':''}`:'Avisos');fitTop()}
@@ -3191,39 +3225,83 @@ function bindAvCards(sh){sh.querySelectorAll('[data-avo]').forEach(b=>b.onclick=
 /* lista: recebidos e enviados */
 function openAvisos(tab){
   nav('avs:'+(tab||'r'),()=>openAvisos(tab));tab=tab||'r';const u=EU();if(!u){goBack();return}
-  const all=(S.avisos||[]).slice().sort((a,b)=>(b.ts||0)-(a.ts||0));
-  const rec=all.filter(a=>(a.para||[]).includes(u.uid)),env=all.filter(a=>a.de===u.uid),l=tab==='r'?rec:env,nn=rec.filter(avNovo).length;
+  const ult=a=>{const l=avMsgs(a);return l[l.length-1]};
+  const all=(S.avisos||[]).slice().sort((a,b)=>(ult(b).ts||0)-(ult(a).ts||0));
+  const rec=all.filter(a=>(a.para||[]).includes(u.uid)),env=all.filter(a=>a.de===u.uid),l=tab==='r'?rec:env;
+  const nr=rec.filter(avNovo).length,ne=env.filter(avNovo).length;
   const thumb=a=>{const x=(a.anexos||[])[0];if(!x)return '';if(x.t==='item'){const s=stById(x.id);return s&&(s.fotos||[])[0]?`<span class="av-t">${imgTag(s.fotos[0])}</span>`:''}if(x.t==='foto')return `<span class="av-t">${imgTag(x.id)}</span>`;if(x.t==='eq'){const e=eqById(x.id);return e?`<span class="av-t av-tq num">${esc(e.codigo)}</span>`:''}return ''};
-  const prev=a=>a.texto||((a.anexos||[]).length?`${a.anexos.length} anexo${a.anexos.length>1?'s':''}`:'');
-  const row=a=>{const nv=tab==='r'&&avNovo(a),st=avSit(a),p=tab==='r'?pessoa(a.de):pessoa((a.para||[])[0]),mais=tab==='e'&&(a.para||[]).length>1?` +${a.para.length-1}`:'';
-    return `<button type="button" class="av-r${nv?' nv':''}" data-av="${esc(a.id)}">${nv?'<span class="av-dot"></span>':''}<span class="av-a">${esc(iniP(p))}</span><span class="av-m"><span class="l1"><b>${tab==='e'?'Para ':''}${esc(nomeP(p))}${mais}</b><em>${avHora(a.ts)}</em></span><span class="av-p">${esc(prev(a))}</span><span><span class="pl ${st[0]}">${st[1]}</span>${(a.resp||[]).length?`<span class="av-nr">${a.resp.length} resposta${a.resp.length>1?'s':''}</span>`:''}</span></span>${thumb(a)}</button>`};
-  openSheet({title:'Avisos',sub:nn?`${nn} novo${nn>1?'s':''}`:'Recebidos e enviados',
-  body:`<div class="seg av-tabs" role="tablist"><button type="button" data-avt="r" aria-pressed="${tab==='r'}">Recebidos${nn?` <b class="av-c">${nn}</b>`:''}</button><button type="button" data-avt="e" aria-pressed="${tab==='e'}">Enviados</button></div>
+  const pend=a=>!!(window.__frotaPend&&window.__frotaPend('avisos/'+a.id));
+  const row=a=>{const n=avNaoLidas(a,u.uid),m=ult(a),st=avSit(a),p=tab==='r'?pessoa(a.de):pessoa((a.para||[])[0]),mais=tab==='e'&&(a.para||[]).length>1?` +${a.para.length-1}`:'';
+    const quem=m.de===u.uid?'Voce: ':avPart(a).length>2?nomeP(pessoa(m.de)).split(' ')[0]+': ':'';
+    const txt=m.texto||((m.anexos||[]).length?`${m.anexos.length} anexo${m.anexos.length>1?'s':''}`:'');
+    return `<button type="button" class="av-r${n?' nv':''}" data-av="${esc(a.id)}"><span class="av-a">${esc(iniP(p))}</span><span class="av-m"><span class="l1"><b>${tab==='e'?'Para ':''}${esc(nomeP(p))}${mais}</b><em>${avHora(m.ts)}</em></span>
+      <span class="l2"><span class="av-p">${m.de===u.uid?avTick(a,m,pend(a)):''}${esc(quem+txt)}</span>${n?`<span class="av-n">${n}</span>`:''}</span>${st[0]==='r'?'<span><span class="pl r">Resolvido</span></span>':''}</span>${thumb(a)}</button>`};
+  openSheet({title:'Avisos',sub:nr+ne?`${nr+ne} com mensagem nova`:'Recebidos e enviados',
+  body:`<div class="seg av-tabs" role="tablist"><button type="button" data-avt="r" aria-pressed="${tab==='r'}">Recebidos${nr?` <b class="av-c">${nr}</b>`:''}</button><button type="button" data-avt="e" aria-pressed="${tab==='e'}">Enviados${ne?` <b class="av-c">${ne}</b>`:''}</button></div>
     ${l.length?`<div class="list">${l.map(row).join('')}</div>`:`<div class="empty">${tab==='r'?'Nenhum aviso recebido.':'Nenhum aviso enviado.'}</div>`}`,
   foot:podeEscrever()?`<button type="button" class="btn pri" id="av-new" style="flex:1">Escrever aviso</button>`:'',
   mount:sh=>{sh.querySelectorAll('[data-avt]').forEach(b=>b.onclick=()=>{if(b.dataset.avt!==tab){NAV.pop();openAvisos(b.dataset.avt)}});
     sh.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>openAviso(b.dataset.av));const n=sh.querySelector('#av-new');if(n)n.onclick=()=>formAviso({})}});
 }
-/* aviso aberto */
+/* aviso aberto: conversa estilo WhatsApp */
+const AV_DRAFT={},AV_PREV={};
+function avMarcaLido(a){const u=EU();if(!u||!podeEscrever()||!avPart(a).includes(u.uid))return;const l=avMsgs(a),last=l[l.length-1].ts||0;
+  if(avNaoLidas(a,u.uid)===0&&a['lido_'+u.uid]!=null&&(Number(a['lido_'+u.uid])||0)>=last)return;const now=Date.now(),up={['lido_'+u.uid]:now,['entr_'+u.uid]:now};
+  if((a.para||[]).includes(u.uid)&&!(a.estado||{})[u.uid])up.estado={...(a.estado||{}),[u.uid]:'visto'};S.db.doc('avisos/'+a.id).update(up).catch(e=>console.error(e))}
+/* entregue: a mensagem chegou ao app da pessoa (marcado quando os avisos sincronizam) */
+function avEntrega(){const u=EU();if(!u||!podeEscrever())return;(S.avisos||[]).forEach(a=>{if(!avPart(a).includes(u.uid))return;
+  const t=Math.max(0,...avMsgs(a).filter(m=>m.de!==u.uid).map(m=>m.ts||0));if(t&&t>avEntr(a,u.uid))S.db.doc('avisos/'+a.id).update({['entr_'+u.uid]:Date.now()}).catch(()=>{})})}
+function avConversa(a,u,prev){const me=u.uid,msgs=avMsgs(a),grp=avPart(a).length>2,souPara=(a.para||[]).includes(me)&&a.de!==me;
+  const pend=!!(window.__frotaPend&&window.__frotaPend('avisos/'+a.id)),lastMine=[...msgs].reverse().find(m=>m.de===me);
+  const novas=msgs.filter(m=>m.de!==me&&(m.ts||0)>prev).length;let out='',dia='',div=false;
+  const diaTx=d=>d===today()?'Hoje':d===iso(new Date(Date.now()-864e5))?'Ontem':fdate(d);
+  msgs.forEach((m,k)=>{const d=iso(new Date(m.ts||0));if(d!==dia){out+=`<div class="cv-day"><span>${diaTx(d)}</span></div>`;dia=d}
+    if(!div&&novas&&m.de!==me&&(m.ts||0)>prev){out+=`<div class="cv-new" id="cv-new"><span>${novas} ${novas===1?'mensagem nao lida':'mensagens nao lidas'}</span></div>`;div=true}
+    const mine=m.de===me,nm=!mine&&grp?`<b class="cb-n">${esc(nomeP(pessoa(m.de)))}</b>`:'';
+    const tm=`<span class="cb-t">${avHH(m.ts)}${mine?avTick(a,m,pend&&m===lastMine):''}</span>`;
+    if(m.texto)out+=`<div class="cb${mine?' me':''}" data-mk="${k}"><div class="cb-b">${nm}<span class="cb-x">${esc(m.texto).replace(/\n/g,'<br>')}</span>${tm}</div></div>`;
+    (m.anexos||[]).forEach((x,j)=>{const s=x.t==='item'?stById(x.id):null,lc=souPara&&s&&!isKit(s)?'':null;
+      out+=`<div class="cb cb-ax${mine?' me':''}" data-mk="${k}"><div class="cb-b">${nm}<div class="cb-c" data-axo="${esc(x.t)}:${esc(x.id)}">${avCard(x)}</div>${souPara&&s&&inCartSt(s)?'<span class="cb-ok">✓ Na lista de compra</span>':''}<div class="cb-acts" hidden></div>${m.texto?'':tm}</div></div>`})});
+  return out}
+function avTopo(a,u){const me=u.uid,ot=avPart(a).filter(x=>x!==me),msgs=avMsgs(a);
+  const chip=x=>{const meu=[...msgs].reverse().find(m=>m.de!==x),t=meu?meu.ts:0,l=avLido(a,x),e=avEntr(a,x),r=(a.estado||{})[x]==='resolvido';
+    const s=r?['ok','resolveu']:l>=t?['ok','leu'+(avTemHora(a,x,'lido')?' '+avQuando(l):'')]:e>=t?['en','entregue']:['nn','nao entregue'];
+    return `<span class="cv-pc"><span class="av-a sm">${esc(iniP(pessoa(x)))}</span>${esc(nomeP(pessoa(x)).split(' ')[0])} <em class="${s[0]}">${esc(s[1])}</em></span>`};
+  const souPara=(a.para||[]).includes(me),eu=(a.estado||{})[me],st=avSit(a);
+  return `<div class="cv-hd"><div class="cv-ps">${ot.map(chip).join('')}</div>${souPara&&podeEscrever()?(eu==='resolvido'?`<button type="button" class="btn sm" id="av-re">Reabrir</button>`:`<button type="button" class="btn sm pri" id="av-ok">Marcar como resolvido</button>`):`<span class="pl ${st[0]}">${st[1]}</span>`}</div>`}
 function openAviso(id){
   nav('av:'+id,()=>openAviso(id));const u=EU(),a=(S.avisos||[]).find(x=>x.id===id);if(!a||!u){goBack();return}
-  const souPara=(a.para||[]).includes(u.uid),eu=(a.estado||{})[u.uid],st=avSit(a),de=pessoa(a.de);
-  if(souPara&&!eu&&podeEscrever())S.db.doc('avisos/'+id).update({estado:{...(a.estado||{}),[u.uid]:'visto'}}).catch(e=>console.error(e));
-  const paraTx=(a.para||[]).map(x=>nomeP(pessoa(x))).join(', ');
-  const situ=a.de===u.uid&&(a.para||[]).length?`<div class="av-st">${(a.para||[]).map(x=>{const v=(a.estado||{})[x];return `<span><span class="av-a sm">${esc(iniP(pessoa(x)))}</span>${esc(nomeP(pessoa(x)))} <span class="pl ${v==='resolvido'?'r':v==='visto'?'v':'n'}">${v==='resolvido'?'Resolvido':v==='visto'?'Visto':'Novo'}</span></span>`}).join('')}</div>`:'';
-  openSheet({title:'Aviso',sub:`De ${esc(nomeP(de))} · ${avHora(a.ts)}`,
-  body:`<div class="av-h"><span class="av-a">${esc(iniP(de))}</span><div><b>${esc(nomeP(de))}</b><small>Para ${esc(paraTx)}</small></div><span class="pl ${st[0]}" style="margin-left:auto">${st[1]}</span></div>${situ}
-    ${a.texto?`<div class="bub">${esc(a.texto).replace(/\n/g,'<br>')}</div>`:''}${(a.anexos||[]).map(x=>avCard(x)).join('')}
-    ${(a.resp||[]).length?`<div class="thr">${a.resp.map(r=>`<div class="bub${r.de===u.uid?' me':''}">${esc(r.texto).replace(/\n/g,'<br>')}</div><small class="${r.de===u.uid?'':'l'}">${esc(nomeP(pessoa(r.de)))} · ${avHora(r.ts)}</small>`).join('')}</div>`:''}
-    <div id="av-rp" hidden><div class="fset" style="margin-top:12px"><textarea id="av-rt" placeholder="Escreva a resposta" style="min-height:80px"></textarea></div><div class="eqv-f" style="margin-top:8px"><button type="button" class="btn" id="av-rx">Cancelar</button><button type="button" class="btn pri" id="av-rs">Enviar resposta</button></div></div>`,
-  foot:podeEscrever()?`<button type="button" class="btn" id="av-r">Responder</button>${souPara?(eu==='resolvido'?`<button type="button" class="btn" id="av-re" style="flex:1">Reabrir</button>`:`<button type="button" class="btn pri" id="av-ok" style="flex:1">Marcar como resolvido</button>`):''}`:'',
-  mount:sh=>{bindAvCards(sh);const rp=sh.querySelector('#av-rp'),rt=sh.querySelector('#av-rt');
-    const r=sh.querySelector('#av-r');if(r)r.onclick=()=>{rp.hidden=false;rt.focus();rp.scrollIntoView({block:'center',behavior:'smooth'})};
-    const rx=sh.querySelector('#av-rx');if(rx)rx.onclick=()=>{rp.hidden=true;rt.value=''};
-    const rs=sh.querySelector('#av-rs');if(rs)rs.onclick=async()=>{const t=rt.value.trim();if(!t){rt.focus();return}const cur=(S.avisos||[]).find(x=>x.id===id)||a;
-      if(await safe(()=>S.db.doc('avisos/'+id).update({resp:[...(cur.resp||[]),{de:u.uid,texto:t,ts:Date.now()}]}),'Resposta enviada'))refreshSheet()};
-    const ok=sh.querySelector('#av-ok');if(ok)ok.onclick=async()=>{const cur=(S.avisos||[]).find(x=>x.id===id)||a;if(await safe(()=>S.db.doc('avisos/'+id).update({estado:{...(cur.estado||{}),[u.uid]:'resolvido'}}),'Aviso resolvido'))goBack()};
-    const re=sh.querySelector('#av-re');if(re)re.onclick=async()=>{const cur=(S.avisos||[]).find(x=>x.id===id)||a;if(await safe(()=>S.db.doc('avisos/'+id).update({estado:{...(cur.estado||{}),[u.uid]:'visto'}}),'Aviso reaberto'))refreshSheet()}}});
+  AV_PREV[id]=avLido(a,u.uid);const prev=AV_PREV[id];
+  const ot=avPart(a).filter(x=>x!==u.uid),tit=a.de===u.uid?'Para '+ot.map(x=>nomeP(pessoa(x)).split(' ')[0]).join(', '):nomeP(pessoa(a.de));
+  openSheet({title:esc(tit),sub:avPart(a).length>2?esc(avPart(a).map(x=>x===u.uid?'Voce':nomeP(pessoa(x)).split(' ')[0]).join(', ')):'Aviso',
+  body:`<div id="cv-top">${avTopo(a,u)}</div><div class="cv" id="cv">${avConversa(a,u,prev)}</div>`,
+  foot:podeEscrever()?`<div class="cv-in"><textarea id="av-tx" rows="1" placeholder="Mensagem" aria-label="Mensagem">${esc(AV_DRAFT[id]||'')}</textarea><button type="button" class="cv-send" id="av-send" aria-label="Enviar"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 12l16-8-6 16-2.5-6.5z" fill="currentColor"/></svg></button></div>`:'',
+  mount:sh=>{const body=sh.querySelector('.sh-body'),tx=sh.querySelector('#av-tx');
+    const bind=()=>{const A=(S.avisos||[]).find(x=>x.id===id)||a;
+      const top=sh.querySelector('#cv-top');const ok=top.querySelector('#av-ok');if(ok)ok.onclick=async()=>{const cur=(S.avisos||[]).find(x=>x.id===id)||a;if(await safe(()=>S.db.doc('avisos/'+id).update({estado:{...(cur.estado||{}),[u.uid]:'resolvido'}}),'Aviso resolvido'))avAtualiza()};
+      const re=top.querySelector('#av-re');if(re)re.onclick=async()=>{const cur=(S.avisos||[]).find(x=>x.id===id)||a;if(await safe(()=>S.db.doc('avisos/'+id).update({estado:{...(cur.estado||{}),[u.uid]:'visto'}}),'Aviso reaberto'))avAtualiza()};
+      /* anexo: item -> Lista de compra e Ver item (lista so para quem recebeu); outros abrem direto */
+      sh.querySelectorAll('[data-axo]').forEach(c=>c.onclick=ev=>{ev.preventDefault();const [t,xid]=c.dataset.axo.split(/:(.*)/s);const souPara=(A.para||[]).includes(u.uid)&&A.de!==u.uid,s=t==='item'?stById(xid):null;
+        if(t==='foto')return;if(t==='eq'){openEq(xid);return}if(!s){toast('Item removido do estoque.');return}if(!souPara){formMov(xid);return}
+        const box=c.parentElement.querySelector('.cb-acts');if(!box.hidden){box.hidden=true;return}sh.querySelectorAll('.cb-acts').forEach(x=>x.hidden=true);
+        const ja=inCartSt(s);box.innerHTML=`${ja?'<button type="button" class="btn sm" disabled>✓ Na lista de compra</button>':(podeEscrever()?'<button type="button" class="btn sm pri" data-axl>Adicionar a lista de compra</button>':'')}<button type="button" class="btn sm" data-axv>Ver item</button>`;box.hidden=false;
+        const l=box.querySelector('[data-axl]');if(l)l.onclick=async()=>{await addCart([cartFromSt(s)]);avAtualiza()};box.querySelector('[data-axv]').onclick=()=>formMov(xid)});
+      /* segurar (ou tocar nos tiques) uma mensagem minha: quem recebeu e quem leu */
+      sh.querySelectorAll('.cb.me').forEach(bb=>{let t=null;const info=()=>{const m=avMsgs(A)[+bb.dataset.mk];if(!m)return;const nx=bb.nextElementSibling;if(nx&&nx.classList.contains('cb-info')){nx.remove();return}
+          sh.querySelectorAll('.cb-info').forEach(x=>x.remove());const rows=avPart(A).filter(x=>x!==u.uid).map(x=>{const l=avLido(A,x),e=avEntr(A,x);
+            return `<div><span>${esc(nomeP(pessoa(x)))}</span><em>${l>=m.ts?'Lida '+(avTemHora(A,x,'lido')?avQuando(l):''):e>=m.ts?'Entregue '+(avTemHora(A,x,'entr')?avQuando(e):''):'Ainda nao entregue'}</em></div>`}).join('');
+          bb.insertAdjacentHTML('afterend',`<div class="cb-info">${rows||'<div><span>So voce nesta conversa</span></div>'}</div>`);const ci=bb.nextElementSibling;ci&&ci.scrollIntoView({block:'nearest',behavior:'smooth'})};
+        bb.addEventListener('pointerdown',()=>{t=setTimeout(info,450)});['pointerup','pointerleave','pointercancel'].forEach(e=>bb.addEventListener(e,()=>clearTimeout(t)));
+        bb.addEventListener('contextmenu',ev=>ev.preventDefault());const tk=bb.querySelector('.tk');if(tk)tk.onclick=ev=>{ev.stopPropagation();info()}})};
+    const avAtualiza=window.__avAtualiza=()=>{const A=(S.avisos||[]).find(x=>x.id===id);if(!A||!sh.isConnected)return;const perto=body.scrollHeight-body.scrollTop-body.clientHeight<80;
+      sh.querySelector('#cv-top').innerHTML=avTopo(A,u);sh.querySelector('#cv').innerHTML=avConversa(A,u,AV_PREV[id]);bind();if(perto)body.scrollTop=body.scrollHeight;avMarcaLido(A)};
+    bind();avMarcaLido(a);
+    requestAnimationFrame(()=>{const n=sh.querySelector('#cv-new');if(n)body.scrollTop=Math.max(0,n.offsetTop-body.offsetTop-60);else body.scrollTop=body.scrollHeight});
+    if(tx){const g=()=>{tx.style.height='auto';tx.style.height=Math.min(tx.scrollHeight+2,140)+'px'};g();tx.oninput=()=>{AV_DRAFT[id]=tx.value;g()};
+      const send=async()=>{const t=tx.value.trim();if(!t){tx.focus();return}const cur=(S.avisos||[]).find(x=>x.id===id)||a,now=Date.now();
+        tx.value='';AV_DRAFT[id]='';g();
+        if(await safe(()=>S.db.doc('avisos/'+id).update({resp:[...(cur.resp||[]),{de:u.uid,texto:t,ts:now}],['lido_'+u.uid]:now,['entr_'+u.uid]:now}),'')){AV_PREV[id]=now;setTimeout(()=>{avAtualiza();body.scrollTop=body.scrollHeight},60)}else{tx.value=t;AV_DRAFT[id]=t;g()}};
+      sh.querySelector('#av-send').onclick=send}}});
 }
 /* escrever: para quem, mensagem e anexos (item, equipamento ou foto) */
 function formAviso(pre){
@@ -3932,7 +4010,7 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
   $('#fab').hidden=false;
   sub('equipamentos','equips','e');sub('trocas','trocas','t');sub('estoque','estoque','s');sub('listas','listas','l');
   if(window.__frotaEu){$('#bell').hidden=false;fitTop();
-    db.collection('avisos').onSnapshot(sn=>{S.avisos=sn.docs.map(d=>({id:d.id,...d.data()}));pintaSino();if(sheetOpen&&/^(avs|av):/.test((NAV[NAV.length-1]||{}).key||''))refreshSheet()},err=>console.error(err));
+    db.collection('avisos').onSnapshot(sn=>{S.avisos=sn.docs.map(d=>({id:d.id,...d.data()}));pintaSino();avEntrega();const tk=(NAV[NAV.length-1]||{}).key||'';if(sheetOpen&&/^av:/.test(tk)&&window.__avAtualiza)window.__avAtualiza();else if(sheetOpen&&/^avs:/.test(tk))refreshSheet()},err=>console.error(err));
     db.doc('config/equipe').onSnapshot(d=>{S.equipe=(d.exists&&d.data().pessoas)||[]},err=>console.error(err))}
   db.doc('config/compras').onSnapshot(d=>{S.cart=(d.exists&&d.data().itens)||[];cartBtn();if(!sheetOpen)render();else refreshSheet()},err=>console.error(err));
 })();

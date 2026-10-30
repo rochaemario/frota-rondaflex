@@ -889,7 +889,15 @@ body.kb .sh-foot{display:none}
 .cb{display:flex;margin:1px 0}.cb.me{justify-content:flex-end}.cb-b{max-width:84%;background:#fff;border-radius:14px 14px 14px 4px;padding:7px 10px 6px;box-shadow:0 1px 1px rgba(11,36,112,.08);display:flex;flex-direction:column;gap:2px;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .cb.me .cb-b{background:#dfe8fb;border-radius:14px 14px 4px 14px}.cb-n{font-size:12.5px;color:var(--accent)}.cb-x{font-size:15px;line-height:1.38;overflow-wrap:anywhere;user-select:text;-webkit-user-select:text}
 .cb-t{align-self:flex-end;display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#7b8699;margin-top:1px;white-space:nowrap}
-.cb-ax .cb-b{padding:5px;min-width:240px}.cb-c .icard{margin:0;box-shadow:none;border:1px solid var(--line);text-align:left;width:100%}.cb-ok{font-size:12px;font-weight:600;color:#127a3e;padding:2px 4px}
+.cb-ax .cb-b{padding:5px;width:272px;max-width:84%}
+.xb{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;width:100%;cursor:pointer;text-align:left}
+.xb-r{display:flex;gap:10px;align-items:center;padding:9px 10px;min-width:0}.xb-r .es-b{width:50px;height:50px}
+.xb-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.xb-t b{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.xb-t small{font-family:var(--mono);font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xb-tag{flex:none;min-width:50px;height:50px;padding:0 6px;border-radius:12px;background:#e4e9f4;color:var(--accent);display:grid;place-items:center;font-weight:700;font-size:13px}
+.xb-f{display:flex;justify-content:space-between;gap:10px;padding:7px 10px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);white-space:nowrap}.xb-f b{color:var(--fg);font-weight:600}
+.xb-ok{padding:7px 10px;border-top:1px solid var(--line);font-size:12.5px;font-weight:600;color:#127a3e;background:#f1faf4}
+.xb-fo{align-items:center;justify-content:center;padding:6px;min-height:120px}.xb-fo img{max-width:100%;max-height:220px;object-fit:contain;border-radius:8px}
+.cb-acts{display:grid!important;grid-template-columns:1fr 1fr;gap:6px;padding:6px 0 2px}.cb-acts[hidden]{display:none!important}.cb-acts .btn{min-height:40px;font-size:13.5px;padding:0 8px;white-space:nowrap}.cv-ax{display:block;width:100%}.cb-ok{font-size:12px;font-weight:600;color:#127a3e;padding:2px 4px}
 .cb-acts{display:flex;gap:6px;flex-wrap:wrap;padding:4px 2px 2px}.cb-acts[hidden]{display:none}.cb-ax .cb-t{padding:0 4px 2px}
 .cb-info{align-self:flex-end;background:#fff;border:1px solid var(--line);border-radius:12px;padding:6px 10px;margin:2px 0 6px;font-size:12.5px;min-width:200px;display:flex;flex-direction:column;gap:4px}.cb-info div{display:flex;justify-content:space-between;gap:12px}.cb-info em{font-style:normal;color:var(--muted)}
 .sh-foot .cv-in{display:flex;align-items:flex-end;gap:8px;width:100%}.cv-in textarea{flex:1;min-height:44px;max-height:140px;resize:none;border-radius:22px;padding:11px 16px;font:inherit;font-size:15px;line-height:1.3}
@@ -1001,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=854e067341"></script>
-<script src="shim.js?v=854e067341"></script>
+<script src="config.js?v=b2a37fee5e"></script>
+<script src="shim.js?v=b2a37fee5e"></script>
 </head>
 <body>
 
@@ -3267,6 +3275,16 @@ function avMarcaLido(a){const u=EU();if(!u||!podeEscrever()||!avPart(a).includes
 /* entregue: a mensagem chegou ao app da pessoa (marcado quando os avisos sincronizam) */
 function avEntrega(){const u=EU();if(!u||!podeEscrever())return;(S.avisos||[]).forEach(a=>{if(!avPart(a).includes(u.uid))return;
   const t=Math.max(0,...avMsgs(a).filter(m=>m.de!==u.uid).map(m=>m.ts||0));if(t&&t>avEntr(a,u.uid))S.db.doc('avisos/'+a.id).update({['entr_'+u.uid]:Date.now()}).catch(()=>{})})}
+/* anexo dentro da conversa: no padrao da lista do estoque (quadrado de saldo, nome e codigo numa linha so) */
+function avAx(x,souPara){
+  if(x.t==='item'){const s=stById(x.id);if(!s)return '<div class="xb"><div class="xb-r"><span class="xb-t"><b>Item removido do estoque</b></span></div></div>';
+    const q=stQtd(s),un=stUn(s),enc=(s.encaixe||[]).map(eqById).filter(Boolean).map(e=>e.codigo).sort(_an);
+    return `<div class="xb"><div class="xb-r"><span class="es-b ${stockCls(s)}"><b>${nf(q,1)}</b><small>${esc(un)}</small></span><span class="xb-t"><b>${esc(s.desc)}</b><small>${esc(stCod(s))}${s.marca?' · '+esc(s.marca):''}</small></span></div>
+      <div class="xb-f"><span>Minimo <b>${nf(s.minimo,1)} ${esc(un)}</b></span>${enc.length?`<span>Encaixe <b>${esc(enc[0])}${enc.length>1?' +'+(enc.length-1):''}</b></span>`:''}</div>${souPara&&inCartSt(s)?'<div class="xb-ok">✓ Na lista de compra</div>':''}</div>`}
+  if(x.t==='eq'){const e=eqById(x.id);if(!e)return '<div class="xb"><div class="xb-r"><span class="xb-t"><b>Equipamento removido</b></span></div></div>';
+    return `<div class="xb"><div class="xb-r"><span class="xb-tag num">${esc(e.codigo)}</span><span class="xb-t"><b>${esc(e.tipo||'Equipamento')}</b><small>${esc([e.marca,e.modelo].filter(Boolean).join(' ')||'—')}</small></span></div>
+      <div class="xb-f"><span>Ultima leitura <b>${e.horimetro!==''&&e.horimetro!=null?nf(e.horimetro)+' h':'—'}</b></span>${e.horimetroData?`<span>${sdate(e.horimetroData)}</span>`:''}</div></div>`}
+  if(x.t==='foto')return `<div class="xb xb-fo">${imgTag(x.id)}</div>`;return ''}
 function avConversa(a,u,prev){const me=u.uid,msgs=avMsgs(a),grp=avPart(a).length>2,souPara=(a.para||[]).includes(me)&&a.de!==me;
   const pend=!!(window.__frotaPend&&window.__frotaPend('avisos/'+a.id)),lastMine=[...msgs].reverse().find(m=>m.de===me);
   const novas=msgs.filter(m=>m.de!==me&&(m.ts||0)>prev).length;let out='',dia='',div=false;
@@ -3277,7 +3295,7 @@ function avConversa(a,u,prev){const me=u.uid,msgs=avMsgs(a),grp=avPart(a).length
     const tm=`<span class="cb-t">${avHH(m.ts)}${mine?avTick(a,m,pend&&m===lastMine):''}</span>`;
     if(m.texto)out+=`<div class="cb${mine?' me':''}" data-mk="${k}"><div class="cb-b">${nm}<span class="cb-x">${esc(m.texto).replace(/\n/g,'<br>')}</span>${tm}</div></div>`;
     (m.anexos||[]).forEach((x,j)=>{const s=x.t==='item'?stById(x.id):null,lc=souPara&&s&&!isKit(s)?'':null;
-      out+=`<div class="cb cb-ax${mine?' me':''}" data-mk="${k}"><div class="cb-b">${nm}<div class="cb-c" data-axo="${esc(x.t)}:${esc(x.id)}">${avCard(x)}</div>${souPara&&s&&inCartSt(s)?'<span class="cb-ok">✓ Na lista de compra</span>':''}<div class="cb-acts" hidden></div>${m.texto?'':tm}</div></div>`})});
+      out+=`<div class="cb cb-ax${mine?' me':''}" data-mk="${k}"><div class="cb-b">${nm}<div class="cv-ax" data-axo="${esc(x.t)}:${esc(x.id)}">${avAx(x,souPara)}</div><div class="cb-acts" hidden></div>${m.texto?'':tm}</div></div>`})});
   return out}
 function avTopo(a,u){const me=u.uid,ot=avPart(a).filter(x=>x!==me),msgs=avMsgs(a);
   const chip=x=>{const meu=[...msgs].reverse().find(m=>m.de!==x),t=meu?meu.ts:0,l=avLido(a,x),e=avEntr(a,x),r=(a.estado||{})[x]==='resolvido';
@@ -3300,7 +3318,7 @@ function openAviso(id){
       sh.querySelectorAll('[data-axo]').forEach(c=>c.onclick=ev=>{ev.preventDefault();const [t,xid]=c.dataset.axo.split(/:(.*)/s);const souPara=(A.para||[]).includes(u.uid)&&A.de!==u.uid,s=t==='item'?stById(xid):null;
         if(t==='foto')return;if(t==='eq'){openEq(xid);return}if(!s){toast('Item removido do estoque.');return}if(!souPara){formMov(xid);return}
         const box=c.parentElement.querySelector('.cb-acts');if(!box.hidden){box.hidden=true;return}sh.querySelectorAll('.cb-acts').forEach(x=>x.hidden=true);
-        const ja=inCartSt(s);box.innerHTML=`${ja?'<button type="button" class="btn sm" disabled>✓ Na lista de compra</button>':(podeEscrever()?'<button type="button" class="btn sm pri" data-axl>Adicionar a lista de compra</button>':'')}<button type="button" class="btn sm" data-axv>Ver item</button>`;box.hidden=false;
+        const ja=inCartSt(s);box.innerHTML=`${ja?'<button type="button" class="btn sm" disabled>✓ Na lista</button>':(podeEscrever()?'<button type="button" class="btn sm pri" data-axl>+ Lista de compra</button>':'')}<button type="button" class="btn sm" data-axv>Ver item</button>`;box.hidden=false;
         const l=box.querySelector('[data-axl]');if(l)l.onclick=async()=>{await addCart([cartFromSt(s)]);avAtualiza()};box.querySelector('[data-axv]').onclick=()=>formMov(xid)});
       /* segurar (ou tocar nos tiques) uma mensagem minha: quem recebeu e quem leu */
       sh.querySelectorAll('.cb.me').forEach(bb=>{let t=null;const info=()=>{const m=avMsgs(A)[+bb.dataset.mk];if(!m)return;const nx=bb.nextElementSibling;if(nx&&nx.classList.contains('cb-info')){nx.remove();return}

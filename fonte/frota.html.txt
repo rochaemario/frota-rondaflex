@@ -4035,6 +4035,36 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
     db.doc('config/equipe').onSnapshot(d=>{S.equipe=(d.exists&&d.data().pessoas)||[]},err=>console.error(err))}
   db.doc('config/compras').onSnapshot(d=>{S.cart=(d.exists&&d.data().itens)||[];cartBtn();if(!sheetOpen)render();else refreshSheet()},err=>console.error(err));
 })();
+/* VOLTAR ONDE ESTAVA: ao minimizar, guarda a tela (e o caminho ate ela), a rolagem e o que estava digitado.
+   Se o celular encerrar o app em segundo plano, ao reabrir em ate 30 min ele volta exatamente ali. Nada e salvo no sistema: so os campos voltam preenchidos.
+   Sair (menu da conta) apaga. */
+const EST_K='frota.estado',EST_MAX=30*60000;
+const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:p[2]),alq:p=>openAlocEq(p[0]),ar:p=>p[0]==='esc'?formFiltroAr():formFiltroAr(undefined,p.join(':')),
+  av:p=>openAviso(p.join(':')),avs:p=>openAvisos(p[0]||'r'),card:p=>openCartao(p.join(':')),cart:()=>openCart(),cbq:p=>openCombEq(p[0]),cr:p=>openPend(p[0],true),pd:p=>openPend(p[0]),
+  del:p=>openDelete(p[0],p.slice(1).join(':')),dl:()=>openDelAbast(),edtr:p=>formEditTroca(p[0]),eq:p=>openEq(p[0]),eqv:p=>openEquiv(p[0]||undefined),esf:()=>esFilSheet(),
+  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
+  hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
+  mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
+  rp:p=>formReprog(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};
+const estCampos=()=>{const sh=$('#sheet');if(!sheetOpen||!sh)return [];return [...sh.querySelectorAll('input,textarea,select')].map((el,i)=>{if(el.type==='file'||el.type==='password'||el.type==='hidden')return null;
+  return {k:el.id?'#'+el.id:'i'+i,v:el.type==='checkbox'||el.type==='radio'?(el.checked?'1':''):el.value,c:el.type==='checkbox'||el.type==='radio'}}).filter(Boolean)};
+function estGuarda(){try{if(!S.db||window.__frotaSemEstado)return;const sb=document.querySelector('#sheet .sh-body');
+  localStorage.setItem(EST_K,JSON.stringify({t:Date.now(),focus:S.focus,ui:{alocSite:S.alocSite,alocSel:S.alocSel,eqTipo:S.eqTipo,esQ:S.esQ,esAll:S.esAll,esFil:S.esFil,esSel:S.esSel,pnTab:S.pnTab,pv:S.pv,mfEquip:S.mf&&S.mf.equip,showAllSched:S.showAllSched,showAllHist:S.showAllHist},
+    scroll:(SCR()===window?scrollY:SCR().scrollTop)||0,nav:sheetOpen?NAV.map(n=>n.key):[],sheetScroll:sb?sb.scrollTop:0,campos:estCampos()}))}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)estGuarda()});addEventListener('pagehide',estGuarda);
+function estRestaura(){let E=null;try{E=JSON.parse(localStorage.getItem(EST_K)||'null');localStorage.removeItem(EST_K)}catch(e){}
+  if(!E||!E.t||Date.now()-E.t>EST_MAX)return;
+  try{S.focus=E.focus||'';const u=E.ui||{};Object.assign(S,{alocSite:u.alocSite||'',alocSel:u.alocSel||'',eqTipo:u.eqTipo||'',esQ:u.esQ||'',esAll:!!u.esAll,esFil:!!u.esFil,esSel:u.esSel||S.esSel,pnTab:u.pnTab||S.pnTab,pv:u.pv||{},showAllSched:!!u.showAllSched,showAllHist:!!u.showAllHist});if(S.mf)S.mf.equip=u.mfEquip||'';
+    render();requestAnimationFrame(()=>{const sc=SCR();sc===window?scrollTo(0,E.scroll||0):sc.scrollTop=E.scroll||0})}catch(e){console.error(e)}
+  if(!(E.nav||[]).length)return;
+  try{NAV.length=0;for(const k of E.nav){const p=k.split(':'),f=NAV_RE[p[0]];if(!f)break;f(p.slice(1));const top=NAV[NAV.length-1];if(!top||top.key!==k)break}}catch(e){console.error(e)}
+  if(!sheetOpen)return;
+  setTimeout(()=>{const sh=$('#sheet');if(!sh)return;const all=[...sh.querySelectorAll('input,textarea,select')];
+    (E.campos||[]).forEach(c=>{const el=c.k[0]==='#'?sh.querySelector('#'+CSS.escape(c.k.slice(1))):all[+c.k.slice(1)];if(!el||el.type==='file')return;
+      if(c.c){if(el.checked!==!!c.v){el.checked=!!c.v;el.dispatchEvent(new Event('change',{bubbles:true}))}return}
+      if(el.value!==c.v){el.value=c.v;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}});
+    const sb=sh.querySelector('.sh-body');if(sb)requestAnimationFrame(()=>{sb.scrollTop=E.sheetScroll||0})},120)}
+{const t0=Date.now(),ti=setInterval(()=>{if(S.db&&S.loaded.e&&S.loaded.t&&S.loaded.s&&S.loaded.c){clearInterval(ti);setTimeout(estRestaura,60)}else if(Date.now()-t0>20000)clearInterval(ti)},100)}
 })();
 
 /* AJUSTE AUTOMATICO DE CAIXAS (vale para todo o app): numero ou texto que nao cabe na caixa de tamanho fixo

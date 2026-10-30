@@ -298,7 +298,7 @@
   sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}
     /* sessao perdida sem o usuario pedir (ex.: senha trocada): pede login de novo, sem apagar o que esta guardado */
     if(ev==='SIGNED_OUT'&&!saindo){if(started)loginForm('Entre de novo para enviar o que esta guardado neste aparelho.');return}
-    if(ev==='SIGNED_OUT'){try{sessionStorage.clear();localStorage.removeItem('frota.perfil')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
+    if(ev==='SIGNED_OUT'){window.__frotaSemEstado=true;try{sessionStorage.clear();localStorage.removeItem('frota.perfil');localStorage.removeItem('frota.estado')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
 
   /* ---------- conta e equipe (toque em "Sincronizado") ---------- */
   const PAPEL={admin:'Administrador',editor:'Editor',consulta:'Consulta'};

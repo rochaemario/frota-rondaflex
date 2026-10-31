@@ -1009,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=f44e113b80"></script>
-<script src="shim.js?v=f44e113b80"></script>
+<script src="config.js?v=4e0f4cc8a0"></script>
+<script src="shim.js?v=4e0f4cc8a0"></script>
 </head>
 <body>
 
@@ -3077,12 +3077,21 @@ function formEditTroca(id){
   if(t.tipo==='informada'){NAV.pop();formUltPrev(t.equipId,t.id);return}
   const ar=t.tipo==='filtro_ar',its=[...(t.itens||[])];
   openSheet({title:'Editar '+(ar?'filtro de ar':'preventiva'),sub:`${esc(e.codigo)} · ${fdate(t.data)}`,
-  body:`${t.ajuste?`<p class="note" style="margin:0 2px 10px">Lancada em ajuste ${AJS} · alterar pecas nao mexe no estoque.</p>`:''}<form id="fet"><div class="list" id="et-fs"></div>
+  body:`<div class="nv-b${t.ajuste?' on':''}" id="et-ajb" style="margin:0 0 12px"><div><b>${t.ajuste?`Lancada em ajuste ${AJS}`:'Lancamento normal'}</b><span>${t.ajuste?'Nao mexeu no estoque; alterar pecas tambem nao mexe.':'As pecas foram baixadas do estoque.'}</span></div>${podeEscrever()?`<button type="button" class="btn sm" id="et-aj">${t.ajuste?'Desmarcar ajuste':'Marcar como ajuste'}</button>`:''}</div><div id="et-ajq"></div><form id="fet"><div class="list" id="et-fs"></div>
     <div class="lbl" style="margin-top:16px">Pecas usadas <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">toque para editar ou substituir</span></div><div class="list" id="et-l"></div>
     <div class="sug-w t-add" style="margin-top:10px"><div class="search">${I.search}<input id="et-add" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="et-addh"></div></div>${rdBtn('et-addcam','Adicionar item pela camera')}
     <div id="et-conf"></div></form>`,
   foot:`<button class="btn pri" form="fet">Salvar alteracoes</button>`,
   mount:sh=>{const f=sh.querySelector('#fet'),cf=sh.querySelector('#et-conf');
+    /* marcar/desmarcar ajuste depois do registro: corrige o estoque (devolve ou baixa as pecas) */
+    const ajB=sh.querySelector('#et-aj');if(ajB)ajB.onclick=()=>{const t1=S.trocas.find(x=>x.id===id)||t,vira=!t1.ajuste,acc={};(t1.itens||[]).forEach(i=>{if(i.estoqueId)addBaixa(acc,i.estoqueId,Number(i.qtd)||0)});
+      const l=Object.entries(acc).filter(([sid,q])=>q&&stById(sid)),q=sh.querySelector('#et-ajq');
+      q.innerHTML=`<div class="eqv-ask" style="margin:0 0 12px"><b>${vira?'Marcar como ajuste?':'Desmarcar ajuste?'}</b><p class="note" style="margin:0">${vira?(l.length?'As pecas desta preventiva voltam ao estoque:':'Nenhuma peca ligada ao estoque; so muda a marcacao.'):(l.length?'As pecas desta preventiva serao baixadas do estoque agora:':'Nenhuma peca ligada ao estoque; so muda a marcacao.')}</p>${l.length?`<div class="spec">${l.map(([sid,qq])=>{const s=stById(sid);return `<div class="r"><span>${esc(s.desc)}</span><b class="num">${vira?'+':'−'}${nf(qq,1)} ${esc(stUn(s))}</b></div>`}).join('')}</div>`:''}<p class="note" style="margin:6px 0 0">Alteracoes nao salvas nesta tela serao descartadas.</p><div class="eqv-f"><button type="button" class="btn" data-x>Cancelar</button><button type="button" class="btn pri" data-go>Confirmar</button></div></div>`;
+      q.scrollIntoView({block:'center',behavior:'smooth'});q.querySelector('[data-x]').onclick=()=>{q.innerHTML=''};
+      q.querySelector('[data-go]').onclick=async()=>{const ok=await safe(async()=>{for(const [sid,qq] of l){const s=stById(sid),saldo=Math.round(((Number(s.qtd)||0)+(vira?qq:-qq))*10)/10;
+          await S.db.doc('estoque/'+sid).update({qtd:saldo});
+          try{await S.db.collection('movs').add(vira?{estoqueId:sid,tipo:'entrada',qtd:qq,data:today(),obs:'Preventiva marcada como ajuste',equipId:t1.equipId,origem:'estorno',saldo,ts:Date.now()}:{estoqueId:sid,tipo:'saida',qtd:qq,data:today(),obs:'Preventiva desmarcada do ajuste',equipId:t1.equipId,origem:'preventiva',saldo,ts:Date.now()})}catch(x){}}
+        await S.db.doc('trocas/'+id).update({ajuste:vira})},vira?'Marcada como ajuste':'Ajuste desmarcado');if(ok){const t0=Date.now();while(Date.now()-t0<2000&&!!(S.trocas.find(x=>x.id===id)||{}).ajuste!==vira)await new Promise(r=>setTimeout(r,100));if(sh.isConnected){NAV.pop();formEditTroca(id)}}}};
     f.addEventListener('input',()=>cf.innerHTML='');
     /* pecas: linhas fechadas; um toque abre Editar (quantidade) ou Substituir (outra peca) */
     const cur=its.map(i=>({espec:i.espec||(i.estoqueId&&stById(i.estoqueId)?stCod(stById(i.estoqueId)):''),qtd:i.qtd??0,sid:i.estoqueId||''}));

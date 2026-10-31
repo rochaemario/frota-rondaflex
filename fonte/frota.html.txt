@@ -1984,7 +1984,7 @@ function openDelete(kind,id){
       if(S.cart.some(c=>c.estoqueId===id))await saveCart(S.cart.filter(c=>c.estoqueId!==id));
       await S.db.doc('estoque/'+id).delete();(s.fotos||[]).forEach(dropAsset)}}
   else{const t=S.trocas.find(x=>x.id===id);if(!t){goBack();return}const e=eqById(t.equipId);
-    title=t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub)}`:t.tipo==='reprog'?`Reprogramacao de ${fdate(t.data)}`:t.tipo==='hmtroca'?`Troca de horimetro de ${fdate(t.data)}`:`Preventiva de ${fdate(t.data)}`;
+    title=t.tipo==='informada'?`Preventiva informada de ${fdate(t.data)}`:t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub)}`:t.tipo==='reprog'?`Reprogramacao de ${fdate(t.data)}`:t.tipo==='hmtroca'?`Troca de horimetro de ${fdate(t.data)}`:`Preventiva de ${fdate(t.data)}`;
     info=`<div class="spec"><div class="r"><span>Equipamento</span><b>${esc(e?e.codigo:'—')}</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b>${nf(t.horimetro)} h</b></div>${specList('Itens trocados',(t.itens||[]).map(i=>[itNome(i),itCod(i),i.qtd?nf(i.qtd,1)+' '+(i.un||''):'']))}</div>`;
     warn=t.tipo==='reprog'?'Excluir esta reprogramacao? O item volta ao vencimento anterior. Nao da para desfazer.':'Excluir este registro? O plano do equipamento e o estoque nao voltam sozinhos. Nao da para desfazer.';
     run=async()=>{if(t.tipo==='reprog'&&e){const m={};(t.itens||[]).forEach(i=>m[i.pid]=i);
@@ -2400,7 +2400,7 @@ document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.clos
 document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.closest('[data-ia]');if(!h)return;const o=h.getAttribute('aria-expanded')==='true';h.setAttribute('aria-expanded',!o);h.nextElementSibling.hidden=o});
 /* ---------- reprogramar vencimento (so o item daquele equipamento; o cadastro do estoque nao muda) ---------- */
 const RP_MOT=['Avaliado em bom estado','Sem peca no estoque','Aguardando parada','Outro'];
-const tTit=t=>t.tipo==='filtro_ar'?'Filtro de ar · '+esc(t.sub||''):t.tipo==='reprog'?'Reprogramacao':t.tipo==='hmtroca'?'Troca de horimetro':'Preventiva';
+const tTit=t=>t.tipo==='informada'?'Preventiva informada':t.tipo==='filtro_ar'?'Filtro de ar · '+esc(t.sub||''):t.tipo==='reprog'?'Reprogramacao':t.tipo==='hmtroca'?'Troca de horimetro':'Preventiva';
 const rpMotHTML=k=>`<div class="rp-ms" role="group" aria-label="Motivo">${RP_MOT.map(m=>`<button type="button" data-rpm="${esc(k)}" data-v="${esc(m)}" aria-pressed="false">${m}</button>`).join('')}</div><input class="rp-o" data-rpo="${esc(k)}" placeholder="Qual o motivo?" hidden>`;
 function bindRpMot(root){root.querySelectorAll('[data-rpm]').forEach(b=>b.onclick=()=>{const k=b.dataset.rpm;root.querySelectorAll(`[data-rpm="${CSS.escape(k)}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));const o=root.querySelector(`[data-rpo="${CSS.escape(k)}"]`);o.hidden=b.dataset.v!=='Outro';if(!o.hidden)o.focus();root.dispatchEvent(new Event('rpchange'))});
   root.querySelectorAll('[data-rpo]').forEach(o=>o.oninput=()=>root.dispatchEvent(new Event('rpchange')))}
@@ -2439,11 +2439,11 @@ function openPend(id,all){
   const si=eqSituacao(e),stk=si.mot.filter(m=>/estoque/.test(m));
   openSheet({title:esc(e.codigo),sub:`Horimetro ${hmTxt(e)} h${e.horimetroData?` em ${sdate(e.horimetroData)}`:''}`,
   body:`<div class="pend-sit"><span class="sit ${si.cls}">${si.label}</span><span class="note">${npend?`${npend} ${npend===1?'item pendente':'itens pendentes'}`:'Nenhum item pendente'}</span></div>
-    <div class="lbl">${all?'Cronograma de trocas':'O que esta pendente'}</div>
+    ${ultBox(e)}<div class="lbl">${all?'Cronograma de trocas':'O que esta pendente'}</div>
     ${itemList(e,its,`<div class="empty">${all?'Sem oleos e filtros no plano.':'Nenhuma troca pendente.'}</div>`)}
     ${stk.length?`<div class="lbl">Estoque</div><div class="spec">${stk.map(m=>`<div class="r"><span>${esc(m)}</span></div>`).join('')}</div>`:''}`,
   foot:`<button class="btn" data-k="fi">Ver ficha</button><button class="btn pri" data-k="rg">Registrar preventiva</button>`,
-  mount:sh=>{sh.querySelector('[data-k="fi"]').onclick=()=>openEq(id);sh.querySelector('[data-k="rg"]').onclick=()=>formRegistrar(id)}});
+  mount:sh=>{novoBind(sh,e);sh.querySelector('[data-k="fi"]').onclick=()=>openEq(id);sh.querySelector('[data-k="rg"]').onclick=()=>formRegistrar(id)}});
 }
 /* ---------- leitura rapida de horimetros ---------- */
 const HMD_KEY='frota.hmDraft';
@@ -3059,6 +3059,7 @@ function pecasUsadas(t,itens){const acc={};if(t.ajuste)return acc;(itens||t.iten
 function formEditTroca(id){
   nav('edtr:'+id,()=>formEditTroca(id));
   const t=S.trocas.find(x=>x.id===id),e=t&&eqById(t.equipId);if(!e){goBack();return}
+  if(t.tipo==='informada'){NAV.pop();formUltPrev(t.equipId,t.id);return}
   const ar=t.tipo==='filtro_ar',its=[...(t.itens||[])];
   openSheet({title:'Editar '+(ar?'filtro de ar':'preventiva'),sub:`${esc(e.codigo)} · ${fdate(t.data)}`,
   body:`${t.ajuste?`<p class="note" style="margin:0 2px 10px">Lancada em ajuste ${AJS} · alterar pecas nao mexe no estoque.</p>`:''}<form id="fet"><div class="list" id="et-fs"></div>
@@ -3181,13 +3182,35 @@ function eqSearch(sel){if(sel.dataset.eqsOn)return;sel.dataset.eqsOn=1;
 /* Preventivas › busca: equipamento ainda sem preventiva registrada.
    Mostra so o basico e leva ao registro, avisando da baixa no estoque. */
 /* botao "Equipamento novo": aparece sem preventiva registrada e com horimetro abaixo do intervalo da ficha */
-function novoBox(e){const iv=Number(e.intervaloPrev)||0,h=Number(e.horimetro)||0;if(!iv||!semPrev(e))return '';
+/* equipamento sem nenhuma preventiva: informar a ultima feita (so data e horimetro), para o app programar as proximas. Depois disso a opcao some. */
+function ultBox(e){if(!semPrev(e)||!podeEscrever())return '';return `<div class="nv-b"><div><b>Ja teve preventiva antes?</b><span>Informe a data e o horimetro da ultima para o app programar as proximas.</span></div><button type="button" class="btn sm pri" data-ultp="${esc(e.id)}">Informar ultima preventiva</button></div>`}
+function novoBox(e){return novoBox0(e)+ultBox(e)}
+function novoBox0(e){const iv=Number(e.intervaloPrev)||0,h=Number(e.horimetro)||0;if(!iv||!semPrev(e))return '';
   if(e.novo0)return `<div class="nv-b on"><div><b>Equipamento novo · conta do zero</b><span>${h>=iv?`Primeira preventiva vencida ha ${nf(h-iv)} h.`:`Primeira preventiva em ${nf(iv)} h (faltam ${nf(iv-h)} h).`}</span></div><button type="button" class="btn sm" data-nv="0">Desfazer</button></div>`;
   if(h>=iv)return '';
   return `<div class="nv-b"><div><b>Veio zerado de fabrica?</b><span>Marque como novo: a primeira preventiva vence em ${nf(iv)} h (faltam ${nf(iv-h)} h).</span></div><button type="button" class="btn sm pri" data-nv="1">Equipamento novo</button></div>`}
-function novoBind(sh,e){sh.querySelectorAll('[data-nv]').forEach(b=>b.onclick=async()=>{const on=b.dataset.nv==='1';const e2=eqById(e.id);if(!e2)return;
+function novoBind(sh,e){sh.querySelectorAll('[data-ultp]').forEach(b=>b.onclick=()=>formUltPrev(b.dataset.ultp));sh.querySelectorAll('[data-nv]').forEach(b=>b.onclick=async()=>{const on=b.dataset.nv==='1';const e2=eqById(e.id);if(!e2)return;
   const upd={novo0:on};if(on)upd.itens=(e2.itens||[]).map(i=>i.reprog?i:{...i,ultimaH:'',ultimaData:'',proxH:''});
   if(await safe(()=>S.db.doc('equipamentos/'+e.id).update(upd),on?'Marcado como novo':'Desfeito'))refreshSheet()})}
+function formUltPrev(eqId,trId){
+  nav('ulp:'+eqId+(trId?':'+trId:''),()=>formUltPrev(eqId,trId));
+  const e=eqById(eqId),t0=trId?S.trocas.find(x=>x.id===trId):null;if(!e||(trId&&!t0)){goBack();return}
+  if(!trId&&!semPrev(e)){goBack();toast('Este equipamento ja tem preventiva registrada.');return}
+  const hAt=Number(e.horimetro)||0;
+  openSheet({title:trId?'Corrigir preventiva informada':'Informar ultima preventiva',sub:`${esc(e.codigo)} · ${esc(e.tipo||'')}`,
+  body:`<form id="fup" class="fset"><p class="note" style="margin:0 0 10px">Use quando o equipamento ja teve preventiva antes do app e so se sabe a data e o horimetro. A proxima fica programada a partir dela${Number(e.intervaloPrev)?` (intervalo de ${nf(e.intervaloPrev)} h)`:''}.</p>
+    <div class="grid"><label class="f">Data<input id="up-dt" type="date" required max="${today()}" value="${esc(t0?t0.data:'')}"></label>
+    <label class="f">Horimetro (h)<input id="up-hm" type="number" step="0.1" min="0" inputmode="decimal" required value="${esc(t0?t0.horimetro:'')}" placeholder="${hAt?'Ate '+nf(hAt):''}"></label></div></form>`,
+  foot:`<button class="btn pri" form="fup">Salvar</button>`,
+  mount:sh=>{sh.querySelector('#fup').onsubmit=async ev=>{ev.preventDefault();const dt=sh.querySelector('#up-dt').value,hv=Number(sh.querySelector('#up-hm').value);
+    if(!dt||dt>today()){toast('A data nao pode ser futura.');return}
+    if(!(hv>=0)||sh.querySelector('#up-hm').value===''){toast('Informe o horimetro.');return}
+    if(hAt&&hv>hAt){toast(`O horimetro nao pode ser maior que a leitura atual (${nf(hAt)} h).`);return}
+    const ok=await safe(async()=>{if(t0){await S.db.doc('trocas/'+t0.id).update({data:dt,horimetro:hv});return}
+      await S.db.collection('trocas').add({equipId:e.id,tipo:'informada',data:dt,horimetro:hv,proximaH:'',intervalo:'',itens:[],resp:'',obs:'',ajuste:true,exemplo:!!e.exemplo});
+      if(e.novo0)await S.db.doc('equipamentos/'+e.id).update({novo0:false})},t0?'Preventiva corrigida':'Ultima preventiva informada');
+    if(ok)goBack()}}});
+}
 function openSemPrev(id){
   nav('sp:'+id,()=>openSemPrev(id));
   const e=eqById(id);if(!e){goBack();return}
@@ -3411,6 +3434,9 @@ function openTroca(id){
   if(t.tipo==='hmtroca'){openSheet({title:`Troca de horimetro de ${fdate(t.data)}`,sub:e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',
     body:`<div class="spec"><div class="r"><span>Relogio antigo</span><b class="num">${nf(t.antigo)} h</b></div><div class="r"><span>Relogio novo</span><b class="num">${nf(t.horimetro)} h</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div>${t.obs?`<div class="r"><span>Motivo</span><b>${esc(t.obs)}</b></div>`:''}</div>
     <p class="note" style="margin:10px 2px 0">Registros anteriores a esta data usam a contagem do relogio antigo.</p>`});return}
+  if(t.tipo==='informada'){openSheet({title:'Preventiva informada',sub:e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',
+    body:`<div class="spec"><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h</b></div></div><p class="note" style="margin:10px 2px 0">Informada sem detalhes (feita antes do app). Serve de ponto de partida para as proximas preventivas.</p>`,
+    foot:podeEscrever()?`<button type="button" class="btn" id="ui-ed">Corrigir data e horimetro</button>`:'',mount:sh=>{const b=sh.querySelector('#ui-ed');if(b)b.onclick=()=>formUltPrev(t.equipId,t.id)}});return}
   if(t.tipo==='reprog'){openSheet({title:`Reprogramacao de ${fdate(t.data)}`,sub:e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',
     body:`<div class="lbl">Itens reprogramados</div><div class="spec">${(t.itens||[]).map(i=>`<div class="r"><span>${esc(itNome(i))}<small class="rp-mk">${esc(i.motivo||'')}</small></span><b class="rp-de"><s>${i.de!=null&&i.de!==''?nf(i.de):'—'}</s>→<b>${nf(i.para)} h</b></b></div>`).join('')}</div>
     <div class="spec" style="margin-top:12px"><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h</b></div><div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div></div>`});return}
@@ -4139,7 +4165,7 @@ const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:
   fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
   hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
   mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
-  rp:p=>formReprog(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};
+  rp:p=>formReprog(p[0],p[1]),ulp:p=>formUltPrev(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};
 const estCampos=()=>{const sh=$('#sheet');if(!sheetOpen||!sh)return [];return [...sh.querySelectorAll('input,textarea,select')].map((el,i)=>{if(el.type==='file'||el.type==='password'||el.type==='hidden')return null;
   return {k:el.id?'#'+el.id:'i'+i,v:el.type==='checkbox'||el.type==='radio'?(el.checked?'1':''):el.value,c:el.type==='checkbox'||el.type==='radio'}}).filter(Boolean)};
 function estGuarda(){try{if(!S.db||window.__frotaSemEstado)return;const sb=document.querySelector('#sheet .sh-body');

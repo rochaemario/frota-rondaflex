@@ -321,7 +321,7 @@ body.focus .sidetabs{display:none!important}
 /* fotos */
 .ph-one{display:block;width:100%;padding:0;border:0;border-radius:16px;overflow:hidden;background:var(--sunk);cursor:zoom-in}
 .ph-one img{display:block;width:100%;max-height:340px;object-fit:cover}
-.card-prev+.card-prev{margin-top:12px}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
+.card-prev+.card-prev{margin-top:12px}.nv-b.nv-col{flex-direction:column;align-items:stretch;gap:10px}.nv-b.nv-col .btn{align-self:stretch}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
 .enc-sel .tq{cursor:default}
 .enc-sel .tq .btn{min-height:34px;padding:0 10px;margin-left:auto}
 .enc-res{margin-top:6px}
@@ -3183,7 +3183,7 @@ function eqSearch(sel){if(sel.dataset.eqsOn)return;sel.dataset.eqsOn=1;
    Mostra so o basico e leva ao registro, avisando da baixa no estoque. */
 /* botao "Equipamento novo": aparece sem preventiva registrada e com horimetro abaixo do intervalo da ficha */
 /* equipamento sem nenhuma preventiva: informar a ultima feita (so data e horimetro), para o app programar as proximas. Depois disso a opcao some. */
-function ultBox(e){if(!semPrev(e)||!podeEscrever())return '';return `<div class="nv-b"><div><b>Ja teve preventiva antes?</b><span>Informe a data e o horimetro da ultima para o app programar as proximas.</span></div><button type="button" class="btn sm pri" data-ultp="${esc(e.id)}">Informar ultima preventiva</button></div>`}
+function ultBox(e){if(!semPrev(e)||!podeEscrever())return '';return `<div class="nv-b nv-col"><div><b>Ja teve preventiva antes?</b><span>Informe a data e o horimetro da ultima para o app programar as proximas.</span></div><button type="button" class="btn sm pri" data-ultp="${esc(e.id)}">Informar ultima preventiva</button></div>`}
 function novoBox(e){return novoBox0(e)+ultBox(e)}
 function novoBox0(e){const iv=Number(e.intervaloPrev)||0,h=Number(e.horimetro)||0;if(!iv||!semPrev(e))return '';
   if(e.novo0)return `<div class="nv-b on"><div><b>Equipamento novo · conta do zero</b><span>${h>=iv?`Primeira preventiva vencida ha ${nf(h-iv)} h.`:`Primeira preventiva em ${nf(iv)} h (faltam ${nf(iv-h)} h).`}</span></div><button type="button" class="btn sm" data-nv="0">Desfazer</button></div>`;

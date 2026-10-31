@@ -3859,7 +3859,7 @@ async function drawCartao45(t){
     let y=146;rr(P,y,W-2*P,94,8,C.card,C.line);
     font(600,64,MON);x.fillStyle=C.fg;const cod=e.codigo||'—';x.fillText(cod,P+24,y+72);const cw=x.measureText(cod).width;
     const mm=[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · ');font(600,26,SAN);x.fillStyle=C.fg;x.fillText(fit(mm||'—',W-2*P-cw-72),P+cw+48,y+40);
-    const loc=e.alocacao?alocTxt(e):'';if(loc){font(400,21,SAN);x.fillStyle=C.mut;x.fillText(fit(loc,W-2*P-cw-72),P+cw+48,y+70)}
+    const loc=t.tipo==='filtro_ar'?sv:e.alocacao?alocTxt(e):'';if(loc){font(t.tipo==='filtro_ar'?600:400,21,SAN);x.fillStyle=t.tipo==='filtro_ar'?C.ink:C.mut;x.fillText(fit(loc,W-2*P-cw-72),P+cw+48,y+70)}
     // numeros
     y+=104;const bx=[['cal','Data',fdate(t.data),0],['clk','Horimetro',nf(h)+' h',1]];if(prox!=null)bx.push(['nxt','Proxima',nf(prox)+' h',0]);
     const gap=10,bw=(W-2*P-gap*(bx.length-1))/bx.length;
@@ -3868,10 +3868,8 @@ async function drawCartao45(t){
     y+=110;
     if(trocasHm.length){const l=trocasHm.map(z=>`Horimetro trocado em ${fdate(z.data)}: ${nf(z.antigo)} h → ${nf(z.horimetro)} h · a proxima esta no relogio atual`).join(' · ');
       rr(P,y,W-2*P,44,8,'#fff4cc');font(600,21,SAN);x.fillStyle='#8a5a00';x.fillText(fit(l,W-2*P-36),P+18,y+29);y+=54}
-    // servico realizado
-    rr(P,y,W-2*P,92,8,C.card,C.line);ico('wr',P+20,y+12,C.ink,24);lab('Servico realizado',P+54,y+30,C.mut);
-    let fs=36;font(700,fs,DSP);while(fs>26&&x.measureText(sv).width>W-2*P-44){fs-=2;font(700,fs,DSP)}x.fillStyle=C.ink;x.fillText(fit(sv,W-2*P-44),P+20,y+74);
-    return y+102};
+    /* sem quadro de servico/observacao: o espaco vai para a lista de material */
+    return y};
   /* rodape: responsavel e data de geracao */
   const rodH=(t.resp?72:0)+56;
   const rodape=x=>{const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;let y=H-rodH;
@@ -3880,7 +3878,7 @@ async function drawCartao45(t){
   /* quantas linhas cabem */
   const prova=document.createElement('canvas');prova.width=W;prova.height=H;const yTopo=pagina(prova.getContext('2d'),'');
   const cardTop=yTopo,cardBot=H-rodH-12,lista=cardBot-cardTop-66-10;
-  const MAXR=64,MINR=40;let rowH=Math.min(MAXR,Math.floor(lista/Math.max(1,its.length)));if(rowH<MINR)rowH=MINR;
+  const MAXR=78,MINR=40;let rowH=Math.min(MAXR,Math.floor(lista/Math.max(1,its.length)));if(rowH<MINR)rowH=MINR;
   const porPg=Math.max(1,Math.floor(lista/rowH)),pgs=Math.max(1,Math.ceil(its.length/porPg));
   const out=[];
   for(let pg=0;pg<pgs;pg++){const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');

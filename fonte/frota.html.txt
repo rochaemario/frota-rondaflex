@@ -321,7 +321,7 @@ body.focus .sidetabs{display:none!important}
 /* fotos */
 .ph-one{display:block;width:100%;padding:0;border:0;border-radius:16px;overflow:hidden;background:var(--sunk);cursor:zoom-in}
 .ph-one img{display:block;width:100%;max-height:340px;object-fit:cover}
-.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
+.card-prev+.card-prev{margin-top:12px}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
 .enc-sel .tq{cursor:default}
 .enc-sel .tq .btn{min-height:34px;padding:0 10px;margin-left:auto}
 .enc-res{margin-top:6px}
@@ -3635,6 +3635,10 @@ function openCartRe(){NAV.pop();openCart()}
    - nunca texto, link ou atalho de aplicativo (ex.: links de WhatsApp);
    - botao unico chamado "Compartilhar", que abre o menu do celular;
    - sem o menu do celular, oferece salvar a imagem no aparelho. */
+/* varias imagens (cartao 1/2, 2/2) num compartilhamento so; sem suporte, salva uma por uma */
+async function shareImgs(cvs,fname,title){const fs=await Promise.all(cvs.map((c,i)=>new Promise(r=>c.toBlob(b=>r(new File([b],fname.replace(/\.png$/,` ${i+1} de ${cvs.length}.png`),{type:'image/png'})),'image/png'))));
+  try{if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title});return}}catch(e){if(e&&e.name==='AbortError')return}
+  for(let i=0;i<cvs.length;i++)await shareImg(cvs[i],fs[i].name,title)}
 async function shareImg(cv,fname,title){
   const blob=await new Promise(r=>cv.toBlob(r,'image/png'));
   try{const f=new File([blob],fname,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title});return}}catch(e){if(e&&e.name==='AbortError')return}
@@ -3827,6 +3831,78 @@ async function drawCartao(t){
   const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y);out.getContext('2d').drawImage(cv,0,0);
   return out;
 }
+/* CARTAO PREVENTIVA 4:5 (1080 x 1350): formato que o WhatsApp mostra inteiro, sem cortar.
+   Cabecalho do cartao de sempre; Data, Horimetro (azul) e Proxima; servico; MATERIAL APLICADO (nome, codigo e quantidade a direita);
+   responsavel e rodape. A lista ajusta a altura das linhas; se nao couber, gera mais de uma imagem (1/2, 2/2). */
+async function drawCartao45(t){
+  try{await Promise.all(['700 64px "Barlow Condensed"','500 30px "IBM Plex Sans"','600 30px "IBM Plex Sans"','400 30px "IBM Plex Sans"','600 30px "IBM Plex Mono"','500 30px "IBM Plex Mono"'].map(f=>document.fonts.load(f)))}catch(_){}
+  const {e,h,prox,iv,trocasHm}=cartaoDados(t);
+  const C={pg:'#f3f5f9',ink:'#0b2470',inkMuted:'#a9b8e6',acc:'#0033a0',fg:'#121a2c',mut:'#4f5a70',faint:'#7a8499',line:'#dfe4ec',line2:'#e8ecf2',card:'#ffffff'};
+  const DSP='"Barlow Condensed","Arial Narrow",Arial,sans-serif',SAN='"IBM Plex Sans",Arial,sans-serif',MON='"IBM Plex Mono",Menlo,monospace';
+  const W=1080,H=1350,P=48,its=itensInforme(t);
+  const ICO={cal:'M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM3 10h18M8 3v4M16 3v4',clk:'M12 3a9 9 0 1 1 0 18a9 9 0 1 1 0-18zM12 7v5h4',
+    nxt:'M5 5h10a2 2 0 0 1 2 2v1M3 10h12M7 3v4M13 3v4M3 7a2 2 0 0 1 2-2M3 7v10a2 2 0 0 0 2 2h7M18 13a4 4 0 1 1 0 8a4 4 0 1 1 0-8zM18 15.2v2l1.3.8',
+    wr:'M14.7 6.3a4 4 0 0 0-5.4 5.2L3.5 17.3a1.8 1.8 0 0 0 2.6 2.6l5.8-5.8a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z'};
+  const sv=t.tipo==='filtro_ar'?`Filtro de ar · ${t.sub||''}${t.servico?' · '+t.servico:''}`:[iv?`Preventiva ${nf(iv)} h`:'Preventiva',t.obs?String(t.obs).replace(/\s+/g,' '):''].filter(Boolean).join(' · ');
+  const pagina=(x,pgTx)=>{
+    const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`,ls=v=>{try{x.letterSpacing=v}catch(_){}};
+    const rr=(X,Y,w,hh,r,fill,stroke)=>{x.beginPath();x.roundRect?x.roundRect(X,Y,w,hh,r):x.rect(X,Y,w,hh);x.fillStyle=fill;x.fill();if(stroke){x.lineWidth=2;x.strokeStyle=stroke;x.stroke()}};
+    const fit=(txt,maxW)=>{let s2=String(txt);if(x.measureText(s2).width<=maxW)return s2;while(s2.length>1&&x.measureText(s2+'…').width>maxW)s2=s2.slice(0,-1);return s2+'…'};
+    const ico=(k,X,Y,cor,sz)=>{x.save();x.translate(X,Y);x.scale(sz/24,sz/24);x.lineWidth=1.9;x.lineCap='round';x.lineJoin='round';x.strokeStyle=cor;x.stroke(new Path2D(ICO[k]));x.restore()};
+    const lab=(t2,X,Y,cor)=>{font(600,17,SAN);ls('1.4px');x.fillStyle=cor;x.fillText(t2.toUpperCase(),X,Y);ls('0px')};
+    x.fillStyle=C.pg;x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
+    // cabecalho (o de sempre, sem a data)
+    x.fillStyle=C.ink;x.fillRect(0,0,W,128);x.fillStyle='#e30613';x.fillRect(56,34,9,60);
+    font(700,56,DSP);x.fillStyle='#ffffff';x.fillText('CARTAO PREVENTIVA'+(pgTx?' · '+pgTx:''),90,76);
+    font(500,23,SAN);x.fillStyle=C.inkMuted;x.fillText('Rondaflex Ltda · Controle de Frota',91,106);
+    // equipamento
+    let y=146;rr(P,y,W-2*P,94,8,C.card,C.line);
+    font(600,64,MON);x.fillStyle=C.fg;const cod=e.codigo||'—';x.fillText(cod,P+24,y+72);const cw=x.measureText(cod).width;
+    const mm=[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · ');font(600,26,SAN);x.fillStyle=C.fg;x.fillText(fit(mm||'—',W-2*P-cw-72),P+cw+48,y+40);
+    const loc=e.alocacao?alocTxt(e):'';if(loc){font(400,21,SAN);x.fillStyle=C.mut;x.fillText(fit(loc,W-2*P-cw-72),P+cw+48,y+70)}
+    // numeros
+    y+=104;const bx=[['cal','Data',fdate(t.data),0],['clk','Horimetro',nf(h)+' h',1]];if(prox!=null)bx.push(['nxt','Proxima',nf(prox)+' h',0]);
+    const gap=10,bw=(W-2*P-gap*(bx.length-1))/bx.length;
+    bx.forEach(([k,l,v,az],i)=>{const X=P+i*(bw+gap);rr(X,y,bw,100,8,az?C.ink:C.card,az?null:C.line);ico(k,X+18,y+13,az?C.inkMuted:C.ink,24);lab(l,X+52,y+31,az?C.inkMuted:C.mut);
+      let fs=48;font(700,fs,DSP);while(fs>30&&x.measureText(v).width>bw-36){fs-=2;font(700,fs,DSP)}x.fillStyle=az?'#ffffff':C.fg;x.fillText(v,X+18,y+86)});
+    y+=110;
+    if(trocasHm.length){const l=trocasHm.map(z=>`Horimetro trocado em ${fdate(z.data)}: ${nf(z.antigo)} h → ${nf(z.horimetro)} h · a proxima esta no relogio atual`).join(' · ');
+      rr(P,y,W-2*P,44,8,'#fff4cc');font(600,21,SAN);x.fillStyle='#8a5a00';x.fillText(fit(l,W-2*P-36),P+18,y+29);y+=54}
+    // servico realizado
+    rr(P,y,W-2*P,92,8,C.card,C.line);ico('wr',P+20,y+12,C.ink,24);lab('Servico realizado',P+54,y+30,C.mut);
+    let fs=36;font(700,fs,DSP);while(fs>26&&x.measureText(sv).width>W-2*P-44){fs-=2;font(700,fs,DSP)}x.fillStyle=C.ink;x.fillText(fit(sv,W-2*P-44),P+20,y+74);
+    return y+102};
+  /* rodape: responsavel e data de geracao */
+  const rodH=(t.resp?72:0)+56;
+  const rodape=x=>{const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;let y=H-rodH;
+    if(t.resp){font(700,24,DSP);x.fillStyle=C.mut;x.fillText('RESPONSAVEL',P+4,y+28);font(400,26,SAN);x.fillStyle=C.fg;x.fillText(String(t.resp),P+4,y+60);y+=72}
+    x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2);font(400,20,SAN);x.fillStyle=C.mut;x.fillText(`Gerado em ${fdate(today())} pelo Controle de Frota`,P+4,y+36)};
+  /* quantas linhas cabem */
+  const prova=document.createElement('canvas');prova.width=W;prova.height=H;const yTopo=pagina(prova.getContext('2d'),'');
+  const cardTop=yTopo,cardBot=H-rodH-12,lista=cardBot-cardTop-66-10;
+  const MAXR=64,MINR=40;let rowH=Math.min(MAXR,Math.floor(lista/Math.max(1,its.length)));if(rowH<MINR)rowH=MINR;
+  const porPg=Math.max(1,Math.floor(lista/rowH)),pgs=Math.max(1,Math.ceil(its.length/porPg));
+  const out=[];
+  for(let pg=0;pg<pgs;pg++){const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+    const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;
+    let y=pagina(x,pgs>1?`${pg+1}/${pgs}`:'');
+    x.beginPath();x.roundRect?x.roundRect(P,y,W-2*P,cardBot-y,8):x.rect(P,y,W-2*P,cardBot-y);x.fillStyle=C.card;x.fill();x.lineWidth=2;x.strokeStyle=C.line;x.stroke();
+    font(700,36,DSP);x.fillStyle=C.fg;x.fillText('MATERIAL APLICADO',P+20,y+46);font(600,26,MON);x.fillStyle=C.mut;const nIt=String(its.length);x.fillText(nIt,W-P-20-x.measureText(nIt).width,y+46);
+    x.fillStyle=C.acc;x.fillRect(P+20,y+60,W-2*P-40,4);y+=66;
+    const part=its.slice(pg*porPg,(pg+1)*porPg),fsN=Math.max(18,Math.min(32,Math.round(rowH*0.53))),fsC=Math.round(fsN*0.84),fsQ=Math.round(fsN*0.94);
+    if(!its.length){font(400,28,SAN);x.fillStyle=C.mut;x.fillText('Nenhum item informado.',P+20,y+50)}
+    part.forEach((it,i)=>{const by=y+Math.round(rowH*0.66);
+      const q=it.qtd!==''&&it.qtd!=null&&Number(it.qtd)?`${nf(it.qtd,1)} ${it.un||''}`.trim():'';font(600,fsQ,MON);const qw=q?x.measureText(q).width:0;
+      if(q){x.fillStyle=C.fg;x.fillText(q,W-P-20-qw,by)}
+      const livre=W-2*P-40-qw-24,cd=itCod(it)||'';font(500,fsC,MON);const cdw=cd?x.measureText(cd).width:0;
+      font(500,fsN,SAN);let nm=itNome(it);const maxN=cd&&cdw+14<livre*0.55?livre-cdw-14:livre;
+      if(x.measureText(nm).width>maxN){while(nm.length>1&&x.measureText(nm+'…').width>maxN)nm=nm.slice(0,-1);nm+='…'}
+      x.fillStyle=C.fg;x.fillText(nm,P+20,by);const nw=x.measureText(nm).width;
+      if(cd&&nw+14+cdw<=livre){font(500,fsC,MON);x.fillStyle=C.faint;x.fillText(cd,P+20+nw+14,by)}
+      y+=rowH;if(i<part.length-1){x.fillStyle=C.line2;x.fillRect(P+20,y,W-2*P-40,1)}});
+    rodape(x);out.push(cv)}
+  return out;
+}
 function openCartao(id){
   nav('card:'+id,()=>openCartao(id));
   const t=S.trocas.find(x=>x.id===id);if(!t){goBack();return}const e=eqById(t.equipId);
@@ -3835,10 +3911,10 @@ function openCartao(id){
   body:`<div id="cd-box" class="card-wait">Montando o cartao…</div><p class="note" style="margin:10px 2px 0">Imagem pronta para enviar no WhatsApp, e-mail ou grupo da equipe.</p>`,
   foot:`<button type="button" class="btn pri" id="cd-go" disabled>${I.share}Compartilhar</button>`,
   mount:async sh=>{
-    const cv=await drawCartao(t);const box=sh.querySelector('#cd-box');if(!box.isConnected)return;
-    box.className='';box.innerHTML=`<img class="card-prev" alt="Cartao preventiva de ${esc(e?e.codigo:'')}" src="${cv.toDataURL('image/png')}">`;
+    const cvs=await drawCartao45(t),cv=cvs[0];const box=sh.querySelector('#cd-box');if(!box.isConnected)return;
+    box.className='';box.innerHTML=cvs.map((c,i)=>`<img class="card-prev" alt="Cartao preventiva de ${esc(e?e.codigo:'')}${cvs.length>1?` ${i+1} de ${cvs.length}`:''}" src="${c.toDataURL('image/png')}">`).join('');
     const blob=await new Promise(r=>cv.toBlob(r,'image/png'));const go=sh.querySelector('#cd-go');go.disabled=false;
-    go.onclick=()=>shareImg(cv,fname,'Cartao preventiva');
+    go.onclick=()=>cvs.length>1?shareImgs(cvs,fname,'Cartao preventiva'):shareImg(cv,fname,'Cartao preventiva');
   }});
 }
 

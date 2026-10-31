@@ -1009,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=984ee15e85"></script>
-<script src="shim.js?v=984ee15e85"></script>
+<script src="config.js?v=eaaf904df5"></script>
+<script src="shim.js?v=eaaf904df5"></script>
 </head>
 <body>
 
@@ -3820,7 +3820,8 @@ async function drawCartao(t){
   if(trocasHm.length){y+=24;const ln=trocasHm.map(x=>`Horimetro trocado em ${fdate(x.data)}: relogio antigo ${nf(x.antigo)} h → novo ${nf(x.horimetro)} h`);
     const hh=30+ln.length*40+40;rr(P,y,W-2*P,hh,18,'#fff4cc');x.fillStyle='#8a5a00';font(600,27,SAN);
     ln.forEach((l,i)=>x.fillText(fit(l,W-2*P-44),P+22,y+44+i*40));font(400,25,SAN);x.fillText(fit('A proxima esta no relogio atual do equipamento.',W-2*P-44),P+22,y+44+ln.length*40);y+=hh}
-  if(falta!=null){y+=26;const txt=falta>0?`Faltam ${nf(falta)} h · horimetro atual ${nf(cur)} h`:`Vencida ha ${nf(-falta)} h · horimetro atual ${nf(cur)} h`;
+  /* cartao compartilhado: sem 'faltam/vencida' (muda com o tempo; nao se sabe quando sera consultado) */
+  if(false&&falta!=null){y+=26;const txt=falta>0?`Faltam ${nf(falta)} h · horimetro atual ${nf(cur)} h`:`Vencida ha ${nf(-falta)} h · horimetro atual ${nf(cur)} h`;
     font(600,30,SAN);const tw=x.measureText(txt).width+44;rr(P,y,tw,56,28,falta>0?'#e5f3ea':'#fbe4e1');x.fillStyle=falta>0?C.ok:C.bad;x.fillText(txt,P+22,y+38);y+=56}
   // itens
   const its=itensInforme(t);

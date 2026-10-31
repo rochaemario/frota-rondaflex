@@ -1009,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=bdeb408e2c"></script>
-<script src="shim.js?v=bdeb408e2c"></script>
+<script src="config.js?v=f44e113b80"></script>
+<script src="shim.js?v=f44e113b80"></script>
 </head>
 <body>
 
@@ -2090,10 +2090,7 @@ function openEq(id){
   <div class="lx-b" hidden>${itemList(e,eqItens(e).map(it=>({it,st:itemStatus(e,it)})),'<div class="empty">Sem oleos e filtros. Monte o plano pelo + › Editar cadastro.</div>')}</div>
   ${(()=>{const pc=encaixeDe(id);return pc.length?`<button type="button" class="lbl lbl-x" data-lx aria-expanded="false">Pecas com encaixe <span class="c">${pc.length}</span>${I.chev}</button><div class="lx-b" hidden><div class="es-l">${pc.map(s=>esRow(s,{attr:`data-encst="${esc(s.id)}"`})).join('')}</div></div>`:''})()}
   <div class="lbl">Historico <span class="c">${hist.length}</span></div>
-  ${hist.length?`<div class="ilist">${hist.map(t=>`<div class="ia"><button type="button" class="ia-h hh" data-ia aria-expanded="false"><span class="ia-t">${tTit(t)}${t.ajuste&&t.tipo!=='informada'?AJS:''}</span><span class="hh-hm num">${nf(t.horimetro)} h</span><span class="hh-d">${fdate(t.data)}</span>${I.chev}</button>
-    <div class="ia-b" hidden>${t.tipo==='hmtroca'?`<div class="s">Relogio trocado: ${nf(t.antigo)} h → ${nf(t.horimetro)} h</div>`:(t.itens||[]).length?`<div class="hh-its">${t.itens.map(i=>`<div class="hh-i"><span>${esc(itNome(i))}${t.tipo==='reprog'?`<small>${esc(i.motivo||'')}</small>`:itCod(i)?`<small>${esc(itCod(i))}</small>`:''}</span>${t.tipo==='reprog'?`<b class="num">${nf(i.para)} h</b>`:i.qtd?`<b class="num">${nf(i.qtd,1)} ${esc(i.un||'')}</b>`:''}</div>`).join('')}</div>`:'<div class="s">Sem itens informados.</div>'}
-      ${t.resp||t.obs?`<div class="s">${[t.resp?'Responsavel: '+esc(t.resp):'',t.obs?esc(t.obs):''].filter(Boolean).join(' · ')}</div>`:''}
-      <button type="button" class="btn sm" data-tr="${esc(t.id)}">${t.tipo==='reprog'||t.tipo==='hmtroca'?'Abrir':'Abrir preventiva'}</button></div></div>`).join('')}</div>`:'<div class="empty">Sem preventivas registradas.</div>'}
+  ${hist.length?`<div class="ilist">${hist.map(t=>`<div class="ia"><button type="button" class="ia-h hh" data-tr="${esc(t.id)}"><span class="ia-t">${tTit(t)}${t.ajuste&&t.tipo!=='informada'?AJS:''}</span><span class="hh-hm num">${nf(t.horimetro)} h</span><span class="hh-d">${fdate(t.data)}</span>${I.chev}</button></div>`).join('')}</div>`:'<div class="empty">Sem preventivas registradas.</div>'}
   ${fotoEqHTML(e)}`,
   foot:avisarFoot('eq',id),
   mount:sh=>{bindFotoEq(sh);bindDocs(sh,e);novoBind(sh,e);
@@ -3453,7 +3450,7 @@ function openTroca(id){
     body:`<div class="spec"><div class="r"><span>Relogio antigo</span><b class="num">${nf(t.antigo)} h</b></div><div class="r"><span>Relogio novo</span><b class="num">${nf(t.horimetro)} h</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div>${t.obs?`<div class="r"><span>Motivo</span><b>${esc(t.obs)}</b></div>`:''}</div>
     <p class="note" style="margin:10px 2px 0">Registros anteriores a esta data usam a contagem do relogio antigo.</p>`});return}
   if(t.tipo==='informada'){openSheet({title:'Preventiva informada',sub:e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',
-    body:`<div class="spec"><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h</b></div></div><p class="note" style="margin:10px 2px 0">Informada sem detalhes (feita antes do app). Serve de ponto de partida para as proximas preventivas.</p>`,
+    body:`<div class="nv-b on" style="margin:0 0 12px"><div><b>Preventiva informada</b><span>Lancada sem detalhes (so data e horimetro), feita antes do app. Serve de ponto de partida para as proximas preventivas.</span></div></div><div class="spec"><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h</b></div></div>`,
     foot:podeEscrever()?`<button type="button" class="btn" id="ui-ed">Corrigir data e horimetro</button>`:'',mount:sh=>{const b=sh.querySelector('#ui-ed');if(b)b.onclick=()=>formUltPrev(t.equipId,t.id)}});return}
   if(t.tipo==='reprog'){openSheet({title:`Reprogramacao de ${fdate(t.data)}`,sub:e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',
     body:`<div class="lbl">Itens reprogramados</div><div class="spec">${(t.itens||[]).map(i=>`<div class="r"><span>${esc(itNome(i))}<small class="rp-mk">${esc(i.motivo||'')}</small></span><b class="rp-de"><s>${i.de!=null&&i.de!==''?nf(i.de):'—'}</s>→<b>${nf(i.para)} h</b></b></div>`).join('')}</div>

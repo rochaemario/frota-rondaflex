@@ -2858,6 +2858,9 @@ function formFiltroAr(eqId,sub){
 
 /* ---------- troca ---------- */
 /* mesmo item mesmo com prefixo diferente na referencia (11110175 = VOE11110175) */
+/* filtro de ar (motor/cabine/ar condicionado) e trocado quando avaliado, nao por intervalo: nunca entra no plano de preventiva.
+   Reconhecido pelo nome; o filtro do ar respiro fica fora desta regra (continua na preventiva). */
+const ehFiltroAr=n=>{const s=String(n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();return !/respiro/.test(s)&&/filtro (de |do |da )?ar\b|ar condicionado/.test(s)};
 const codeEq=(a,b)=>{const A=nzCod(a),B=nzCod(b);if(!A||!B)return false;return A===B||(Math.min(A.length,B.length)>=6&&(A.endsWith(B)||B.endsWith(A)))};
 const stCodes=s=>[stCod(s),s.codigo,s.ref].filter(Boolean);
 const itMatchSt=(it,s)=>!!(it&&s)&&(it.estoqueId===s.id||[it.espec,itCod(it)].some(c=>c&&stCodes(s).some(x=>codeEq(c,x))));
@@ -2980,7 +2983,7 @@ function formTroca(eqId){
       const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();const ivI=box.querySelector(`[data-ivp="${CSS.escape(it.pid)}"]`);/* item do plano sem ligacao com o estoque: liga pelo codigo (mesmo item mesmo com prefixo diferente) para dar baixa */
         const lig=it.estoqueId||c.dataset.sid||(S.estoque.find(s=>!isKit(s)&&itMatchSt({...it,estoqueId:'',espec:cd||it.espec},s))||{}).id||'';
         return {...it,estoqueId:lig,usado:q===''?0:Number(q),espec:cd||it.espec||'',ivEsc:ivI?ivVal(ivI.value):undefined}});
-      const avul=extras.map(x=>({pid:isKit(x.s)||x.kit?'':novoPid(),desc:x.s.desc,espec:stCod(x.s),usado:Number(x.q)||0,un:isKit(x.s)?'kit':x.s.un||'un',estoqueId:x.s.id,tipo:x.s.tipo||'',ivEsc:isKit(x.s)||x.kit?undefined:ivVal(x.iv??((e.ivEnc||{})[x.s.id]??''))}));
+      const avul=extras.map(x=>({pid:isKit(x.s)||x.kit||ehFiltroAr(x.s.desc)?'':novoPid(),desc:x.s.desc,espec:stCod(x.s),usado:Number(x.q)||0,un:isKit(x.s)?'kit':x.s.un||'un',estoqueId:x.s.id,tipo:x.s.tipo||'',ivEsc:isKit(x.s)||x.kit||ehFiltroAr(x.s.desc)?undefined:ivVal(x.iv??((e.ivEnc||{})[x.s.id]??''))}));
       if(!picked.length&&!avul.length){toast('Marque pelo menos um item.');return}
       const h0=Number(hm.value),dt=sh.querySelector('#t-dt').value;
       const g=hmGuard(sh.querySelector('#t-eqv'),e,h0,dt,hmSt,()=>sh.querySelector('#ft').onsubmit({preventDefault(){},eqvOk:ev.eqvOk,rpOk:ev.rpOk,rp:ev.rp}));if(!g)return;

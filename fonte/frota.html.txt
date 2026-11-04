@@ -321,7 +321,7 @@ body.focus .sidetabs{display:none!important}
 /* fotos */
 .ph-one{display:block;width:100%;padding:0;border:0;border-radius:16px;overflow:hidden;background:var(--sunk);cursor:zoom-in}
 .ph-one img{display:block;width:100%;max-height:340px;object-fit:cover}
-.card-prev+.card-prev{margin-top:12px}.nv-b.nv-col{flex-direction:column;align-items:stretch;gap:10px}.nv-b.nv-col .btn{align-self:stretch}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
+.card-prev+.card-prev{margin-top:12px}.ar-ico{width:17px;height:17px;flex:none;vertical-align:-3px;margin-left:7px}.ar-tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#9a5c00;background:#fdf1dc;border:1px solid #f3d6a6;border-radius:999px;padding:5px 12px 5px 8px;margin:0 0 12px}.ar-tag .ar-ico{margin:0}.nv-b.nv-col{flex-direction:column;align-items:stretch;gap:10px}.nv-b.nv-col .btn{align-self:stretch}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
 .enc-sel .tq{cursor:default}
 .enc-sel .tq .btn{min-height:34px;padding:0 10px;margin-left:auto}
 .enc-res{margin-top:6px}
@@ -2399,7 +2399,9 @@ document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.clos
 const RP_MOT=['Avaliado em bom estado','Sem peca no estoque','Aguardando parada','Outro'];
 /* preventiva informada (feita antes do app): mesmo titulo das outras, com um selo "i" discreto, para a linha nao quebrar */
 const INFS='<span class="ajs ajs-i" role="img" aria-label="Informada, sem detalhes" title="Informada, sem detalhes">i</span>';
-const tTit=t=>t.tipo==='informada'?'Preventiva'+INFS:t.tipo==='filtro_ar'?'Filtro de ar · '+esc(t.sub||''):t.tipo==='reprog'?'Reprogramacao':t.tipo==='hmtroca'?'Troca de horimetro':'Preventiva';
+/* filtro de ar: registro a parte (nao e preventiva); cor ambar, a mesma no app e no cartao */
+const AR_COR='#c77700',AR_ICO=`<svg class="ar-ico" viewBox="0 0 24 24" fill="none" stroke="${AR_COR}" stroke-width="2" stroke-linecap="round" aria-label="Filtro de ar" role="img"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8"/></svg>`;
+const tTit=t=>t.tipo==='informada'?'Preventiva'+INFS:t.tipo==='filtro_ar'?'Filtro de ar'+AR_ICO:t.tipo==='reprog'?'Reprogramacao':t.tipo==='hmtroca'?'Troca de horimetro':'Preventiva';
 const rpMotHTML=k=>`<div class="rp-ms" role="group" aria-label="Motivo">${RP_MOT.map(m=>`<button type="button" data-rpm="${esc(k)}" data-v="${esc(m)}" aria-pressed="false">${m}</button>`).join('')}</div><input class="rp-o" data-rpo="${esc(k)}" placeholder="Qual o motivo?" hidden>`;
 function bindRpMot(root){root.querySelectorAll('[data-rpm]').forEach(b=>b.onclick=()=>{const k=b.dataset.rpm;root.querySelectorAll(`[data-rpm="${CSS.escape(k)}"]`).forEach(x=>x.setAttribute('aria-pressed',x===b));const o=root.querySelector(`[data-rpo="${CSS.escape(k)}"]`);o.hidden=b.dataset.v!=='Outro';if(!o.hidden)o.focus();root.dispatchEvent(new Event('rpchange'))});
   root.querySelectorAll('[data-rpo]').forEach(o=>o.oninput=()=>root.dispatchEvent(new Event('rpchange')))}
@@ -3449,7 +3451,7 @@ function openTroca(id){
     body:`<div class="lbl">Itens reprogramados</div><div class="spec">${(t.itens||[]).map(i=>`<div class="r"><span>${esc(itNome(i))}<small class="rp-mk">${esc(i.motivo||'')}</small></span><b class="rp-de"><s>${i.de!=null&&i.de!==''?nf(i.de):'—'}</s>→<b>${nf(i.para)} h</b></b></div>`).join('')}</div>
     <div class="spec" style="margin-top:12px"><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h</b></div><div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div></div>`});return}
   openSheet({title:t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub)}`:`Preventiva de ${fdate(t.data)}`,sub:[e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',t.tipo==='filtro_ar'?`${esc(t.servico||'')} em ${fdate(t.data)}`:''].filter(Boolean).join(' · '),
-  body:`<div class="hmcard"><div><div class="k">Horimetro na troca</div><div class="v">${nf(t.horimetro)}<small>h</small></div>${t.hmConv!=null?`<div class="d">relogio antigo · no relogio atual: ${nf(t.hmConv)} h</div>`:''}</div>${t.ajuste?AJS:''}</div>
+  body:`${t.tipo==='filtro_ar'?`<div class="ar-tag">${AR_ICO}Filtro de ar · nao conta como preventiva</div>`:''}<div class="hmcard"><div><div class="k">Horimetro na troca</div><div class="v">${nf(t.horimetro)}<small>h</small></div>${t.hmConv!=null?`<div class="d">relogio antigo · no relogio atual: ${nf(t.hmConv)} h</div>`:''}</div>${t.ajuste?AJS:''}</div>
   <div class="lbl">Material aplicado</div><div class="es-l">${(t.itens||[]).map(i=>`<div class="es-r st"><span class="es-b neu"><b>${nf(i.qtd,1)}</b><small>${esc(i.un||'')}</small></span><span class="es-t"><span class="es-n">${esc(itNome(i))}</span>${itCod(i)||i.espec?`<span class="es-c">${esc(itCod(i)||i.espec)}</span>`:''}</span></div>`).join('')||'<div class="empty">Nenhum item informado.</div>'}</div>
   <div class="spec" style="margin-top:12px"><div class="r"><span>Tipo</span><b>${t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub||'')}${t.servico?' · '+esc(t.servico):''}`:'Preventiva'}</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h${t.hmConv!=null?`<small class="rp-mk" style="text-align:right">no relogio atual: ${nf(t.hmConv)} h</small>`:''}</b></div>${t.intervalo?`<div class="r"><span>Intervalo</span><b class="num">${nf(t.intervalo)} h</b></div>`:''}${(()=>{const c=cartaoDados(t);return c.prox!=null&&t.proximaH!==''&&t.proximaH!=null?`<div class="r"><span>Proxima</span><b class="num">${nf(c.prox)} h${c.trocasHm.length||t.hmConv!=null?'<small class="rp-mk" style="text-align:right">no relogio atual</small>':''}</b></div>`:''})()}${(()=>{const c=cartaoDados(t);return c.trocasHm.map(x=>`<div class="r"><span>Troca de horimetro</span><b>${fdate(x.data)}<small class="rp-mk" style="text-align:right">${nf(x.antigo)} → ${nf(x.horimetro)} h</small></b></div>`).join('')})()}<div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div>${t.obs?`<div class="r"><span>Observacoes</span><b>${esc(t.obs)}</b></div>`:''}</div>
   <div id="delbox"></div>`,
@@ -3870,7 +3872,7 @@ async function drawCartao(t){
    responsavel e rodape. A lista ajusta a altura das linhas; se nao couber, gera mais de uma imagem (1/2, 2/2). */
 async function drawCartao45(t){
   try{await Promise.all(['700 64px "Barlow Condensed"','500 30px "IBM Plex Sans"','600 30px "IBM Plex Sans"','400 30px "IBM Plex Sans"','600 30px "IBM Plex Mono"','500 30px "IBM Plex Mono"'].map(f=>document.fonts.load(f)))}catch(_){}
-  const {e,h,prox,iv,trocasHm}=cartaoDados(t);
+  const {e,h,prox,iv,trocasHm}=cartaoDados(t),AR=t.tipo==='filtro_ar';
   const C={pg:'#f3f5f9',ink:'#0b2470',inkMuted:'#a9b8e6',acc:'#0033a0',fg:'#121a2c',mut:'#4f5a70',faint:'#7a8499',line:'#dfe4ec',line2:'#e8ecf2',card:'#ffffff'};
   const DSP='"Barlow Condensed","Arial Narrow",Arial,sans-serif',SAN='"IBM Plex Sans",Arial,sans-serif',MON='"IBM Plex Mono",Menlo,monospace';
   const W=1080,H=1350,P=48,its=itensInforme(t);
@@ -3887,7 +3889,8 @@ async function drawCartao45(t){
     x.fillStyle=C.pg;x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
     // cabecalho (o de sempre, sem a data)
     x.fillStyle=C.ink;x.fillRect(0,0,W,128);x.fillStyle='#e30613';x.fillRect(56,34,9,60);
-    font(700,56,DSP);x.fillStyle='#ffffff';x.fillText('CARTAO PREVENTIVA'+(pgTx?' · '+pgTx:''),90,76);
+    font(700,56,DSP);x.fillStyle='#ffffff';x.fillText((AR?'CARTAO FILTRO DE AR':'CARTAO PREVENTIVA')+(pgTx?' · '+pgTx:''),90,76);
+    if(AR){x.beginPath();x.arc(W-P-36,64,36,0,Math.PI*2);x.fillStyle=AR_COR;x.fill();x.save();x.translate(W-P-56,44);x.scale(40/24,40/24);x.lineWidth=2;x.lineCap='round';x.strokeStyle='#ffffff';x.stroke(new Path2D('M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8'));x.restore()}
     font(500,23,SAN);x.fillStyle=C.inkMuted;x.fillText('Rondaflex Ltda · Controle de Frota',91,106);
     // equipamento
     let y=146;rr(P,y,W-2*P,94,8,C.card,C.line);
@@ -3895,9 +3898,9 @@ async function drawCartao45(t){
     const mm=[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · ');font(600,26,SAN);x.fillStyle=C.fg;x.fillText(fit(mm||'—',W-2*P-cw-72),P+cw+48,y+40);
     const loc=t.tipo==='filtro_ar'?sv:e.alocacao?alocTxt(e):'';if(loc){font(t.tipo==='filtro_ar'?600:400,21,SAN);x.fillStyle=t.tipo==='filtro_ar'?C.ink:C.mut;x.fillText(fit(loc,W-2*P-cw-72),P+cw+48,y+70)}
     // numeros
-    y+=104;const bx=[['cal','Data',fdate(t.data),0],['clk','Horimetro',nf(h)+' h',1]];if(prox!=null)bx.push(['nxt','Proxima',nf(prox)+' h',0]);
+    y+=104;const bx=[['cal','Data',fdate(t.data),0],['clk','Horimetro',nf(h)+' h',1]];if(AR)bx.push(['wr','Servico',t.servico||'Troca',0]);else if(prox!=null)bx.push(['nxt','Proxima',nf(prox)+' h',0]);
     const gap=10,bw=(W-2*P-gap*(bx.length-1))/bx.length;
-    bx.forEach(([k,l,v,az],i)=>{const X=P+i*(bw+gap);rr(X,y,bw,100,8,az?C.ink:C.card,az?null:C.line);ico(k,X+18,y+13,az?C.inkMuted:C.ink,24);lab(l,X+52,y+31,az?C.inkMuted:C.mut);
+    bx.forEach(([k,l,v,az],i)=>{const X=P+i*(bw+gap),bg=AR?AR_COR:C.ink,mu=AR?'#fde7c4':C.inkMuted;rr(X,y,bw,100,8,az?bg:C.card,az?null:C.line);ico(k,X+18,y+13,az?mu:C.ink,24);lab(l,X+52,y+31,az?mu:C.mut);
       let fs=48;font(700,fs,DSP);while(fs>30&&x.measureText(v).width>bw-36){fs-=2;font(700,fs,DSP)}x.fillStyle=az?'#ffffff':C.fg;x.fillText(v,X+18,y+86)});
     y+=110;
     if(trocasHm.length){const l=trocasHm.map(z=>`Horimetro trocado em ${fdate(z.data)}: ${nf(z.antigo)} h → ${nf(z.horimetro)} h · a proxima esta no relogio atual`).join(' · ');
@@ -3919,8 +3922,8 @@ async function drawCartao45(t){
     const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;
     let y=pagina(x,pgs>1?`${pg+1}/${pgs}`:'');
     x.beginPath();x.roundRect?x.roundRect(P,y,W-2*P,cardBot-y,8):x.rect(P,y,W-2*P,cardBot-y);x.fillStyle=C.card;x.fill();x.lineWidth=2;x.strokeStyle=C.line;x.stroke();
-    font(700,36,DSP);x.fillStyle=C.fg;x.fillText('MATERIAL APLICADO',P+20,y+46);font(600,26,MON);x.fillStyle=C.mut;const nIt=String(its.length);x.fillText(nIt,W-P-20-x.measureText(nIt).width,y+46);
-    x.fillStyle=C.acc;x.fillRect(P+20,y+60,W-2*P-40,4);y+=66;
+    font(700,36,DSP);x.fillStyle=C.fg;x.fillText(AR?'FILTROS TROCADOS':'MATERIAL APLICADO',P+20,y+46);font(600,26,MON);x.fillStyle=C.mut;const nIt=String(its.length);x.fillText(nIt,W-P-20-x.measureText(nIt).width,y+46);
+    x.fillStyle=AR?AR_COR:C.acc;x.fillRect(P+20,y+60,W-2*P-40,4);y+=66;
     const part=its.slice(pg*porPg,(pg+1)*porPg),fsN=Math.max(18,Math.min(32,Math.round(rowH*0.53))),fsC=Math.round(fsN*0.84),fsQ=Math.round(fsN*0.94);
     if(!its.length){font(400,28,SAN);x.fillStyle=C.mut;x.fillText('Nenhum item informado.',P+20,y+50)}
     part.forEach((it,i)=>{const by=y+Math.round(rowH*0.66);
@@ -3938,8 +3941,8 @@ async function drawCartao45(t){
 function openCartao(id){
   nav('card:'+id,()=>openCartao(id));
   const t=S.trocas.find(x=>x.id===id);if(!t){goBack();return}const e=eqById(t.equipId);
-  const fname=`Cartao preventiva ${e?e.codigo:''} ${t.data||''}.png`.replace(/\s+/g,' ');
-  openSheet({title:'Cartao preventiva',sub:`${e?esc(e.codigo)+' · ':''}${fdate(t.data)}`,
+  const fname=`${t.tipo==='filtro_ar'?'Cartao filtro de ar':'Cartao preventiva'} ${e?e.codigo:''} ${t.data||''}.png`.replace(/\s+/g,' ');
+  openSheet({title:t.tipo==='filtro_ar'?'Cartao filtro de ar':'Cartao preventiva',sub:`${e?esc(e.codigo)+' · ':''}${fdate(t.data)}`,
   body:`<div id="cd-box" class="card-wait">Montando o cartao…</div><p class="note" style="margin:10px 2px 0">Imagem pronta para enviar no WhatsApp, e-mail ou grupo da equipe.</p>`,
   foot:`<button type="button" class="btn pri" id="cd-go" disabled>${I.share}Compartilhar</button>`,
   mount:async sh=>{

@@ -332,7 +332,7 @@ body.focus .sidetabs{display:none!important}
 /* fotos */
 .ph-one{display:block;width:100%;padding:0;border:0;border-radius:16px;overflow:hidden;background:var(--sunk);cursor:zoom-in}
 .ph-one img{display:block;width:100%;max-height:340px;object-fit:cover}
-.card-prev+.card-prev{margin-top:12px}.ajs.arb{background:#c77700;cursor:pointer}.ajs.arb svg{width:72%;height:72%;fill:none}.ar-ico{width:17px;height:17px;flex:none;vertical-align:-3px;margin-left:7px}.ar-tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#9a5c00;background:#fdf1dc;border:1px solid #f3d6a6;border-radius:999px;padding:5px 12px 5px 8px;margin:0 0 12px}.ar-tag .ar-ico{margin:0}.nv-b.nv-col{flex-direction:column;align-items:stretch;gap:10px}.nv-b.nv-col .btn{align-self:stretch}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
+.card-prev+.card-prev{margin-top:12px}.ajs.arb{background:#c77700;cursor:pointer}.ajs.arb svg{width:72%;height:72%;fill:none}.hmcard.hm-ar{display:flex;align-items:center;justify-content:space-between;gap:10px}.ajs.arb.arb-g{width:24px;height:24px;margin:0 2px 0 auto}.ar-ico{width:17px;height:17px;flex:none;vertical-align:-3px;margin-left:7px}.ar-tag{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#9a5c00;background:#fdf1dc;border:1px solid #f3d6a6;border-radius:999px;padding:5px 12px 5px 8px;margin:0 0 12px}.ar-tag .ar-ico{margin:0}.nv-b.nv-col{flex-direction:column;align-items:stretch;gap:10px}.nv-b.nv-col .btn{align-self:stretch}.card-prev{display:block;width:100%;height:auto;border-radius:14px;box-shadow:0 1px 0 var(--line),0 8px 24px rgba(0,0,0,.12);background:#fff}
 .enc-sel .tq{cursor:default}
 .enc-sel .tq .btn{min-height:34px;padding:0 10px;margin-left:auto}
 .enc-res{margin-top:6px}
@@ -1009,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=e8bd51f28a"></script>
-<script src="shim.js?v=e8bd51f28a"></script>
+<script src="config.js?v=814548a2b6"></script>
+<script src="shim.js?v=814548a2b6"></script>
 </head>
 <body>
 
@@ -3473,11 +3473,11 @@ function openTroca(id){
     body:`<div class="lbl">Itens reprogramados</div><div class="spec">${(t.itens||[]).map(i=>`<div class="r"><span>${esc(itNome(i))}<small class="rp-mk">${esc(i.motivo||'')}</small></span><b class="rp-de"><s>${i.de!=null&&i.de!==''?nf(i.de):'—'}</s>→<b>${nf(i.para)} h</b></b></div>`).join('')}</div>
     <div class="spec" style="margin-top:12px"><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h</b></div><div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div></div>`});return}
   openSheet({title:t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub)}`:`Preventiva de ${fdate(t.data)}`,sub:[e?`${esc(e.codigo)} · ${esc(e.tipo)}`:'',t.tipo==='filtro_ar'?`${esc(t.servico||'')} em ${fdate(t.data)}`:''].filter(Boolean).join(' · '),
-  body:`${t.tipo==='filtro_ar'?`<div class="ar-tag">${AR_ICO}Filtro de ar · nao conta como preventiva</div>`:''}<div class="hmcard"><div><div class="k">Horimetro na troca</div><div class="v">${nf(t.horimetro)}<small>h</small></div>${t.hmConv!=null?`<div class="d">relogio antigo · no relogio atual: ${nf(t.hmConv)} h</div>`:''}</div>${t.ajuste?AJS:''}</div>
+  body:`<div class="hmcard${t.tipo==='filtro_ar'?' hm-ar':''}"><div><div class="k">Horimetro na troca</div><div class="v">${nf(t.horimetro)}<small>h</small></div>${t.hmConv!=null?`<div class="d">relogio antigo · no relogio atual: ${nf(t.hmConv)} h</div>`:''}</div>${t.ajuste?AJS:''}${t.tipo==='filtro_ar'?ARB(t).replace('class="ajs arb"','class="ajs arb arb-g"'):''}</div>
   <div class="lbl">Material aplicado</div><div class="es-l">${(t.itens||[]).map(i=>`<div class="es-r st"><span class="es-b neu"><b>${nf(i.qtd,1)}</b><small>${esc(i.un||'')}</small></span><span class="es-t"><span class="es-n">${esc(itNome(i))}</span>${itCod(i)||i.espec?`<span class="es-c">${esc(itCod(i)||i.espec)}</span>`:''}</span></div>`).join('')||'<div class="empty">Nenhum item informado.</div>'}</div>
   <div class="spec" style="margin-top:12px"><div class="r"><span>Tipo</span><b>${t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub||'')}${t.servico?' · '+esc(t.servico):''}`:'Preventiva'}</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b class="num">${nf(t.horimetro)} h${t.hmConv!=null?`<small class="rp-mk" style="text-align:right">no relogio atual: ${nf(t.hmConv)} h</small>`:''}</b></div>${t.intervalo?`<div class="r"><span>Intervalo</span><b class="num">${nf(t.intervalo)} h</b></div>`:''}${(()=>{const c=cartaoDados(t);return c.prox!=null&&t.proximaH!==''&&t.proximaH!=null?`<div class="r"><span>Proxima</span><b class="num">${nf(c.prox)} h${c.trocasHm.length||t.hmConv!=null?'<small class="rp-mk" style="text-align:right">no relogio atual</small>':''}</b></div>`:''})()}${(()=>{const c=cartaoDados(t);return c.trocasHm.map(x=>`<div class="r"><span>Troca de horimetro</span><b>${fdate(x.data)}<small class="rp-mk" style="text-align:right">${nf(x.antigo)} → ${nf(x.horimetro)} h</small></b></div>`).join('')})()}<div class="r"><span>Responsavel</span><b>${esc(t.resp||'—')}</b></div>${t.obs?`<div class="r"><span>Observacoes</span><b>${esc(t.obs)}</b></div>`:''}</div>
   <div id="delbox"></div>`,
-  foot:`<button class="btn pri" id="t-card" style="flex:1">${I.share}Cartao preventiva</button>`,
+  foot:`<button class="btn pri" id="t-card" style="flex:1">${I.share}${t.tipo==='filtro_ar'?'Cartao filtro de ar':'Cartao preventiva'}</button>`,
   mount:sh=>{sh.querySelector('#t-card').onclick=()=>openCartao(id)}});
 }
 

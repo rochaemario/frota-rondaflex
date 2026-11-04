@@ -1,6 +1,6 @@
 /* Controle de Frota · funcionamento com internet ruim
    Páginas e bibliotecas ficam guardadas no aparelho; os dados sempre vêm do servidor. */
-const VER='frota-87f6a9a9b5';
+const VER='frota-31b6545f97';
 const SHELL=['./','index.html','shim.js','config.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VER).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VER).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
@@ -19,3 +19,11 @@ self.addEventListener('fetch',e=>{
   /* bibliotecas e fontes: usa a guardada e atualiza em segundo plano */
   e.respondWith(caches.open(VER).then(async c=>{const hit=await c.match(r);const net=fetch(r).then(res=>{if(res.ok||res.type==='opaque')c.put(r,res.clone());return res}).catch(()=>hit);return hit||net}));
 });
+
+/* notificacoes do administrador: chegam mesmo com o app fechado; o toque abre o app na tela certa */
+self.addEventListener('push',e=>{let d={};try{d=e.data?e.data.json():{}}catch(_){d={b:e.data&&e.data.text()}}
+  e.waitUntil(self.registration.showNotification(d.t||'Controle de Frota',{body:d.b||'',tag:d.tag||undefined,renotify:!!d.tag,icon:'icons/icon-192.png',badge:'icons/icon-192.png',data:{u:d.u||''}}))});
+self.addEventListener('notificationclick',e=>{e.notification.close();const u=(e.notification.data||{}).u||'';
+  e.waitUntil((async()=>{const cs=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+    for(const c of cs){if(c.url.startsWith(self.registration.scope)){c.postMessage({abrir:u});return c.focus()}}
+    return self.clients.openWindow(self.registration.scope+(u?'?abrir='+encodeURIComponent(u):''))})())});

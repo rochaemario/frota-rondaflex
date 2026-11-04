@@ -1009,8 +1009,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=87f6a9a9b5"></script>
-<script src="shim.js?v=87f6a9a9b5"></script>
+<script src="config.js?v=31b6545f97"></script>
+<script src="shim.js?v=31b6545f97"></script>
 </head>
 <body>
 
@@ -2544,7 +2544,7 @@ function formLeituras(focusId){
     if(focusId){const fi=ins.find(i=>i.closest('.lr').dataset.id===focusId);if(fi){fi.closest('.lr').scrollIntoView({block:'center'});setTimeout(()=>fi.focus({preventScroll:true}),250)}}
     const doSave=async()=>{const ids=Object.keys(D.v).filter(id=>eqById(id));let ok=0;
       const b=sh.querySelector('#lr-save');b.disabled=true;b.textContent='Salvando…';
-      const res=await safe(async()=>{for(const id of ids){await S.db.doc('equipamentos/'+id).update({horimetro:Math.round((Number(D.v[id])+hmDeltaApos(id,D.dt))*10)/10,horimetroData:D.dt,horimetroReg:today()});ok++;delete D.v[id];hmDraftSave(D)}},null);
+      const res=await safe(async()=>{for(const id of ids){await S.db.doc('equipamentos/'+id).update({horimetro:Math.round((Number(D.v[id])+hmDeltaApos(id,D.dt))*10)/10,horimetroData:D.dt,horimetroReg:today(),horimetroPor:(EU()||{}).uid||'',horimetroEm:Date.now()});ok++;delete D.v[id];hmDraftSave(D)}},null);
       toast(res?`${ok} leitura${ok===1?'':'s'} salva${ok===1?'':'s'}`:`${ok} salvas. As demais ficaram no rascunho.`);
       if(res){D.v={};D.dt=today();delete D.dtDia;hmDraftSave(D);closeSheet()}else formLeituras()};
     /* a nova leitura precisa ser maior que a ultima registrada no equipamento */
@@ -2625,7 +2625,7 @@ function formTrocaHm(eqId,novo0){
         const d=Math.round((B-A)*10)/10,sh_=v=>v===''||v==null||isNaN(Number(v))?v:Math.round((Number(v)+d)*10)/10;
         const ok=await safe(async()=>{
           await S.db.collection('trocas').add({tipo:'hmtroca',ts:Date.now(),equipId:e.id,data:dt,horimetro:B,antigo:A,delta:d,resp:sh.querySelector('#thm-r').value.trim(),obs:sh.querySelector('#thm-o').value.trim(),itens:[],exemplo:!!e.exemplo});
-          await S.db.doc('equipamentos/'+e.id).update({horimetro:B,horimetroData:dt,horimetroReg:today(),
+          await S.db.doc('equipamentos/'+e.id).update({horimetro:B,horimetroData:dt,horimetroReg:today(),horimetroPor:(EU()||{}).uid||'',horimetroEm:Date.now(),
             itens:(e.itens||[]).map(i=>({...i,ultimaH:sh_(i.ultimaH),proxH:sh_(i.proxH)})),...(e.combBase&&e.combBase.h!=null?{combBase:{...e.combBase,h:sh_(e.combBase.h)}}:{})})},'Troca de horimetro registrada');
         if(ok){const D=hmDraft();if(D.v&&D.v[e.id]!=null){delete D.v[e.id];hmDraftSave(D)}goBack()}}))}}});
 }
@@ -4216,7 +4216,12 @@ function estRestaura(){let E=null;try{E=JSON.parse(localStorage.getItem(EST_K)||
       if(c.c){if(el.checked!==!!c.v){el.checked=!!c.v;el.dispatchEvent(new Event('change',{bubbles:true}))}return}
       if(el.value!==c.v){el.value=c.v;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))}});
     const sb=sh.querySelector('.sh-body');if(sb)requestAnimationFrame(()=>{sb.scrollTop=E.sheetScroll||0})},120)}
-{const t0=Date.now(),ti=setInterval(()=>{if(S.db&&S.loaded.e&&S.loaded.t&&S.loaded.s&&S.loaded.c){clearInterval(ti);setTimeout(estRestaura,60)}else if(Date.now()-t0>20000)clearInterval(ti)},100)}
+/* toque numa notificacao: abre a tela do aviso, equipamento ou item */
+function abrirLink(k){if(!k)return;try{const p=String(k).split(':'),f=NAV_RE[p[0]];if(!f)return;if(sheetOpen)closeSheet();NAV.length=0;f(p.slice(1))}catch(e){console.error(e)}}
+if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',ev=>{if(ev.data&&'abrir' in ev.data&&S.db)abrirLink(ev.data.abrir)});
+{const t0=Date.now(),ti=setInterval(()=>{if(S.db&&S.loaded.e&&S.loaded.t&&S.loaded.s&&S.loaded.c){clearInterval(ti);
+  let ab='';try{ab=new URLSearchParams(location.search).get('abrir')||'';if(ab)history.replaceState(null,'',location.pathname)}catch(e){}
+  setTimeout(()=>{if(ab){try{localStorage.removeItem(EST_K)}catch(e){}abrirLink(ab)}else estRestaura()},60)}else if(Date.now()-t0>20000)clearInterval(ti)},100)}
 })();
 
 /* AJUSTE AUTOMATICO DE CAIXAS (vale para todo o app): numero ou texto que nao cabe na caixa de tamanho fixo

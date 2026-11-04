@@ -165,7 +165,8 @@
     const q=query(parent,[],null,0);
     return {...q,path:parent,id:idOf(parent),
       doc:id=>docRef(parent+'/'+(id||rid())),
-      async add(d){const r=docRef(parent+'/'+rid());await r.set(d);return r},
+      /* novo lancamento guarda quem fez e quando (para avisar o administrador do que outra pessoa lancou) */
+      async add(d){const r=docRef(parent+'/'+rid());await r.set({...d,_por:(perfil&&perfil.user_id)||'',_em:Date.now()});return r},
       async get(){return snapCol(parent)},
       onSnapshot(cb,onErr){realtime();let set=colSubs.get(parent);if(!set)colSubs.set(parent,set=new Set());set.add(cb);
         Promise.resolve().then(()=>{if(set.has(cb))cb(snapCol(parent))});return()=>set.delete(cb)}};
@@ -306,12 +307,26 @@
     if(open&&!ev.target.closest('#acct')){open.remove();if(!s)return}
     if(!s||!perfil)return;ev.stopPropagation();ev.preventDefault();if(open)return;css();
     const d=document.createElement('div');d.id='acct';d.className='acct';
-    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
+    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}${perfil.papel==='admin'?'<div class="dg-r" id="ac-nt" hidden><div><b>Notificacoes no celular</b><small>Avisos, vencimentos, estoque e lancamentos</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Notificacoes no celular"></button></div>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
     document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alteracoes ainda nao enviadas',`Ha ${OUT.length} ${OUT.length>1?'alteracoes':'alteracao'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}(saindo=true,sb.auth.signOut())};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
     const dr=d.querySelector('#ac-dg'),sw=dr.querySelector('.sw');const pinta=()=>sw.setAttribute('aria-checked',!!dgLer(perfil.user_id));pinta();
     dgPode().then(v=>{dr.hidden=!v});
+    const nr=d.querySelector('#ac-nt');if(nr)ntLiga(nr);
     sw.onclick=async()=>{if(dgLer(perfil.user_id)){try{localStorage.removeItem(DGK)}catch(e){}pinta();avisar('Digital desativada','O app abre sem pedir a digital');return}
       try{await dgCriar(perfil);pinta();avisar('Digital ativada','O app vai pedir a digital ao abrir')}catch(e){if(!(e&&e.name==='NotAllowedError'))avisar('Nao foi possivel ativar','Este celular nao liberou o uso da digital')}}},true);
+  /* ---------- notificacoes no celular (so administrador; Android/Chrome) ---------- */
+  const ntPode=()=>'serviceWorker' in navigator&&'PushManager' in window&&'Notification' in window&&location.protocol==='https:';
+  const u8=b=>{const s=atob((b+'==='.slice((b.length+3)%4)).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from(s,c=>c.charCodeAt(0))};
+  const ntId=sub=>perfil.user_id+'-'+[...sub.endpoint].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7).toString(36);
+  async function ntSub(){try{const r=await navigator.serviceWorker.ready;return await r.pushManager.getSubscription()}catch(e){return null}}
+  async function ntLiga(row){if(!ntPode())return;row.hidden=false;const sw=row.querySelector('.sw');const pinta=async()=>{const s=await ntSub();sw.setAttribute('aria-checked',!!(s&&Notification.permission==='granted'))};pinta();
+    sw.onclick=async()=>{const s=await ntSub();
+      if(s&&Notification.permission==='granted'){try{await docRef('push/'+ntId(s)).delete()}catch(e){}try{await s.unsubscribe()}catch(e){}pinta();avisar('Notificacoes desativadas','Este celular nao recebe mais notificacoes do app');return}
+      const vk=(DOCS.get('config/push')||{}).vapid;if(!vk){avisar('Ainda nao disponivel','A rotina de envio ainda esta sendo preparada. Tente de novo em alguns minutos.');return}
+      const p=await Notification.requestPermission();if(p!=='granted'){avisar('Permissao negada','Libere as notificacoes do app nas configuracoes do celular e tente de novo');return}
+      try{const r=await navigator.serviceWorker.ready;const sub=s||await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:u8(vk)});
+        await docRef('push/'+ntId(sub)).set({uid:perfil.user_id,sub:sub.toJSON(),ua:navigator.userAgent.slice(0,140),ts:Date.now()});pinta();avisar('Notificacoes ativadas','Voce vai receber avisos, vencimentos, estoque baixo e lancamentos de outras pessoas')}
+      catch(e){console.error(e);avisar('Nao foi possivel ativar','Este celular nao liberou as notificacoes')}}}
   /* lista da equipe para os avisos: o administrador publica nomes e papeis (sem dados sensiveis) */
   async function equipeSync(){if(!perfil||perfil.papel!=='admin'||!navigator.onLine)return;
     try{const {data,error}=await sb.from('perfis').select('user_id,email,nome,papel').order('nome');if(error||!data)return;

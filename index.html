@@ -1096,8 +1096,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-ck{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-radius:14px;background:var(--bg);font-size:16px;font-weight:500}.os-ck input{width:22px;height:22px;accent-color:var(--accent)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=326758b6af"></script>
-<script src="shim.js?v=326758b6af"></script>
+<script src="config.js?v=84a549c11d"></script>
+<script src="shim.js?v=84a549c11d"></script>
 </head>
 <body>
 
@@ -4398,7 +4398,7 @@ const ehMec=()=>OS_ON&&osEu().papel==='mecanico';
 const osNomeDe=uid=>{const m=(S.mecs||[]).find(x=>x.uid===uid);if(m)return m.nome;const u=EU();return u&&u.uid===uid?u.nome:'—'};
 const OS_CAMPOS={data:'Data do servico',hor:'Horimetro',aconteceu:'O que aconteceu',feito:'O que foi feito',estado:'Equipamento'};
 const osVal=(c,v)=>c==='data'?fdate(v):c==='estado'?(v==='parado'?'Parado':v==='operando'?'Operando':''):String(v??'');
-const osNum=v=>v.num?'OS '+v.num:'Nova';
+const osNum=v=>v.num?'OS '+String(v.num).padStart(4,'0'):'Nova';
 const osHora=t=>{const d=new Date(t),h=pad(d.getHours())+':'+pad(d.getMinutes()),k=iso(d),hj=today(),on=iso(new Date(Date.now()-864e5));return (k===hj?'hoje':k===on?'ontem':sdate(k))+' '+h};
 /* estado atual: original + eventos */
 const _osC={k:null,m:null};

@@ -751,9 +751,10 @@ body.focus .tsec-h{top:calc(var(--hdr,52px) + var(--subh,47px))}
 .sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px max(14px,env(safe-area-inset-right,0px)) 18px max(14px,env(safe-area-inset-left,0px))}
 .sh-foot{flex:0 0 auto;display:flex;gap:8px;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line)}
 .sh-foot .btn{flex:1}
-.sh-head .hd-pri{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:10px 16px 10px 13px;min-height:0;font:600 15px var(--body);white-space:nowrap;box-shadow:0 4px 12px rgba(0,51,160,.28)}
-.sh-head .hd-pri::before{content:'';width:18px;height:18px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
-.sh-head .hd-pri:disabled{box-shadow:none;opacity:.5}
+.sh-head .hd-pri{margin-left:auto;flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:3px;background:none!important;border:0;box-shadow:none;padding:0 2px;min-height:0;color:var(--accent);font:600 11px var(--body);white-space:nowrap;max-width:84px;overflow:visible;text-overflow:ellipsis}
+.sh-head .hd-pri::before{content:'';width:46px;height:46px;border-radius:50%;background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/22px no-repeat;box-shadow:0 4px 12px rgba(0,51,160,.3)}
+.sh-head .hd-pri:active::before{transform:scale(.94)}
+.sh-head .hd-pri:disabled{opacity:.45}.sh-head .hd-pri:disabled::before{box-shadow:none}
 .sh-head .sh-tt{min-width:0}
 .sh-foot .btn.danger{flex:0 0 auto}
 @media (min-width:700px){#scrim{align-items:center}#sheet{height:auto;max-height:88vh;border-radius:20px}}

@@ -1031,6 +1031,7 @@ body.kb .sh-foot{display:none}
 .os-tb>b{font-size:11px;letter-spacing:.1em;background:#e0a100;color:#2b3445;padding:2px 7px;border-radius:6px}
 .os-tb button{margin-left:auto;height:30px;padding:0 10px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font:600 12px var(--body)}.os-tb button+button{margin-left:0}
 .os-sec{padding:0;overflow:hidden}.os-hh{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;padding:14px 16px 6px;font:inherit;color:inherit;cursor:pointer}.os-hh h2{margin:0;font:700 20px var(--display);color:var(--ink)}.os-hh span{font-size:13px;color:var(--accent);font-weight:600}
+.os-foc{display:flex;flex-direction:column;gap:12px}.os-foc .os-home{padding:0}
 .os-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;padding:6px 12px 14px}
 .os-home button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;cursor:pointer}
 .os-home b{font:700 28px var(--display);color:var(--accent);line-height:1}.os-home .r b{color:var(--bad,#a3271c)}.os-home .a b{color:#8a4b00}.os-home span{font-size:12.5px;color:var(--muted)}
@@ -1093,8 +1094,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-ck{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-radius:14px;background:var(--bg);font-size:16px;font-weight:500}.os-ck input{width:22px;height:22px;accent-color:var(--accent)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=118dd621c8"></script>
-<script src="shim.js?v=118dd621c8"></script>
+<script src="config.js?v=2d7d6a5e6c"></script>
+<script src="shim.js?v=2d7d6a5e6c"></script>
 </head>
 <body>
 
@@ -1172,7 +1173,7 @@ const frentesDe=a=>a===RES?[]:a==='Mina'?['UG','Geral']:FRENTES.filter(f=>f!=='U
 const hmTxt=e=>e.horimetro===''||e.horimetro==null?'—':nf(e.horimetro,2);
 const alocTxt=e=>[e.alocacao,e.alocacao==='DM1'?e.area:'',e.frente].filter(Boolean).join(' · ');
 const optList=(list,val,ph)=>`<option value="">${ph}</option>`+[...list,...(val&&!list.includes(val)?[val]:[])].map(o=>`<option${o===val?' selected':''}>${esc(o)}</option>`).join('');
-const TABS=[['painel','Painel'],['frota','Frota'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel']];
+const TABS=[['painel','Painel'],['frota','Frota'],['equip','Equipamentos'],['aloc','Alocacao'],['manut','Preventivas'],['estoque','Estoque'],['ident','Identificar'],['comb','Combustivel'],['os','Ordens de Servico']];
 
 /* ---------- regras ---------- */
 /* base do equipamento: horimetro da ultima preventiva registrada (no relogio de hoje); sem nenhuma, zero.
@@ -1561,12 +1562,12 @@ function render(){
     const a=S.alocSel?(S.alocSel==='_'?'Sem area':S.alocSel):'';return `${esc(n)} <span>› ${esc(S.alocSite)}${a?' › '+esc(a):''}</span>`};
   document.body.classList.toggle('focus',!!S.focus);
   TB_SUB='';
-  const cards=[['frota',vFrota],['equip',vEquip],['manut',vManut],['estoque',vEstoque],['comb',vComb],['aloc',vAloc],['ident',vIdent]].filter(([k])=>S.focus?S.focus===k:!FROTA_KIDS.includes(k)).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
+  const cards=[['frota',vFrota],['equip',vEquip],['manut',vManut],['estoque',vEstoque],['comb',vComb],['aloc',vAloc],['ident',vIdent],...(OS_ON?[['os',vOSFocus]]:[])].filter(([k])=>S.focus?S.focus===k:!FROTA_KIDS.includes(k)).map(([k,f])=>{const o=S.focus===k,n=TABS.find(t=>t[0]===k)[1];
       return `<section class="card acc${o?' open':''}" id="sec-${k}">${o?'':`<button class="acc-h" data-acc="${k}" aria-expanded="${o}" aria-controls="b-${k}"><span class="ic">${I[k]}</span><h2>${n}</h2><span class="tg">${I.chev}</span></button>`}
       <div class="acc-b" id="b-${k}"${o?'':' hidden'}>${o?f():''}</div></section>`}).join('');
-  $('#app').innerHTML=(S.focus?`<div class="subbar"><button class="homebar" data-a="up" aria-label="Voltar" title="Voltar">${I.back}</button><h2>${subT()}</h2>${TB_SUB?`<span class="sb-sub">${TB_SUB}</span>`:''}</div>`:osTesteBar()+exBanner()+(OS_ON?`<section class="card os-sec" aria-label="Ordens de Servico"><button type="button" class="os-hh" data-osh="ab"><h2>Ordens de Servico</h2><span>Ver todas ›</span></button>${vOSCard()}</section>`:'')+`<section class="card" id="sec-painel" aria-label="Painel">${vPainel()}</section>`)+cards+(S.focus?'':`<div class="brandmark"><img src="${LOGO}" alt="Rondaflex" width="132" height="17"></div>`);
+  $('#app').innerHTML=(S.focus?`<div class="subbar"><button class="homebar" data-a="up" aria-label="Voltar" title="Voltar">${I.back}</button><h2>${subT()}</h2>${TB_SUB?`<span class="sb-sub">${TB_SUB}</span>`:''}</div>`:osTesteBar()+exBanner()+`<section class="card" id="sec-painel" aria-label="Painel">${vPainel()}</section>`)+cards+(S.focus?'':`<div class="brandmark"><img src="${LOGO}" alt="Rondaflex" width="132" height="17"></div>`);
   const sb=document.querySelector('.subbar');document.documentElement.style.setProperty('--subh',(sb?sb.offsetHeight:0)+'px');
-  bindView();quickHm();
+  bindView();quickHm();if(S.focus==='os')bindOSFocus();
 }
 let TB_SUB='';
 /* com um card aberto, o resumo vai para a faixa do topico (economiza uma linha) */
@@ -4460,6 +4461,10 @@ function vOSCard(){const L=osLista(),ab=L.filter(v=>v.sit==='aberta').length,par
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-eqos]');if(!b)return;const e=eqById(b.dataset.eqos);openOSLista({tab:'abertas',q:e?e.codigo:''});if(!osDoEq(b.dataset.eqos).some(v=>v.sit==='aberta')){S.osF.tab='fechadas';openOSLista()}});
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-osh]');if(!b)return;const k=b.dataset.osh;openOSLista(k==='par'?{par:true}:k==='cf'?{conf:true}:{})});
 
+/* cartao da tela principal (equipe): aberto, mostra os totais, Nova OS e a lista */
+I.os='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.3-.4-.4-2.3z"/></svg>';
+function vOSFocus(){return `<div class="os-foc">${vOSCard()}${podeEscrever()?'<button type="button" class="os-big" data-osnova>+ Nova OS</button>':''}<div id="osl">${osListaHTML()}</div></div>`}
+function bindOSFocus(){bindMec()}
 /* ---------- tela do mecanico (substitui o painel) ---------- */
 function vMec(){const u=osEu(),pend=S.os.filter(o=>!o.num).length;
   return `<div class="os-hdr"><small><span>RONDAFLEX</span><span>${esc(u.nome||'Mecanico')} · Mecanico</span></small><h1>Ordens de Servico</h1><span class="os-sync" id="os-sync"><i></i><span>${pend?`${pend} OS ${pend===1?'aguardando':'aguardando'} numero`:'Tudo em dia'}</span></span></div>

@@ -1083,6 +1083,36 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-x{border:0;background:none;color:inherit;font:700 15px var(--body);padding:0 0 0 4px;cursor:pointer;opacity:.8}
 .os-fl{border:0;text-align:left;width:100%;font:inherit;cursor:pointer;background:#eef4e8!important}.os-fl>b{color:#1b6236!important}
 .os-ck{display:flex;align-items:center;gap:12px;min-height:54px;padding:0 14px;border-radius:14px;background:var(--bg);font-size:16px;font-weight:500}.os-ck input{width:22px;height:22px;accent-color:var(--accent)}
+
+.os-w{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.os-wt{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--line)}.os-wn{font:500 15px var(--mono,"IBM Plex Mono");color:var(--ink)}.os-wn b{font-weight:700}
+.os-wc{display:flex;gap:6px}.os-pl{font:700 11px var(--body);letter-spacing:.08em;padding:5px 10px;border-radius:999px}.os-pl.and{background:#fbf0dd;color:#8a4b00}.os-pl.par{background:#fce8ea;color:#9a1622}
+.os-we{display:flex;align-items:baseline;gap:10px;padding:14px 14px 4px;flex-wrap:wrap}.os-we b{font:600 30px "IBM Plex Mono",monospace;letter-spacing:-.02em;color:#121a2c}.os-we span{font-size:13.5px;color:var(--muted)}
+.os-wtl{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 14px 14px}.os-wtl>div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0}
+.os-wtl small,.os-dg small{display:block;font:600 10.5px var(--body);letter-spacing:.08em;color:var(--faint);text-transform:uppercase}.os-wtl b{font:700 20px var(--display);color:#121a2c;white-space:nowrap}
+.os-wtl .nv{background:var(--ink);border-color:var(--ink)}.os-wtl .nv small{color:#a9b8e6}.os-wtl .nv b{color:#fff}
+.os-ws{padding:12px 14px;border-top:1px solid var(--line)}.os-lb{font:600 11px var(--body);letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between}
+.os-tx{font-size:15px;line-height:1.42;color:#121a2c}.os-vz2{font-size:14px;color:var(--faint);font-style:italic}
+.os-who{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.os-av{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;background:var(--bg);border-radius:999px;padding:3px 10px 3px 3px}.os-av i{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font:700 10.5px var(--body);font-style:normal;display:grid;place-items:center}
+.os-pr{display:flex;align-items:center;gap:10px;padding:9px 0;border:0;border-bottom:1px solid #eef1f5;background:none;width:100%;text-align:left;font:inherit;color:inherit}.os-pr:last-child{border-bottom:0}.os-pr.cfp{cursor:pointer}
+.os-pr .q{font:700 15px "IBM Plex Mono",monospace;min-width:44px;color:var(--ink)}.os-pr .d{flex:1;font-size:14.5px;min-width:0}.os-pr .d small{display:block;font:500 11.5px "IBM Plex Mono",monospace;color:var(--faint)}
+.os-sp{font:600 10.5px var(--body);color:#8a4b00;background:#fbf0dd;padding:3px 8px;border-radius:999px;white-space:nowrap}.os-pr.cfp .os-sp{box-shadow:inset 0 0 0 1.5px #e0a100}
+.os-sb{font:600 10.5px var(--body);color:#1b6638;background:#e3f1e8;padding:3px 8px;border-radius:999px}.os-sx{font:600 10.5px var(--body);color:var(--muted);background:#eef1f5;padding:3px 8px;border-radius:999px}
+.os-g3f{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.os-g3f button{aspect-ratio:1;border:0;padding:0;border-radius:8px;overflow:hidden;background:#d5dce7;cursor:pointer}.os-g3f img{width:100%;height:100%;object-fit:cover}
+.os-cta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.os-cta .w{grid-column:1/-1}.os-cta>:only-child,.os-cta>:last-child:nth-child(odd){grid-column:1/-1}
+.os-x{margin-top:12px;background:var(--surface);border-radius:12px;border:1px solid var(--line);overflow:hidden}
+.os-xr{display:flex;gap:10px;align-items:center;padding:11px 12px;border:0;border-top:1px solid var(--line);font:13.5px var(--body);background:none;width:100%;text-align:left;color:inherit}.os-xr:first-child{border-top:0}button.os-xr{cursor:pointer}
+.os-xr b{font:600 13px "IBM Plex Mono",monospace;color:#1b6638;min-width:74px;white-space:nowrap}.os-xr b.a{color:var(--accent)}
+.os-hd{margin-top:10px;font-size:13px;color:var(--muted)}.os-hd summary{cursor:pointer;text-align:center;color:var(--accent);font-weight:600;padding:8px;list-style:none}.os-hd summary::-webkit-details-marker{display:none}.os-hd span{display:block;padding:2px 4px;line-height:1.5}
+.os-d{background:#fff;border-radius:8px;box-shadow:0 1px 2px #0b247010,0 8px 24px #0b24701a;overflow:hidden}
+.os-dh{background:var(--ink);color:#fff;padding:14px 16px 14px 28px;position:relative;display:flex;justify-content:space-between;align-items:flex-start}.os-dh:before{content:"";position:absolute;left:13px;top:16px;width:5px;height:40px;background:#e30613}
+.os-dh small{font:600 11px var(--body);letter-spacing:.14em;color:#a9b8e6}.os-dh b{display:block;font:700 34px var(--display);line-height:1;letter-spacing:.02em;margin-top:3px}
+.os-stp{border:2px solid #7fd6a0;color:#9be8b6;font:700 12px var(--body);letter-spacing:.12em;padding:6px 9px;border-radius:6px;transform:rotate(-4deg);margin-top:6px;text-align:center;line-height:1.25}.os-stp em{display:block;font:500 10.5px "IBM Plex Mono",monospace;letter-spacing:0;font-style:normal;color:#d6f5e2}
+.os-de{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}.os-de b{font:600 30px "IBM Plex Mono",monospace;letter-spacing:-.02em;color:#121a2c}.os-de span{font-size:13px;color:var(--muted);line-height:1.35}
+.os-dg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line)}.os-dg>div{padding:10px 12px;min-width:0}.os-dg>div+div{border-left:1px solid var(--line)}.os-dg b{font:700 20px var(--display);color:#121a2c;white-space:nowrap}.os-dg b.ok{color:#1b6638}.os-dg b.bad{color:#9a1622}.os-dg .os-cor{display:block}
+.os-ds{padding:12px 16px;border-bottom:1px solid var(--line)}.os-ds:last-child{border-bottom:0}
+.os-th{display:flex;gap:10px;font:600 10px var(--body);letter-spacing:.1em;color:var(--faint);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--line)}.os-th span:first-child{min-width:44px}.os-th span:nth-child(2){flex:1}
+.os-sig{display:grid;grid-template-columns:1fr 1fr;gap:14px}.os-sig>div{border-top:1.5px solid #121a2c;padding-top:6px;font-size:14px}.os-sig small{display:block;font-size:11.5px;color:var(--faint)}
 </style>
 
 <div id="scroller">
@@ -3826,6 +3856,11 @@ function openCartRe(){NAV.pop();openCart()}
    - botao unico chamado "Compartilhar", que abre o menu do celular;
    - sem o menu do celular, oferece salvar a imagem no aparelho. */
 /* varias imagens (cartao 1/2, 2/2) num compartilhamento so; sem suporte, salva uma por uma */
+/* assinatura de todos os informes do app: barra no rodape */
+const agoraTx=()=>{const d=new Date();return `${fdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+function genBar(x,W,yb,mid){const h=64,y=yb-h,P=W>1100?84:56;x.save();x.fillStyle='#eceef2';x.fillRect(0,y,W,h);x.fillStyle='#c9ced8';x.fillRect(0,y,W,2);x.textBaseline='middle';const cy=y+h/2+1;try{x.letterSpacing='0px'}catch(_){}
+  x.textAlign='left';x.font='600 21px "IBM Plex Sans",Arial,sans-serif';x.fillStyle='#1d2430';const a='Gerado pelo Controle de Frota';x.fillText(a,P,cy);const aw=x.measureText(a).width;x.font='400 21px "IBM Plex Sans",Arial,sans-serif';x.fillStyle='#4a5262';x.fillText(' · Rondaflex',P+aw,cy);
+  x.textAlign='right';x.fillText(agoraTx(),W-P,cy);if(mid){x.textAlign='center';x.fillText(mid,W/2+60,cy)}x.restore()}
 async function shareImgs(cvs,fname,title){const fs=await Promise.all(cvs.map((c,i)=>new Promise(r=>c.toBlob(b=>r(new File([b],fname.replace(/\.png$/,` ${i+1} de ${cvs.length}.png`),{type:'image/png'})),'image/png'))));
   try{if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title});return}}catch(e){if(e&&e.name==='AbortError')return}
   for(let i=0;i<cvs.length;i++)await shareImg(cvs[i],fs[i].name,title)}
@@ -3854,8 +3889,8 @@ async function drawLista(l){
     let h=80;const sl=[i.cod&&i.cod!=='—'?i.cod:'',liMarca(i)].filter(Boolean).join(' · ');if(sl){font(500,28,MON);x.fillStyle=C.mut;x.fillText(fit(sl,W-2*P-(i.equipId?220:0)),P,yy+44);h=120}
     const e=i.equipId&&eqById(i.equipId);if(e){font(400,26,SAN);x.fillStyle=C.mut;const t='para '+e.codigo;const tw=x.measureText(t).width;x.fillText(t,W-P-tw,yy+44);if(h<120)h=120}
     y+=h;if(k<its.length-1){x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2)}});
-  y+=40;x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2);y+=48;font(400,24,SAN);x.fillStyle=C.mut;x.fillText(`Gerado em ${fdate(today())} pelo Controle de Frota`,P,y);y+=P-8;
-  const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y);out.getContext('2d').drawImage(cv,0,0);return out;
+  y+=40;
+  const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y+64);const ox=out.getContext('2d');ox.fillStyle=C.bg;ox.fillRect(0,0,W,out.height);ox.drawImage(cv,0,0);genBar(ox,W,out.height);return out;
 }
 async function shareLista(l){shareImg(await drawLista(l),`Lista de compra ${l.data||''}.png`,'Lista de compra')}
 /* tela seguinte a conclusao: aviso + compartilhar */
@@ -4017,8 +4052,8 @@ async function drawCartao(t){
   const extra=[];if(t.obs)extra.push(['Observacoes',t.obs]);if(t.resp)extra.push(['Responsavel',t.resp]);
   extra.forEach(([k,v])=>{y+=58;font(700,32,DSP);x.fillStyle=C.mut;x.fillText(k.toUpperCase(),P,y);font(400,32,SAN);x.fillStyle=C.fg;wrap(v,W-2*P).forEach(l=>{y+=46;x.fillText(l,P,y)})});
   // rodape
-  y+=64;x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2);y+=48;font(400,24,SAN);x.fillStyle=C.mut;x.fillText(`Gerado em ${fdate(today())} pelo Controle de Frota`,P,y);y+=P-8;
-  const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y);out.getContext('2d').drawImage(cv,0,0);
+  y+=48;
+  const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y+64);const ox=out.getContext('2d');ox.fillStyle=C.bg||'#fff';ox.fillRect(0,0,W,out.height);ox.drawImage(cv,0,0);genBar(ox,W,out.height);
   return out;
 }
 /* CARTAO PREVENTIVA 4:5 (1080 x 1350): formato que o WhatsApp mostra inteiro, sem cortar.
@@ -4062,10 +4097,10 @@ async function drawCartao45(t){
     /* sem quadro de servico/observacao: o espaco vai para a lista de material */
     return y};
   /* rodape: responsavel e data de geracao */
-  const rodH=(t.resp?72:0)+56;
+  const rodH=(t.resp?72+12:0)+76;
   const rodape=x=>{const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;let y=H-rodH;
     if(t.resp){font(700,24,DSP);x.fillStyle=C.mut;x.fillText('RESPONSAVEL',P+4,y+28);font(400,26,SAN);x.fillStyle=C.fg;x.fillText(String(t.resp),P+4,y+60);y+=72}
-    x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2);font(400,20,SAN);x.fillStyle=C.mut;x.fillText(`Gerado em ${fdate(today())} pelo Controle de Frota`,P+4,y+36)};
+    genBar(x,W,H)};
   /* quantas linhas cabem */
   const prova=document.createElement('canvas');prova.width=W;prova.height=H;const yTopo=pagina(prova.getContext('2d'),'');
   const cardTop=yTopo,cardBot=H-rodH-12,lista=cardBot-cardTop-66-10;
@@ -4391,11 +4426,11 @@ function osTodas(){const k=S.os.length+':'+S.ose.length+':'+(S.os[0]&&S.os[0].nu
   const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai)pai.filhas.push(v)});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
 function osFold(r,evs){const o=r.o;
   const v={id:r.id,num:r.num||null,eq:o.eq,por:o.por,porNome:o.porNome||osNomeDe(o.por),ts:o.ts||r._em||0,o,data:o.data,hor:o.hor||'',aconteceu:o.aconteceu||'',feito:o.feito||'',estado:o.estado||'',
-    sit:o.concl?'fechada':'aberta',resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,txt:(o.concl?'Criada e concluida por ':'Aberta por ')+(o.porNome||'—')}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
+    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,txt:(o.concl?'Criada e concluida por ':'Aberta por ')+(o.porNome||'—')}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
   const addP=(arr,src,eid)=>(arr||[]).forEach((p,i)=>v.pecas.push({...p,src,pk:eid+':'+i}));
   addP(o.pecas,'',r.id);
   evs.forEach(e=>{const nm=e.porNome||osNomeDe(e.por);
-    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:'Concluida por '+nm})}
+    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:'Concluida por '+nm})}
     else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,txt:'Reaberta por '+nm})}
     else if(e.tipo==='resp'&&e.por===v.por&&v.sit==='aberta'){const n=[v.por,...(e.resp||[]).filter(x=>x!==v.por)];const add=n.filter(x=>!v.resp.includes(x)),tir=v.resp.filter(x=>!n.includes(x));v.resp=n;
       if(add.length)v.hist.push({ts:e.ts,txt:nm+' adicionou '+add.map(osNomeDe).join(', ')});if(tir.length)v.hist.push({ts:e.ts,txt:nm+' tirou '+tir.map(osNomeDe).join(', ')})}
@@ -4559,33 +4594,44 @@ function osVolta(){if(ehMec()){closeSheet();return}const i=NAV.findIndex(n=>n.ke
 
 /* ---------- a OS registrada ---------- */
 function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast('OS nao encontrada');goBack();return}
-  const u=osEu(),resp=v.resp.includes(u.uid),dono=v.por===u.uid,adm=osAdm(),e=eqById(v.eq)||{};
+  const u=osEu(),resp=v.resp.includes(u.uid),dono=v.por===u.uid,adm=osAdm(),e=eqById(v.eq)||{},fech=v.sit==='fechada';
   const marca=c=>{const m=v.marc[c];return !m?'':m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:` <em class="os-cor">· editado por ${esc(m.nome)} em ${osHora(m.ts)} · antes: ${esc(osVal(c,m.de))||'vazio'}</em>`};
-  const kv=(c,rot)=>{const val=v[c];if(!val&&!v.marc[c])return '';return `<div class="os-kv"><small>${rot}</small><span>${esc(osVal(c,val))||'<i class="os-mut">nao informado</i>'}${marca(c)}</span></div>`};
-  const pc=p=>{const cf=v.conf[p.pk],pend=!cf;return `<button type="button" class="os-pc${p.k==='sc'?' sc':''}${adm&&pend?' cfp':''}" data-pk="${esc(p.pk)}"${adm?'':' disabled'}>${p.k==='sc'?(p.foto?`<span class="os-ft">${imgTag(p.foto)}</span>`:'<span class="os-ft">SEM FOTO</span>'):''}<span class="t">${esc(p.nome)} · ${nf(p.qtd,2)}${p.un?' '+esc(p.un):''}<small>${p.k==='sc'?'Sem cadastro':'Do estoque'}${p.src?' · '+esc(p.src):''} · ${cf?(cf.acao==='nao'?'nao veio do estoque':'baixa confirmada'):'baixa pendente'}</small></span>${adm&&pend?'<span class="os-cf">Conferir</span>':''}</button>`};
-  openSheet({title:osNum(v),sub:esc(e.codigo||v.eq)+' · '+(v.sit==='aberta'?'Aberta':'Fechada'),
-  body:`<div class="os-eq"><b>${esc(e.codigo||v.eq)}</b><span>${esc([e.desc||e.tipo,e.modelo].filter(Boolean).join(' · '))}</span><span class="os-st">${v.sit==='aberta'?'ABERTA':'FECHADA'}</span></div>
-   ${v.estado==='parado'?'<span class="os-par lg">EQUIPAMENTO PARADO</span>':''}
-   <div class="os-box">
-    <div class="os-g2"><div class="os-kv"><small>Criada por</small><span>${esc(v.porNome)}</span></div>${kv('data','Data do servico')}</div>
-    <div class="os-kv"><small>Responsaveis</small><span>${esc(v.resp.map(osNomeDe).join(', '))}${dono&&v.sit==='aberta'?' <button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</span></div>
-    ${v.vinc?(()=>{const p=osById(v.vinc);return p?`<div class="os-kv"><small>Vinculada a</small><span><button type="button" class="os-ch sm" data-osv="${esc(p.id)}">${osNum(p)} · ${esc(p.aconteceu.slice(0,40))}</button></span></div>`:''})():''}
-    ${kv('hor','Horimetro')}${kv('aconteceu','O que aconteceu')}${kv('feito','O que foi feito')}${kv('estado','Equipamento')}</div>
-   ${v.pecas.length?`<div class="os-f"><span>Pecas</span>${v.pecas.map(pc).join('')}</div>`:''}
-   ${v.fotos.length?`<div class="os-f"><span>Fotos</span><div class="os-fts">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div></div>`:''}
-   ${v.ad.length||v.filhas.length?`<div class="os-f"><span>Adendos</span>${v.filhas.map(f=>`<button type="button" class="os-adn os-fl" data-osv="${esc(f.id)}"><b>${osNum(f)} vinculada · ${esc(f.porNome)} · ${osHora(f.ts)}</b><span>${esc(f.aconteceu)}${f.feito?' · '+esc(f.feito):''}</span><small class="os-mut">${f.sit==='aberta'?'Aberta':'Fechada'} · toque para abrir</small></button>`).join('')}${v.ad.map(a=>`<div class="os-adn"><b>Adendo ${a.n} · ${esc(a.nome)} · ${osHora(a.ts)}</b>${a.obs?`<span>${esc(a.obs)}</span>`:''}
-     ${a.corr.map(k=>`<span><b class="am">Corrige</b> ${OS_CAMPOS[k.campo]}: ${esc(osVal(k.campo,k.de))||'vazio'} → ${esc(osVal(k.campo,k.para))}</span>`).join('')}
-     ${a.pecas.map(p=>`<span><b>Acrescenta</b> ${esc(p.nome)} · ${nf(p.qtd,2)}${p.k==='sc'?' (sem cadastro)':''}</span>`).join('')}</div>`).join('')}</div>`:''}
-   <div class="os-g2 os-acts">
-    ${resp&&v.sit==='aberta'?'<button type="button" class="os-ad pri" data-a="concluir">Concluir</button><button type="button" class="os-ad" data-a="editar">Editar</button>':''}
-    ${resp&&v.sit==='fechada'?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}
-    ${!resp&&v.sit==='fechada'?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}
-    <button type="button" class="os-ad" data-a="informe">Informe</button>
-    ${adm&&v.sit==='fechada'?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}
-   </div><div id="os-cf"></div>
-   ${resp?(v.sit==='fechada'?'<p class="os-mut">OS fechada: para mudar algo, reabra.</p>':''):v.sit==='aberta'?'<p class="os-mut">Voce nao e responsavel por esta OS. Quando ela for fechada, voce pode fazer um adendo.</p>':'<p class="os-mut">Voce nao e responsavel por esta OS: pode fazer um adendo com observacao, fotos e itens.</p>'}
-   ${adm&&!resp&&v.sit==='aberta'?'<p class="os-mut">OS aberta e dos responsaveis: o administrador so edita depois de fechada.</p>':''}
-   <div class="os-hist"><b>Historico</b>${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<span>${osHora(h.ts)} · ${esc(h.txt)}</span>`).join('')}</div>`,
+  const mm=[e.marca,e.modelo].filter(Boolean).join(' · ');
+  const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
+  const pcRow=p=>`<button type="button" class="os-pr${adm&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${adm&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
+  const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
+  const hist=`<details class="os-hd"><summary>Ver historico (${v.hist.length})</summary>${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<span>${osHora(h.ts)} · ${esc(h.txt)}</span>`).join('')}</details>`;
+  const pai=v.vinc&&osById(v.vinc);
+  const ext=[pai?`<button type="button" class="os-xr" data-osv="${esc(pai.id)}"><b class="a">${osNum(pai)}</b><span>Esta OS faz parte da ${osNum(pai)} · ${esc(pai.aconteceu)}</span></button>`:'',
+    ...v.filhas.map(f=>`<button type="button" class="os-xr" data-osv="${esc(f.id)}"><b>${osNum(f)}</b><span>${esc(f.aconteceu)} · ${esc(f.porNome)} · vinculada${f.sit==='aberta'?' (aberta)':''}</span></button>`),
+    ...v.ad.map(a=>`<div class="os-xr"><b class="a">Adendo ${a.n}</b><span>${esc(a.obs||'Itens e fotos')} · ${esc(a.nome)} · ${osHora(a.ts)}${a.pecas.length?` · ${a.pecas.length} ${a.pecas.length===1?'item':'itens'}`:''}</span></div>`)].filter(Boolean).join('');
+  const tempo=()=>{const m=Math.max(0,Math.round((Date.now()-(v.ts||Date.now()))/60000));return m<60?m+' min':m<2880?Math.round(m/60)+' h':Math.round(m/1440)+' dias'};
+  let body;
+  if(!fech){
+    body=`<div class="os-w"><div class="os-wt"><span class="os-wn">Nº <b>${v.num?String(v.num).padStart(4,'0'):'nova'}</b></span><span class="os-wc">${v.estado==='parado'?'<span class="os-pl par">PARADO</span>':''}<span class="os-pl and">EM ANDAMENTO</span></span></div>
+     <div class="os-we"><b>${esc(e.codigo||v.eq)}</b><span>${esc([e.desc||e.tipo,e.modelo].filter(Boolean).join(' · '))}</span></div>
+     <div class="os-wtl"><div><small>Aberta em</small><b>${sdate(v.data)||'—'}</b></div><div class="nv"><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b></div><div><small>Ha</small><b>${tempo()}</b></div></div>
+     <div class="os-ws"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
+     <div class="os-ws"><div class="os-lb">Servico executado</div>${v.feito?`<div class="os-tx">${esc(v.feito)}${marca('feito')}</div>`:'<div class="os-vz2">Preencha ao concluir</div>'}</div>
+     ${v.pecas.length?`<div class="os-ws"><div class="os-lb"><span>Pecas</span><span>${v.pecas.length}</span></div>${v.pecas.map(pcRow).join('')}</div>`:''}
+     ${fotos?`<div class="os-ws"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
+     <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
+     ${resp?`<div class="os-cta"><button type="button" class="os-ad pri w" data-a="concluir">Concluir OS</button><button type="button" class="os-ad" data-a="editar">Editar</button><button type="button" class="os-ad" data-a="informe">Informe</button></div>`
+      :`<div class="os-cta"><button type="button" class="os-ad w" data-a="informe">Informe</button></div><p class="os-mut" style="margin-top:8px">Voce nao e responsavel por esta OS. Quando ela for fechada, voce pode fazer um adendo.</p>`}
+     <div id="os-cf"></div>${ext?`<div class="os-x">${ext}</div>`:''}${hist}`}
+  else{const conc=v.concTs||v.ts,par=v.estado==='parado';
+    body=`<div class="os-d"><div class="os-dh"><div><small>ORDEM DE SERVICO</small><b>${v.num?'Nº '+String(v.num).padStart(4,'0'):'Nova'}</b></div><div class="os-stp">CONCLUIDA<em>${fdate(iso(new Date(conc)))} ${pad(new Date(conc).getHours())}:${pad(new Date(conc).getMinutes())}</em></div></div>
+     <div class="os-de"><b>${esc(e.codigo||v.eq)}</b><span>${esc(e.desc||e.tipo||'')}${mm?'<br>'+esc(mm):''}</span></div>
+     <div class="os-dg"><div><small>Data</small><b>${fdate(v.data)}</b>${marca('data')}</div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':'ok'}">${par?'Parado':v.estado==='operando'?'Operando':'—'}</b>${marca('estado')}</div></div>
+     <div class="os-ds"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
+     <div class="os-ds"><div class="os-lb">Servico executado</div><div class="os-tx">${esc(v.feito)||'<i class="os-mut">nao informado</i>'}${marca('feito')}</div></div>
+     ${v.pecas.length?`<div class="os-ds"><div class="os-th"><span>Qtd</span><span>Peca ou material</span><span>Estoque</span></div>${v.pecas.map(pcRow).join('')}</div>`:''}
+     ${fotos?`<div class="os-ds"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
+     <div class="os-ds"><div class="os-sig">${(v.concPor||v.por)===v.por?`<div>${esc(v.porNome)}<small>Abriu ${osHora(v.ts)} · concluiu ${osHora(conc)}</small></div>`:`<div>${esc(v.porNome)}<small>Abriu · ${osHora(v.ts)}</small></div><div>${esc(osNomeDe(v.concPor))}<small>Concluiu · ${osHora(conc)}</small></div>`}</div>${v.resp.length>1?`<small class="os-mut" style="display:block;margin-top:8px">Responsaveis: ${esc(v.resp.map(osNomeDe).join(', '))}</small>`:''}</div></div>
+     ${ext?`<div class="os-x">${ext}</div>`:''}
+     <div class="os-cta">${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}<button type="button" class="os-ad pri" data-a="informe">Informe</button></div>
+     <div id="os-cf"></div>${hist}`}
+  openSheet({title:osNum(v),sub:esc(e.codigo||v.eq)+' · '+(fech?'Concluida em '+fdate(iso(new Date(v.concTs||v.ts))):'Em andamento'),body,
   mount:sh=>{const a=k=>sh.querySelector(`[data-a="${k}"]`);
     sh.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>viewPhoto(v.fotos[+b.dataset.fv]));
     if(a('concluir'))a('concluir').onclick=()=>{S.osDraft={modo:'concluir',osId:v.id,eq:v.eq,concl:true,feito:v.feito||'',estado:v.estado||'',pecas:[],fotos:[],resp:v.resp.filter(x=>x!==v.por)};formOS()};
@@ -4670,32 +4716,77 @@ function osConf(v,p){const est=p.k==='est'?stById(p.id):null;
     const cad=o.querySelector('#cf-cad');if(cad)cad.onclick=()=>{close();formStock(undefined,{desc:p.nome,fotos:p.foto?[p.foto]:[]},sid=>{setTimeout(()=>{const s=stById(sid);if(s)osConf(osById(v.id)||v,{...p,k:'est',id:s.id,cod:stCod(s)})},900)})};
     o.querySelector('#cf-nao').onclick=()=>fim('nao',null)})}
 
-/* ---------- informe (imagem para o WhatsApp) ---------- */
-async function osInforme(id){const v=osById(id),e=eqById(v.eq)||{};
-  try{await Promise.all(['700 64px "Barlow Condensed"','600 30px "IBM Plex Sans"','400 30px "IBM Plex Sans"'].map(f=>document.fonts.load(f)))}catch(_){}
-  const W=1080,P=64,cv=document.createElement('canvas'),x=cv.getContext('2d');cv.width=W;
-  const linhas=[];const wrap=(t,f,mw)=>{x.font=f;const ws=String(t||'').split(/\s+/);const out=[];let l='';ws.forEach(w=>{const n=l?l+' '+w:w;if(x.measureText(n).width>mw&&l){out.push(l);l=w}else l=n});if(l)out.push(l);return out};
-  const B=[['O que aconteceu',v.aconteceu],['O que foi feito',v.feito],['Pecas',v.pecas.map(p=>`${p.nome} · ${nf(p.qtd,2)}${p.un?' '+p.un:''}`).join('\n')],['Responsaveis',v.resp.map(osNomeDe).join(', ')],['OS vinculadas',v.filhas.map(f=>`${osNum(f)} · ${f.porNome} · ${f.aconteceu}`).join('\n')]].filter(b=>b[1]);
-  const fT='600 30px "IBM Plex Sans"',fV='400 34px "IBM Plex Sans"';let H=360;B.forEach(([,t])=>{H+=50;String(t).split('\n').forEach(s=>H+=wrap(s,fV,W-2*P).length*46);H+=24});H+=110;cv.height=Math.max(H,900);
-  x.fillStyle='#fff';x.fillRect(0,0,W,cv.height);x.fillStyle='#0b2470';x.fillRect(0,0,W,250);x.fillStyle='#c8202f';x.fillRect(0,250,W,10);
-  x.fillStyle='#a9b8e6';x.font='600 26px "IBM Plex Sans"';x.fillText('RONDAFLEX · ORDEM DE SERVICO',P,70);
-  x.fillStyle='#fff';x.font='700 76px "Barlow Condensed"';x.fillText(`${osNum(v)} · ${e.codigo||v.eq}`,P,160);
-  x.font='400 30px "IBM Plex Sans"';x.fillText([e.desc||e.tipo,fdate(v.data),v.hor?'horimetro '+v.hor:''].filter(Boolean).join(' · '),P,212);
-  let y=320;const pill=(t,bg,fg)=>{x.font='700 26px "IBM Plex Sans"';const w=x.measureText(t).width+36;x.fillStyle=bg;x.beginPath();x.roundRect?x.roundRect(px,y-34,w,48,24):x.rect(px,y-34,w,48);x.fill();x.fillStyle=fg;x.fillText(t,px+18,y);px+=w+14};
-  let px=P;pill(v.sit==='aberta'?'ABERTA':'FECHADA','#e6ecf8','#0033a0');if(v.estado)pill(v.estado==='parado'?'PARADO':'OPERANDO',v.estado==='parado'?'#fbe6e8':'#e4f4ea',v.estado==='parado'?'#9a1622':'#1b6236');
-  y+=60;B.forEach(([t,val])=>{x.fillStyle='#4f5a70';x.font=fT;x.fillText(t.toUpperCase(),P,y);y+=50;x.fillStyle='#121a2c';String(val).split('\n').forEach(s=>wrap(s,fV,W-2*P).forEach(l=>{x.font=fV;x.fillText(l,P,y);y+=46}));y+=24});
-  x.fillStyle='#4f5a70';x.font='400 24px "IBM Plex Sans"';x.fillText(`Gerado em ${fdate(today())}${v.nAd?` · ${v.nAd} ${v.nAd===1?'adendo incluido':'adendos incluidos'}`:''}`,P,cv.height-50);
-  await shareImgs([cv],`${osNum(v)} ${e.codigo||v.eq}.png`.replace(/\s+/g,' '),osNum(v))}
+/* ---------- informe da OS: compartilhar (4:5) ou impressao (A4 com assinaturas); preto e branco, so a logo tem cor ---------- */
+const osLoadImg=src=>new Promise(ok=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
+async function osDraw(v,modo){
+  try{await Promise.all(['600 30px "IBM Plex Sans"','400 30px "IBM Plex Sans"','700 30px "IBM Plex Sans"','600 30px "IBM Plex Mono"','500 30px "IBM Plex Mono"'].map(f=>document.fonts.load(f)))}catch(_){}
+  const PR=modo==='print',W=PR?1240:1080,H=PR?1754:1350,P=PR?84:64,e=eqById(v.eq)||{},gw=W-2*P;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const SAN='"IBM Plex Sans",Arial,sans-serif',MON='"IBM Plex Mono",Menlo,monospace',INK='#1d2430',MU='#6b7383',LN='#d6dae2';
+  const F=(w,sz,f)=>x.font=`${w} ${sz}px ${f||SAN}`,ls=t=>{try{x.letterSpacing=t}catch(_){}};
+  const fit=(t,mw)=>{let s2=String(t??'');if(x.measureText(s2).width<=mw)return s2;while(s2.length>1&&x.measureText(s2+'…').width>mw)s2=s2.slice(0,-1);return s2+'…'};
+  const wrap=(t,mw)=>{const out=[];String(t||'').split('\n').forEach(par=>{let l='';par.split(/\s+/).forEach(w=>{const n=l?l+' '+w:w;if(x.measureText(n).width>mw&&l){out.push(l);l=w}else l=n});out.push(l)});return out};
+  const box=(X,Y,w,h)=>{x.lineWidth=2.4;x.strokeStyle=INK;x.strokeRect(X+1.2,Y+1.2,w-2.4,h-2.4)};
+  const lab=(t,X,Y,sz,cor)=>{F(700,sz||17);ls('2.2px');x.fillStyle=cor||INK;x.fillText(String(t).toUpperCase(),X,Y);ls('0px')};
+  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
+  /* cabecalho: logo, titulo e numero */
+  let y=P-8;const lg=await osLoadImg(LOGO);if(lg){const lh=60;x.drawImage(lg,P,y,lg.width*lh/lg.height,lh)}
+  F(600,58);x.fillStyle=INK;x.fillText('Ordem de Servico',P,y+128);F(400,22);x.fillStyle=MU;x.fillText('Controle de Frota',P,y+162);
+  const nbw=250,nbh=150,nbx=W-P-nbw;box(nbx,y,nbw,nbh);F(600,17);ls('3px');x.fillStyle=MU;const nt='NUMERO';x.fillText(nt,nbx+(nbw-x.measureText(nt).width)/2,y+40);ls('0px');
+  F(600,64,MON);x.fillStyle=INK;const nn=v.num?String(v.num).padStart(4,'0'):'NOVA';x.fillText(nn,nbx+(nbw-x.measureText(nn).width)/2,y+112);
+  y+=180;x.fillStyle=INK;x.fillRect(P,y,gw,5);y+=24;
+  /* selos */
+  const selo=(t,X,cor)=>{F(700,19);ls('2.4px');const w=x.measureText(t).width+34;x.lineWidth=2.4;x.strokeStyle=cor;x.strokeRect(X,y,w,42);x.fillStyle=cor;x.fillText(t,X+17,y+29);ls('0px');return X+w+14};
+  let sx=selo(v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',P,INK);if(v.estado)sx=selo(v.estado==='parado'?'PARADO':'OPERANDO',sx,INK);
+  const ex=[v.ad.length?`${v.ad.length} ${v.ad.length===1?'adendo':'adendos'}`:'',v.filhas.length?`${v.filhas.length} ${v.filhas.length===1?'vinculada':'vinculadas'}`:''].filter(Boolean).join(' · ');if(ex&&!PR)selo(ex.toUpperCase(),sx,'#a3aab6');
+  y+=64;
+  /* grade do equipamento */
+  const r1=116,r2=88;box(P,y,gw,r1+r2);x.fillStyle=INK;x.fillRect(P,y+r1,gw,2.4);x.fillRect(P+gw/2,y,2.4,r1);
+  lab('Equipamento',P+16,y+30,16,MU);F(600,50,MON);x.fillStyle=INK;x.fillText(fit(e.codigo||v.eq,gw/2-32),P+16,y+92);
+  lab('Modelo',P+gw/2+18,y+30,16,MU);F(600,29);x.fillStyle=INK;x.fillText(fit([e.marca,e.modelo].filter(Boolean).join(' ')||'—',gw/2-40),P+gw/2+18,y+70);F(400,22);x.fillStyle=MU;x.fillText(fit(e.desc||e.tipo||'',gw/2-40),P+gw/2+18,y+100);
+  const cc=[['Aberta',fdate(v.data)],['Concluida',v.sit==='fechada'&&v.concTs?fdate(iso(new Date(v.concTs))):'—'],['Horimetro',v.hor?v.hor+' h':'—'],['Situacao',v.estado==='parado'?'Parado':v.estado==='operando'?'Operando':'—']],cw=gw/4;
+  cc.forEach(([k,t],i)=>{const X=P+i*cw;if(i){x.fillStyle=INK;x.fillRect(X,y+r1,2.4,r2)}lab(k,X+16,y+r1+30,16,MU);F(600,29);x.fillStyle=INK;x.fillText(fit(t,cw-28),X+16,y+r1+70)});
+  y+=r1+r2+24;
+  /* secoes */
+  const sec=(t,txt,max)=>{lab(t,P,y+18);y+=30;F(400,26);const L=wrap(txt||'—',gw-40);const L2=L.slice(0,max);if(L.length>max)L2[max-1]=fit(L2[max-1]+'…',gw-40);const h=Math.max(68,L2.length*37+30);box(P,y,gw,h);x.fillStyle=INK;L2.forEach((l,i)=>x.fillText(l,P+18,y+44+i*37));y+=h+22};
+  sec('Ocorrencia',v.aconteceu,PR?6:3);sec('Servico executado',v.feito||'—',PR?7:3);
+  if(v.pecas.length){lab('Pecas e materiais',P,y+18);y+=30;const rh=50,maxR=PR?10:4,L=v.pecas.slice(0,maxR),mais=v.pecas.length-L.length,h=46+L.length*rh+(mais>0?40:0),cX=W-P-270;
+    box(P,y,gw,h);F(600,15);ls('2px');x.fillStyle=MU;x.fillText('QTD',P+16,y+30);x.fillText('DESCRICAO',P+150,y+30);x.fillText('CODIGO',cX,y+30);ls('0px');x.fillStyle=INK;x.fillRect(P,y+46,gw,2.4);
+    L.forEach((p,i)=>{const yy=y+46+i*rh;if(i){x.fillStyle=LN;x.fillRect(P+3,yy,gw-6,1.5)}x.fillStyle=INK;F(600,23,MON);x.fillText(fit(`${nf(p.qtd,2)} ${p.un||'un'}`,124),P+16,yy+34);F(400,24);x.fillText(fit(p.nome,cX-P-170),P+150,yy+34);F(500,20,MON);x.fillStyle=MU;x.fillText(fit(p.k==='sc'?'sem cadastro':(p.cod||''),250),cX,yy+34)});
+    if(mais>0){F(400,20);x.fillStyle=MU;x.fillText(`+ ${mais} ${mais===1?'item':'itens'}`,P+16,y+h-14)}y+=h+22}
+  const pai=v.vinc&&osById(v.vinc);
+  const vl=[...(pai?[`Faz parte da ${osNum(pai)} · ${pai.aconteceu}`]:[]),...v.filhas.map(f=>`${osNum(f)} · ${f.aconteceu} · ${f.porNome}`),...(PR?v.ad.map(a=>`Adendo ${a.n} · ${a.obs||'itens e fotos'} · ${a.nome} · ${osHora(a.ts)}`):[])];
+  if(vl.length){lab(PR?'Adendos e OS vinculadas':'OS vinculadas',P,y+18);y+=30;F(400,23);const L=vl.slice(0,PR?6:2),h=L.length*36+28;box(P,y,gw,h);x.fillStyle=INK;L.forEach((l,i)=>x.fillText(fit(l,gw-36),P+18,y+42+i*36));y+=h+22}
+  if(!PR){const rs=[['Aberta por',v.porNome],...(v.sit==='fechada'?[['Concluida por',osNomeDe(v.concPor||v.por)]]:[]),['Responsaveis',v.resp.map(osNomeDe).join(', ')]];let rx=P;
+    rs.forEach(([k,t])=>{lab(k,rx,y+20,15,MU);F(400,25);x.fillStyle=INK;const tt=fit(t,W-P-rx);x.fillText(tt,rx,y+54);rx+=Math.max(x.measureText(tt).width,190)+44});
+    genBar(x,W,H)}
+  else{if(v.fotos.length){lab('Fotos',P,y+18);y+=30;const n=Math.min(6,v.fotos.length),fw=(gw-5*12)/6;
+      for(let i=0;i<n;i++){const X=P+i*(fw+12);x.fillStyle='#e6e8ec';x.fillRect(X,y,fw,fw);const im=await osLoadImg(blobUrl(v.fotos[i]));if(im){const k=Math.max(fw/im.width,fw/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(X,y,fw,fw);x.clip();x.filter='grayscale(1)';x.drawImage(im,X+(fw-w)/2,y+(fw-h)/2,w,h);x.restore()}}y+=fw+26}
+    /* assinaturas: os responsaveis desta OS e o encarregado (so se ele nao for responsavel) */
+    const papel=uid=>uid===v.por&&uid===v.concPor?'Mecanico · abriu e concluiu a OS':uid===v.por?'Mecanico · abriu a OS':uid===v.concPor?'Mecanico · concluiu a OS':'Mecanico';
+    const sig=v.resp.map(uid=>[osNomeDe(uid),papel(uid)]);const enc=(S.mecs||[]).find(m=>m.enc&&m.ativo!==false);if(enc&&!v.resp.includes(enc.uid))sig.push([enc.nome,'Encarregado de manutencao']);
+    const rows=Math.ceil(sig.length/2),sh=118,cw2=(gw-70)/2;let sy=Math.max(y+20,H-64-30-rows*sh);
+    sig.forEach(([n,r],i)=>{const X=P+(i%2)*(cw2+70),Y=sy+Math.floor(i/2)*sh+56;x.fillStyle=INK;x.fillRect(X,Y,cw2,2.4);F(400,24);x.fillText(fit(n,cw2),X,Y+34);F(400,18);x.fillStyle=MU;x.fillText(r,X,Y+60)});
+    genBar(x,W,H,`${osNum(v)} · pagina 1 de 1`)}
+  return cv}
+function osInforme(id){const v=osById(id),e=eqById(v.eq)||{};
+  osModal(`<h2>Informe da ${osNum(v)}</h2>
+    <button type="button" class="os-lk" data-inf="share"><span class="os-st"><b>Compartilhar</b><small>Imagem para o WhatsApp</small></span></button>
+    <button type="button" class="os-lk" data-inf="print"><span class="os-st"><b>Impressao</b><small>Folha A4 com assinatura dos responsaveis${(S.mecs||[]).some(m=>m.enc)?' e do encarregado':''} · tambem compartilha</small></span></button>
+    <button type="button" class="os-op lk" data-x>Cancelar</button>`,(o,close)=>{o.querySelector('[data-x]').onclick=close;
+    o.querySelectorAll('[data-inf]').forEach(b=>b.onclick=async()=>{const m=b.dataset.inf;close();toast('Gerando o informe…');
+      try{const cv=await osDraw(osById(id)||v,m);await shareImgs([cv],`${osNum(v)} ${e.codigo||v.eq}${m==='print'?' impressao':''}.png`,osNum(v))}catch(err){console.error(err);toast('Nao foi possivel gerar o informe.')}})})}
 
 /* ---------- equipe de mecanicos (admin) e modo teste ---------- */
 function openMecs(){nav('mecs',()=>openMecs());const L=(S.mecs||[]).slice().sort((a,b)=>_an(a.nome,b.nome));
   openSheet({title:'Mecanicos',sub:OS_TESTE?'Teste: mecanicos sem login, para ver o app como cada um':'Equipe',
-  body:`<div class="os-ls">${L.map(m=>`<div class="os-lk"><b style="min-width:0;flex:1">${esc(m.nome)}</b>${m.ativo===false?'<span class="os-mut">desativado</span>':''}${OS_TESTE?`<button type="button" class="os-ch sm" data-como="${esc(m.uid)}">Ver como</button>`:''}<button type="button" class="os-ch sm" data-tg="${esc(m.uid)}">${m.ativo===false?'Ativar':'Desativar'}</button></div>`).join('')||'<div class="os-vz">Nenhum mecanico.</div>'}</div>
+  body:`<div class="os-ls">${L.map(m=>`<div class="os-lk"><b style="min-width:0;flex:1">${esc(m.nome)}${m.enc?'<small class="os-mut" style="display:block;font:500 12px var(--body)">Encarregado de manutencao</small>':''}</b>${m.ativo===false?'<span class="os-mut">desativado</span>':''}<button type="button" class="os-ch sm${m.enc?' on':''}" data-enc="${esc(m.uid)}">Encarregado</button>${OS_TESTE?`<button type="button" class="os-ch sm" data-como="${esc(m.uid)}">Ver como</button>`:''}<button type="button" class="os-ch sm" data-tg="${esc(m.uid)}">${m.ativo===false?'Ativar':'Desativar'}</button></div>`).join('')||'<div class="os-vz">Nenhum mecanico.</div>'}</div>
    <form id="mcf" class="os-frm" style="margin-top:14px"><label class="os-f"><span>Novo mecanico</span><input class="os-in" id="mc-n" placeholder="Nome" autocomplete="off"></label></form>`,
   foot:`<button class="btn pri" form="mcf">Adicionar</button>`,
   mount:sh=>{const salva=l=>safe(()=>S.db.doc('config/mecanicos').set({lista:l}));
     sh.querySelector('#mcf').onsubmit=async ev=>{ev.preventDefault();const n=sh.querySelector('#mc-n').value.trim();if(!n){toast('Escreva o nome');return}
       if(await salva([...(S.mecs||[]),{uid:'mec-'+uid(),nome:n,ativo:true}]))setTimeout(openMecs,250)};
+    sh.querySelectorAll('[data-enc]').forEach(b=>b.onclick=async()=>{const k=b.dataset.enc,ja=(S.mecs||[]).find(m=>m.uid===k&&m.enc);if(await salva((S.mecs||[]).map(m=>({...m,enc:!ja&&m.uid===k}))))setTimeout(openMecs,250)});
     sh.querySelectorAll('[data-tg]').forEach(b=>b.onclick=async()=>{if(await salva((S.mecs||[]).map(m=>m.uid===b.dataset.tg?{...m,ativo:m.ativo===false}:m)))setTimeout(openMecs,250)});
     sh.querySelectorAll('[data-como]').forEach(b=>b.onclick=()=>{const m=(S.mecs||[]).find(x=>x.uid===b.dataset.como);osComo(m)})}})}
 function osComo(m){S.osComo=m?{uid:m.uid,nome:m.nome}:null;try{localStorage.setItem('frota.osComo',JSON.stringify(S.osComo))}catch(e){}closeSheet();render();toast(m?'Vendo o app como '+m.nome:'De volta como administrador')}

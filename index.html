@@ -762,6 +762,10 @@ body.focus .tsec-h{top:calc(var(--hdr,52px) + var(--subh,47px))}
 .sh-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:14px max(14px,env(safe-area-inset-right,0px)) 18px max(14px,env(safe-area-inset-left,0px))}
 .sh-foot{flex:0 0 auto;display:flex;gap:8px;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));background:var(--surface);border-top:1px solid var(--line)}
 .sh-foot .btn{flex:1}
+.sh-head .hd-pri{margin-left:auto;flex:0 0 auto;display:inline-flex;align-items:center;gap:7px;border-radius:999px;padding:10px 16px 10px 13px;min-height:0;font:600 15px var(--body);white-space:nowrap;box-shadow:0 4px 12px rgba(0,51,160,.28)}
+.sh-head .hd-pri::before{content:'';width:18px;height:18px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.sh-head .hd-pri:disabled{box-shadow:none;opacity:.5}
+.sh-head .sh-tt{min-width:0}
 .sh-foot .btn.danger{flex:0 0 auto}
 @media (min-width:700px){#scrim{align-items:center}#sheet{height:auto;max-height:88vh;border-radius:20px}}
 @media (prefers-reduced-motion:no-preference){#sheet{animation:up .22s cubic-bezier(.2,.8,.2,1)}@keyframes up{from{transform:translateY(40px);opacity:.4}}}
@@ -1022,8 +1026,8 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=1f74a9e03d"></script>
-<script src="shim.js?v=1f74a9e03d"></script>
+<script src="config.js?v=e60e2967f8"></script>
+<script src="shim.js?v=e60e2967f8"></script>
 </head>
 <body>
 
@@ -1879,6 +1883,11 @@ function openSheet({title,sub='',body,foot='',mount}){
   $('#sheet').innerHTML=`<div class="sh-top"><div class="grab"></div><div class="sh-head"><button class="backbtn" data-back aria-label="Voltar" title="Voltar">${I.back}</button><div class="sh-tt"><h2>${/<[a-z]/i.test(title)?title:`<span class="tt-x">${title}</span>`}</h2>${sub?`<div class="sub">${sub}</div>`:''}</div></div></div>
     <div class="sh-body">${body}</div>${foot?`<div class="sh-foot">${foot}</div>`:''}`;
   $('#scrim').hidden=false;sheetOpen=true;document.documentElement.style.overflow='hidden';
+  /* acao principal de formulario (Salvar, Registrar...) vai para o topo, ao lado do titulo: o teclado nao cobre */
+  {const sh=$('#sheet'),ft=sh.querySelector('.sh-foot'),hd=sh.querySelector('.sh-head');
+    if(ft&&hd)ft.querySelectorAll('.btn.pri[form],#lt-go,#li-go,#lr-save,#avn-go').forEach(b=>{const t=b.textContent.trim();b.classList.add('hd-pri');b.title=t;b.setAttribute('aria-label',t);
+      const w=t.split(/\s+/)[0];if(w&&w!==t)b.textContent=w;b.style.flex='';hd.appendChild(b)});
+    if(ft&&!ft.querySelector('button,input,textarea,select,a,label'))ft.remove()}
   $('#sheet').querySelectorAll('[data-close]').forEach(b=>b.onclick=closeSheet);
   $('#sheet').querySelectorAll('[data-back],[data-k="back"]').forEach(b=>b.onclick=goBack);
   mount&&mount($('#sheet'));$('#sheet').querySelectorAll('select[data-eqs]').forEach(eqSearch);$('#sheet [data-back]').focus({preventScroll:true});
@@ -3677,8 +3686,8 @@ function formMovEst(dir){
       selb.innerHTML=`<button type="button" class="mv-card" id="mv-card"><b>${esc(x.desc)}</b><span><span class="num">${esc(stCod(x))}</span>${x.marca?' · '+esc(x.marca):''} · saldo ${nf(x.qtd,2)} ${esc(x.un)}</span><em>Toque para ver o cadastro ›</em></button><div class="mv-tr"><button type="button" class="lnk" id="mv-tr">Trocar item</button></div>`;
       selb.querySelector('#mv-card').onclick=()=>formMov(x.id);
       selb.querySelector('#mv-tr').onclick=()=>{cur=null;D.cur=null;c.value='';selb.innerHTML='';step(false);prev();c.focus()};
-      step(true);go.textContent=ent?'Lancar entrada':'Lancar saida';q.value=keepQ?(D.q||''):'';if(!keepQ)D.q='';prev();if(!keepQ)setTimeout(()=>q.focus(),60)};
-    const search=()=>{cur=null;prev();const k=nzCod(c.value);go.textContent=ent?'Lancar entrada':'Lancar saida';
+      step(true);go.textContent='Lancar';q.value=keepQ?(D.q||''):'';if(!keepQ)D.q='';prev();if(!keepQ)setTimeout(()=>q.focus(),60)};
+    const search=()=>{cur=null;prev();const k=nzCod(c.value);go.textContent='Lancar';
       if(!k){hit.innerHTML='';return}
       const its=S.estoque.filter(x=>!isKit(x)),score=x=>{const a=nzCod(x.codigo),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
       const m=its.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,5).map(a=>a[1]);

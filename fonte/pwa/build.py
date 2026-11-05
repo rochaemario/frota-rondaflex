@@ -59,11 +59,23 @@ def main():
         shutil.copy(os.path.join(ROOT, 'src', 'config.js'), DIST)
     man = json.load(open(os.path.join(ROOT, 'src', 'manifest.webmanifest'), encoding='utf-8'))
     json.dump(man, open(os.path.join(DIST, 'manifest.webmanifest'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
-    sw = open(os.path.join(ROOT, 'src', 'sw.js'), encoding='utf-8').read().replace('__VER__', ver)
+    sw = open(os.path.join(ROOT, 'src', 'sw.js'), encoding='utf-8').read().replace('__VER__', ver).replace('__PFX__', '')
     open(os.path.join(DIST, 'sw.js'), 'w', encoding='utf-8').write(sw)
     open(os.path.join(DIST, '.nojekyll'), 'w').close()
     if os.path.exists(os.path.join(ROOT, 'src', 'leitor.html')):
         shutil.copy(os.path.join(ROOT, 'src', 'leitor.html'), DIST)
+    # versao de teste (/teste): mesmo app, dados com prefixo teste/, cache e banco do aparelho separados
+    T = os.path.join(DIST, 'teste'); os.makedirs(T, exist_ok=True)
+    open(os.path.join(T, 'index.html'), 'w', encoding='utf-8').write(page.replace('<title>', '<title>TESTE · ', 1) if '<title>' in page else page)
+    shutil.copy(os.path.join(DIST, 'shim.js'), T)
+    shutil.copytree(os.path.join(ROOT, 'src', 'icons'), os.path.join(T, 'icons'))
+    cfg = open(os.path.join(DIST, 'config.js'), encoding='utf-8').read()
+    open(os.path.join(T, 'config.js'), 'w', encoding='utf-8').write(cfg + "\nwindow.__frotaNS='teste/';\n")
+    mt = dict(man); mt['name'] = 'Frota TESTE'; mt['short_name'] = 'Frota TESTE'
+    json.dump(mt, open(os.path.join(T, 'manifest.webmanifest'), 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
+    open(os.path.join(T, 'sw.js'), 'w', encoding='utf-8').write(open(os.path.join(ROOT, 'src', 'sw.js'), encoding='utf-8').read().replace('__VER__', ver).replace('__PFX__', 'teste-'))
+    if os.path.exists(os.path.join(ROOT, 'src', 'leitor.html')):
+        shutil.copy(os.path.join(ROOT, 'src', 'leitor.html'), T)
     print('ok', ver, len(page))
 
 if __name__ == '__main__':

@@ -13,6 +13,9 @@
   /* ---------- utilidades ---------- */
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const parentOf=p=>p.slice(0,p.lastIndexOf('/'));
+  /* versao de teste (/teste): os dados ficam com o prefixo teste/ no mesmo banco; o app oficial nunca le esses registros */
+  const NS=window.__frotaNS||'',TNS='teste/';
+  const sp=p=>NS+p,dp=p=>NS?p.slice(NS.length):p,meu=p=>NS?String(p).startsWith(NS):!String(p).startsWith(TNS);
   const idOf=p=>p.slice(p.lastIndexOf('/')+1);
   const rid=(n=20)=>{const a='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789',b=crypto.getRandomValues(new Uint8Array(n));let s='';for(const x of b)s+=a[x%62];return s};
   const hex=n=>[...crypto.getRandomValues(new Uint8Array(n/2))].map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -39,7 +42,7 @@
         return data.signedUrl}}catch(e){}
     return remoteUrl(id)};
   let IDBH=null;
-  const idbOpen=()=>new Promise((ok,no)=>{if(!('indexedDB' in window)){ok(null);return}const r=indexedDB.open('frota',1);
+  const idbOpen=()=>new Promise((ok,no)=>{if(!('indexedDB' in window)){ok(null);return}const r=indexedDB.open(NS?'frota-teste':'frota',1);
     r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('docs');d.createObjectStore('meta');d.createObjectStore('outbox',{keyPath:'k',autoIncrement:true});d.createObjectStore('blobs')};
     r.onsuccess=()=>ok(r.result);r.onerror=()=>ok(null)});
   const rq=r=>new Promise((ok,no)=>{r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
@@ -76,11 +79,11 @@
   const flushSoon=()=>{clearTimeout(flushT);flushT=setTimeout(flush,50)};
   const isNet=e=>!e||/fetch|network|load failed|timeout|offline/i.test(String(e.message||e))||(!e.code&&!e.status);
   async function runOp(o){
-    if(o.op==='set'){const {error}=await sb.from('docs').upsert({path:o.path,parent:parentOf(o.path),data:o.data,updated_at:new Date().toISOString()});if(error)throw error;return}
-    if(o.op==='update'){const {error}=await sb.rpc('doc_update',{p_path:o.path,p_patch:o.patch});
-      if(error&&error.code==='P0002'){const d=DOCS.get(o.path);if(d){const r=await sb.from('docs').upsert({path:o.path,parent:parentOf(o.path),data:d,updated_at:new Date().toISOString()});if(r.error)throw r.error}return}
+    if(o.op==='set'){const {error}=await sb.from('docs').upsert({path:sp(o.path),parent:parentOf(sp(o.path)),data:o.data,updated_at:new Date().toISOString()});if(error)throw error;return}
+    if(o.op==='update'){const {error}=await sb.rpc('doc_update',{p_path:sp(o.path),p_patch:o.patch});
+      if(error&&error.code==='P0002'){const d=DOCS.get(o.path);if(d){const r=await sb.from('docs').upsert({path:sp(o.path),parent:parentOf(sp(o.path)),data:d,updated_at:new Date().toISOString()});if(r.error)throw r.error}return}
       if(error)throw error;return}
-    if(o.op==='delete'){const {error}=await sb.from('docs').delete().eq('path',o.path);if(error)throw error;return}
+    if(o.op==='delete'){const {error}=await sb.from('docs').delete().eq('path',sp(o.path));if(error)throw error;return}
     if(o.op==='upload'){const b=await idbGet('blobs',o.id);if(!b)return;const {error}=await sb.storage.from(o.bkt||BUCKET).upload(o.id,b.blob,{contentType:o.type,cacheControl:'31536000',upsert:true});if(error)throw error;idbDel('blobs',o.id);return}
     if(o.op==='rmfile'){const {error}=await sb.storage.from(BUCKET).remove([o.id]);if(error)throw error;try{await sb.storage.from(BUCKET_DOC).remove([o.id])}catch(e){}return}}
   async function flush(){if(flushing||!OUT.length)return;if(!navigator.onLine){netOk=false;updSync();return}flushing=true;updSync();
@@ -95,7 +98,7 @@
   let pulling=null;
   function pull(){if(pulling)return pulling;pulling=(async()=>{
     const srv=new Map();let from=0;const N=1000;
-    for(;;){const {data,error}=await sb.from('docs').select('path,parent,data').order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>srv.set(r.path,r.data));
+    for(;;){let q=sb.from('docs').select('path,parent,data');q=NS?q.like('path',NS+'%'):q.not('path','like',TNS+'%');const {data,error}=await q.order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>{if(meu(r.path))srv.set(dp(r.path),r.data)});
       const pg=document.getElementById('dl-pg');if(pg)pg.textContent=`Baixando ${srv.size} registros…`;if(data.length<N)break;from+=N}
     const pend=new Set(OUT.map(o=>o.path).filter(Boolean));
     const mud=new Set(),vazio=!DOCS.size;
@@ -132,7 +135,7 @@
   let channel=null,wasSub=false;
   function realtime(){if(channel)return;channel=sb.channel('docs-all').on('postgres_changes',{event:'*',schema:'public',table:'docs'},p=>{
       const row=p.new&&p.new.path?p.new:null,old=p.old&&p.old.path?p.old:null;
-      if(p.eventType==='DELETE'){if(old)remoteApply(old.path,null)}else if(row)remoteApply(row.path,row.data)})
+      if(p.eventType==='DELETE'){if(old&&meu(old.path))remoteApply(dp(old.path),null)}else if(row&&meu(row.path))remoteApply(dp(row.path),row.data)})
     .subscribe(s=>{if(s==='SUBSCRIBED'){if(wasSub)sincronizar();wasSub=true;netOk=true;updSync()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED'){netOk=false;updSync()}})}
   function updSync(){const el=document.getElementById('sync');if(!el)return;const n=OUT.length,on=navigator.onLine&&netOk;
     const t=!on?(n?`Sem internet · ${n} pendente${n>1?'s':''}`:'Sem internet'):n?'Sincronizando…':'Sincronizado';
@@ -172,6 +175,17 @@
         Promise.resolve().then(()=>{if(set.has(cb))cb(snapCol(parent))});return()=>set.delete(cb)}};
   }
   const DB=Object.freeze({doc:docRef,collection});
+  /* TESTE: copia os dados reais para teste/ (mantem as OS de teste e os mecanicos de teste) */
+  if(NS)window.__frotaCopia=async prog=>{const fora=p=>/^(push\/|config\/push$|config\/notif$|os\/|ose\/|config\/mecanicos$|config\/osnum$)/.test(p);
+    const real=[];let from=0;const N=1000;
+    for(;;){const {data,error}=await sb.from('docs').select('path,data').not('path','like',TNS+'%').order('path').range(from,from+N-1);if(error)throw error;real.push(...data);if(data.length<N)break;from+=N}
+    const keep=real.filter(r=>!fora(r.path)),novos=new Set(keep.map(r=>NS+r.path));
+    const velhos=[];from=0;for(;;){const {data,error}=await sb.from('docs').select('path').like('path',NS+'%').order('path').range(from,from+N-1);if(error)throw error;velhos.push(...data.map(r=>r.path));if(data.length<N)break;from+=N}
+    const apagar=velhos.filter(p=>!novos.has(p)&&!fora(p.slice(NS.length)));
+    for(let i=0;i<apagar.length;i+=200){const {error}=await sb.from('docs').delete().in('path',apagar.slice(i,i+200));if(error)throw error}
+    const agora=new Date().toISOString();
+    for(let i=0;i<keep.length;i+=200){const lote=keep.slice(i,i+200).map(r=>({path:NS+r.path,parent:parentOf(NS+r.path),data:r.data,updated_at:agora}));const {error}=await sb.from('docs').upsert(lote);if(error)throw error;prog&&prog(Math.min(i+200,keep.length),keep.length)}
+    await pull();return keep.length};
   /* espera a foto chegar ao servidor (usado antes de abrir o Google Lens) */
   window.__assetPronto=id=>new Promise((ok,no)=>{const t0=Date.now();flushSoon();const tick=()=>{if(!OUT.some(o=>o.op==='upload'&&o.id===id)){ok();return}if(Date.now()-t0>30000||!navigator.onLine){no(new Error('timeout'));return}setTimeout(tick,300)};tick()});
 
@@ -350,7 +364,7 @@
         try{const dados=JSON.parse(await f.text());if(dados&&Array.isArray(dados.abast)&&window.__frotaLote){closeScreen();window.__frotaLote(dados.abast);return}if(dados&&Array.isArray(dados.itens)&&window.__frotaItens){closeScreen();window.__frotaItens(dados.itens);return}if(!dados||!dados.docs)throw new Error('arquivo nao e um pacote do app');
           const docs=Object.entries(dados.docs),arqs=Object.entries(dados.arquivos||{});
           const tot=docs.length+arqs.length||1;let feito=0;const tick=()=>{bar.style.width=Math.round(++feito/tot*100)+'%'};
-          for(let i=0;i<docs.length;i+=200){const lote=docs.slice(i,i+200).map(([path,data])=>({path,parent:parentOf(path),data}));
+          for(let i=0;i<docs.length;i+=200){const lote=docs.slice(i,i+200).map(([path,data])=>({path:sp(path),parent:parentOf(sp(path)),data}));
             x.textContent=`Gravando dados (${Math.min(i+200,docs.length)} de ${docs.length})…`;const {error}=await sb.from('docs').upsert(lote);if(error)throw error;lote.forEach(tick)}
           let falhas=0,k=0;for(const [id,b64] of arqs){const tipo=(dados.tipos||{})[id]||'application/octet-stream';x.textContent=`Enviando fotos e documentos (${++k} de ${arqs.length})…`;
             const bin=atob(b64),u8=new Uint8Array(bin.length);for(let j=0;j<bin.length;j++)u8[j]=bin.charCodeAt(j);

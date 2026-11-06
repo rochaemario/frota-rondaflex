@@ -1114,20 +1114,23 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-x{margin-top:12px;background:var(--surface);border-radius:12px;border:1px solid var(--line);overflow:hidden}
 .os-xr{display:flex;gap:10px;align-items:center;padding:11px 12px;border:0;border-top:1px solid var(--line);font:13.5px var(--body);background:none;width:100%;text-align:left;color:inherit}.os-xr:first-child{border-top:0}button.os-xr{cursor:pointer}
 .os-xr b{font:600 13px "IBM Plex Mono",monospace;color:#1b6638;min-width:74px;white-space:nowrap}.os-xr b.a{color:var(--accent)}
+.os-det{display:block;width:100%;margin-top:12px;border:0;background:none;color:var(--accent);font:600 14px var(--body);padding:10px;cursor:pointer}
+.os-tl{display:flex;flex-direction:column}.os-tl>div{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.os-tl>div:last-child{border:0}.os-tl time{font:600 12.5px 'IBM Plex Mono',monospace;color:var(--ink);min-width:86px;padding-top:1px}.os-tl span{font-size:14px;line-height:1.4}.os-tl b{color:#121a2c}
 .os-hd{margin-top:10px;font-size:13px;color:var(--muted)}.os-hd summary{cursor:pointer;text-align:center;color:var(--accent);font-weight:600;padding:8px;list-style:none}.os-hd summary::-webkit-details-marker{display:none}.os-hd span{display:block;padding:2px 4px;line-height:1.5}
 .os-d{background:#fff;border-radius:8px;box-shadow:0 1px 2px #0b247010,0 8px 24px #0b24701a;overflow:hidden}
 .os-dh{background:var(--ink);color:#fff;padding:14px 16px 14px 28px;position:relative;display:flex;justify-content:space-between;align-items:flex-start}.os-dh:before{content:"";position:absolute;left:13px;top:16px;width:5px;height:40px;background:#e30613}
 .os-dh small{font:600 11px var(--body);letter-spacing:.14em;color:#a9b8e6}.os-dh b{display:block;font:700 34px var(--display);line-height:1;letter-spacing:.02em;margin-top:3px}
 .os-stp{border:2px solid #7fd6a0;color:#9be8b6;font:700 12px var(--body);letter-spacing:.12em;padding:6px 9px;border-radius:6px;transform:rotate(-4deg);margin-top:6px;text-align:center;line-height:1.25}.os-stp em{display:block;font:500 10.5px "IBM Plex Mono",monospace;letter-spacing:0;font-style:normal;color:#d6f5e2}
 .os-de{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}.os-de b{font:600 30px "IBM Plex Mono",monospace;letter-spacing:-.02em;color:#121a2c}.os-de span{font-size:13px;color:var(--muted);line-height:1.35}
+.os-dg.g4{grid-template-columns:repeat(4,minmax(0,1fr))}.os-dg.g4 b{font-size:18px}
 .os-dg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:1px solid var(--line)}.os-dg>div{padding:10px 12px;min-width:0}.os-dg>div+div{border-left:1px solid var(--line)}.os-dg b{font:700 20px var(--display);color:#121a2c;white-space:nowrap}.os-dg b.ok{color:#1b6638}.os-dg b.bad{color:#9a1622}.os-dg .os-cor{display:block}
 .os-ds{padding:12px 16px;border-bottom:1px solid var(--line)}.os-ds:last-child{border-bottom:0}
 .os-th{display:flex;gap:10px;font:600 10px var(--body);letter-spacing:.1em;color:var(--faint);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--line)}.os-th span:first-child{min-width:44px}.os-th span:nth-child(2){flex:1}
 .os-sig{display:grid;grid-template-columns:1fr 1fr;gap:14px}.os-sig>div{border-top:1.5px solid #121a2c;padding-top:6px;font-size:14px}.os-sig small{display:block;font-size:11.5px;color:var(--faint)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=2b20e3ea7e"></script>
-<script src="shim.js?v=2b20e3ea7e"></script>
+<script src="config.js?v=02ca22e535"></script>
+<script src="shim.js?v=02ca22e535"></script>
 </head>
 <body>
 
@@ -4439,26 +4442,26 @@ const osHora=t=>{const d=new Date(t),h=pad(d.getHours())+':'+pad(d.getMinutes())
 const _osC={k:null,m:null};
 function osTodas(){const k=S.os.length+':'+S.ose.length+':'+(S.os[0]&&S.os[0].num)+':'+S.os.map(o=>o.num||0).join(',');if(_osC.os===S.os&&_osC.ose===S.ose)return _osC.m;
   const ev=new Map();S.ose.slice().sort((a,b)=>(a.ts||0)-(b.ts||0)||String(a.id).localeCompare(String(b.id))).forEach(e=>{if(!ev.has(e.os))ev.set(e.os,[]);ev.get(e.os).push(e)});
-  const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai)pai.filhas.push(v)});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
+  const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai){pai.filhas.push(v);pai.hist.push({ts:v.ts,txt:`Vinculou a ${osNum(v)}: ${v.aconteceu}`,nome:v.porNome})}});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
 function osFold(r,evs){const o=r.o;
   const v={id:r.id,num:r.num||null,eq:o.eq,por:o.por,porNome:o.porNome||osNomeDe(o.por),ts:o.ts||r._em||0,o,data:o.data,hor:o.hor||'',aconteceu:o.aconteceu||'',feito:o.feito||'',estado:o.estado||'',
-    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,txt:(o.concl?'Criada e concluida por ':'Aberta por ')+(o.porNome||'—')}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
+    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,txt:(o.concl?'Abriu e concluiu a OS':'Abriu a OS')+` (${(eqById(o.eq)||{}).codigo||o.eq}${o.hor?', horimetro '+o.hor+' h':''}${o.concl&&o.estado?', '+(o.estado==='parado'?'Parado':'Operando'):''})`,nome:o.porNome||'—'}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
   const addP=(arr,src,eid)=>(arr||[]).forEach((p,i)=>v.pecas.push({...p,src,pk:eid+':'+i}));
   addP(o.pecas,'',r.id);
   evs.forEach(e=>{const nm=e.porNome||osNomeDe(e.por);
-    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:'Concluida por '+nm})}
-    else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,txt:'Reaberta por '+nm})}
+    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:'Concluiu a OS'+(e.estado?' · '+(e.estado==='parado'?'Parado':'Operando'):''),nome:nm})}
+    else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,txt:'Reabriu a OS',nome:nm,reab:1})}
     else if(e.tipo==='resp'&&e.por===v.por&&v.sit==='aberta'){const n=[v.por,...(e.resp||[]).filter(x=>x!==v.por)];const add=n.filter(x=>!v.resp.includes(x)),tir=v.resp.filter(x=>!n.includes(x));v.resp=n;
-      if(add.length)v.hist.push({ts:e.ts,txt:nm+' adicionou '+add.map(osNomeDe).join(', ')});if(tir.length)v.hist.push({ts:e.ts,txt:nm+' tirou '+tir.map(osNomeDe).join(', ')})}
+      if(add.length)v.hist.push({ts:e.ts,txt:'Adicionou '+add.map(osNomeDe).join(', ')+' como responsavel',nome:nm});if(tir.length)v.hist.push({ts:e.ts,txt:'Tirou '+tir.map(osNomeDe).join(', ')+' dos responsaveis',nome:nm})}
     else if(e.tipo==='adendo'&&v.sit==='fechada'&&!v.resp.includes(e.por)){const n=v.ad.length+1;const corr=[];
-      v.ad.push({n,id:e.id,por:e.por,nome:nm,ts:e.ts,obs:e.obs||'',corr,pecas:e.pecas||[],fotos:e.fotos||[]});addP(e.pecas,'adendo '+n,e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Adendo ${n} por ${nm}`})}
-    else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,txt:`${nm} editou ${OS_CAMPOS[e.campo]||e.campo}: ${osVal(e.campo,de)||'vazio'} -> ${osVal(e.campo,e.para)||'vazio'}`})}
+      v.ad.push({n,id:e.id,por:e.por,nome:nm,ts:e.ts,obs:e.obs||'',corr,pecas:e.pecas||[],fotos:e.fotos||[]});addP(e.pecas,'adendo '+n,e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Fez o adendo ${n}`+(e.obs?': '+e.obs:''),nome:nm})}
+    else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,txt:`Editou ${OS_CAMPOS[e.campo]||e.campo}: ${osVal(e.campo,de)||'vazio'} → ${osVal(e.campo,e.para)||'vazio'}`,nome:nm})}
     else if(/^(pcadd|pcrm|ftadd|ftrm)$/.test(e.tipo)&&((v.sit==='aberta'&&v.resp.includes(e.por))||(v.sit==='fechada'&&e.adm))){
-      if(e.tipo==='pcadd'){addP(e.pecas,'editado por '+nm,e.id);v.hist.push({ts:e.ts,txt:`${nm} acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`})}
-      else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`${nm} tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`})}
-      else if(e.tipo==='ftadd'){(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`${nm} acrescentou ${(e.fotos||[]).length} foto(s)`})}
-      else{v.fotos=v.fotos.filter(f=>!(e.fotos||[]).includes(f));v.hist.push({ts:e.ts,txt:`${nm} tirou ${(e.fotos||[]).length} foto(s)`})}}
-    else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,txt:`${nm} conferiu ${e.nome||'peca'}: ${e.acao==='nao'?'nao veio do estoque':'baixa de '+nf(e.qtd,2)}`})}});
+      if(e.tipo==='pcadd'){addP(e.pecas,'editado por '+nm,e.id);v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
+      else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`Tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
+      else if(e.tipo==='ftadd'){(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.fotos||[]).length} foto(s)`,nome:nm})}
+      else{v.fotos=v.fotos.filter(f=>!(e.fotos||[]).includes(f));v.hist.push({ts:e.ts,txt:`Tirou ${(e.fotos||[]).length} foto(s)`,nome:nm})}}
+    else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,txt:`Conferiu ${e.nome||'peca'}: ${e.acao==='nao'?'nao veio do estoque':'baixa de '+nf(e.qtd,2)+' no estoque'}`,nome:nm})}});
   v.nAd=v.ad.length;return v}
 const osLista=()=>[...osTodas().values()];
 const osById=id=>osTodas().get(id);
@@ -4616,7 +4619,7 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
   const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
   const pcRow=p=>`<button type="button" class="os-pr${adm&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${adm&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
   const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
-  const hist=`<details class="os-hd"><summary>Ver historico (${v.hist.length})</summary>${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<span>${osHora(h.ts)} · ${esc(h.txt)}</span>`).join('')}</details>`;
+  const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes · horarios e acoes (${v.hist.length})</button>`;
   const pai=v.vinc&&osById(v.vinc);
   const ext=[pai?`<button type="button" class="os-xr" data-osv="${esc(pai.id)}"><b class="a">${osNum(pai)}</b><span>Esta OS faz parte da ${osNum(pai)} · ${esc(pai.aconteceu)}</span></button>`:'',
     ...v.filhas.map(f=>`<button type="button" class="os-xr" data-osv="${esc(f.id)}"><b>${osNum(f)}</b><span>${esc(f.aconteceu)} · ${esc(f.porNome)} · vinculada${f.sit==='aberta'?' (aberta)':''}</span></button>`),
@@ -4638,12 +4641,12 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
   else{const conc=v.concTs||v.ts,par=v.estado==='parado';
     body=`<div class="os-d"><div class="os-dh"><div><small>ORDEM DE SERVICO</small><b>${v.num?'Nº '+String(v.num).padStart(4,'0'):'Nova'}</b></div><div class="os-stp">CONCLUIDA<em>${fdate(iso(new Date(conc)))} ${pad(new Date(conc).getHours())}:${pad(new Date(conc).getMinutes())}</em></div></div>
      <div class="os-de"><b>${esc(e.codigo||v.eq)}</b><span>${esc(e.desc||e.tipo||'')}${mm?'<br>'+esc(mm):''}</span></div>
-     <div class="os-dg"><div><small>Data</small><b>${fdate(v.data)}</b>${marca('data')}</div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':'ok'}">${par?'Parado':v.estado==='operando'?'Operando':'—'}</b>${marca('estado')}</div></div>
+     <div class="os-dg g4"><div><small>Aberta</small><b>${sdate(v.data)}</b>${marca('data')}</div><div><small>Concluida</small><b>${sdate(iso(new Date(conc)))}</b></div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':'ok'}">${par?'Parado':v.estado==='operando'?'Operando':'—'}</b>${marca('estado')}</div></div>
      <div class="os-ds"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
      <div class="os-ds"><div class="os-lb">Servico executado</div><div class="os-tx">${esc(v.feito)||'<i class="os-mut">nao informado</i>'}${marca('feito')}</div></div>
      ${v.pecas.length?`<div class="os-ds"><div class="os-th"><span>Qtd</span><span>Peca ou material</span><span>Estoque</span></div>${v.pecas.map(pcRow).join('')}</div>`:''}
      ${fotos?`<div class="os-ds"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
-     <div class="os-ds"><div class="os-sig">${(v.concPor||v.por)===v.por?`<div>${esc(v.porNome)}<small>Abriu ${osHora(v.ts)} · concluiu ${osHora(conc)}</small></div>`:`<div>${esc(v.porNome)}<small>Abriu · ${osHora(v.ts)}</small></div><div>${esc(osNomeDe(v.concPor))}<small>Concluiu · ${osHora(conc)}</small></div>`}</div>${v.resp.length>1?`<small class="os-mut" style="display:block;margin-top:8px">Responsaveis: ${esc(v.resp.map(osNomeDe).join(', '))}</small>`:''}</div></div>
+     <div class="os-ds"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}</div></div></div>
      ${ext?`<div class="os-x">${ext}</div>`:''}
      <div class="os-cta">${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}<button type="button" class="os-ad pri" data-a="informe">Informe</button></div>
      <div id="os-cf"></div>${hist}`}
@@ -4655,6 +4658,7 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
     if(a('adendo'))a('adendo').onclick=()=>{S.osDraft={modo:'adendo',osId:v.id,obs:'',corr:[],pecas:[],fotos:[]};formOSAdendo()};
     sh.querySelectorAll('[data-osv]').forEach(b=>b.onclick=()=>openOS(b.dataset.osv));
     a('informe').onclick=()=>osInforme(v.id);
+    if(a('detalhes'))a('detalhes').onclick=()=>openOSDet(v.id);
     if(a('editar'))a('editar').onclick=()=>{S.osEd=null;formOSEdit(v.id)};
     const rb=sh.querySelector('[data-resp]');if(rb)rb.onclick=()=>osResp(v.id);
     if(adm)sh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const p=v.pecas.find(x=>x.pk===b.dataset.pk);if(p&&!v.conf[p.pk])osConf(v,p)})}})}
@@ -4771,28 +4775,45 @@ async function osDraw(v,modo){
     L.forEach((p,i)=>{const yy=y+46+i*rh;if(i){x.fillStyle=LN;x.fillRect(P+3,yy,gw-6,1.5)}x.fillStyle=INK;F(600,23,MON);x.fillText(fit(`${nf(p.qtd,2)} ${p.un||'un'}`,124),P+16,yy+34);F(400,24);x.fillText(fit(p.nome,cX-P-170),P+150,yy+34);F(500,20,MON);x.fillStyle=MU;x.fillText(fit(p.k==='sc'?'sem cadastro':(p.cod||''),250),cX,yy+34)});
     if(mais>0){F(400,20);x.fillStyle=MU;x.fillText(`+ ${mais} ${mais===1?'item':'itens'}`,P+16,y+h-14)}y+=h+22}
   const pai=v.vinc&&osById(v.vinc);
-  const vl=[...(pai?[`Faz parte da ${osNum(pai)} · ${pai.aconteceu}`]:[]),...v.filhas.map(f=>`${osNum(f)} · ${f.aconteceu} · ${f.porNome}`),...(PR?v.ad.map(a=>`Adendo ${a.n} · ${a.obs||'itens e fotos'} · ${a.nome} · ${osHora(a.ts)}`):[])];
+  const vl=[...(pai?[`Faz parte da ${osNum(pai)} · ${pai.aconteceu}`]:[]),...v.filhas.map(f=>`${osNum(f)} · ${f.aconteceu} · ${f.porNome}`),...(PR?v.ad.map(a=>`Adendo ${a.n} · ${a.obs||'itens e fotos'} · ${a.nome}`):[])];
   if(vl.length){lab(PR?'Adendos e OS vinculadas':'OS vinculadas',P,y+18);y+=30;F(400,23);const L=vl.slice(0,PR?6:2),h=L.length*36+28;box(P,y,gw,h);x.fillStyle=INK;L.forEach((l,i)=>x.fillText(fit(l,gw-36),P+18,y+42+i*36));y+=h+22}
-  if(!PR){const rs=[['Aberta por',v.porNome],...(v.sit==='fechada'?[['Concluida por',osNomeDe(v.concPor||v.por)]]:[]),['Responsaveis',v.resp.map(osNomeDe).join(', ')]];let rx=P;
+  if(!PR){const rs=[['Responsaveis',v.resp.map(osNomeDe).join(', ')]];let rx=P;
     rs.forEach(([k,t])=>{lab(k,rx,y+20,15,MU);F(400,25);x.fillStyle=INK;const tt=fit(t,W-P-rx);x.fillText(tt,rx,y+54);rx+=Math.max(x.measureText(tt).width,190)+44});
     genBar(x,W,H)}
   else{if(v.fotos.length){lab('Fotos',P,y+18);y+=30;const n=Math.min(6,v.fotos.length),fw=(gw-5*12)/6;
       for(let i=0;i<n;i++){const X=P+i*(fw+12);x.fillStyle='#e6e8ec';x.fillRect(X,y,fw,fw);const im=await osLoadImg(blobUrl(v.fotos[i]));if(im){const k=Math.max(fw/im.width,fw/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(X,y,fw,fw);x.clip();x.filter='grayscale(1)';x.drawImage(im,X+(fw-w)/2,y+(fw-h)/2,w,h);x.restore()}}y+=fw+26}
     /* assinaturas: os responsaveis desta OS e o encarregado (so se ele nao for responsavel) */
-    const papel=uid=>uid===v.por&&uid===v.concPor?'Mecanico · abriu e concluiu a OS':uid===v.por?'Mecanico · abriu a OS':uid===v.concPor?'Mecanico · concluiu a OS':'Mecanico';
+    const papel=uid=>(S.mecs||[]).some(m=>m.uid===uid&&m.enc)?'Mecanico · Encarregado de manutencao':'Mecanico';
     const sig=v.resp.map(uid=>[osNomeDe(uid),papel(uid)]);const enc=(S.mecs||[]).find(m=>m.enc&&m.ativo!==false);if(enc&&!v.resp.includes(enc.uid))sig.push([enc.nome,'Encarregado de manutencao']);
     const rows=Math.ceil(sig.length/2),sh=118,cw2=(gw-70)/2;let sy=Math.max(y+20,H-64-30-rows*sh);
     sig.forEach(([n,r],i)=>{const X=P+(i%2)*(cw2+70),Y=sy+Math.floor(i/2)*sh+56;x.fillStyle=INK;x.fillRect(X,Y,cw2,2.4);F(400,24);x.fillText(fit(n,cw2),X,Y+34);F(400,18);x.fillStyle=MU;x.fillText(r,X,Y+60)});
     genBar(x,W,H,`${osNum(v)} · pagina 1 de 1`)}
   return cv}
-function osInforme(id){const v=osById(id),e=eqById(v.eq)||{};
+/* detalhes (so app principal): tudo o que aconteceu na OS, com horario e quem fez */
+function openOSDet(id){nav('osdet:'+id,()=>openOSDet(id));const v=osById(id);if(!v){goBack();return}
+  const fh=t=>{const d=new Date(t);return `${sdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+  const dur=ms=>{const m=Math.max(0,Math.round(ms/60000));return m<60?m+' min':m<2880?(Math.round(m/6)/10).toString().replace('.',',')+' h':Math.round(m/1440)+' dias'};
+  const fim=v.sit==='fechada'?(v.concTs||v.ts):Date.now(),reab=v.hist.filter(h=>h.reab).length;
+  openSheet({title:'Detalhes · '+osNum(v),sub:esc((eqById(v.eq)||{}).codigo||v.eq),
+  body:`<div class="os-dg g4" style="background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px"><div><small>Aberta</small><b>${fh(v.ts)}</b></div><div><small>Concluida</small><b>${v.sit==='fechada'?fh(v.concTs||v.ts):'—'}</b></div><div><small>${v.sit==='fechada'?'Tempo total':'Aberta ha'}</small><b>${dur(fim-v.ts)}</b></div><div><small>Reaberta</small><b>${reab?reab+'x':'nao'}</b></div></div>
+   <div class="os-box"><div class="os-tl">${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<div><time>${fh(h.ts)}</time><span><b>${esc(h.nome||'')}</b> ${esc(h.txt)}</span></div>`).join('')}</div></div>`})}
+/* informe: escolhe a versao e ve a imagem antes de compartilhar (como o cartao preventiva) */
+function osInforme(id){const v=osById(id);
   osModal(`<h2>Informe da ${osNum(v)}</h2>
     <button type="button" class="os-lk" data-inf="share"><span class="os-st"><b>Compartilhar</b><small>Imagem para o WhatsApp</small></span></button>
     <button type="button" class="os-lk" data-inf="print"><span class="os-st"><b>Impressao</b><small>Folha A4 com assinatura dos responsaveis${(S.mecs||[]).some(m=>m.enc)?' e do encarregado':''} · tambem compartilha</small></span></button>
     <button type="button" class="os-op lk" data-x>Cancelar</button>`,(o,close)=>{o.querySelector('[data-x]').onclick=close;
-    o.querySelectorAll('[data-inf]').forEach(b=>b.onclick=async()=>{const m=b.dataset.inf;close();toast('Gerando o informe…');
-      try{const cv=await osDraw(osById(id)||v,m);await shareImgs([cv],`${osNum(v)} ${e.codigo||v.eq}${m==='print'?' impressao':''}.png`,osNum(v))}catch(err){console.error(err);toast('Nao foi possivel gerar o informe.')}})})}
-
+    o.querySelectorAll('[data-inf]').forEach(b=>b.onclick=()=>{close();openOSInf(id,b.dataset.inf)})})}
+function openOSInf(id,modo){nav('osinf:'+id+':'+modo,()=>openOSInf(id,modo));const v=osById(id);if(!v){goBack();return}const e=eqById(v.eq)||{},PR=modo==='print';
+  const fname=`${osNum(v)} ${e.codigo||v.eq}${PR?' impressao':''}.png`.replace(/\s+/g,' ');
+  openSheet({title:PR?'Impressao':'Informe da OS',sub:`${osNum(v)} · ${esc(e.codigo||v.eq)}`,
+  body:`<div id="oi-box" class="card-wait">Montando o informe…</div><p class="note" style="margin:10px 2px 0">${PR?'Folha A4 para imprimir em preto e branco, com as assinaturas. Tambem pode ser compartilhada.':'Imagem pronta para enviar no WhatsApp, e-mail ou grupo da equipe.'}</p>`,
+  foot:`<button type="button" class="btn" id="oi-alt">${PR?'Ver compartilhar':'Ver impressao'}</button><button type="button" class="btn pri" id="oi-go" disabled>${I.share||''}Compartilhar</button>`,
+  mount:async sh=>{sh.querySelector('#oi-alt').onclick=()=>{NAV.pop();openOSInf(id,PR?'share':'print')};
+    let cv=null;try{cv=await osDraw(v,modo)}catch(err){console.error(err)}const box=sh.querySelector('#oi-box');if(!box||!box.isConnected)return;
+    if(!cv){box.textContent='Nao foi possivel montar o informe.';return}
+    box.className='card-prev';box.innerHTML='';const im=document.createElement('img');im.src=cv.toDataURL('image/png');im.alt='Informe da OS';im.style.cssText='width:100%;display:block;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.12)';box.appendChild(im);
+    const go=sh.querySelector('#oi-go');go.disabled=false;go.onclick=()=>shareImgs([cv],fname,osNum(v))}})}
 /* ---------- equipe de mecanicos (admin) e modo teste ---------- */
 function openMecs(){nav('mecs',()=>openMecs());const L=(S.mecs||[]).slice().sort((a,b)=>_an(a.nome,b.nome));
   openSheet({title:'Mecanicos',sub:OS_TESTE?'Teste: mecanicos sem login, para ver o app como cada um':'Equipe',
@@ -4848,7 +4869,7 @@ const EST_K='frota.estado',EST_MAX=30*60000;
 const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:p[2]),alq:p=>openAlocEq(p[0]),ar:p=>p[0]==='esc'?formFiltroAr():formFiltroAr(undefined,p.join(':')),
   av:p=>openAviso(p.join(':')),avs:p=>openAvisos(p[0]||'r'),card:p=>openCartao(p.join(':')),cart:()=>openCart(),cbq:p=>openCombEq(p[0]),cr:p=>openPend(p[0],true),pd:p=>openPend(p[0]),
   del:p=>openDelete(p[0],p.slice(1).join(':')),dl:()=>openDelAbast(),edtr:p=>formEditTroca(p[0]),eq:p=>openEq(p[0]),eqv:p=>openEquiv(p[0]||undefined),esf:()=>esFilSheet(),
-  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
+  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
   hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
   mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
   rp:p=>formReprog(p[0],p[1]),ulp:p=>formUltPrev(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};

@@ -1147,6 +1147,15 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-ds{padding:12px 16px;border-bottom:1px solid var(--line)}.os-ds:last-child{border-bottom:0}
 .os-th{display:flex;gap:10px;font:600 10px var(--body);letter-spacing:.1em;color:var(--faint);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--line)}.os-th span:first-child{min-width:44px}.os-th span:nth-child(2){flex:1}
 .os-sig{display:grid;grid-template-columns:1fr 1fr;gap:14px}.os-sig>div{border-top:1.5px solid #121a2c;padding-top:6px;font-size:14px}.os-sig small{display:block;font-size:11.5px;color:var(--faint)}
+.mc-nv{width:100%;background:var(--surface)!important;border:1px solid #cdd5e1!important;box-shadow:none!important;min-height:46px;border-radius:14px;display:flex;align-items:center;margin-bottom:12px;justify-content:center;font-weight:600;color:var(--accent)!important}.mc-nv span{font-size:19px;margin-right:4px;line-height:1}
+.mc-r{flex-direction:row!important;align-items:center!important;width:100%;border:0;border-top:1px solid var(--line);background:none;font:inherit;text-align:left;cursor:pointer;color:inherit;gap:11px!important;padding:9px 12px!important}.os-ml .mc-r:first-child{border-top:0}
+.mc-av{width:32px;height:32px;border-radius:50%;background:#e8edf6;color:#0f2a66;font:600 13.5px var(--body);display:flex;align-items:center;justify-content:center;flex:none}.mc-r.off .mc-av{opacity:.5}
+.mc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.mc-t small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mc-r.off .mc-t small{opacity:.7}
+.mc-cx{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 14px}
+.mc-ac{display:flex;flex-direction:column;gap:10px;padding:12px 14px}.mc-as b{display:block;font:600 14px var(--body)}.mc-as small{font-size:12px;color:var(--muted)}.mc-ok{color:#0f766e}.mc-wt{color:#a15c00}
+.mc-ab{display:flex;gap:8px}.mc-ab .btn{flex:1;min-height:36px;font-size:13.5px}
+.mc-del{background:none;border:0;color:#c62828;font:600 14.5px var(--body);padding:10px;align-self:center;cursor:pointer}
+#mff .os-f>span{font:600 13.5px var(--body);color:#3a4659}
 </style>
 
 <div id="scroller">
@@ -4831,7 +4840,7 @@ async function osDraw(v,modo){
   else{if(v.fotos.length){lab('Fotos',P,y+18);y+=30;const n=Math.min(6,v.fotos.length),fw=(gw-5*12)/6;
       for(let i=0;i<n;i++){const X=P+i*(fw+12);x.fillStyle='#e6e8ec';x.fillRect(X,y,fw,fw);const im=await osLoadImg(blobUrl(v.fotos[i]));if(im){const k=Math.max(fw/im.width,fw/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(X,y,fw,fw);x.clip();x.filter='grayscale(1)';x.drawImage(im,X+(fw-w)/2,y+(fw-h)/2,w,h);x.restore()}}y+=fw+26}
     /* assinaturas: os responsaveis desta OS e o encarregado (so se ele nao for responsavel) */
-    const papel=uid=>(S.mecs||[]).some(m=>m.uid===uid&&m.enc)?'Mecanico · Encarregado de manutencao':'Mecanico';
+    const papel=uid=>{const m=(S.mecs||[]).find(x=>x.uid===uid);const f=(m&&m.funcao)||'Mecanico';return m&&m.enc?f+' · Encarregado de manutencao':f};
     const sig=v.resp.map(uid=>[osNomeDe(uid),papel(uid)]);const enc=(S.mecs||[]).find(m=>m.enc&&m.ativo!==false);if(enc&&!v.resp.includes(enc.uid))sig.push([enc.nome,'Encarregado de manutencao']);
     const rows=Math.ceil(sig.length/2),sh=118,cw2=(gw-70)/2;let sy=Math.max(y+20,H-64-30-rows*sh);
     sig.forEach(([n,r],i)=>{const X=P+(i%2)*(cw2+70),Y=sy+Math.floor(i/2)*sh+56;x.fillStyle=INK;x.fillRect(X,Y,cw2,2.4);F(400,24);x.fillText(fit(n,cw2),X,Y+34);F(400,18);x.fillStyle=MU;x.fillText(r,X,Y+60)});
@@ -4863,34 +4872,63 @@ function openOSInf(id,modo){nav('osinf:'+id+':'+modo,()=>openOSInf(id,modo));con
     box.className='card-prev';box.innerHTML='';const im=document.createElement('img');im.src=cv.toDataURL('image/png');im.alt='Informe da OS';im.style.cssText='width:100%;display:block;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.12)';box.appendChild(im);
     const go=sh.querySelector('#oi-go');go.disabled=false;go.onclick=()=>shareImgs([cv],fname,osNum(v))}})}
 /* ---------- equipe de mecanicos (admin) e modo teste ---------- */
-function openMecs(aberto){nav('mecs',()=>openMecs(S.mecOpen));S.mecOpen=aberto||null;const L=(S.mecs||[]).slice().sort((a,b)=>_an(a.nome,b.nome));
-  const chev='<svg class="os-cv" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
-  const MF=!!window.__frotaMec;
-  openSheet({title:'Mecanicos',sub:MF?'Entram pelo QR, sem senha':'Equipe',
-  body:`${L.length?`<div class="os-ml">${L.map(m=>{const op=S.mecOpen===m.uid;return `<div class="os-mc${m.ativo===false?' off':''}${op?' open':''}"><button type="button" class="os-mh" data-mx="${esc(m.uid)}" aria-expanded="${op}"><span class="os-mn"><span class="n">${esc(m.nome)}</span>${m.enc?'<span class="os-e" title="Encarregado de manutencao">E</span>':''}${m.ativo===false?'<span class="os-mut">desativado</span>':''}${MF&&!m.real?'<span class="os-mut">sem login</span>':''}</span>${chev}</button>
-    ${op?`<div class="os-mb"><label class="os-sw"><span><b>Encarregado de manutencao</b><small>Assina as OS em que nao for responsavel</small></span><input type="checkbox" id="mc-enc"${m.enc?' checked':''}><i></i></label>
-     <label class="os-sw"><span><b>Ativo</b><small>Desativado nao entra no app</small></span><input type="checkbox" id="mc-at"${m.ativo===false?'':' checked'}><i></i></label>
-     <div class="os-mbt">${m.real&&m.ativo!==false?`<button type="button" class="btn sm" data-mqr="${esc(m.uid)}">Novo QR</button>`:''}${OS_TESTE?`<button type="button" class="btn sm" data-como="${esc(m.uid)}">Ver como</button>`:''}<button type="button" class="btn sm pri" data-msv="${esc(m.uid)}">Salvar</button></div></div>`:''}</div>`}).join('')}</div>`:'<div class="os-vz">Nenhum mecanico.</div>'}
-   <p class="os-mut" style="margin:8px 4px 0;display:flex;align-items:center;gap:6px"><span class="os-e" style="margin:0">E</span>Encarregado de manutencao · toque no nome para ver as opcoes</p>
-   <form id="mcf" class="os-frm" style="margin-top:14px"><label class="os-f"><span>Novo mecanico</span><input class="os-in" id="mc-n" placeholder="Nome" autocomplete="off"></label></form>`,
-  foot:`<button class="btn pri" form="mcf">Adicionar</button>`,
-  mount:sh=>{const salva=l=>safe(()=>S.db.doc('config/mecanicos').set({lista:l}));
-    const re=u=>{const b=sh.querySelector('.sh-body'),y=b?b.scrollTop:0;NAV.pop();openMecs(u);const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y};
-    sh.querySelectorAll('[data-mx]').forEach(b=>b.onclick=()=>re(S.mecOpen===b.dataset.mx?null:b.dataset.mx));
-    sh.querySelector('#mcf').onsubmit=async ev=>{ev.preventDefault();const n=sh.querySelector('#mc-n').value.trim();if(!n){toast('Escreva o nome');return}
-      if(!MF){if(await salva([...(S.mecs||[]),{uid:'mec-'+uid(),nome:n,ativo:true}]))setTimeout(()=>re(null),250);return}
-      if(!navigator.onLine){toast('Criar o acesso precisa de internet','','Sem internet');return}
-      const bt=$('#sheet .btn.pri[form="mcf"]')||document.querySelector('[form="mcf"]');if(bt)bt.disabled=true;
-      try{const r=await window.__frotaMec('criar',{nome:n});await salva([...(S.mecs||[]),{uid:r.uid,nome:n,ativo:true,real:true}]);setTimeout(()=>{re(null);mecQR(n,r.uid,r.codigo)},300)}
-      catch(e){console.error(e);toast(String(e.message||e),'','Nao foi possivel criar')}finally{if(bt)bt.disabled=false}};
-    const qb=sh.querySelector('[data-mqr]');if(qb)qb.onclick=()=>{const m=(S.mecs||[]).find(x=>x.uid===qb.dataset.mqr);if(!m)return;
-      osModal(`<h2>Novo QR</h2><p class="os-mut">Gera um QR novo para ${esc(m.nome)} entrar (ex.: trocou de celular). O QR anterior deixa de valer. Quem ja esta conectado continua.</p><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="nq-ok">Gerar</button></div>`,(o,close)=>{
-        o.querySelector('[data-x]').onclick=close;o.querySelector('#nq-ok').onclick=async ev=>{ev.target.disabled=true;try{const r=await window.__frotaMec('codigo',{uid:m.uid});close();mecQR(m.nome,m.uid,r.codigo)}catch(e){console.error(e);ev.target.disabled=false;toast(navigator.onLine?String(e.message||e):'Sem internet','','Nao foi possivel gerar')}}})};
-    const sv=sh.querySelector('[data-msv]');if(sv)sv.onclick=async()=>{const k=sv.dataset.msv,enc=sh.querySelector('#mc-enc').checked,at=sh.querySelector('#mc-at').checked;
-      const m0=(S.mecs||[]).find(m=>m.uid===k);
-      if(m0&&m0.real&&(m0.ativo!==false)!==at){sv.disabled=true;try{await window.__frotaMec('ativo',{uid:k,ativo:at})}catch(e){console.error(e);sv.disabled=false;toast(navigator.onLine?String(e.message||e):'Sem internet','','Nao foi possivel '+(at?'ativar':'desativar'));return}}
-      const l=(S.mecs||[]).map(m=>m.uid===k?{...m,enc,ativo:at}:enc?{...m,enc:false}:m);if(await salva(l)){toast(m0&&m0.real&&!at?'Desativado: saiu do app':'Salvo');setTimeout(()=>re(null),250)}};
-    sh.querySelectorAll('[data-como]').forEach(b=>b.onclick=()=>{const m=(S.mecs||[]).find(x=>x.uid===b.dataset.como);osComo(m)})}})}
+const MEC_FN=['Comboista','Mecanico','Mecanico eletricista','Mecanico soldador'];
+/* tem lancamento: abriu OS, e responsavel em alguma, ou registrou algo numa OS */
+function mecTemLanc(u){return S.os.some(r=>r.o&&(r.o.por===u||(r.o.resp||[]).includes(u)))||S.ose.some(e=>e.por===u||(e.resp||[]).includes(u))}
+const mecSub=m=>[m.funcao||'Mecanico',m.mat?'Mat. '+m.mat:''].filter(Boolean).join(' · ');
+const telFmt=t=>{const d=String(t||'').replace(/\D/g,'').slice(0,11);if(d.length<3)return d;const dd=d.slice(0,2),r=d.slice(2);return `(${dd}) `+(r.length>5?r.slice(0,r.length-4)+'-'+r.slice(-4):r)};
+const mecSalvaL=async l=>{const ok=await safe(()=>S.db.doc('config/mecanicos').set({lista:l}));if(ok)S.mecs=l;return ok};
+function openMecs(){nav('mecs',()=>openMecs());const L=(S.mecs||[]).slice().sort((a,b)=>(a.ativo===false)-(b.ativo===false)||_an(a.nome,b.nome));
+  const cr='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--faint);flex:none"><path d="M9 6l6 6-6 6"/></svg>';
+  const at=L.filter(m=>m.ativo!==false).length;
+  openSheet({title:'Mecanicos',sub:`${at} ${at===1?'ativo':'ativos'}`,
+  body:`<button type="button" class="btn mc-nv" id="mc-nv"><span>+</span> Novo mecanico</button>
+   ${L.length?`<div class="os-ml">${L.map(m=>`<button type="button" class="os-mc mc-r${m.ativo===false?' off':''}" data-mf="${esc(m.uid)}"><span class="mc-av">${esc(((m.nome||'?').trim()[0]||'?').toUpperCase())}</span><span class="mc-t"><span class="os-mn"><span class="n">${esc(m.nome)}</span>${m.enc?'<span class="os-e" title="Encarregado de manutencao">E</span>':''}</span><small>${esc(mecSub(m))}${m.ativo===false?' · desativado':''}${window.__frotaMec&&!m.real?' · sem login':''}</small></span>${cr}</button>`).join('')}</div>
+   <p class="os-mut" style="margin:8px 4px 0;display:flex;align-items:center;gap:6px"><span class="os-e" style="margin:0">E</span>Encarregado de manutencao</p>`:'<div class="os-vz">Nenhum mecanico.</div>'}`,
+  mount:sh=>{sh.querySelector('#mc-nv').onclick=()=>openMecFicha('novo');sh.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>openMecFicha(b.dataset.mf))}})}
+function openMecFicha(id){const novo=id==='novo',m0=novo?null:(S.mecs||[]).find(x=>x.uid===id);if(!novo&&!m0){openMecs();return}
+  nav('mecf:'+id,()=>openMecFicha(id));const m=m0||{nome:'',funcao:'Mecanico',mat:'',tel:'',ativo:true};
+  const MF=!!window.__frotaMec,lanc=!novo&&mecTemLanc(m.uid);
+  const sw=(k,t,d,on)=>`<label class="os-sw"><span><b>${t}</b><small>${d}</small></span><input type="checkbox" id="${k}"${on?' checked':''}><i></i></label>`;
+  openSheet({title:novo?'Novo mecanico':m.nome,sub:novo?'Cadastro':mecSub(m),
+  body:`<form id="mff" class="os-frm" autocomplete="off">
+    <label class="os-f"><span>Nome</span><input class="os-in" id="mf-n" value="${esc(m.nome)}" placeholder="Nome completo" maxlength="60"></label>
+    <div class="os-f"><span>Funcao</span><div class="os-g2">${MEC_FN.map(f=>`<button type="button" class="os-op${(m.funcao||'Mecanico')===f?' on':''}" data-fn="${f}">${f}</button>`).join('')}</div></div>
+    <div class="os-g2"><label class="os-f"><span>Matricula</span><input class="os-in" id="mf-m" value="${esc(m.mat||'')}" inputmode="numeric" maxlength="20"></label>
+    <label class="os-f"><span>Telefone</span><input class="os-in" id="mf-t" value="${esc(telFmt(m.tel))}" type="tel" inputmode="tel" placeholder="(92) 9…"></label></div>
+    <div class="mc-cx">${sw('mf-enc','Encarregado de manutencao','Assina as OS em que nao for responsavel',m.enc)}${novo?'':sw('mf-at','Ativo',lanc?'Tem lancamentos: so pode ser desativado':'Desativado nao entra no app',m.ativo!==false)}</div>
+    ${novo?(MF?'<p class="os-mut" style="margin:0 2px">Ao salvar, o app mostra o QR de acesso.</p>':''):MF&&m.real?`<div class="os-f"><span>Acesso</span><div class="mc-cx mc-ac"><div class="mc-as" id="mf-as"><b>Conferindo…</b><small>&nbsp;</small></div>${m.ativo===false?'':`<div class="mc-ab"><button type="button" class="btn sm" id="mf-qr">Novo QR</button>${m.tel?'<button type="button" class="btn sm" id="mf-wa">Enviar no WhatsApp</button>':''}</div>`}</div></div>`
+      :MF?'<div class="os-f"><span>Acesso</span><div class="mc-cx mc-ac"><div class="mc-as"><b>Sem login</b><small>Mecanico de teste, so para "Ver como"</small></div></div></div>':''}
+    ${OS_TESTE&&!novo?`<button type="button" class="btn sm" id="mf-como" style="align-self:flex-start">Ver o app como ${esc(m.nome.split(' ')[0])}</button>`:''}
+    ${!novo&&!lanc?'<button type="button" class="mc-del" id="mf-del">Excluir</button>':''}
+  </form>`,foot:`<button class="btn pri" form="mff">Salvar</button>`,
+  mount:sh=>{let fn=m.funcao||'Mecanico';
+    sh.querySelectorAll('[data-fn]').forEach(b=>b.onclick=()=>{fn=b.dataset.fn;sh.querySelectorAll('[data-fn]').forEach(x=>x.classList.toggle('on',x===b))});
+    const tel=sh.querySelector('#mf-t');tel.oninput=()=>{tel.value=telFmt(tel.value)};
+    const as=sh.querySelector('#mf-as');if(as)window.__frotaMec('estado',{uid:m.uid}).then(r=>{if(!as.isConnected)return;as.innerHTML=r.off?'<b>Desativado</b><small>Nao entra no app</small>':r.usado&&!r.pendente?'<b class="mc-ok">Conectado</b><small>Entrou pelo QR</small>':r.usado?'<b class="mc-wt">QR novo esperando uso</b><small>Ja entrou antes; o QR novo ainda nao foi usado</small>':'<b class="mc-wt">Esperando o primeiro acesso</b><small>O QR ainda nao foi usado</small>'}).catch(()=>{if(as.isConnected)as.innerHTML='<b>Sem conexao</b><small>Nao foi possivel conferir o acesso agora</small>'});
+    const novoCod=async b=>{if(!navigator.onLine){toast('Precisa de internet','','Sem internet');return null}b.disabled=true;try{return (await window.__frotaMec('codigo',{uid:m.uid})).codigo}catch(e){console.error(e);toast(String(e.message||e),'','Nao foi possivel gerar');return null}finally{b.disabled=false}};
+    const qr=sh.querySelector('#mf-qr');if(qr)qr.onclick=()=>osModal(`<h2>Novo QR</h2><p class="os-mut">Gera um QR novo para ${esc(m.nome)} entrar (ex.: trocou de celular). O QR anterior deixa de valer. Quem ja esta conectado continua.</p><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="nq-ok">Gerar</button></div>`,(o,close)=>{
+        o.querySelector('[data-x]').onclick=close;o.querySelector('#nq-ok').onclick=async ev=>{const c=await novoCod(ev.target);if(c){close();mecQR(m.nome,m.uid,c)}}});
+    const wa=sh.querySelector('#mf-wa');if(wa)wa.onclick=()=>osModal(`<h2>Enviar no WhatsApp</h2><p class="os-mut">Gera um link novo de acesso e abre a conversa com ${esc(m.nome)}. O QR ou link anterior deixa de valer.</p><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="wa-ok">Enviar</button></div>`,(o,close)=>{
+        o.querySelector('[data-x]').onclick=close;o.querySelector('#wa-ok').onclick=async ev=>{const w=window.open('','_blank');const c=await novoCod(ev.target);if(!c){if(w)w.close();return}close();
+          const d=String(m.tel).replace(/\D/g,''),url=location.origin+location.pathname+'?mec='+encodeURIComponent(m.uid)+'.'+encodeURIComponent(c);
+          const wl='https://wa.me/'+(d.length<=11?'55'+d:d)+'?text='+encodeURIComponent(`Acesso ao Controle de Frota (${m.nome}). Abra no seu celular: ${url}`);if(w)w.location=wl;else location.href=wl}});
+    const como=sh.querySelector('#mf-como');if(como)como.onclick=()=>osComo(m);
+    const del=sh.querySelector('#mf-del');if(del)del.onclick=()=>osModal(`<h2>Excluir mecanico?</h2><p class="os-mut">${esc(m.nome)} sai da lista${m.real?' e o acesso dele deixa de valer':''}. Nao da para desfazer.</p><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op onr" id="dl-ok">Excluir</button></div>`,(o,close)=>{
+        o.querySelector('[data-x]').onclick=close;o.querySelector('#dl-ok').onclick=async ev=>{if(mecTemLanc(m.uid)){close();toast('Tem lancamentos: so pode ser desativado');return}
+          if(m.real&&MF){if(!navigator.onLine){toast('Excluir o acesso precisa de internet','','Sem internet');return}ev.target.disabled=true;try{await window.__frotaMec('apagar',{uid:m.uid})}catch(e){console.error(e);ev.target.disabled=false;toast(String(e.message||e),'','Nao foi possivel excluir');return}}
+          if(await mecSalvaL((S.mecs||[]).filter(x=>x.uid!==m.uid))){close();toast('Mecanico excluido');goBack()}}});
+    sh.querySelector('#mff').onsubmit=async ev=>{ev.preventDefault();const nome=sh.querySelector('#mf-n').value.trim().replace(/\s+/g,' ');if(!nome){sh.querySelector('#mf-n').classList.add('bad');toast('Escreva o nome');return}
+      const mat=sh.querySelector('#mf-m').value.trim(),tl=tel.value.replace(/\D/g,''),enc=sh.querySelector('#mf-enc').checked,atE=sh.querySelector('#mf-at'),at=atE?atE.checked:true;
+      const bt=document.querySelector('#sheet [form="mff"]')||ev.submitter;const trava=v=>{if(bt)bt.disabled=v};
+      const dados={nome,funcao:fn,mat,tel:tl,enc,ativo:at};
+      if(novo){let uid0='mec-'+uid(),cod=null;
+        if(MF){if(!navigator.onLine){toast('Criar o acesso precisa de internet','','Sem internet');return}trava(true);try{const r=await window.__frotaMec('criar',{nome});uid0=r.uid;cod=r.codigo}catch(e){console.error(e);trava(false);toast(String(e.message||e),'','Nao foi possivel criar');return}}
+        const l=[...(S.mecs||[]).map(x=>enc?{...x,enc:false}:x),{uid:uid0,...dados,...(MF?{real:true}:{})}];
+        const ok=await mecSalvaL(l);trava(false);if(!ok)return;goBack();if(cod)setTimeout(()=>mecQR(nome,uid0,cod),300);else toast('Mecanico salvo');return}
+      if(m.real&&MF&&(m.ativo!==false)!==at){if(!navigator.onLine){toast('Ativar ou desativar precisa de internet','','Sem internet');return}trava(true);try{await window.__frotaMec('ativo',{uid:m.uid,ativo:at})}catch(e){console.error(e);trava(false);toast(String(e.message||e),'','Nao foi possivel '+(at?'ativar':'desativar'));return}}
+      const l=(S.mecs||[]).map(x=>x.uid===m.uid?{...x,...dados}:enc?{...x,enc:false}:x);const ok=await mecSalvaL(l);trava(false);
+      if(ok){toast(m.real&&MF&&m.ativo!==false&&!at?'Desativado: saiu do app':'Salvo');goBack()}}}})}
 /* QR de acesso do mecanico (uso unico) */
 let _qrLib=null;const qrLib=()=>_qrLib||(_qrLib=new Promise((ok,ko)=>{if(window.qrcode)return ok(window.qrcode);const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';sc.onload=()=>ok(window.qrcode);sc.onerror=()=>{_qrLib=null;ko(new Error('sem internet'))};document.head.appendChild(sc)}));
 function mecQR(nome,id,codigo){const url=location.origin+location.pathname+'?mec='+encodeURIComponent(id)+'.'+encodeURIComponent(codigo);
@@ -4947,7 +4985,7 @@ const EST_K='frota.estado',EST_MAX=30*60000;
 const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:p[2]),alq:p=>openAlocEq(p[0]),ar:p=>p[0]==='esc'?formFiltroAr():formFiltroAr(undefined,p.join(':')),
   av:p=>openAviso(p.join(':')),avs:p=>openAvisos(p[0]||'r'),card:p=>openCartao(p.join(':')),cart:()=>openCart(),cbq:p=>openCombEq(p[0]),cr:p=>openPend(p[0],true),pd:p=>openPend(p[0]),
   del:p=>openDelete(p[0],p.slice(1).join(':')),dl:()=>openDelAbast(),edtr:p=>formEditTroca(p[0]),eq:p=>openEq(p[0]),eqv:p=>openEquiv(p[0]||undefined),esf:()=>esFilSheet(),
-  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
+  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),mecf:p=>openMecFicha(p[0]),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
   hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
   mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
   rp:p=>formReprog(p[0],p[1]),ulp:p=>formUltPrev(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};

@@ -214,6 +214,8 @@
   .lg-f{background:var(--surface,#fff);border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
   .lg-e{font-size:13px;color:var(--bad);font-weight:600;min-height:0}.lg-e:empty{display:none}
   .lg-l{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;font-weight:600;padding:6px 0;cursor:pointer;align-self:center}
+  .lg-pk{display:flex;justify-content:center;margin:34px 0 18px;color:#0b2a7a}.lg-pk span{width:84px;height:84px;border-radius:26px;background:#e8edf6;display:flex;align-items:center;justify-content:center}
+  .lg-pkb{width:100%;min-height:54px;font-size:17px;margin-top:8px}.lg-pkm{position:fixed;left:0;right:0;bottom:calc(30px + env(safe-area-inset-bottom,0px));color:var(--muted,#6b7383)!important;font-weight:600}
   .lg-logo{display:block;margin:auto auto calc(16px + env(safe-area-inset-bottom,0px));height:22px;opacity:.85}
   .acct{position:fixed;z-index:90;right:max(12px,env(safe-area-inset-right,0px));top:calc(54px + env(safe-area-inset-top,0px));background:var(--surface,#fff);border-radius:16px;box-shadow:0 10px 30px rgba(11,36,112,.22);padding:14px;min-width:230px;max-width:calc(100vw - 24px);display:flex;flex-direction:column;gap:10px}
   .acct b{font-size:15px}.acct span{font-size:13px;color:var(--muted)}
@@ -234,7 +236,25 @@
   function screen(html,mount){css();let o=document.getElementById('lg');if(!o){o=document.createElement('div');o.id='lg';o.className='lg';document.body.appendChild(o)}
     o.innerHTML=`<div class="lg-top">${BRAND}</div><div class="lg-c">${html}</div>`;mount&&mount(o);return o}
   const closeScreen=()=>{const o=document.getElementById('lg');if(o)o.remove()};
-  function loginForm(msg){screen(`<h1>Entrar</h1><p>Use o e-mail e a senha que o administrador cadastrou para voce.</p>
+  /* ---------- entrar com o rosto ou a digital do aparelho (chave de acesso) ---------- */
+  const PK=()=>!!(window.PublicKeyCredential&&sb.auth&&typeof sb.auth.signInWithPasskey==='function');
+  const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+  const BIO=IOS?'Face ID':'digital',ART=IOS?'o Face ID':'a digital';
+  const FACE='<svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 9.5v1M15 9.5v1M12 9.5v3.5h-1M9.5 16c1.5 1.2 3.5 1.2 5 0"/></svg>';
+  const pkTop=t=>`<div class="lg-pk"><span>${FACE}</span></div><h1 style="text-align:center">${t}</h1>`;
+  let ofertaPK=false;
+  function pkEntrar(msg){screen(`${pkTop('Controle de Frota')}<p style="text-align:center" class="lg-e" id="pk-x">${esc(msg||'')}</p><button type="button" class="btn pri lg-pkb" id="pk-b">Entrar com ${BIO}</button><button type="button" class="lg-l lg-pkm" id="pk-m">Entrar com e-mail</button>`,o=>{
+    const b=o.querySelector('#pk-b'),x=o.querySelector('#pk-x');o.querySelector('#pk-m').onclick=()=>loginForm('',true);
+    b.onclick=async()=>{x.textContent='';b.disabled=true;b.textContent='Entrando…';acabouDeEntrar=true;let r=null;try{r=await sb.auth.signInWithPasskey()}catch(e){r={error:e}}
+      b.disabled=false;b.textContent='Entrar com '+BIO;const er=r&&r.error;if(!er)return;const m=String(er.message||er.code||er);console.warn('passkey',er);
+      x.textContent=/abort|cancel|NotAllowed/i.test(m)?'':/fetch|network|Failed to/i.test(m)||!navigator.onLine?'Sem internet. Para entrar e preciso internet.':/banned|disabled/i.test(m)?'Acesso desativado. Fale com o administrador.':'Este celular ainda nao foi ativado. Peca um QR de acesso ao administrador.'}})}
+  function pkOferta(nome){screen(`${pkTop('Ola, '+esc(String(nome||'').split(' ')[0]))}<p style="text-align:center">Ative ${ART} para entrar sempre assim.</p><p class="lg-e" id="po-x" style="text-align:center"></p><button type="button" class="btn pri lg-pkb" id="po-b">Ativar ${BIO==='digital'?'digital':BIO}</button>`,o=>{
+    const b=o.querySelector('#po-b'),x=o.querySelector('#po-x');
+    b.onclick=async()=>{if(b.dataset.ok){closeScreen();return}b.disabled=true;b.textContent='Ativando…';let r=null;try{r=await sb.auth.registerPasskey()}catch(e){r={error:e}}b.disabled=false;
+      if(r&&!r.error){try{localStorage.setItem('frota.pk','1')}catch(e){}closeScreen();return}
+      console.warn('passkey',r&&r.error);x.textContent='Nao foi possivel ativar agora. Voce continua entrando pelo QR.';b.textContent='Continuar';b.dataset.ok='1'}})}
+  function loginForm(msg,email){if(!email&&PK()){let m=null;try{m=localStorage.getItem('frota.email')}catch(e){}if(!m){pkEntrar(msg);return}}
+    screen(`<h1>Entrar</h1><p>Use o e-mail e a senha que o administrador cadastrou para voce.</p>
     <form class="lg-f" id="lg-f"><label class="f">E-mail<input id="lg-m" type="email" autocomplete="username" inputmode="email" required></label>
     <label class="f">Senha<input id="lg-p" type="password" autocomplete="current-password" required></label><div class="lg-e" id="lg-x">${esc(msg||'')}</div>
     <button class="btn pri" id="lg-b">Entrar</button></form><button type="button" class="lg-l" id="lg-r">Esqueci a senha</button>`,o=>{
@@ -295,6 +315,7 @@
     if(r.erro){screen('<h1>Link sem validade</h1><p>Este link de acesso ja foi usado ou foi trocado. Peca um novo ao administrador.</p>');return true}
     acabouDeEntrar=true;const {error}=await sb.auth.signInWithPassword({email:r.email,password:r.senha});
     if(error){screen('<h1>Nao foi possivel entrar</h1><p>Peca um novo link ao administrador.</p>');return true}
+    ofertaPK=true;
     return false}
   /* para o administrador: criar mecanico, novo codigo, ativar/desativar */
   window.__frotaMec=async(acao,dados)=>{const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Entre de novo no app');
@@ -331,7 +352,8 @@
         try{await pull()}catch(e){screen('<h1>Sem internet</h1><p>No primeiro uso neste aparelho e preciso internet para baixar os dados. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="of-t">Tentar de novo</button>',o=>{o.querySelector('#of-t').onclick=()=>start()});return}}
       else syncDepois();
       window.__frotaEu={uid:perfil.user_id,nome:perfil.nome||'',email:perfil.email||'',papel:perfil.papel};
-      closeScreen();started=true;resolveReady();setTimeout(updSync,300);setTimeout(()=>{realtime();equipeSync()},conLenta()?3000:300);return}
+      closeScreen();started=true;resolveReady();setTimeout(updSync,300);
+      if(ofertaPK){ofertaPK=false;if(PK()&&perfil.papel==='mecanico')setTimeout(()=>pkOferta(perfil.nome),400)}setTimeout(()=>{realtime();equipeSync()},conLenta()?3000:300);return}
     closeScreen()
   }
   sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}
@@ -410,7 +432,7 @@
   if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
   /* versao nova publicada: avisa e atualiza com um toque (ou sozinho, se nada estiver aberto) */
   if('serviceWorker' in navigator){let tinha=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!tinha){tinha=true;return}
-    const aberto=document.querySelector('#scrim:not([hidden]),.rdr,.lg');if(!aberto){location.reload();return}
+    const aberto=document.querySelector('#scrim:not([hidden]),.rdr')||[...document.querySelectorAll('.lg input')].some(i=>i.value&&i.type==='password');if(!aberto){location.reload();return}
     if(document.getElementById('upd'))return;const b=document.createElement('button');b.id='upd';b.type='button';b.textContent='Nova versao do app · toque para atualizar';
     b.style.cssText='position:fixed;z-index:120;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));background:#0033a0;color:#fff;border:0;border-radius:999px;padding:10px 16px;font:600 13.5px "IBM Plex Sans",sans-serif;box-shadow:0 8px 24px rgba(11,36,112,.3)';
     b.onclick=()=>location.reload();document.body.appendChild(b)})}

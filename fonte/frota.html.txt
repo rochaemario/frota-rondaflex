@@ -1163,6 +1163,10 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-pl.cx{background:#f6e3e3;color:#a3271c}
 .os-cxl{display:block;margin:14px auto 4px;background:none;border:0;color:#b3261e;font:600 14px var(--body);padding:8px 12px;cursor:pointer}
 .os-tl2 .cx>i{background:#7a1f1f}
+
+.os-mb svg{display:inline-block!important;margin:0!important}.os-mh{align-self:stretch;flex:none;width:calc(100% + 32px);max-width:none;box-sizing:border-box;top:-12px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);margin:-12px -16px 0;padding:10px 12px 8px;border-bottom:1px solid var(--line)}
+.os-mb{display:inline-flex!important;flex-direction:row!important;align-items:center;gap:1px;background:none;border:0;color:var(--accent);font:600 15px var(--body);padding:7px 6px 7px 0;cursor:pointer}
+.os-mp{background:var(--accent);color:#fff;border:0;border-radius:999px;font:600 14.5px var(--body);padding:9px 18px;cursor:pointer;max-width:60%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.os-mp.r{background:#c8202f}.os-mp:disabled{opacity:.5}
 </style>
 
 <div id="scroller">
@@ -2031,19 +2035,21 @@ function openSheet({title,sub='',body,foot='',mount}){
 }
 const NAV=[];
 function nav(key,fn){const i=NAV.findIndex(n=>n.key===key);if(i>=0)NAV.length=i;NAV.push({key,fn})}
-function goBack(){dropPending();NAV.pop();const prev=NAV[NAV.length-1];if(prev)prev.fn();else closeSheet()}
+function goBack(){if(typeof osSujo==='function'&&osSujo()){osSairSem(goBack0);return}goBack0()}
+function goBack0(){dropPending();NAV.pop();const prev=NAV[NAV.length-1];if(prev)prev.fn();else closeSheet()}
 function after(fn){NAV.pop();fn()}
 function finishReg(eqId){const i=NAV.findIndex(n=>n.key.startsWith('eq:'));const j=NAV.findIndex(n=>n.key==='reg');const cut=j>=0?j:NAV.length-1;
   if(i>=0&&i<cut){NAV.length=i+1;NAV[i].fn()}else if(cut>0){NAV.length=cut;NAV[cut-1].fn()}else closeSheet()}
 let rsT;function refreshSheet(){clearTimeout(rsT);rsT=setTimeout(()=>{const top=NAV[NAV.length-1];if(!sheetOpen||!top||!/^(eq|tr|lst|mv|pd|cr|cart|listas|alq|sp|avs|av):/.test(top.key))return;const ae=document.activeElement;if(ae&&ae.closest&&ae.closest('#sheet')&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)&&ae.value)return;
   const b=$('#sheet .sh-body'),y=b?b.scrollTop:0;top.fn();const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y},60)}
 function closeSheet(){dropPending();NAV.length=0;$('#scrim').hidden=true;$('#sheet').innerHTML='';sheetOpen=false;document.documentElement.style.overflow='';render();lastFocus&&lastFocus.focus&&lastFocus.focus({preventScroll:true})}
-$('#scrim').addEventListener('click',e=>{if(e.target.id==='scrim')closeSheet()});
+$('#scrim').addEventListener('click',e=>{if(e.target.id!=='scrim')return;if(typeof osSujo==='function'&&osSujo()){osSairSem(closeSheet);return}closeSheet()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&sheetOpen)goBack()});
 /* botao/gesto voltar do celular: volta uma tela dentro do app; na tela inicial pede um segundo toque para sair */
 (function(){let armed=false,exitT=0;
   const arm=()=>{if(armed)return;try{history.pushState({frota:1},'');armed=true}catch(e){}};
-  const inner=()=>{if(pickPhoto.close&&document.querySelector('.pk-w')){pickPhoto.close();return true}if(document.querySelector('.rdr')){rdClose();return true}const dv=document.querySelector('.docv');
+  const inner=()=>{const ms=document.querySelectorAll('.os-scr');if(ms.length){const m=ms[ms.length-1],b=m.querySelector('.os-mb')||m.querySelector('[data-x]');b?b.click():m.remove();return true}
+    if(pickPhoto.close&&document.querySelector('.pk-w')){pickPhoto.close();return true}if(document.querySelector('.rdr')){rdClose();return true}const dv=document.querySelector('.docv');
     if(dv){if(dv.classList.contains('zoom'))dv.classList.remove('zoom');else{const x=dv.querySelector('[data-x]');x?x.click():dv.remove()}return true}
     if(sheetOpen){goBack();return true}
     if(S.focus){const up=document.querySelector('#app [data-a="up"]');if(up)up.click();else goHome();return true}
@@ -4619,8 +4625,29 @@ function osBindPecas(sh,d,redraw){
   sh.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>viewPhoto(d.fotos[+b.dataset.fv],async()=>{d.fotos.splice(+b.dataset.fv,1);redraw()}))}
 async function osFoto(){return await uploadPhoto(false)}
 /* janelas por cima do formulario (nao perdem o que ja foi digitado) */
-function osModal(html,mount){const o=document.createElement('div');o.className='os-scr';o.innerHTML=`<div class="os-sht" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(o);
-  const close=()=>o.remove();o.onclick=e=>{if(e.target===o)close()};mount(o,close);return close}
+function osModal(html,mount,opt){const o=document.createElement('div');o.className='os-scr';o.innerHTML=`<div class="os-sht" role="dialog" aria-modal="true">${html}</div>`;document.body.appendChild(o);
+  const close=()=>o.remove();o.onclick=e=>{if(e.target===o)close()};mount(o,close);
+  /* sair e confirmar ficam no topo: o teclado do celular nao cobre */
+  if(!(opt&&opt.topo===false)&&o.isConnected){const sht=o.querySelector('.os-sht'),xs=[...sht.querySelectorAll('[data-x]')];
+    const hd=document.createElement('div');hd.className='os-mh';const bk=document.createElement('button');bk.type='button';bk.className='os-mb';
+    bk.innerHTML='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>Voltar';
+    bk.onclick=()=>{xs[0]?xs[0].click():close()};hd.appendChild(bk);
+    const row=xs.map(x=>x.parentElement).find(p=>p&&p.classList.contains('os-g2'));let pri=null;
+    if(row){const ot=[...row.querySelectorAll('button')].filter(b=>!b.hasAttribute('data-x'));if(ot.length===1)pri=ot[0]}
+    if(pri){const pb=document.createElement('button');pb.type='button';pb.className='os-mp'+(pri.classList.contains('onr')?' r':'');const cp=()=>{pb.textContent=pri.textContent;pb.disabled=pri.disabled};cp();
+      pb.onclick=()=>{if(!pri.disabled)pri.click()};try{new MutationObserver(cp).observe(pri,{attributes:true,childList:true,characterData:true,subtree:true})}catch(e){}hd.appendChild(pb);row.style.display='none'}
+    xs.forEach(x=>{if(x.parentElement!==row)x.style.display='none'});sht.insertBefore(hd,sht.firstChild)}
+  return close}
+/* sair de uma OS sendo preenchida: pergunta antes de perder o que foi digitado */
+function osSujo(){const t=NAV[NAV.length-1],k=t&&t.key||'',sh=$('#sheet');if(!sh)return false;const val=id=>{const e=sh.querySelector(id);return e?e.value.trim():null};
+  if(k==='osf'){const d=S.osDraft;if(!d)return false;const a=val('#of-aco'),f=val('#of-fei'),h=val('#of-hor');
+    const cur=JSON.stringify([h!=null?h:(d.hor||''),a!=null?a:(d.aconteceu||''),f!=null?f:(d.feito||''),d.pecas.length,d.fotos.length]);return d.__ini!==undefined&&cur!==d.__ini}
+  if(k==='osa'){const d=S.osDraft;return !!(d&&(val('#oa-obs')||(d.obs||'').trim()||d.pecas.length||d.fotos.length||(d.corr||[]).length))}
+  if(k.startsWith('ose:')){const ed=S.osEd;if(ed&&(ed.pecas.length||ed.fotos.length||ed.rmPk.length||ed.rmFt.length))return true;
+    return [...sh.querySelectorAll('#oed input,#oed textarea')].some(e=>e.type!=='checkbox'&&e.value!==e.defaultValue)}
+  return false}
+function osSairSem(segue){osModal(`<h2>Sair sem salvar?</h2><p class="os-mut">O que foi digitado sera perdido.</p><div class="os-g2"><button type="button" class="os-op" data-x>Continuar editando</button><button type="button" class="os-op onr" id="ss-ok">Sair</button></div>`,(o,close)=>{
+  o.querySelector('[data-x]').onclick=close;o.querySelector('#ss-ok').onclick=()=>{close();const t=NAV[NAV.length-1],k=t&&t.key||'';if(k==='osf'||k==='osa')S.osDraft=null;if(k.startsWith('ose:'))S.osEd=null;segue()}},{topo:false})}
 function osPickEst(cb){const lst=q=>{const k=nzM(q||''),L=S.estoque.filter(s=>!isKit(s)&&(!k||nzM([s.desc,s.codigo,s.ref,s.marca].join(' ')).includes(k))).sort(byCode).slice(0,60);
     return L.length?L.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small></span></button>`).join(''):'<div class="os-vz">Nenhum item com esse nome. Use "Sem cadastro".</div>'};
   osModal(`<h2>Peca do estoque</h2><input class="os-in os-busca" id="pe-q" type="search" placeholder="Digite o nome ou codigo" autocomplete="off"><div class="os-ls" id="pe-l">${lst('')}</div><button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
@@ -4636,7 +4663,7 @@ function osPickSc(cb){const p={k:'sc',nome:'',qtd:1,foto:''};
     o.querySelector('#sc-ok').onclick=()=>{p.nome=n.value.trim();if(!p.nome){n.classList.add('bad');n.focus();toast('Escreva o nome da peca');return}close();cb(p)}})}
 
 /* ---------- formulario: nova OS e concluir OS aberta ---------- */
-function formOS(){const d=S.osDraft;if(!d){closeSheet();return}const conc=d.modo==='concluir',v=conc?osById(d.osId):null,e=eqById(d.eq)||{};
+function formOS(){const d=S.osDraft;if(!d){closeSheet();return}if(d.__ini===undefined)d.__ini=JSON.stringify([d.hor||'',d.aconteceu||'',d.feito||'',d.pecas.length,d.fotos.length]);const conc=d.modo==='concluir',v=conc?osById(d.osId):null,e=eqById(d.eq)||{};
   nav('osf',()=>formOS());
   const dsel=d.dia==='hoje'?today():d.dia==='ontem'?iso(new Date(Date.now()-864e5)):d.outra;
   const dB=(k,t)=>`<button type="button" class="os-op${d.dia===k?' on':''}" data-dia="${k}">${t}</button>`;

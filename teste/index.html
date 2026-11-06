@@ -1167,10 +1167,17 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .mc-ab{display:flex;gap:8px}.mc-ab .btn{flex:1;min-height:36px;font-size:13.5px}
 .mc-del{background:none;border:0;color:#c62828;font:600 14.5px var(--body);padding:10px;align-self:center;cursor:pointer}
 #mff .os-f>span{font:600 13.5px var(--body);color:#3a4659}
+
+.os-stp.cx{border-color:#f3a3a3;color:#ffc4c4}.os-stp.cx em{color:#ffe1e1}
+.os-cxb{display:flex;flex-direction:column;gap:3px;margin:12px 14px 4px;padding:11px 13px;border:1.5px solid #e8b4b4;background:#fdf3f3;border-radius:12px;font-size:13.5px;color:#3a2424}.os-cxb b{font:700 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:#a3271c}.os-cxb i{font-style:normal;color:#7b5a5a}.os-cxb small{font-size:12px;color:#8a6d6d;margin-top:2px}
+.os-cxt{font:700 10.5px var(--body);letter-spacing:.08em;color:#a3271c;border:1.3px solid #e3a1a1;border-radius:5px;padding:2px 6px;line-height:1.2}.os-cxt.sm{font-size:9.5px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+.os-pl.cx{background:#f6e3e3;color:#a3271c}
+.os-cxl{display:block;margin:14px auto 4px;background:none;border:0;color:#b3261e;font:600 14px var(--body);padding:8px 12px;cursor:pointer}
+.os-tl2 .cx>i{background:#7a1f1f}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=3daa6f50f7"></script>
-<script src="shim.js?v=3daa6f50f7"></script>
+<script src="config.js?v=d317440cad"></script>
+<script src="shim.js?v=d317440cad"></script>
 </head>
 <body>
 
@@ -4476,6 +4483,8 @@ try{const c=JSON.parse(localStorage.getItem('frota.osComo')||'null');if(c&&OS_TE
 const osEu=()=>{if(S.osComo)return {...S.osComo,papel:'mecanico'};const u=EU()||{};return {uid:u.uid||'',nome:u.nome||'',papel:u.papel||''}};
 const osAdm=()=>osEu().papel==='admin';
 const ehMec=()=>OS_ON&&osEu().papel==='mecanico';
+const osEhEnc=uid=>(S.mecs||[]).some(m=>m.uid===uid&&m.enc&&m.ativo!==false);
+const osPodeCx=v=>{const u=osEu();return v.sit!=='cancelada'&&(v.resp.includes(u.uid)||osAdm()||osEhEnc(u.uid))};
 const osNomeDe=uid=>{const m=(S.mecs||[]).find(x=>x.uid===uid);if(m)return m.nome;const u=EU();return u&&u.uid===uid?u.nome:'—'};
 const OS_CAMPOS={data:'Data do servico',hor:'Horimetro',aconteceu:'O que aconteceu',feito:'O que foi feito',estado:'Equipamento'};
 const osVal=(c,v)=>c==='data'?fdate(v):c==='estado'?(v==='parado'?'Parado':v==='operando'?'Operando':''):String(v??'');
@@ -4492,7 +4501,8 @@ function osFold(r,evs){const o=r.o;
   const addP=(arr,src,eid)=>(arr||[]).forEach((p,i)=>v.pecas.push({...p,src,pk:eid+':'+i}));
   addP(o.pecas,'',r.id);
   evs.forEach(e=>{const nm=e.porNome||osNomeDe(e.por);
-    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'co',txt:'Concluiu a OS',d:e.estado?(e.estado==='parado'?'Parado':'Operando'):'',nome:nm})}
+    if(e.tipo==='cancelar'&&v.sit!=='cancelada'&&(v.resp.includes(e.por)||e.adm||e.enc)){v.sitAnt=v.sit;v.sit='cancelada';v.cancPor=e.por;v.cancNome=nm;v.cancTs=e.ts;v.cancMot=e.motivo||'';v.hist.push({ts:e.ts,k:'cx',txt:'Cancelou a OS',d:e.motivo||'',nome:nm})}
+    else if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'co',txt:'Concluiu a OS',d:e.estado?(e.estado==='parado'?'Parado':'Operando'):'',nome:nm})}
     else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,k:'re',txt:'Reabriu a OS',nome:nm,reab:1})}
     else if(e.tipo==='resp'&&e.por===v.por&&v.sit==='aberta'){const n=[v.por,...(e.resp||[]).filter(x=>x!==v.por)];const add=n.filter(x=>!v.resp.includes(x)),tir=v.resp.filter(x=>!n.includes(x));v.resp=n;
       if(add.length)v.hist.push({ts:e.ts,txt:'Adicionou '+add.map(osNomeDe).join(', ')+' como responsavel',nome:nm});if(tir.length)v.hist.push({ts:e.ts,txt:'Tirou '+tir.map(osNomeDe).join(', ')+' dos responsaveis',nome:nm})}
@@ -4509,9 +4519,9 @@ function osFold(r,evs){const o=r.o;
 const osLista=()=>[...osTodas().values()];
 const osById=id=>osTodas().get(id);
 /* peca ainda sem conferencia do admin */
-const osPendPecas=v=>v.pecas.filter(p=>!v.conf[p.pk]);
+const osPendPecas=v=>v.sit==='cancelada'?[]:v.pecas.filter(p=>!v.conf[p.pk]);
 /* equipamento parado: vale a ultima informacao de operando/parado dada em qualquer OS dele */
-function osEqEstado(eqId){let best=null;osLista().forEach(v=>{if(v.eq===eqId&&v.estado&&v.estTs&&(!best||v.estTs>best.estTs))best=v});return best}
+function osEqEstado(eqId){let best=null;osLista().forEach(v=>{if(v.eq===eqId&&v.sit!=='cancelada'&&v.estado&&v.estTs&&(!best||v.estTs>best.estTs))best=v});return best}
 const osParado=eqId=>{const b=osEqEstado(eqId);return b&&b.estado==='parado'?b:null};
 /* reservado no estoque: pecas do estoque lancadas em OS e ainda nao conferidas */
 const osReservado=stId=>osLista().reduce((a,v)=>a+osPendPecas(v).filter(p=>p.k==='est'&&p.id===stId).reduce((x,p)=>x+(Number(p.qtd)||0),0),0);
@@ -4519,36 +4529,37 @@ const osDoEq=eqId=>osLista().filter(v=>v.eq===eqId).sort((a,b)=>b.ts-a.ts);
 const osEvento=async(osId,tipo,dados)=>{const u=osEu();return S.db.collection('ose').add({os:osId,tipo,por:u.uid,porNome:u.nome,ts:Date.now(),...(u.papel==='admin'?{adm:true}:{}),...dados})};
 
 /* ---------- lista de OS (mecanico e equipe) ---------- */
-function osFiltra(){const f=S.osF,u=osEu();let L=osLista().filter(v=>v.sit===(f.tab==='abertas'?'aberta':'fechada'));
+function osFiltra(){const f=S.osF,u=osEu();let L=osLista().filter(v=>f.tab==='abertas'?v.sit==='aberta':v.sit!=='aberta');
+  if(f.cx)L=L.filter(v=>v.sit==='cancelada');
   if(f.par)L=L.filter(v=>osParado(v.eq)&&osParado(v.eq).id===v.id||v.estado==='parado');
   if(f.min)L=L.filter(v=>v.resp.includes(u.uid));
   if(f.conf)L=osLista().filter(v=>osPendPecas(v).length);
   if(f.q){const k=nzM(f.q);L=L.filter(v=>{const e=eqById(v.eq)||{};return nzM([v.eq,e.codigo,e.desc,e.modelo,v.aconteceu,osNum(v)].join(' ')).includes(k)})}
   return L.sort((a,b)=>(b.num||1e9)-(a.num||1e9)||b.ts-a.ts)}
 function osCard(v){const e=eqById(v.eq)||{},par=v.estado==='parado',pc=osAdm()?osPendPecas(v).length:0,pend=!v.num;
-  return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
+  return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${v.sit==='cancelada'?'<span class="os-cxt">CANCELADA</span>':par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
     <span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}${v.nAd?` · ${v.nAd} ${v.nAd===1?'adendo':'adendos'}`:''}${pend?' · recebe o numero quando tiver sinal':''}</small></button>`}
 const OS_FIL='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
-function osListaHTML(){const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0),L=osFiltra();
+function osListaHTML(){const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0)+(f.cx?1:0),L=osFiltra();
   const vz=f.conf?'Nenhuma peca a conferir':fil?'Nenhuma OS com esse filtro':f.tab==='abertas'?'Nenhuma OS aberta':'Nenhuma OS fechada';
   return `<div class="os-tbar"><div class="os-seg" role="tablist"><button type="button" role="tab" class="${f.tab==='abertas'&&!f.conf?'on':''}" data-ost="abertas">Abertas${nAb?`<em class="os-bg">${nAb}</em>`:''}</button><button type="button" role="tab" class="${f.tab==='fechadas'&&!f.conf?'on':''}" data-ost="fechadas">Fechadas</button></div>
    <button type="button" class="os-fb2${f.show||fil?' on':''}" data-osf aria-label="Filtrar">${OS_FIL}${fil?`<em class="os-bg">${fil}</em>`:''}</button></div>
-  ${f.show?`<div class="os-fp"><input class="os-in sm" id="os-q" type="search" placeholder="Equipamento ou o que aconteceu" value="${esc(f.q)}" autocomplete="off"><div class="os-chips"><button type="button" class="os-ch sm${f.par?' on':''}" data-osp="par">So parados</button><button type="button" class="os-ch sm${f.min?' on':''}" data-osp="min">Minhas</button>${osAdm()?`<button type="button" class="os-ch sm${f.conf?' on':''}" data-osp="conf">Pecas a conferir</button>`:''}${fil?'<button type="button" class="os-ch sm lk" data-osp="limpa">Limpar</button>':''}</div></div>`:''}
+  ${f.show?`<div class="os-fp"><input class="os-in sm" id="os-q" type="search" placeholder="Equipamento ou o que aconteceu" value="${esc(f.q)}" autocomplete="off"><div class="os-chips"><button type="button" class="os-ch sm${f.par?' on':''}" data-osp="par">So parados</button><button type="button" class="os-ch sm${f.min?' on':''}" data-osp="min">Minhas</button><button type="button" class="os-ch sm${f.cx?' on':''}" data-osp="cx">Canceladas</button>${osAdm()?`<button type="button" class="os-ch sm${f.conf?' on':''}" data-osp="conf">Pecas a conferir</button>`:''}${fil?'<button type="button" class="os-ch sm lk" data-osp="limpa">Limpar</button>':''}</div></div>`:''}
   <div class="os-ls" id="os-ls">${L.length?L.map(osCard).join(''):`<div class="os-vz2b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><b>${vz}</b>${!fil&&!f.conf&&f.tab==='abertas'?'<span>Toque em Nova OS para registrar um servico.</span>':''}</div>`}</div>`}
 function osBindLista(root,redraw){
   root.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>openOS(b.dataset.os));
   root.querySelectorAll('[data-ost]').forEach(b=>b.onclick=()=>{S.osF.tab=b.dataset.ost;S.osF.conf=false;redraw()});
   const fb=root.querySelector('[data-osf]');if(fb)fb.onclick=()=>{S.osF.show=!S.osF.show;redraw()};
-  root.querySelectorAll('[data-osp]').forEach(b=>b.onclick=()=>{const k=b.dataset.osp;if(k==='limpa'){Object.assign(S.osF,{par:false,min:false,conf:false,q:''})}else S.osF[k]=!S.osF[k];redraw()});
+  root.querySelectorAll('[data-osp]').forEach(b=>b.onclick=()=>{const k=b.dataset.osp;if(k==='limpa'){Object.assign(S.osF,{par:false,min:false,conf:false,cx:false,q:''})}else{S.osF[k]=!S.osF[k];if(k==='cx'&&S.osF.cx)S.osF.tab='fechadas'}redraw()});
   const q=root.querySelector('#os-q');if(q)q.oninput=()=>{S.osF.q=q.value;const ls=root.querySelector('#os-ls'),L=osFiltra();ls.innerHTML=L.length?L.map(osCard).join(''):'<div class="os-vz">Nenhuma OS com esse filtro.</div>';ls.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>openOS(b.dataset.os))}}
 /* topico Ordens de Servico na ficha do equipamento: so numero e data; tocou, expande */
-function osFichaHTML(e){const L=osDoEq(e.id),pr=osParado(e.id);
-  return `<div class="lbl">Ordens de Servico${pr?` <span class="os-par" style="margin-left:8px">PARADO · ${osNum(pr)}</span>`:''}</div>${L.length?`<div class="os-fl2">${L.map(v=>`<div class="os-fi"><button type="button" class="os-fh" data-ofx aria-expanded="false"><span class="n">${osNum(v)}</span><span class="d">${fdate(v.data)}</span>${I.chev}</button>
-    <div class="os-fb" hidden><div class="os-tx">${esc(v.aconteceu)}</div><div class="os-fs">${v.sit==='aberta'?'<span class="os-pl and">ABERTA</span>':'<span class="os-pl ok">FECHADA</span>'}${v.estado==='parado'?'<span class="os-pl par">PARADO</span>':''}</div><small class="os-mut">Responsaveis: ${esc(v.resp.map(osNomeDe).join(', '))}</small><button type="button" class="btn sm" data-osab="${esc(v.id)}">Abrir OS</button></div></div>`).join('')}</div>`:'<div class="empty">Nenhuma OS registrada.</div>'}`}
+function osFichaHTML(e){const L=osDoEq(e.id).filter(v=>v.sit!=='cancelada'),pr=osParado(e.id);
+  return `<div class="lbl">Ordens de Servico${pr?` <span class="os-par" style="margin-left:8px">PARADO · ${osNum(pr)}</span>`:''}</div>${L.length?`<div class="os-fl2">${L.map(v=>`<div class="os-fi"><button type="button" class="os-fh" data-ofx aria-expanded="false"><span class="n">${osNum(v)}</span><span class="d">${fdate(v.data)}${v.sit==='cancelada'?' <span class="os-cxt sm">CANCELADA</span>':''}</span>${I.chev}</button>
+    <div class="os-fb" hidden><div class="os-tx">${esc(v.aconteceu)}</div><div class="os-fs">${v.sit==='aberta'?'<span class="os-pl and">ABERTA</span>':v.sit==='cancelada'?'<span class="os-pl cx">CANCELADA</span>':'<span class="os-pl ok">FECHADA</span>'}${v.estado==='parado'&&v.sit!=='cancelada'?'<span class="os-pl par">PARADO</span>':''}</div><small class="os-mut">Responsaveis: ${esc(v.resp.map(osNomeDe).join(', '))}</small><button type="button" class="btn sm" data-osab="${esc(v.id)}">Abrir OS</button></div></div>`).join('')}</div>`:'<div class="empty">Nenhuma OS registrada.</div>'}`}
 document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.closest('[data-ofx]');if(h){const it=h.parentElement,b=it.querySelector('.os-fb'),ab=b.hidden;it.parentElement.querySelectorAll('.os-fb').forEach(x=>{x.hidden=true;x.previousElementSibling.setAttribute('aria-expanded','false')});if(ab){b.hidden=false;h.setAttribute('aria-expanded','true')}return}
   const o=ev.target.closest&&ev.target.closest('[data-osab]');if(o)openOS(o.dataset.osab)});
 /* tela da equipe */
-function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,min:false,conf:false,q:'',show:false},pre);
+function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,min:false,conf:false,cx:false,q:'',show:false},pre);
   nav('osl',()=>openOSLista());
   openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`<div id="osl">${osListaHTML()}</div>`,foot:podeEscrever()&&!ehMec()?`<button class="btn pri" id="os-nova" style="flex:1">+ Nova OS</button>`:'',
     mount:sh=>{const box=sh.querySelector('#osl'),rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd);const n=sh.querySelector('#os-nova');if(n)n.onclick=()=>osNova()}})}
@@ -4604,11 +4615,11 @@ function osBindResp(sh,d,por,redraw){sh.querySelectorAll('[data-rrm]').forEach(b
     osModal(`<h2>Mecanicos no servico</h2><p class="os-mut">Quem voce marcar pode editar, concluir e reabrir esta OS, como voce.</p>${L.map(m=>`<label class="os-ck"><input type="checkbox" value="${esc(m.uid)}"${d.resp.includes(m.uid)?' checked':''}> ${esc(m.nome)}</label>`).join('')||'<p class="os-mut">Nenhum outro mecanico cadastrado.</p>'}
       <div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="rr-ok">Pronto</button></div>`,(o,close)=>{o.querySelector('[data-x]').onclick=close;o.querySelector('#rr-ok').onclick=()=>{d.resp=[...o.querySelectorAll('input:checked')].map(i=>i.value);close();redraw()}})}}
 /* OS vinculada: o servico desta OS faz parte de outra OS do mesmo equipamento (ex.: solda pedida pelo mecanico) */
-function osVincHTML(d){const p=d.vinc&&osById(d.vinc);return `<div class="os-f"><span>Vincular a outra OS <i>(opcional)</i></span>${p?`<div class="os-pc"><span class="t">${osNum(p)} · ${esc(p.aconteceu)}<small>${esc(p.resp.map(osNomeDe).join(', '))} · ${p.sit==='aberta'?'aberta':'fechada'}</small></span><button type="button" class="os-qb" data-vrm aria-label="Tirar vinculo">×</button></div>`
+function osVincHTML(d){const p=d.vinc&&osById(d.vinc);return `<div class="os-f"><span>Vincular a outra OS <i>(opcional)</i></span>${p?`<div class="os-pc"><span class="t">${osNum(p)} · ${esc(p.aconteceu)}<small>${esc(p.resp.map(osNomeDe).join(', '))} · ${p.sit==='aberta'?'aberta':p.sit==='cancelada'?'cancelada':'fechada'}</small></span><button type="button" class="os-qb" data-vrm aria-label="Tirar vinculo">×</button></div>`
   :`<button type="button" class="os-ad" data-vadd>Escolher a OS deste equipamento</button>`}<small class="os-mut">Ex.: uma solda pedida pelo mecanico. Esta OS aparece dentro da outra.</small></div>`}
 function osBindVinc(sh,d,redraw){const r=sh.querySelector('[data-vrm]');if(r)r.onclick=()=>{d.vinc='';redraw()};
   const a=sh.querySelector('[data-vadd]');if(a)a.onclick=()=>{const L=osDoEq(d.eq).filter(v=>!v.vinc);
-    osModal(`<h2>Vincular a qual OS?</h2>${L.length?`<div class="os-ls">${L.map(v=>`<button type="button" class="os-c" data-vk="${esc(v.id)}"><span class="os-l1"><span class="os-n${v.num?'':' pend'}">${osNum(v)}</span><b class="os-tag">${esc((eqById(v.eq)||{}).codigo||v.eq)}</b><span class="os-mut">${v.sit==='aberta'?'aberta':'fechada'}</span></span><span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}</small></button>`).join('')}</div>`:'<p class="os-vz">Este equipamento ainda nao tem outra OS.</p>'}<button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
+    osModal(`<h2>Vincular a qual OS?</h2>${L.length?`<div class="os-ls">${L.map(v=>`<button type="button" class="os-c" data-vk="${esc(v.id)}"><span class="os-l1"><span class="os-n${v.num?'':' pend'}">${osNum(v)}</span><b class="os-tag">${esc((eqById(v.eq)||{}).codigo||v.eq)}</b><span class="os-mut">${v.sit==='aberta'?'aberta':v.sit==='cancelada'?'cancelada':'fechada'}</span></span><span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}</small></button>`).join('')}</div>`:'<p class="os-vz">Este equipamento ainda nao tem outra OS.</p>'}<button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
       o.querySelector('[data-x]').onclick=close;o.querySelectorAll('[data-vk]').forEach(b=>b.onclick=()=>{d.vinc=b.dataset.vk;close();redraw()})})}}
 
 /* ---------- pecas e fotos (usado no formulario e no adendo) ---------- */
@@ -4686,11 +4697,11 @@ function osVolta(){if(ehMec()){closeSheet();return}const i=NAV.findIndex(n=>n.ke
 
 /* ---------- a OS registrada ---------- */
 function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast('OS nao encontrada');goBack();return}
-  const u=osEu(),resp=v.resp.includes(u.uid),dono=v.por===u.uid,adm=osAdm(),e=eqById(v.eq)||{},fech=v.sit==='fechada';
+  const u=osEu(),cx=v.sit==='cancelada',resp=!cx&&v.resp.includes(u.uid),dono=!cx&&v.por===u.uid,adm=osAdm(),e=eqById(v.eq)||{},fech=v.sit!=='aberta',podeCx=osPodeCx(v);
   const marca=c=>{const m=v.marc[c];return !m?'':m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:` <em class="os-cor">· editado por ${esc(m.nome)} em ${osHora(m.ts)} · antes: ${esc(osVal(c,m.de))||'vazio'}</em>`};
   const mm=[e.marca,e.modelo].filter(Boolean).join(' · ');
-  const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
-  const pcRow=p=>`<button type="button" class="os-pr${adm&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${adm&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
+  const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):cx?'<span class="os-sx">liberada</span>':`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
+  const pcRow=p=>`<button type="button" class="os-pr${adm&&!cx&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${adm&&!cx&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
   const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
   const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes</button>`;
   const pai=v.vinc&&osById(v.vinc);
@@ -4710,31 +4721,41 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
      <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
      ${resp?`<div class="os-cta"><button type="button" class="os-ad pri w" data-a="concluir">Concluir OS</button><button type="button" class="os-ad" data-a="editar">Editar</button><button type="button" class="os-ad" data-a="informe">Informe</button></div>`
       :`<div class="os-cta"><button type="button" class="os-ad w" data-a="informe">Informe</button></div><p class="os-mut" style="margin-top:8px">Voce nao e responsavel por esta OS. Quando ela for fechada, voce pode fazer um adendo.</p>`}
-     <div id="os-cf"></div>${ext?`<div class="os-x">${ext}</div>`:''}${hist}`}
-  else{const conc=v.concTs||v.ts,par=v.estado==='parado';
-    body=`<div class="os-d"><div class="os-dh"><div><small>ORDEM DE SERVICO</small><b>${v.num?'Nº '+String(v.num).padStart(4,'0'):'Nova'}</b></div><div class="os-stp">CONCLUIDA<em>${fdate(iso(new Date(conc)))} ${pad(new Date(conc).getHours())}:${pad(new Date(conc).getMinutes())}</em></div></div>
+     <div id="os-cf"></div>${ext?`<div class="os-x">${ext}</div>`:''}${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
+  else{const conc=cx?v.cancTs:(v.concTs||v.ts),par=v.estado==='parado'&&!cx;
+    body=`<div class="os-d"><div class="os-dh"><div><small>ORDEM DE SERVICO</small><b>${v.num?'Nº '+String(v.num).padStart(4,'0'):'Nova'}</b></div><div class="os-stp${cx?' cx':''}">${cx?'CANCELADA':'CONCLUIDA'}<em>${fdate(iso(new Date(conc)))} ${pad(new Date(conc).getHours())}:${pad(new Date(conc).getMinutes())}</em></div></div>
      <div class="os-de"><b>${esc(e.codigo||v.eq)}</b><span>${esc(e.desc||e.tipo||'')}${mm?'<br>'+esc(mm):''}</span></div>
-     <div class="os-dg g4"><div><small>Aberta</small><b>${sdate(v.data)}</b>${marca('data')}</div><div><small>Concluida</small><b>${sdate(iso(new Date(conc)))}</b></div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':'ok'}">${par?'Parado':v.estado==='operando'?'Operando':'—'}</b>${marca('estado')}</div></div>
+     ${cx?`<div class="os-cxb"><b>OS cancelada</b><span>Em ${fdate(iso(new Date(v.cancTs)))} por ${esc(v.cancNome)}${v.sitAnt==='fechada'?' (estava concluida)':''}</span><span><i>Motivo:</i> ${esc(v.cancMot)}</span><small>O numero ${osNum(v).replace('OS ','')} nao sera reutilizado. Tudo o que foi registrado continua guardado.</small></div>`:''}
+     <div class="os-dg g4"><div><small>Aberta</small><b>${sdate(v.data)}</b>${marca('data')}</div><div><small>${cx?'Cancelada':'Concluida'}</small><b>${sdate(iso(new Date(conc)))}</b></div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':cx?'':'ok'}">${cx?'—':par?'Parado':v.estado==='operando'?'Operando':'—'}</b>${marca('estado')}</div></div>
      <div class="os-ds"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
      <div class="os-ds"><div class="os-lb">Servico executado</div><div class="os-tx">${esc(v.feito)||'<i class="os-mut">nao informado</i>'}${marca('feito')}</div></div>
      ${v.pecas.length?`<div class="os-ds"><div class="os-th"><span>Qtd</span><span>Peca ou material</span><span>Estoque</span></div>${v.pecas.map(pcRow).join('')}</div>`:''}
      ${fotos?`<div class="os-ds"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
      <div class="os-ds"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}</div></div></div>
      ${ext?`<div class="os-x">${ext}</div>`:''}
-     <div class="os-cta">${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}<button type="button" class="os-ad pri" data-a="informe">Informe</button></div>
-     <div id="os-cf"></div>${hist}`}
-  openSheet({title:osNum(v),sub:esc(e.codigo||v.eq)+' · '+(fech?'Concluida em '+fdate(iso(new Date(v.concTs||v.ts))):'Em andamento'),body,
+     <div class="os-cta">${cx?'':`${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}`}<button type="button" class="os-ad pri${cx?' w':''}" data-a="informe">Informe</button></div>
+     <div id="os-cf"></div>${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
+  openSheet({title:osNum(v),sub:esc(e.codigo||v.eq)+' · '+(cx?'Cancelada em '+fdate(iso(new Date(v.cancTs))):fech?'Concluida em '+fdate(iso(new Date(v.concTs||v.ts))):'Em andamento'),body,
   mount:sh=>{const a=k=>sh.querySelector(`[data-a="${k}"]`);
     sh.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>viewPhoto(v.fotos[+b.dataset.fv]));
     if(a('concluir'))a('concluir').onclick=()=>{S.osDraft={modo:'concluir',osId:v.id,eq:v.eq,concl:true,feito:v.feito||'',estado:v.estado||'',pecas:[],fotos:[],resp:v.resp.filter(x=>x!==v.por)};formOS()};
     if(a('reabrir'))a('reabrir').onclick=()=>askConfirm(sh.querySelector('#os-cf'),'Reabrir',`Reabrir a ${osNum(v)}? Ela volta para Abertas. O que ja foi lancado continua registrado.`,async()=>{if(await safe(()=>osEvento(v.id,'reabrir',{}),osNum(v)+' reaberta'))osRe(v.id)});
     if(a('adendo'))a('adendo').onclick=()=>{S.osDraft={modo:'adendo',osId:v.id,obs:'',corr:[],pecas:[],fotos:[]};formOSAdendo()};
+    if(a('cancelar'))a('cancelar').onclick=()=>osCancelar(v.id);
     sh.querySelectorAll('[data-osv]').forEach(b=>b.onclick=()=>openOS(b.dataset.osv));
     a('informe').onclick=()=>osInforme(v.id);
     if(a('detalhes'))a('detalhes').onclick=()=>openOSDet(v.id);
     if(a('editar'))a('editar').onclick=()=>{S.osEd=null;formOSEdit(v.id)};
     const rb=sh.querySelector('[data-resp]');if(rb)rb.onclick=()=>osResp(v.id);
     if(adm)sh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const p=v.pecas.find(x=>x.pk===b.dataset.pk);if(p&&!v.conf[p.pk])osConf(v,p)})}})}
+/* cancelar: o numero fica inutilizado, nada e apagado */
+function osCancelar(id){const v=osById(id);if(!v||!osPodeCx(v))return;const u=osEu();
+  osModal(`<h2>Cancelar a ${osNum(v)}?</h2><p class="os-mut">O numero ${osNum(v).replace('OS ','')} nao sera reutilizado. Tudo o que foi registrado continua guardado${osPendPecas(v).length?' e as pecas reservadas voltam a ficar livres no estoque':''}. Depois de cancelada, a OS nao pode mais ser mudada.</p>
+    <label class="os-f"><span>Motivo</span><textarea class="os-in" id="cx-m" rows="3" maxlength="300" placeholder="Ex.: aberta em duplicidade"></textarea></label>
+    <div class="os-g2"><button type="button" class="os-op" data-x>Voltar</button><button type="button" class="os-op onr" id="cx-ok">Cancelar OS</button></div>`,(o,close)=>{
+    o.querySelector('[data-x]').onclick=close;const m=o.querySelector('#cx-m');setTimeout(()=>m.focus(),80);
+    o.querySelector('#cx-ok').onclick=async()=>{const t=m.value.trim();if(!t){m.classList.add('bad');toast('Escreva o motivo');return}close();
+      if(await safe(()=>osEvento(id,'cancelar',{motivo:t,...(osEhEnc(u.uid)?{enc:true}:{})}),osNum(v)+' cancelada'))osRe(id)}})}
 /* redesenha a OS quando o evento chega */
 function osRe(id){let i=0;const n0=S.ose.length;const t=setInterval(()=>{if(++i>20||S.ose.length>n0){clearInterval(t);const top=NAV[NAV.length-1];if(top&&top.key==='os:'+id)openOS(id)}},150)}
 
@@ -4830,16 +4851,19 @@ async function osDraw(v,modo){
   y+=180;x.fillStyle=INK;x.fillRect(P,y,gw,5);y+=24;
   /* selos */
   const selo=(t,X,cor)=>{F(700,19);ls('2.4px');const w=x.measureText(t).width+34;x.lineWidth=2.4;x.strokeStyle=cor;x.strokeRect(X,y,w,42);x.fillStyle=cor;x.fillText(t,X+17,y+29);ls('0px');return X+w+14};
-  let sx=selo(v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',P,INK);if(v.estado)sx=selo(v.estado==='parado'?'PARADO':'OPERANDO',sx,INK);
+  const CX=v.sit==='cancelada';let sx=selo(CX?'CANCELADA':v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',P,INK);if(v.estado&&!CX)sx=selo(v.estado==='parado'?'PARADO':'OPERANDO',sx,INK);
   const ex=[v.ad.length?`${v.ad.length} ${v.ad.length===1?'adendo':'adendos'}`:'',v.filhas.length?`${v.filhas.length} ${v.filhas.length===1?'vinculada':'vinculadas'}`:''].filter(Boolean).join(' · ');if(ex&&!PR)selo(ex.toUpperCase(),sx,'#a3aab6');
   y+=64;
   /* grade do equipamento */
   const r1=116,r2=88;box(P,y,gw,r1+r2);x.fillStyle=INK;x.fillRect(P,y+r1,gw,2.4);x.fillRect(P+gw/2,y,2.4,r1);
   lab('Equipamento',P+16,y+30,16,MU);F(600,50,MON);x.fillStyle=INK;x.fillText(fit(e.codigo||v.eq,gw/2-32),P+16,y+92);
   lab('Modelo',P+gw/2+18,y+30,16,MU);F(600,29);x.fillStyle=INK;x.fillText(fit([e.marca,e.modelo].filter(Boolean).join(' ')||'—',gw/2-40),P+gw/2+18,y+70);F(400,22);x.fillStyle=MU;x.fillText(fit(e.desc||e.tipo||'',gw/2-40),P+gw/2+18,y+100);
-  const cc=[['Aberta',fdate(v.data)],['Concluida',v.sit==='fechada'&&v.concTs?fdate(iso(new Date(v.concTs))):'—'],['Horimetro',v.hor?v.hor+' h':'—'],['Situacao',v.estado==='parado'?'Parado':v.estado==='operando'?'Operando':'—']],cw=gw/4;
+  const cc=[['Aberta',fdate(v.data)],CX?['Cancelada',fdate(iso(new Date(v.cancTs)))]:['Concluida',v.sit==='fechada'&&v.concTs?fdate(iso(new Date(v.concTs))):'—'],['Horimetro',v.hor?v.hor+' h':'—'],['Situacao',CX?'—':v.estado==='parado'?'Parado':v.estado==='operando'?'Operando':'—']],cw=gw/4;
   cc.forEach(([k,t],i)=>{const X=P+i*cw;if(i){x.fillStyle=INK;x.fillRect(X,y+r1,2.4,r2)}lab(k,X+16,y+r1+30,16,MU);F(600,29);x.fillStyle=INK;x.fillText(fit(t,cw-28),X+16,y+r1+70)});
   y+=r1+r2+24;
+  if(CX){F(400,24);const ml=wrap('Motivo: '+(v.cancMot||'—'),gw-60).slice(0,PR?3:2),h=70+ml.length*34;x.lineWidth=4;x.strokeStyle=INK;x.setLineDash([]);x.strokeRect(P+2,y+2,gw-4,h-4);
+    F(700,20);ls('2.4px');x.fillStyle=INK;x.fillText('OS CANCELADA',P+22,y+38);ls('0px');F(400,20);x.fillStyle=MU;const qt=`em ${fdate(iso(new Date(v.cancTs)))} · numero ${String(v.num||'').padStart(4,'0')} inutilizado`;x.fillText(qt,W-P-22-x.measureText(qt).width,y+38);
+    F(400,24);x.fillStyle=INK;ml.forEach((l,i)=>x.fillText(l,P+22,y+76+i*34));y+=h+22}
   /* secoes */
   const sec=(t,txt,max)=>{lab(t,P,y+18);y+=30;F(400,26);const L=wrap(txt||'—',gw-40);const L2=L.slice(0,max);if(L.length>max)L2[max-1]=fit(L2[max-1]+'…',gw-40);const h=Math.max(68,L2.length*37+30);box(P,y,gw,h);x.fillStyle=INK;L2.forEach((l,i)=>x.fillText(l,P+18,y+44+i*37));y+=h+22};
   sec('Ocorrencia',v.aconteceu,PR?6:3);sec('Servico executado',v.feito||'—',PR?7:3);
@@ -4861,14 +4885,15 @@ async function osDraw(v,modo){
     const rows=Math.ceil(sig.length/2),sh=118,cw2=(gw-70)/2;let sy=Math.max(y+20,H-64-30-rows*sh);
     sig.forEach(([n,r],i)=>{const X=P+(i%2)*(cw2+70),Y=sy+Math.floor(i/2)*sh+56;x.fillStyle=INK;x.fillRect(X,Y,cw2,2.4);F(400,24);x.fillText(fit(n,cw2),X,Y+34);F(400,18);x.fillStyle=MU;x.fillText(r,X,Y+60)});
     genBar(x,W,H,`${osNum(v)} · pagina 1 de 1`)}
+  if(v.sit==='cancelada'){x.save();x.translate(W/2,H/2);x.rotate(-Math.atan2(H,W)*.8);F(700,PR?190:170);ls('14px');x.globalAlpha=.07;x.fillStyle='#000';const t='CANCELADA';x.fillText(t,-x.measureText(t).width/2,60);x.restore();ls('0px')}
   return cv}
 /* detalhes (so app principal): tudo o que aconteceu na OS, com horario e quem fez */
 function openOSDet(id){nav('osdet:'+id,()=>openOSDet(id));const v=osById(id);if(!v){goBack();return}
   const dh=t=>{const d=new Date(t);return `${fdate(iso(d))} · ${pad(d.getHours())}:${pad(d.getMinutes())}`},hr=t=>{const d=new Date(t);return `${sdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
   const dur=ms=>{const m=Math.max(0,Math.round(ms/60000));if(m<60)return m+' min';if(m<1440){const h=Math.floor(m/60),r=m%60;return h+' h'+(r?' '+r+' min':'')}const d=Math.floor(m/1440),h=Math.round((m%1440)/60);return d+(d===1?' dia':' dias')+(h?' '+h+' h':'')};
-  const fech=v.sit==='fechada',fim=fech?(v.concTs||v.ts):Date.now(),reab=v.hist.filter(h=>h.reab).length;
+  const cx=v.sit==='cancelada',fech=v.sit!=='aberta',fim=cx?v.cancTs:fech?(v.concTs||v.ts):Date.now(),reab=v.hist.filter(h=>h.reab).length;
   openSheet({title:'Detalhes',sub:`${osNum(v)} · ${esc((eqById(v.eq)||{}).codigo||v.eq)}`,
-  body:`<div class="spec"><div class="r"><span>Aberta</span><b>${dh(v.ts)}</b></div><div class="r"><span>Concluida</span><b>${fech?dh(v.concTs||v.ts):'Em andamento'}</b></div><div class="r"><span>${fech?'Duracao':'Aberta ha'}</span><b>${dur(fim-v.ts)}</b></div><div class="r"><span>Reaberta</span><b>${reab?reab+(reab===1?' vez':' vezes'):'Nao'}</b></div></div>
+  body:`<div class="spec"><div class="r"><span>Aberta</span><b>${dh(v.ts)}</b></div><div class="r"><span>${cx?'Cancelada':'Concluida'}</span><b>${cx?dh(v.cancTs):fech?dh(v.concTs||v.ts):'Em andamento'}</b></div><div class="r"><span>${fech?'Duracao':'Aberta ha'}</span><b>${dur(fim-v.ts)}</b></div><div class="r"><span>Reaberta</span><b>${reab?reab+(reab===1?' vez':' vezes'):'Nao'}</b></div></div>
    <div class="lbl">Acoes</div><div class="os-tl2">${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<div class="ev ${h.k||''}"><i></i><div><span class="t">${esc(h.txt)}</span>${h.d?`<span class="d">${esc(h.d)}</span>`:''}<small>${esc(h.nome||'')} · ${hr(h.ts)}</small></div></div>`).join('')}</div>`})}
 /* informe: escolhe a versao e ve a imagem antes de compartilhar (como o cartao preventiva) */
 function osInforme(id){const v=osById(id);

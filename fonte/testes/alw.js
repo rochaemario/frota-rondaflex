@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const pg=await (await b.newContext({viewport:{width:390,height:844},colorScheme:process.argv[2]||'light'})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+ await pg.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+ const W=t=>pg.waitForTimeout(t||300);await W(700);const sc=process.argv[2]||'light';
+ await pg.click('[data-acc="aloc"]');await W();await pg.click('[data-site="PQ"]');await W();await pg.screenshot({path:`al-${sc}-1.png`});
+ const id=await pg.$eval('[data-alq]',b=>b.dataset.alq);await pg.click('[data-alq]');await W(400);await pg.screenshot({path:`al-${sc}-2.png`});
+ await pg.click('#sheet [data-mot]');await W();await pg.fill('#mo-n','João da Silva');await pg.screenshot({path:`al-${sc}-3.png`});await pg.click('#sheet .sh-foot .btn.pri');await W(600);await pg.screenshot({path:`al-${sc}-4.png`});
+ await pg.click('#sheet [data-ral]');await W();await pg.click('[data-rs="DM1"]');await W();await pg.click('[data-ra="Planta"]');await W();await pg.screenshot({path:`al5-390.png`});await pg.click('[data-ra="Mina"]');await W();await pg.click('[data-rf="UG"]');await pg.click('#sheet .sh-foot .btn.pri');await W(600);await pg.screenshot({path:`al-${sc}-6.png`});
+ console.log(await pg.evaluate(id=>{const e=window.__store['equipamentos/'+id];return JSON.stringify([e.codigo,e.motorista,e.alocacao,e.area,e.frente])},id),'ERR',errs);await b.close()})();

@@ -1,0 +1,17 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+const page='<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>';
+await p.route('http://t.local/**',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:r.request().url().endsWith('/prev')?'<p>anterior':page}));
+await p.goto('http://t.local/prev');await p.goto('http://t.local/app');await p.waitForTimeout(1200);
+const st=()=>p.evaluate(()=>({url:location.pathname,focus:document.querySelector('[data-acc][aria-expanded="true"]')?.dataset.acc||document.querySelector('.tt,.fhead h2')?.textContent||'',sheet:!document.getElementById('scrim')?.hidden,toast:document.querySelector('.toast,#toast')?.textContent||''}));
+const back=async()=>{await p.goBack({waitUntil:'commit'}).catch(()=>{});await p.waitForTimeout(400)};
+await p.evaluate(()=>document.querySelector('[data-acc="equip"]').click());await p.waitForTimeout(300);
+await p.evaluate(()=>document.querySelector('[data-eq]').click());await p.waitForTimeout(400);
+console.log('ficha aberta',await st());
+await back();console.log('voltar 1',await st());
+await back();console.log('voltar 2',await st());
+await back();console.log('voltar 3',await st());
+await back();console.log('voltar 4',await st());
+console.log('ERR',errs);await b.close()})();

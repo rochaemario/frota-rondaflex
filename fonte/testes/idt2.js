@@ -1,0 +1,20 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const D='/home/claude/pwa/dist/';const mock=fs.readFileSync('sbmock.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(([s,pp])=>{window.__SEED=s;window.__PAPEL=pp;if(sessionStorage.getItem('L'))window.__LOGGED=1},[seed,'admin']);
+await ctx.route('**/*',r=>{const u=new URL(r.request().url());
+  if(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('supabase'))return r.fulfill({contentType:'text/javascript',body:mock});
+  if(u.hostname==='localhost'){let f=u.pathname.replace(/^\//,'')||'index.html';const fp=D+f;if(fs.existsSync(fp))return r.fulfill({body:fs.readFileSync(fp),contentType:f.endsWith('.html')?'text/html; charset=utf-8':f.endsWith('.js')?'text/javascript':f.endsWith('.png')?'image/png':'application/json'});return r.fulfill({status:404})}
+  return r.fulfill({body:'ok'})});
+const W=ms=>p.waitForTimeout(ms||450);
+await p.goto('http://localhost/');await W(800);
+await p.fill('#lg-m','mario@x.com');await p.fill('#lg-p','ok');await p.click('#lg-b');await W(2000);
+await p.click('[data-acc="ident"]');await W();await p.screenshot({path:'idt2-1.png'});
+const [fc]=await Promise.all([p.waitForEvent('filechooser'),p.click('[data-idf="gal"]')]);
+const pp=ctx.waitForEvent('page',{timeout:8000}).catch(()=>null);await fc.setFiles('/tmp/claude-0/-home-claude/dbad109e-5d58-56dd-bea8-514c5cf703f7/scratchpad/itens/322-3155.png');
+const pop=await pp;await W(800);console.log('abriu:',pop?pop.url().slice(0,60):'mesma aba '+p.url().slice(0,60));if(pop)await pop.close();
+console.log('pendentes p/ apagar:',await p.evaluate(()=>localStorage.getItem('frota.lensFotos')));
+await p.evaluate(()=>sessionStorage.setItem('L','1'));await p.reload();await W(6000);
+console.log('depois de reabrir:',await p.evaluate(()=>localStorage.getItem('frota.lensFotos')));
+console.log('ERR',errs);await b.close()})();

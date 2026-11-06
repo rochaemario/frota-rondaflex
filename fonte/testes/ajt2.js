@@ -1,0 +1,18 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+seed['trocas/inf-CB-03-2026-09-30'].ajuste=true;
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2,hasTouch:false});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||350);
+await p.evaluate(()=>document.getElementById('sideaj').click());await W();await p.screenshot({path:'t1.png'});
+await p.evaluate(()=>document.getElementById('sideaj').click());await W(200);
+await p.evaluate(()=>document.querySelector('.toast')?.remove());
+await p.evaluate(()=>document.querySelector('[data-acc="equip"]').click());await W();
+await p.evaluate(()=>document.querySelector('[data-eq="CB-03"]').click());await W(500);
+await p.evaluate(()=>{const h=[...document.querySelectorAll('#sheet .lbl')].find(x=>x.textContent.startsWith('Histórico'));h.scrollIntoView({block:'center'})});await W();
+const box=await p.locator('#sheet .ia-h .ajs').first().boundingBox();await p.mouse.click(box.x+7,box.y+7);await W(300);
+console.log('linha expandida?',await p.evaluate(()=>document.querySelector('#sheet .ia-h').getAttribute('aria-expanded')),'tip:',await p.evaluate(()=>document.querySelector('.ajtip')?.textContent));
+const tb=await p.evaluate(()=>{const r=document.querySelector('.ajtip').getBoundingClientRect();return r.top});console.log('tiptop',tb);await p.screenshot({path:'t2.png',clip:{x:0,y:Math.max(0,tb-60),width:390,height:160}});
+await p.mouse.click(200,300);await W(200);console.log('tip após toque fora:',await p.evaluate(()=>!!document.querySelector('.ajtip')));
+console.log('ERR',errs);await b.close()})();

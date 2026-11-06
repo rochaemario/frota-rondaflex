@@ -1,0 +1,12 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||350);
+const open=async(path)=>{await p.evaluate(()=>document.querySelector('header').click());await W(300);await p.evaluate(()=>document.getElementById('fab').click());await W(300);for(const m of path){await p.click(`#sheet [data-m="${m}"]`);await W(400)}};
+await open(['frota','dl-tr']);await p.evaluate(()=>{const b=[...document.querySelectorAll('#sheet [data-pd]')].find(x=>x.textContent.includes('MT-01'))||document.querySelector('#sheet [data-pd]');b.click()});await W(400);await p.screenshot({path:'ls1.png'});
+await open(['est','x:kit','dl-kit']);await p.click('#sheet [data-pd]');await W(400);await p.screenshot({path:'ls2.png'});
+await p.evaluate(()=>document.querySelector('header').click());await W(300);await p.evaluate(()=>document.querySelector('[data-acc="estoque"]').click());await W(300);await p.click('#es-rel');await W(200);await p.click('[data-mov="cat-462-1171"]');await W(500);
+await p.evaluate(()=>{const l=[...document.querySelectorAll('#sheet .lbl')].find(x=>x.textContent.includes('Usado'));l&&l.scrollIntoView({block:'start'})});await W(300);await p.screenshot({path:'ls3.png'});
+console.log('ERR',errs);await b.close()})();

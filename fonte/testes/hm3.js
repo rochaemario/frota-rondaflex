@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const pg=await (await b.newContext({viewport:{width:390,height:844}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+ await pg.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+ const W=t=>pg.waitForTimeout(t||300);await W(700);const n=()=>pg.$eval('.sh-n',e=>e.textContent);const hm=c=>pg.evaluate(c=>Object.values(window.__store).find(x=>x.codigo===c).horimetro,c);
+ await pg.click('#sidehm');await W();
+ const row=c=>pg.evaluateHandle(c=>[...document.querySelectorAll('.lr')].find(r=>{const e=r.textContent;return e.includes(c)}),c);
+ const inp=async(id,v)=>{await pg.evaluate(([id,v])=>{const r=document.querySelector(`.lr[data-id="${id}"] .lr-in`);r.value=v;r.dispatchEvent(new Event('input'))},[id,v])};
+ const ids=await pg.evaluate(()=>[...document.querySelectorAll('.lr')].map(r=>r.dataset.id));const pc=ids.find(i=>i==='PC-02')||ids[0];
+ console.log('PC-02 atual',await hm('PC-02'));
+ await inp('PC-02','2000');await W();await pg.evaluate(()=>document.querySelector('.lr.low')&&document.querySelector('.lr.low').scrollIntoView());await pg.screenshot({path:'hm3-1.png'});
+ await pg.click('#lr-save');await W(400);console.log('bloqueado? hm',await hm('PC-02'),'toast',await pg.$eval('.toast',e=>e.textContent).catch(()=>''));
+ await inp('PC-02','2435');await W();await pg.click('#lr-save');await W(700);console.log('salvo hm',await hm('PC-02'),'contador',await n());
+ console.log('ERR',errs);await b.close()})();

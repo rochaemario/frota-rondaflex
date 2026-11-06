@@ -1,0 +1,11 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+seed['trocas/old']={tipo:'hmtroca',ts:Date.now()-40*864e5,equipId:'PC-03',data:'2026-09-10',horimetro:5,antigo:4000,delta:-3995,itens:[]};
+seed['trocas/new']={tipo:'hmtroca',ts:Date.now()-5*864e5,equipId:'PC-04',data:'2026-10-17',horimetro:5,antigo:400,delta:-395,itens:[]};
+(async()=>{const b=await chromium.launch();const pg=await (await b.newContext({viewport:{width:390,height:844}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+ await pg.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+ const W=t=>pg.waitForTimeout(t||300);await W(700);
+ await pg.click('#fab');await W();await pg.click('[data-m="novo"]');await W();await pg.click('[data-m="thm-x"]');await W();await pg.click('#sheet [data-ia]');await W();
+ console.log(await pg.evaluate(()=>[...document.querySelectorAll('#sheet .ia')].map(x=>x.innerText.replace(/\s+/g,' ').slice(0,120))));
+ await pg.screenshot({path:'thm30.png'});console.log('ERR',errs);await b.close()})();

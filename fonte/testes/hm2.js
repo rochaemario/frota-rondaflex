@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const pg=await (await b.newContext({viewport:{width:390,height:844}})).newPage();const errs=[];pg.on('pageerror',e=>errs.push(e.message));
+ await pg.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+ const W=t=>pg.waitForTimeout(t||300);await W(700);const n=()=>pg.$eval('.sh-n',e=>e.textContent+' '+e.className);
+ console.log('início',await n());
+ await pg.click('[data-acc="manut"]');await W();await pg.click('[data-a="new-tr"]');await W();await pg.click('[data-rg="prev"]');await W();
+ await pg.selectOption('#t-eq','PC-02');await W();await pg.fill('#t-dt','2026-10-15');await pg.fill('#t-hm','2500');
+ await pg.evaluate(()=>{const c=document.querySelector('#t-items input[type=checkbox]');if(c&&!c.checked)c.click()});
+ await pg.click('#sheet button[form="ft"]');await W(800);
+ await pg.evaluate(()=>{const b=[...document.querySelectorAll('.eqv-ask [data-skip]')][0];b&&b.click()});await W(800);
+ await pg.evaluate(()=>document.querySelector('header').click());await W(400);
+ console.log('depois preventiva PC-02 2500 (data 15/10)',await n(),JSON.stringify(await pg.evaluate(()=>{const e=Object.values(window.__store).find(x=>x.codigo==='PC-02');return [e.horimetro,e.horimetroData,e.horimetroReg]})));
+ console.log('ERR',errs);await b.close()})();

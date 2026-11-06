@@ -1,0 +1,30 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const D='/home/claude/pwa/dist/';const mock=fs.readFileSync('sbmock.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+const AV=[{id:'a1',de:'u2',para:['u1'],texto:'Chegaram os filtros da PC-03, já dei entrada.',anexos:[],ts:Date.now()-3600e3,estado:{},resp:[]},{id:'a2',de:'u3',para:['u1','u2'],texto:'Óleo 15W-40 acabando',anexos:[{t:'item',id:'cat-273-5711'}],ts:Date.now()-86400e3*2,estado:{u1:'visto'},resp:[{de:'u1',texto:'Vou cotar',ts:Date.now()-86400e3}]}];
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(([s,pp,av])=>{window.__SEED=s;window.__PAPEL=pp;window.__AVISOS=av},[seed,'admin',AV]);
+await p.route('**/*',r=>{const u=new URL(r.request().url());
+  if(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('supabase'))return r.fulfill({contentType:'text/javascript',body:mock});
+  if(u.hostname==='localhost'){let f=u.pathname.replace(/^\//,'')||'index.html';const fp=D+f;if(fs.existsSync(fp))return r.fulfill({body:fs.readFileSync(fp),contentType:f.endsWith('.html')?'text/html; charset=utf-8':f.endsWith('.js')?'text/javascript':f.endsWith('.png')?'image/png':'application/json'});return r.fulfill({status:404})}
+  return r.abort()});
+const W=ms=>p.waitForTimeout(ms||450);const shot=n=>p.screenshot({path:'avt-'+n+'.png'});
+await p.goto('http://localhost/');await W(800);
+await p.fill('#lg-m','mario@x.com');await p.fill('#lg-p','ok');await p.click('#lg-b');await W(2000);
+console.log('sino:',await p.evaluate(()=>{const b=document.getElementById('bell');return [b.hidden,b.querySelector('i').hidden,b.querySelector('i').textContent,document.querySelector('.top').className]}));
+await shot('1home');
+await p.click('#bell');await W();await shot('2lista');
+await p.click('[data-av="a1"]');await W(700);await shot('3aberto');
+await p.click('#av-r');await W();await p.fill('#av-rt','Obrigado!');await p.click('#av-rs');await W(700);await shot('4resp');
+await p.click('#av-ok');await W(700);
+console.log('após resolver sino:',await p.evaluate(()=>document.querySelector('#bell i').hidden));
+await p.click('#av-new');await W();await shot('5novo');
+await p.click('[data-pp="u2"]');await p.fill('#avn-t','Precisamos destes');await p.click('[data-ax="item"]');await W();await p.fill('#avn-q','273');await W();await shot('6busca');
+await p.click('#avn-h [data-pk]');await W();await p.click('[data-ax="eq"]');await W();await p.fill('#avn-q','pc04');await W();await p.click('#avn-h [data-pe]');await W();await shot('7pronto');
+await p.click('#avn-go');await W(800);
+console.log('depois de enviar:',await p.textContent('#sheet h2'));await p.click('[data-avt="e"]');await W();await shot('8enviados');
+// item view
+await p.evaluate(()=>document.querySelector('#sheet [data-back]').click());await W();await p.evaluate(()=>{const s=document.getElementById('scrim');if(!s.hidden)s.click()});await W();
+await p.click('[data-acc="estoque"]');await W();await p.click('#es-rel');await W();await p.evaluate(()=>document.querySelector('[data-mov]').click());await W(700);await shot('9item');
+await p.click('[data-avisar]');await W();await shot('10avisar-item');
+console.log('ERR',errs);await b.close()})();

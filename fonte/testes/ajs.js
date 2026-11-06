@@ -1,0 +1,17 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+seed['trocas/inf-CB-03-2026-09-30'].ajuste=true;
+seed['trocas/aj2']={equipId:'CB-03',data:'2026-10-14',horimetro:6061,ajuste:true,itens:[{desc:'Filtro respiro do cárter',qtd:1,un:'un',estoqueId:'cat-273-5711'}],ts:2};
+seed['movs/m2']={estoqueId:'cat-273-5711',tipo:'saida',qtd:1,data:'2026-10-14',obs:'',equipId:'CB-03',origem:'preventiva',ajuste:true,saldo:5,ts:2};
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||350);
+await p.evaluate(()=>document.querySelector('[data-acc="equip"]').click());await W();
+await p.evaluate(()=>document.querySelector('[data-eq="CB-03"]').click());await W(500);
+await p.evaluate(()=>{const h=[...document.querySelectorAll('#sheet .lbl')].find(x=>x.textContent.startsWith('Histórico'));h.scrollIntoView({block:'start'})});await W();await p.screenshot({path:'ajs1.png'});
+await p.evaluate(()=>document.querySelector('#sheet [data-tr="aj2"]').click());await W(500);await p.screenshot({path:'ajs2.png'});
+await p.evaluate(()=>document.querySelector('header').click());await W(500);await p.evaluate(()=>document.querySelector('[data-acc="estoque"]').click());await W();await p.click('#es-rel');await W();
+await p.evaluate(()=>document.querySelector('[data-mov="cat-273-5711"]').click());await W(700);
+await p.evaluate(()=>{const r=document.querySelector('#sheet .mv-out');r&&r.scrollIntoView({block:'center'})});await W();await p.screenshot({path:'ajs3.png'});
+await p.evaluate(()=>document.querySelector('header').click());await W(500);await p.evaluate(()=>document.querySelector('[data-acc="manut"]').click());await W(400);const hh=await p.evaluate(()=>{const b=document.querySelector('[data-hist="CB-03"]');if(b){b.click();return 1}return 0});await W(500);console.log('hist',hh);await p.screenshot({path:'ajs5.png'});console.log('ERR',errs);await b.close()})();

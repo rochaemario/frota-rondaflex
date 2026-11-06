@@ -1,0 +1,15 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844}});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+const y=new Date(Date.now()-864e5-4*36e5).toISOString().slice(0,10);
+await p.addInitScript(([f,s,y])=>{eval(f);window.__seed=s;if(!sessionStorage.getItem('x')){sessionStorage.setItem('x',1);localStorage.setItem('frota.hmDraft',JSON.stringify({v:{},dt:y,g:''}))}},[fake,seed,y]);
+await p.route('http://t.local/**',r=>r.fulfill({contentType:'text/html; charset=utf-8',body:html}));await p.goto('http://t.local/');await p.waitForTimeout(1200);
+console.log('E0',errs,await p.evaluate(()=>!!document.getElementById('sidehm')));const gv=async()=>{await p.evaluate(()=>document.getElementById('sidehm').click());await p.waitForTimeout(400);const v=await p.inputValue('#lr-dt');await p.evaluate(()=>closeSheet&&0).catch(()=>{});return v};
+console.log('ontem salvo, abre:',await gv(),'(ontem='+y+')');
+await p.fill('#lr-dt','2026-10-15');await p.dispatchEvent('#lr-dt','change');
+console.log('draft',await p.evaluate(()=>localStorage.getItem('frota.hmDraft')));
+await p.reload();await p.waitForTimeout(1200);console.log('reabre mesmo dia:',await gv());
+await p.evaluate(()=>{const d=JSON.parse(localStorage.getItem('frota.hmDraft'));d.dtDia='2026-10-01';localStorage.setItem('frota.hmDraft',JSON.stringify(d))});
+await p.reload();await p.waitForTimeout(1200);console.log('dia seguinte:',await gv());
+console.log('ERR',errs);await b.close()})();

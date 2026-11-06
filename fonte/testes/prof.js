@@ -1,0 +1,10 @@
+const {chromium}=require('playwright');const fs=require('fs');
+let html=fs.readFileSync('/home/claude/frota.html','utf8');{const k=html.lastIndexOf('})();');html=html.slice(0,k)+'window.__P={vPainel,vEquip,vAloc,vManut,vEstoque,vComb,quickHm,render,bindView,formLeituras,openEq,allItems,eqSituacao};'+html.slice(k)}const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('perf.js','utf8');eval(src.slice(src.indexOf('const src='),src.indexOf('(async()')).replace("const src=fs.readFileSync('sweep.js','utf8');","const src=fs.readFileSync('sweep.js','utf8');").replace(/process\.argv\[2\]/,'"1"'));
+(async()=>{const b=await chromium.launch();const pg=await (await b.newContext({viewport:{width:390,height:844}})).newPage();
+ await pg.route('**/*fonts.googleapis.com*',r=>r.abort());const cdp=await pg.context().newCDPSession(pg);await cdp.send('Emulation.setCPUThrottlingRate',{rate:4});
+ await pg.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+ await pg.waitForSelector('#sec-painel',{timeout:60000});await pg.waitForTimeout(500);
+ console.log(await pg.evaluate(()=>{const o={};const t=(n,f)=>{const a=performance.now();for(let i=0;i<3;i++)f();o[n]=Math.round((performance.now()-a)/3)};
+  const P=window.__P;t('allItems',P.allItems);t('vPainel',P.vPainel);t('vEquip',P.vEquip);t('vAloc',P.vAloc);t('vManut',P.vManut);t('vEstoque',P.vEstoque);t('quickHm',P.quickHm);t('render',P.render);t('bindView',P.bindView);return o}));
+ await b.close()})();

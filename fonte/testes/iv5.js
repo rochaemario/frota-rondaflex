@@ -1,0 +1,20 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||450);
+const eq=id=>p.evaluate(async id=>(await window.__db.doc('equipamentos/'+id).get()).data(),id);
+await p.evaluate(async()=>{await window.__db.doc('equipamentos/EH-01').update({intervaloPrev:250,horimetro:1000,itens:[{pid:'a',desc:'Filtro A',tipo:'filtro',ultimaH:900,proxH:'',intervalo:''},{pid:'b',desc:'Filtro B',tipo:'filtro',ultimaH:800,proxH:'',intervalo:500},{pid:'c',desc:'Filtro C',tipo:'filtro',ultimaH:900,proxH:1200,ivSel:300,ivDef:true}]})});await W(800);
+await p.click('[data-acc="frota"]');await W();await p.click('[data-fr="manut"]');await W();
+console.log('EH-01 no cronograma:',await p.evaluate(()=>[...document.querySelectorAll('[data-cron]')].some(b=>b.dataset.cron==='EH-01')));
+await p.click('[data-cron="EH-01"]');await W(700);
+console.log(await p.evaluate(()=>[...document.querySelectorAll('#sheet .ia-h')].map(h=>h.textContent.trim())));
+// edita o equipamento pelo + e salva: ivSel deve continuar
+await p.evaluate(()=>{document.getElementById('scrim').click()});await W();
+await p.evaluate(()=>document.getElementById('fab').click());await W();await p.click('#sheet [data-m="frota"]');await W();await p.click('#sheet [data-m="x:eq"]');await W();await p.click('#sheet [data-m="ed-eq"]');await W();
+await p.fill('#sheet input[type=search]','eh-01');await W();await p.click('#sheet [data-pe="EH-01"]');await W(700);
+console.log('campo A cada:',await p.$$eval('#sheet [data-p="intervalo"]',x=>x.length));
+await p.click('#sheet button.pri[form]');await W(1200);
+const e=await p.evaluate(async()=>(await window.__db.doc('equipamentos/EH-01').get()).data());console.log(JSON.stringify(e.itens.map(i=>[i.pid,i.intervalo,i.ivSel??null,i.proxH])));
+console.log('ERR',errs);await b.close()})();

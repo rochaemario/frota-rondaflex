@@ -1,0 +1,27 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||450);
+const eq=id=>p.evaluate(async id=>(await window.__db.doc('equipamentos/'+id).get()).data(),id);
+await p.evaluate(()=>document.getElementById('fab').click());await W();await p.click('#sheet [data-m="est"]');await W();await p.click('#sheet [data-m="x:kit"]');await W();await p.click('#sheet [data-m="ed-kit"]');await W();
+await p.click('#sheet [data-pe="kit1"]');await W(700);
+await p.fill('#k-encq','pc-02');await W();await p.click('#k-encr [data-encadd="PC-02"]');await W();
+await p.fill('#k-encq','cb-05');await W();await p.click('#k-encr [data-encadd="CB-05"]');await W();
+await p.evaluate(()=>document.querySelector('#k-enc').scrollIntoView({block:'center'}));await p.screenshot({path:'kt1.png'});
+await p.click('#sheet button.pri[form="fk"]');await W(1000);
+console.log('kit encaixe',JSON.stringify((await p.evaluate(async()=>(await window.__db.doc('estoque/kit1').get()).data().encaixe))));
+await p.evaluate(()=>{document.getElementById('scrim').click()});await W();
+// registrar preventiva CB-05: kit aparece
+await p.evaluate(()=>document.getElementById('fab').click());await W();await p.click('#sheet [data-m="frota"]');await W();await p.click('#sheet [data-m="reg"]');await W();await p.click('[data-rg="prev"]');await W();
+await p.fill('.eqs-in','cb05');await W();await p.click('[data-eo="CB-05"]');await W();
+console.log('kits CB-05',await p.evaluate(()=>[...document.querySelectorAll('#t-kits [data-kit]')].map(b=>b.dataset.kit)));
+await p.fill('.eqs-in','pc04');await W();await p.click('[data-eo="PC-04"]');await W();
+console.log('kits PC-04',await p.evaluate(()=>[...document.querySelectorAll('#t-kits [data-kit]')].map(b=>b.dataset.kit)));
+await p.evaluate(()=>{document.getElementById('scrim').click()});await W();
+await p.click('[data-acc="frota"]');await W();await p.click('[data-fr="equip"]');await W();
+await p.evaluate(q=>{const b=document.querySelector(q);const l=b.closest('.tsec-l');if(l&&l.hidden)l.previousElementSibling.click()},'[data-eq="PC-02"]');await W();await p.click('[data-eq="PC-02"]');await W(800);
+console.log('encaixe ficha',await p.evaluate(()=>[...document.querySelectorAll('#sheet [data-encst]')].map(b=>b.innerText.replace(/\n/g,' ').slice(0,40))));
+console.log('grupos itens',await p.evaluate(()=>[...document.querySelectorAll('#sheet .ig-h')].map(h=>h.textContent)));
+console.log('ERR',errs);await b.close()})();

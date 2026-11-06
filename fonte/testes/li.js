@@ -1,0 +1,24 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const D='/home/claude/pwa/dist/';const mock=fs.readFileSync('sbmock.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+for(const k in seed)if(k==='equipamentos/EH-01'||k==='equipamentos/PC-02'){}; seed['equipamentos/EH-01']=Object.assign({},seed['equipamentos/PC-02'],{codigo:'EH-01',tipo:'Escavadeira hidráulica',modelo:'320GX',serie:'SYW01032',itens:[]});(async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(([s,pp])=>{window.__SEED=s;window.__PAPEL=pp},[seed,'admin']);
+await p.route('**/*',r=>{const u=new URL(r.request().url());
+  if(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('supabase'))return r.fulfill({contentType:'text/javascript',body:mock});
+  if(u.hostname==='localhost'){let f=u.pathname.replace(/^\//,'')||'index.html';const fp=D+f;if(fs.existsSync(fp))return r.fulfill({body:fs.readFileSync(fp),contentType:f.endsWith('.html')?'text/html; charset=utf-8':f.endsWith('.js')?'text/javascript':f.endsWith('.png')?'image/png':'application/json'});return r.fulfill({status:404})}
+  return r.abort()});
+await p.goto('http://localhost/');await p.waitForTimeout(800);
+await p.fill('#lg-m','mario@x.com');await p.fill('#lg-p','ok');await p.click('#lg-b');await p.waitForTimeout(1500);
+await p.evaluate(()=>document.getElementById('sync').click());await p.waitForTimeout(300);await p.click('#ac-imp');await p.waitForTimeout(300);
+await p.setInputFiles('#imp-f','/tmp/claude-0/-home-claude/dbad109e-5d58-56dd-bea8-514c5cf703f7/scratchpad/itens-cat-23-out.json');await p.waitForTimeout(1500);
+console.log(await p.textContent('#sheet .sub'),await p.textContent('#li-go'));await p.screenshot({path:'li1.png'});
+await p.evaluate(()=>document.querySelector('[data-li="8"]').scrollIntoView());await p.screenshot({path:'li2.png'});
+await p.click('#li-go');await p.waitForTimeout(6000);console.log(await p.evaluate(()=>document.querySelector('.toast')?.textContent));
+const out=await p.evaluate(async()=>{const r={};for(const [id,bl] of Object.entries(window.__upb||{})){const a=new Uint8Array(await bl.arrayBuffer());let s='';for(const x of a)s+=String.fromCharCode(x);r[id]=[bl.type,btoa(s)]}return r});
+let n=0;for(const [id,[t,b]] of Object.entries(out)){fs.writeFileSync('lio-'+(n++)+(t.includes('png')?'.png':'.jpg'),Buffer.from(b,'base64'))}console.log('fotos',n);
+console.log(await p.evaluate(()=>JSON.stringify((window.__calls||[]).filter(c=>JSON.stringify(c).includes('estoque/cat-')).slice(-2)).slice(0,700)));0&&console.log(await p.evaluate(async()=>{const q=await window.__db.collection('estoque').get();return JSON.stringify(q.docs.filter(d=>d.data().marca==='Cat'&&d.data().descFab&&d.data().fotos).slice(-3).map(d=>[d.id,d.data().desc,d.data().encaixe,d.data().fotos.length]))}).catch(e=>e.message));
+await p.evaluate(()=>document.getElementById('sync').click());await p.waitForTimeout(300);await p.click('#ac-imp');await p.waitForTimeout(300);
+await p.setInputFiles('#imp-f','/tmp/claude-0/-home-claude/dbad109e-5d58-56dd-bea8-514c5cf703f7/scratchpad/itens-cat-23-out.json');await p.waitForTimeout(1500);
+console.log('2a vez:',await p.textContent('#sheet .sub'),await p.textContent('#li-go'));
+await p.evaluate(()=>document.querySelector('[data-a]')&&0);
+console.log('ERR',errs);await b.close()})();

@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');const fs=require('fs');const mock=fs.readFileSync('sbmock.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext();const p=await ctx.newPage();
+await ctx.route('**/*',r=>{const u=new URL(r.request().url());if(u.hostname==='cdn.jsdelivr.net')return r.fulfill({contentType:'text/javascript',body:mock});if(u.hostname==='localhost')return r.continue();return r.abort()});
+await p.addInitScript(([s])=>{window.__SEED=s;window.__PAPEL='admin'},[seed]);
+console.log('indo');await p.goto('http://localhost:8765/',{waitUntil:'domcontentloaded',timeout:15000});console.log('carregou');await p.waitForTimeout(2500);
+console.log('sw controla:',await p.evaluate(async()=>{await navigator.serviceWorker.register('sw.js');await navigator.serviceWorker.ready;return !!navigator.serviceWorker.controller}));
+await p.reload();await p.waitForTimeout(1500);console.log('sw controla 2:',await p.evaluate(()=>!!navigator.serviceWorker.controller));
+await fetch('http://localhost:8765/__delay?ms=8000');
+let t0=Date.now();await p.reload({waitUntil:'domcontentloaded'});console.log('reabrir com pagina demorando 8 s:',Date.now()-t0,'ms');
+await p.waitForTimeout(8000);await fetch('http://localhost:8765/__delay?ms=300');
+t0=Date.now();await p.reload({waitUntil:'domcontentloaded'});console.log('reabrir com rede normal (300 ms):',Date.now()-t0,'ms');
+await fetch('http://localhost:8765/__delay?ms=0');t0=Date.now();await p.reload({waitUntil:'domcontentloaded'});console.log('reabrir sem atraso:',Date.now()-t0,'ms');await b.close();process.exit(0)})();

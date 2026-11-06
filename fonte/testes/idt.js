@@ -1,0 +1,26 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const D='/home/claude/pwa/dist/';const mock=fs.readFileSync('sbmock.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});const p=await ctx.newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(([s,pp])=>{window.__SEED=s;window.__PAPEL=pp},[seed,'admin']);
+await ctx.route('**/*',r=>{const u=new URL(r.request().url());
+  if(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('supabase'))return r.fulfill({contentType:'text/javascript',body:mock});
+  if(u.hostname==='localhost'){let f=u.pathname.replace(/^\//,'')||'index.html';const fp=D+f;if(fs.existsSync(fp))return r.fulfill({body:fs.readFileSync(fp),contentType:f.endsWith('.html')?'text/html; charset=utf-8':f.endsWith('.js')?'text/javascript':f.endsWith('.png')?'image/png':'application/json'});return r.fulfill({status:404})}
+  return r.fulfill({body:'ok'})});
+const W=ms=>p.waitForTimeout(ms||450);const shot=n=>p.screenshot({path:'idt-'+n+'.png'});
+await p.goto('http://localhost/');await W(800);
+await p.fill('#lg-m','mario@x.com');await p.fill('#lg-p','ok');await p.click('#lg-b');await W(2000);
+await shot('0home');
+await p.click('[data-acc="ident"]');await W();await shot('1vazio');
+const [fc]=await Promise.all([p.waitForEvent('filechooser'),p.click('[data-idf="gal"]')]);await fc.setFiles('/tmp/claude-0/-home-claude/dbad109e-5d58-56dd-bea8-514c5cf703f7/scratchpad/itens/322-3155.png');await W(2500);
+await shot('2foto');
+const [pop]=await Promise.all([ctx.waitForEvent('page'),p.click('[data-ida="lens"]')]);await W(1500);console.log('lens url:',pop.url().slice(0,90));await pop.close();
+await shot('2b-recolhido');await p.click('[data-ida="exp"]');await W();await p.fill('#id-tx','322-3155: Conjunto do Elemento - Filtro de óleo do motor Cat® ... equivalente Fleetguard LF16352 e Donaldson P550425');await W(800);
+console.log('ficha:',await p.inputValue('#id-ref'),'|',await p.inputValue('#id-fab'),'|',await p.inputValue('#id-desc'),'|',await p.inputValue('#id-eqv'));
+await p.evaluate(()=>document.querySelector('#id-rf').scrollIntoView({block:'center'}));await shot('3ficha');
+await p.evaluate(()=>document.querySelector('#id-est').scrollIntoView({block:'center'}));await shot('4estoque');
+await p.click('[data-ida="cad"]');await W();console.log('cad:',await p.textContent('#sheet h2'),await p.inputValue('#s-ref'),await p.inputValue('#s-desc'),await p.$$eval('#s-ph .ph-th',l=>l.length));
+await p.click('#sheet .sh-foot .btn.pri');await W(1200);
+console.log('depois:',await p.evaluate(()=>document.querySelector('#id-est')?.textContent.slice(0,80)));
+await p.click('[data-ida="exp"]');await W();await p.evaluate(()=>document.querySelector('.id-ph').scrollIntoView());await shot('4b-recolhido-preenchido');await p.click('[data-ida="nova"]');await W();await shot('5recentes');
+console.log('ERR',errs);await b.close()})();

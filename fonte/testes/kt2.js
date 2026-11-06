@@ -1,0 +1,13 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||450);
+const eq=id=>p.evaluate(async id=>(await window.__db.doc('equipamentos/'+id).get()).data(),id);
+await p.evaluate(()=>document.getElementById('fab').click());await W();await p.click('#sheet [data-m="est"]');await W();await p.click('#sheet [data-m="x:kit"]');await W();await p.click('#sheet [data-m="ed-kit"]');await W();
+await p.click('#sheet [data-pe="kit1"]');await W(700);
+await p.fill('#k-q','pc02');await W();console.log(await p.evaluate(()=>document.querySelector('#k-qh').innerText.split('\n').slice(0,8)));
+await p.click('#k-qh [data-kp]:not(.k-in)');await W();console.log('apos',await p.evaluate(()=>document.querySelector('#k-qh .k-tg').textContent+' | no kit: '+document.querySelectorAll('#k-qh .k-in').length));
+await p.evaluate(()=>document.querySelector('#k-qh').scrollIntoView({block:'center'}));await p.screenshot({path:'kt3.png'});
+console.log('ERR',errs);await b.close()})();

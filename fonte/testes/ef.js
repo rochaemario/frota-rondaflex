@@ -1,0 +1,26 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+seed['movs/m1']={estoqueId:Object.keys(seed).find(k=>k.startsWith('estoque/')).split('/')[1],tipo:'saida',qtd:2,data:new Date().toISOString().slice(0,10)};
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||450);
+await p.click('[data-acc="estoque"]');await W();
+await p.screenshot({path:'ef0.png'});
+await p.click('[data-estab="rel"]');await W();
+console.log('rel blocks',await p.$$eval('.es-blk:not([hidden]) .es-g span',a=>a.map(x=>x.textContent)));
+await p.screenshot({path:'ef1.png',fullPage:true});
+await p.click('[data-estab="fil"]');await W(800);
+console.log('n',await p.textContent('#es-n'),await p.$$eval('.es-blk:not([hidden])',a=>a.length));
+await p.screenshot({path:'ef2.png',fullPage:true});
+await p.click('[data-ef="cat:oleo"]');await W();console.log('oleo',await p.textContent('#es-n'),await p.textContent('.ef-sum'));
+await p.click('[data-ef="sal:zero"]');await W();console.log('oleo zero',await p.textContent('#es-n'));
+await p.click('[data-ef="sal:zero"]');await p.click('[data-ef="cat:oleo"]');await p.click('[data-ef="mov:uso"]');await W();console.log('usados',await p.textContent('#es-n'));
+await p.click('[data-ef="mov:uso"]');await p.fill('#ef-tag','pc02');await W();console.log('tag CB',await p.textContent('#es-n'));
+await p.fill('#esq','filtro');await W();console.log('tag CB + busca filtro',await p.textContent('#es-n'));
+await p.fill('#esq','');await p.click('[data-ef="ord:menor"]');await W();
+await p.screenshot({path:'ef3.png',fullPage:true});
+await p.click('#ef-clr');await W();console.log('limpo',await p.textContent('#es-n'),await p.$('#ef-clr'));
+// novo item: categorias no select
+await p.evaluate(()=>{});
+console.log('ERR',errs);await b.close()})();

@@ -1,0 +1,23 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const html=fs.readFileSync('/home/claude/frota.html','utf8');const fake=fs.readFileSync('/tmp/claude-0/e2e/fakedb.js','utf8');
+const src=fs.readFileSync('sweep.js','utf8');eval(src.slice(src.indexOf('const L='),src.indexOf('const OUT')).replace(/^const seed/m,'global.seed'));
+(async()=>{const b=await chromium.launch();const p=await b.newPage({viewport:{width:390,height:844},deviceScaleFactor:2});const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.setContent('<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1"><style>[hidden]{display:none!important}body{margin:0}</style><script>'+fake+';window.__db=__mkdb('+JSON.stringify(seed)+');window.claude={use:async n=>n==="db"?window.__db:null}</script></head><body>'+html+'</body></html>');
+await p.waitForTimeout(1200);const W=ms=>p.waitForTimeout(ms||450);
+const eq=id=>p.evaluate(async id=>(await window.__db.doc('equipamentos/'+id).get()).data(),id);
+const e0=await eq('PC-02');const H=Number(e0.horimetro)+10;console.log('PC-02 itens',e0.itens.length,'hm',e0.horimetro,'ivPrev',e0.intervaloPrev);
+const pick=await p.evaluate(async()=>{const s=await window.__db.collection('equipamentos').get();for(const d of s.docs){const e=d.data();const i=(e.itens||[]).find(i=>i.ultimaH!==''&&i.ultimaH!=null&&!i.ivDef);if(i)return [d.id,i.pid,i.ultimaH,i.proxH,e.intervaloPrev]}});
+console.log('alvo',pick);const [eid,pid]=pick;
+await p.click('[data-acc="frota"]');await W();await p.click('[data-fr="equip"]');await W();
+await p.evaluate(q=>{const b=document.querySelector(q);const l=b.closest('.tsec-l');if(l&&l.hidden)l.previousElementSibling.click()},`[data-eq="${eid}"]`);await W();await p.click(`[data-eq="${eid}"]`);await W(900);
+const n1=await p.$$eval('[data-ivd]',x=>x.length);console.log('botoes Intervalo',n1);
+await p.click(`[data-ivd="${eid}|${pid}"]`,{force:true}).catch(async()=>{await p.evaluate(s=>{const b=document.querySelector(s);b.closest('.ia').querySelector('[data-ia]').click()},`[data-ivd="${eid}|${pid}"]`);await W();await p.click(`[data-ivd="${eid}|${pid}"]`)});await W();
+await p.selectOption('[data-ivdv]','400');await p.evaluate(()=>document.querySelector('[data-ivdv]').scrollIntoView({block:'center'}));await p.screenshot({path:'iv3.png'});
+await p.click('[data-ivok]');await W(900);
+const e=await eq(eid);const it=e.itens.find(i=>i.pid===pid);console.log('salvo',it.ivSel,it.ivDef,it.proxH,it.ultimaH);
+const n2=await p.$$eval(`[data-ivd="${eid}|${pid}"]`,x=>x.length);console.log('botao some?',n2===0);
+// encaixe no cadastro do item
+await p.evaluate(()=>{document.getElementById('scrim').click()});await W();
+await p.evaluate(()=>document.getElementById('fab').click());await W();const ht=await p.$$eval('#sheet [data-m]',x=>x.map(b=>b.dataset.m));console.log('menu',ht);
+const hasEnc=await p.evaluate(()=>!!document.querySelector('#sheet [data-encadd],#sheet #enc-q,#sheet .enc-box'));console.log('encaixe ui',hasEnc);
+console.log('ERR',errs);await b.close()})();

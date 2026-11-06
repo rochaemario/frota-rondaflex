@@ -1115,6 +1115,11 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-x{margin-top:12px;background:var(--surface);border-radius:12px;border:1px solid var(--line);overflow:hidden}
 .os-xr{display:flex;gap:10px;align-items:center;padding:11px 12px;border:0;border-top:1px solid var(--line);font:13.5px var(--body);background:none;width:100%;text-align:left;color:inherit}.os-xr:first-child{border-top:0}button.os-xr{cursor:pointer}
 .os-xr b{font:600 13px "IBM Plex Mono",monospace;color:#1b6638;min-width:74px;white-space:nowrap}.os-xr b.a{color:var(--accent)}
+.os-tl2{background:var(--surface);border-radius:16px;padding:6px 14px}
+.os-tl2 .ev{display:flex;gap:12px;position:relative;padding:10px 0}.os-tl2 .ev>i{flex:none;width:10px;height:10px;border-radius:50%;background:var(--accent);margin-top:5px;position:relative;z-index:1;box-shadow:0 0 0 3px var(--surface)}
+.os-tl2 .ev:not(:last-child):before{content:"";position:absolute;left:4px;top:24px;bottom:-14px;width:2px;background:var(--line)}
+.os-tl2 .ev>div{display:flex;flex-direction:column;gap:2px;min-width:0}.os-tl2 .t{font:500 14px var(--body);color:#121a2c}.os-tl2 .d{font-size:13px;color:var(--muted)}.os-tl2 small{font-size:12px;color:var(--faint)}
+.os-tl2 .co>i{background:#1b6638}.os-tl2 .re>i{background:#a3271c}.os-tl2 .ed>i{background:#b07a00}.os-tl2 .cf>i{background:#0f766e}.os-tl2 .ad>i,.os-tl2 .vi>i{background:#6b7383}
 .os-det{display:block;width:100%;margin-top:12px;border:0;background:none;color:var(--accent);font:600 14px var(--body);padding:10px;cursor:pointer}
 .os-tl{display:flex;flex-direction:column}.os-tl>div{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.os-tl>div:last-child{border:0}.os-tl time{font:600 12.5px 'IBM Plex Mono',monospace;color:var(--ink);min-width:86px;padding-top:1px}.os-tl span{font-size:14px;line-height:1.4}.os-tl b{color:#121a2c}
 .os-hd{margin-top:10px;font-size:13px;color:var(--muted)}.os-hd summary{cursor:pointer;text-align:center;color:var(--accent);font-weight:600;padding:8px;list-style:none}.os-hd summary::-webkit-details-marker{display:none}.os-hd span{display:block;padding:2px 4px;line-height:1.5}
@@ -4438,26 +4443,26 @@ const osHora=t=>{const d=new Date(t),h=pad(d.getHours())+':'+pad(d.getMinutes())
 const _osC={k:null,m:null};
 function osTodas(){const k=S.os.length+':'+S.ose.length+':'+(S.os[0]&&S.os[0].num)+':'+S.os.map(o=>o.num||0).join(',');if(_osC.os===S.os&&_osC.ose===S.ose)return _osC.m;
   const ev=new Map();S.ose.slice().sort((a,b)=>(a.ts||0)-(b.ts||0)||String(a.id).localeCompare(String(b.id))).forEach(e=>{if(!ev.has(e.os))ev.set(e.os,[]);ev.get(e.os).push(e)});
-  const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai){pai.filhas.push(v);pai.hist.push({ts:v.ts,txt:`Vinculou a ${osNum(v)}: ${v.aconteceu}`,nome:v.porNome})}});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
+  const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai){pai.filhas.push(v);pai.hist.push({ts:v.ts,k:'vi',txt:`Vinculou a ${osNum(v)}`,d:v.aconteceu,nome:v.porNome})}});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
 function osFold(r,evs){const o=r.o;
   const v={id:r.id,num:r.num||null,eq:o.eq,por:o.por,porNome:o.porNome||osNomeDe(o.por),ts:o.ts||r._em||0,o,data:o.data,hor:o.hor||'',aconteceu:o.aconteceu||'',feito:o.feito||'',estado:o.estado||'',
-    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,txt:(o.concl?'Abriu e concluiu a OS':'Abriu a OS')+` (${(eqById(o.eq)||{}).codigo||o.eq}${o.hor?', horimetro '+o.hor+' h':''}${o.concl&&o.estado?', '+(o.estado==='parado'?'Parado':'Operando'):''})`,nome:o.porNome||'—'}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
+    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,k:o.concl?'co':'ab',txt:o.concl?'Abriu e concluiu a OS':'Abriu a OS',d:[o.hor?'Horimetro '+o.hor+' h':'',o.estado?(o.estado==='parado'?'Parado':'Operando'):''].filter(Boolean).join(' · '),nome:o.porNome||'—'}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
   const addP=(arr,src,eid)=>(arr||[]).forEach((p,i)=>v.pecas.push({...p,src,pk:eid+':'+i}));
   addP(o.pecas,'',r.id);
   evs.forEach(e=>{const nm=e.porNome||osNomeDe(e.por);
-    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:'Concluiu a OS'+(e.estado?' · '+(e.estado==='parado'?'Parado':'Operando'):''),nome:nm})}
-    else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,txt:'Reabriu a OS',nome:nm,reab:1})}
+    if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'co',txt:'Concluiu a OS',d:e.estado?(e.estado==='parado'?'Parado':'Operando'):'',nome:nm})}
+    else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,k:'re',txt:'Reabriu a OS',nome:nm,reab:1})}
     else if(e.tipo==='resp'&&e.por===v.por&&v.sit==='aberta'){const n=[v.por,...(e.resp||[]).filter(x=>x!==v.por)];const add=n.filter(x=>!v.resp.includes(x)),tir=v.resp.filter(x=>!n.includes(x));v.resp=n;
       if(add.length)v.hist.push({ts:e.ts,txt:'Adicionou '+add.map(osNomeDe).join(', ')+' como responsavel',nome:nm});if(tir.length)v.hist.push({ts:e.ts,txt:'Tirou '+tir.map(osNomeDe).join(', ')+' dos responsaveis',nome:nm})}
     else if(e.tipo==='adendo'&&v.sit==='fechada'&&!v.resp.includes(e.por)){const n=v.ad.length+1;const corr=[];
-      v.ad.push({n,id:e.id,por:e.por,nome:nm,ts:e.ts,obs:e.obs||'',corr,pecas:e.pecas||[],fotos:e.fotos||[]});addP(e.pecas,'adendo '+n,e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Fez o adendo ${n}`+(e.obs?': '+e.obs:''),nome:nm})}
-    else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,txt:`Editou ${OS_CAMPOS[e.campo]||e.campo}: ${osVal(e.campo,de)||'vazio'} → ${osVal(e.campo,e.para)||'vazio'}`,nome:nm})}
+      v.ad.push({n,id:e.id,por:e.por,nome:nm,ts:e.ts,obs:e.obs||'',corr,pecas:e.pecas||[],fotos:e.fotos||[]});addP(e.pecas,'adendo '+n,e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'ad',txt:`Fez o adendo ${n}`,d:e.obs||'',nome:nm})}
+    else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,k:'ed',txt:`Editou ${(OS_CAMPOS[e.campo]||e.campo).toLowerCase()}`,d:`${osVal(e.campo,de)||'vazio'} → ${osVal(e.campo,e.para)||'vazio'}`,nome:nm})}
     else if(/^(pcadd|pcrm|ftadd|ftrm)$/.test(e.tipo)&&((v.sit==='aberta'&&v.resp.includes(e.por))||(v.sit==='fechada'&&e.adm))){
       if(e.tipo==='pcadd'){addP(e.pecas,'editado por '+nm,e.id);v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
       else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`Tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
       else if(e.tipo==='ftadd'){(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.fotos||[]).length} foto(s)`,nome:nm})}
       else{v.fotos=v.fotos.filter(f=>!(e.fotos||[]).includes(f));v.hist.push({ts:e.ts,txt:`Tirou ${(e.fotos||[]).length} foto(s)`,nome:nm})}}
-    else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,txt:`Conferiu ${e.nome||'peca'}: ${e.acao==='nao'?'nao veio do estoque':'baixa de '+nf(e.qtd,2)+' no estoque'}`,nome:nm})}});
+    else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,k:'cf',txt:`Conferiu ${e.nome||'peca'}`,d:e.acao==='nao'?'Nao veio do estoque':'Baixa de '+nf(e.qtd,2)+' no estoque',nome:nm})}});
   v.nAd=v.ad.length;return v}
 const osLista=()=>[...osTodas().values()];
 const osById=id=>osTodas().get(id);
@@ -4787,12 +4792,12 @@ async function osDraw(v,modo){
   return cv}
 /* detalhes (so app principal): tudo o que aconteceu na OS, com horario e quem fez */
 function openOSDet(id){nav('osdet:'+id,()=>openOSDet(id));const v=osById(id);if(!v){goBack();return}
-  const fh=t=>{const d=new Date(t);return `${sdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
-  const dur=ms=>{const m=Math.max(0,Math.round(ms/60000));return m<60?m+' min':m<2880?(Math.round(m/6)/10).toString().replace('.',',')+' h':Math.round(m/1440)+' dias'};
-  const fim=v.sit==='fechada'?(v.concTs||v.ts):Date.now(),reab=v.hist.filter(h=>h.reab).length;
-  openSheet({title:'Detalhes · '+osNum(v),sub:esc((eqById(v.eq)||{}).codigo||v.eq),
-  body:`<div class="os-dg g4" style="background:var(--surface);border:1px solid var(--line);border-radius:12px;margin-bottom:12px"><div><small>Aberta</small><b>${fh(v.ts)}</b></div><div><small>Concluida</small><b>${v.sit==='fechada'?fh(v.concTs||v.ts):'—'}</b></div><div><small>${v.sit==='fechada'?'Tempo total':'Aberta ha'}</small><b>${dur(fim-v.ts)}</b></div><div><small>Reaberta</small><b>${reab?reab+'x':'nao'}</b></div></div>
-   <div class="os-box"><div class="os-tl">${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<div><time>${fh(h.ts)}</time><span><b>${esc(h.nome||'')}</b> ${esc(h.txt)}</span></div>`).join('')}</div></div>`})}
+  const dh=t=>{const d=new Date(t);return `${fdate(iso(d))} · ${pad(d.getHours())}:${pad(d.getMinutes())}`},hr=t=>{const d=new Date(t);return `${sdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
+  const dur=ms=>{const m=Math.max(0,Math.round(ms/60000));if(m<60)return m+' min';if(m<1440){const h=Math.floor(m/60),r=m%60;return h+' h'+(r?' '+r+' min':'')}const d=Math.floor(m/1440),h=Math.round((m%1440)/60);return d+(d===1?' dia':' dias')+(h?' '+h+' h':'')};
+  const fech=v.sit==='fechada',fim=fech?(v.concTs||v.ts):Date.now(),reab=v.hist.filter(h=>h.reab).length;
+  openSheet({title:'Detalhes',sub:`${osNum(v)} · ${esc((eqById(v.eq)||{}).codigo||v.eq)}`,
+  body:`<div class="spec"><div class="r"><span>Aberta</span><b>${dh(v.ts)}</b></div><div class="r"><span>Concluida</span><b>${fech?dh(v.concTs||v.ts):'Em andamento'}</b></div><div class="r"><span>${fech?'Duracao':'Aberta ha'}</span><b>${dur(fim-v.ts)}</b></div><div class="r"><span>Reaberta</span><b>${reab?reab+(reab===1?' vez':' vezes'):'Nao'}</b></div></div>
+   <div class="lbl">Acoes</div><div class="os-tl2">${v.hist.slice().sort((a,b)=>a.ts-b.ts).map(h=>`<div class="ev ${h.k||''}"><i></i><div><span class="t">${esc(h.txt)}</span>${h.d?`<span class="d">${esc(h.d)}</span>`:''}<small>${esc(h.nome||'')} · ${hr(h.ts)}</small></div></div>`).join('')}</div>`})}
 /* informe: escolhe a versao e ve a imagem antes de compartilhar (como o cartao preventiva) */
 function osInforme(id){const v=osById(id);
   osModal(`<h2>Informe da ${osNum(v)}</h2>

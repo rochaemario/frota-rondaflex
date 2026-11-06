@@ -1016,9 +1016,9 @@ body.kb .sh-foot{display:none}
 .cb-pv small,.tile .tl,.hmcard .k,.pe .hd b,.ct-kh span,.steps span{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase}
 
 /* ---------- Ordens de Servico ---------- */
-.os-tb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 10px;padding:8px 12px;border-radius:12px;background:#2b3445;color:#fff;font-size:12.5px}
-.os-tb>b{font-size:11px;letter-spacing:.1em;background:#e0a100;color:#2b3445;padding:2px 7px;border-radius:6px}
-.os-tb button{margin-left:auto;height:30px;padding:0 10px;border-radius:9px;border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;font:600 12px var(--body)}.os-tb button+button{margin-left:0}
+.os-tb{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:5px 6px 5px 6px;border-radius:999px;background:#2b3445;color:#dfe4ee;font-size:12.5px;white-space:nowrap;overflow:hidden}.os-tb>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}.os-tb span b{color:#fff;font-weight:600}
+.os-tb>b{font-size:10px;letter-spacing:.1em;background:#e0a100;color:#2b3445;padding:3px 8px;border-radius:999px}
+.os-tb button{height:26px;padding:0 10px;border-radius:999px;border:0;background:rgba(255,255,255,.12);color:#fff;font:600 12px var(--body);flex:none}
 .os-sec{padding:0;overflow:hidden}.os-hh{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;padding:14px 16px 6px;font:inherit;color:inherit;cursor:pointer}.os-hh h2{margin:0;font:700 20px var(--display);color:var(--ink)}.os-hh span{font-size:13px;color:var(--accent);font-weight:600}
 .os-foc{display:flex;flex-direction:column;gap:12px}.os-foc .os-home{padding:0}
 .os-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;padding:6px 12px 14px}
@@ -1031,15 +1031,25 @@ body.mec #fab,body.mec .brandmark,body.mec .stab{display:none!important}
 .os-hdr h1{margin:8px 0 0;font:700 30px var(--display);letter-spacing:.01em;color:#fff}
 .os-sync{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:12px;background:rgba(255,255,255,.14)}.os-sync i{width:8px;height:8px;border-radius:4px;background:#5bd08a}
 .os-bd{display:flex;flex-direction:column;gap:12px}
+.mc-h{display:flex;flex-direction:column;gap:12px;margin:4px 0 14px}.mc-t{padding:0 2px}.mc-t{min-width:0}.mc-t small{font-size:13px;color:var(--muted)}.mc-t h1{margin:2px 0 0;font:700 28px var(--display);color:var(--ink);line-height:1.05;white-space:nowrap}.mc-p{display:block;margin-top:4px;font-size:12px;color:#8a4b00}
+.mc-bt{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}.mc-bt button{justify-content:center}.mc-es{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 14px var(--body);cursor:pointer}
+.me-l{background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--line)}.me-r{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:10px 14px;text-align:left;font:inherit;color:inherit;cursor:pointer}.me-r+.me-r{border-top:1px solid var(--line)}.me-t{flex:1;min-width:0;display:flex;flex-direction:column}.me-t b{font:500 14px var(--body);color:#121a2c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.me-t small{font:500 11.5px 'IBM Plex Mono',monospace;color:var(--faint)}
+.me-q{font:600 15px 'IBM Plex Mono',monospace;color:#1b6638;text-align:right;white-space:nowrap}.me-q small{font:500 11px var(--body);margin-left:3px;color:var(--faint)}.me-q.warn{color:#8a4b00}.me-q.bad{color:#a3271c}
+.mc-nv{flex:none;display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 16px 0 13px;border-radius:12px;border:0;background:#c8202f;color:#fff;font:600 15px var(--body);box-shadow:0 3px 10px rgba(200,32,47,.25);cursor:pointer}
+.os-tbar{display:flex;gap:8px;align-items:center}.os-seg{flex:1;display:grid;grid-template-columns:1fr 1fr;background:#e2e7ef;border-radius:12px;padding:3px}
+.os-seg button{height:36px;border:0;border-radius:9px;background:none;font:500 14px var(--body);color:#3a4659;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.os-seg button.on{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 1px 3px rgba(15,27,51,.12)}.os-seg .os-bg{min-width:18px;height:18px;font-size:10.5px;margin-left:6px}
+.os-fb2{position:relative;width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:#3a4659;display:grid;place-items:center;cursor:pointer;flex:none}.os-fb2.on{border-color:var(--ink);color:var(--ink)}.os-fb2 .os-bg{position:absolute;top:-6px;right:-6px;margin:0;min-width:18px;height:18px;font-size:10.5px}
+.os-fp{margin-top:10px;padding:10px;border-radius:12px;background:var(--surface);border:1px solid var(--line);display:flex;flex-direction:column;gap:8px}.os-in.sm{min-height:40px;padding:8px 12px;font-size:15px;border-radius:10px}.os-ch.lk{border-color:transparent;background:none;color:var(--accent)}
+.os-vz2b{display:flex;flex-direction:column;align-items:center;gap:6px;padding:36px 12px;color:var(--faint);text-align:center}.os-vz2b b{font:600 15px var(--body);color:#3a4659}.os-vz2b span{font-size:13px}
 .os-big{display:flex;align-items:center;justify-content:center;height:54px;border-radius:16px;background:#c8202f;color:#fff;font:700 17px var(--body);border:0;box-shadow:0 4px 12px rgba(200,32,47,.28);cursor:pointer;width:100%}
 .os-chips{display:flex;gap:8px;flex-wrap:wrap}
 .os-ch{height:38px;padding:0 16px;border-radius:19px;border:1px solid #cdd5e1;background:var(--surface);color:#3a4659;font:500 14px var(--body);cursor:pointer}.os-bg{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:7px;border-radius:999px;background:var(--accent);color:#fff;font:700 11.5px var(--body);font-style:normal;vertical-align:1px}.os-ch.on .os-bg{background:#fff;color:#0f1b33}
 .os-ch.on{background:#0f1b33;border-color:#0f1b33;color:#fff;font-weight:600}.os-ch.sm{height:30px;padding:0 11px;font-size:12.5px;vertical-align:middle}
 .os-ls{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.os-c{padding:13px 15px;border-radius:16px;background:var(--surface);box-shadow:0 1px 2px rgba(15,27,51,.05),0 2px 8px rgba(15,27,51,.05);display:flex;flex-direction:column;gap:5px;border:0;text-align:left;color:inherit;font:15px var(--body);width:100%;cursor:pointer}
+.os-c{padding:11px 14px;border-radius:14px;background:var(--surface);box-shadow:0 1px 2px rgba(15,27,51,.05),0 2px 8px rgba(15,27,51,.05);display:flex;flex-direction:column;gap:5px;border:0;text-align:left;color:inherit;font:15px var(--body);width:100%;cursor:pointer}
 .os-l1{display:flex;align-items:center;gap:8px}
-.os-n{font-size:12px;font-weight:700;color:#123a80;background:#e6eefb;padding:4px 9px;border-radius:9px;white-space:nowrap}.os-n.pend{background:#eef1f5;color:var(--muted)}
-.os-tag{font-size:17px;flex:1;color:var(--ink)}.os-tx{color:#1a2233}.os-c small{font-size:12.5px;color:var(--muted)}
+.os-n{font:600 11.5px 'IBM Plex Mono',monospace;color:#123a80;background:#e6eefb;padding:3px 8px;border-radius:7px;white-space:nowrap}.os-n.pend{background:#eef1f5;color:var(--muted)}
+.os-tag{font:600 15.5px 'IBM Plex Mono',monospace;flex:1;color:var(--ink)}.os-tx{color:#1a2233;font-size:14.5px}.os-c small{font-size:12px;color:var(--faint)}
 .os-par{font-size:11px;font-weight:700;letter-spacing:.05em;padding:4px 10px;border-radius:10px;background:#fce8ea;color:#9a1622;white-space:nowrap}.os-par.lg{align-self:flex-start;display:inline-block;margin-bottom:10px;font-size:12px}
 .os-cf{font-size:11px;font-weight:700;padding:4px 9px;border-radius:10px;background:#fff6e3;color:#7a5300;white-space:nowrap}
 .os-vz{padding:26px 12px;text-align:center;color:var(--muted);font-size:14.5px}
@@ -4493,10 +4503,13 @@ function osFiltra(){const f=S.osF,u=osEu();let L=osLista().filter(v=>v.sit===(f.
 function osCard(v){const e=eqById(v.eq)||{},par=v.estado==='parado',pc=osAdm()?osPendPecas(v).length:0,pend=!v.num;
   return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
     <span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}${v.nAd?` · ${v.nAd} ${v.nAd===1?'adendo':'adendos'}`:''}${pend?' · recebe o numero quando tiver sinal':''}</small></button>`}
+const OS_FIL='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
 function osListaHTML(){const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0),L=osFiltra();
-  return `<div class="os-chips"><button type="button" class="os-ch${f.tab==='abertas'&&!f.conf?' on':''}" data-ost="abertas">Abertas${nAb?`<em class="os-bg">${nAb}</em>`:''}</button><button type="button" class="os-ch${f.tab==='fechadas'&&!f.conf?' on':''}" data-ost="fechadas">Fechadas</button><button type="button" class="os-ch${f.show||fil?' on':''}" data-osf>Filtrar${fil?`<em class="os-bg">${fil}</em>`:''}</button></div>
-  ${f.show?`<div class="os-box"><input class="os-in" id="os-q" type="search" placeholder="Equipamento ou o que aconteceu" value="${esc(f.q)}" autocomplete="off"><div class="os-chips"><button type="button" class="os-ch${f.par?' on':''}" data-osp="par">So parados</button><button type="button" class="os-ch${f.min?' on':''}" data-osp="min">Minhas</button>${osAdm()?`<button type="button" class="os-ch${f.conf?' on':''}" data-osp="conf">Pecas a conferir</button>`:''}${fil?'<button type="button" class="os-ch" data-osp="limpa">Limpar</button>':''}</div></div>`:''}
-  <div class="os-ls" id="os-ls">${L.length?L.map(osCard).join(''):`<div class="os-vz">Nenhuma OS ${f.conf?'com peca a conferir':f.tab==='abertas'?'aberta':'fechada'}${fil&&!f.conf?' com esse filtro':''}.</div>`}</div>`}
+  const vz=f.conf?'Nenhuma peca a conferir':fil?'Nenhuma OS com esse filtro':f.tab==='abertas'?'Nenhuma OS aberta':'Nenhuma OS fechada';
+  return `<div class="os-tbar"><div class="os-seg" role="tablist"><button type="button" role="tab" class="${f.tab==='abertas'&&!f.conf?'on':''}" data-ost="abertas">Abertas${nAb?`<em class="os-bg">${nAb}</em>`:''}</button><button type="button" role="tab" class="${f.tab==='fechadas'&&!f.conf?'on':''}" data-ost="fechadas">Fechadas</button></div>
+   <button type="button" class="os-fb2${f.show||fil?' on':''}" data-osf aria-label="Filtrar">${OS_FIL}${fil?`<em class="os-bg">${fil}</em>`:''}</button></div>
+  ${f.show?`<div class="os-fp"><input class="os-in sm" id="os-q" type="search" placeholder="Equipamento ou o que aconteceu" value="${esc(f.q)}" autocomplete="off"><div class="os-chips"><button type="button" class="os-ch sm${f.par?' on':''}" data-osp="par">So parados</button><button type="button" class="os-ch sm${f.min?' on':''}" data-osp="min">Minhas</button>${osAdm()?`<button type="button" class="os-ch sm${f.conf?' on':''}" data-osp="conf">Pecas a conferir</button>`:''}${fil?'<button type="button" class="os-ch sm lk" data-osp="limpa">Limpar</button>':''}</div></div>`:''}
+  <div class="os-ls" id="os-ls">${L.length?L.map(osCard).join(''):`<div class="os-vz2b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><b>${vz}</b>${!fil&&!f.conf&&f.tab==='abertas'?'<span>Toque em Nova OS para registrar um servico.</span>':''}</div>`}</div>`}
 function osBindLista(root,redraw){
   root.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>openOS(b.dataset.os));
   root.querySelectorAll('[data-ost]').forEach(b=>b.onclick=()=>{S.osF.tab=b.dataset.ost;S.osF.conf=false;redraw()});
@@ -4526,11 +4539,31 @@ I.os='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1
 function vOSFocus(){return `<div class="os-foc">${vOSCard()}${podeEscrever()?'<button type="button" class="os-big" data-osnova>+ Nova OS</button>':''}<div id="osl">${osListaHTML()}</div></div>`}
 function bindOSFocus(){bindMec()}
 /* ---------- tela do mecanico (substitui o painel) ---------- */
-function vMec(){const u=osEu(),pend=S.os.filter(o=>!o.num).length;
-  return `<div class="os-hdr"><small><span>RONDAFLEX</span><span>${esc(u.nome||'Mecanico')} · Mecanico</span></small><h1>Ordens de Servico</h1><span class="os-sync" id="os-sync"><i></i><span>${pend?`${pend} OS ${pend===1?'aguardando':'aguardando'} numero`:'Tudo em dia'}</span></span></div>
-  <div class="os-bd"><button type="button" class="os-big" data-osnova>+ Nova OS</button><div id="osl">${osListaHTML()}</div></div>`}
-function bindMec(){const app=$('#app'),nb=app.querySelector('[data-osnova]');if(nb)nb.onclick=()=>osNova();const box=app.querySelector('#osl');if(box){const rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd)}}
+function vMec(){const u=osEu(),pend=S.os.filter(o=>!o.num).length,pn=(u.nome||'').split(/\s+/)[0];
+  return `<div class="mc-h"><div class="mc-t"><small>Ola, ${esc(pn||'mecanico')}</small><h1>Ordens de Servico</h1>${pend?`<span class="mc-p">${pend} OS ${pend===1?'aguardando':'aguardando'} numero · envia quando tiver sinal</span>`:''}</div><span class="mc-bt"><button type="button" class="mc-es" data-mest aria-label="Consultar estoque"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>Estoque</button><button type="button" class="mc-nv" data-osnova><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova OS</button></span></div>
+  <div id="osl">${osListaHTML()}</div>`}
+function bindMec(){const app=$('#app'),nb=app.querySelector('[data-osnova]');if(nb)nb.onclick=()=>osNova();const eb=app.querySelector('[data-mest]');if(eb)eb.onclick=()=>openMecEst();const box=app.querySelector('#osl');if(box){const rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd)}}
 
+/* ---------- estoque para o mecanico: so consulta, sem mexer em saldo ---------- */
+function mecEstLista(q){const k=nzM(q||''),L=S.estoque.filter(s=>!isKit(s)&&!s.inativo&&(!k||nzM([s.desc,s.codigo,s.ref,s.marca,s.local].join(' ')).includes(k))).sort((a,b)=>_an(a.desc,b.desc)).slice(0,80);
+  return L.length?`<div class="me-l">${L.map(s=>{const c=stockCls(s);return `<button type="button" class="me-r" data-mst="${esc(s.id)}"><span class="me-t"><b>${esc(s.desc)}</b><small>${esc(stCod(s))}${s.local?' · '+esc(s.local):''}</small></span><span class="me-q ${c}">${nf(stQtd(s),2)}<small>${esc(s.un||'')}</small></span></button>`}).join('')}</div>`:'<div class="os-vz2b"><b>Nenhum item encontrado</b><span>Confira o nome ou o codigo.</span></div>'}
+function openMecEst(){nav('mest',()=>openMecEst());
+  openSheet({title:'Estoque',sub:'Consulta',body:`<input class="os-in sm" id="me-q" type="search" placeholder="Nome, codigo ou referencia" autocomplete="off" aria-label="Buscar no estoque"><div id="me-b" style="margin-top:10px">${mecEstLista('')}</div>`,
+    mount:sh=>{const q=sh.querySelector('#me-q'),b=sh.querySelector('#me-b'),bd=()=>b.querySelectorAll('[data-mst]').forEach(x=>x.onclick=()=>openMecItem(x.dataset.mst));q.oninput=()=>{b.innerHTML=mecEstLista(q.value);bd()};bd()}})}
+function openMecItem(id){nav('mit:'+id,()=>openMecItem(id));const s=stById(id);if(!s){goBack();return}
+  const r=osReservado(id),c=stockCls(s),enc=(s.encaixe||[]).map(eqById).filter(Boolean).sort(byCode).map(e=>e.codigo),used=S.equips.filter(e=>(e.itens||[]).some(i=>i.estoqueId===id)).sort(byCode).map(e=>e.codigo);
+  openSheet({title:esc(s.desc),sub:`<span class="num">${esc(stCod(s))}</span> · ${esc(catNm(s.tipo))}`,
+  body:`<div class="hmcard"><div><div class="k">Saldo</div><div class="v">${nf(s.qtd,2)}<small>${esc(s.un||'')}</small></div><div class="d">${r?`${nf(r,2)} ${esc(s.un||'')} reservado em OS`:'Nada reservado em OS'}</div></div><span class="pill ${c}">${c==='bad'?'Sem estoque':c==='warn'?'Baixo':'Disponivel'}</span></div>
+   <div class="spec">${s.local?`<div class="r"><span>Local</span><b>${esc(s.local)}</b></div>`:''}${s.ref?`<div class="r"><span>Referencia</span><b class="num">${esc(s.ref)}</b></div>`:''}${s.marca?`<div class="r"><span>Marca</span><b>${esc(s.marca)}</b></div>`:''}${s.aplic?`<div class="r"><span>Aplicacao</span><b>${esc(s.aplic)}</b></div>`:''}
+    <div class="r"><span>Encaixa em</span><b>${esc(enc.concat(used.filter(u=>!enc.includes(u))).join(', ')||'—')}</b></div></div>
+   ${fotoStHTML(s)}`,
+  foot:`<button type="button" class="btn" id="mi-av" style="flex:1">Avisar falta</button>`,
+  mount:sh=>{sh.querySelectorAll('[data-ph]').forEach(b=>b.onclick=()=>viewPhoto(b.dataset.ph));
+    sh.querySelector('#mi-av').onclick=()=>osModal(`<h2>Avisar falta</h2><p class="os-mut">O administrador recebe um aviso sobre <b>${esc(s.desc)}</b>.</p><label class="os-f"><span>Observacao <i>(opcional)</i></span><input class="os-in sm" id="af-t" placeholder="Ex.: acabou na prateleira" autocomplete="off"></label><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="af-ok">Enviar</button></div>`,(o,close)=>{
+      o.querySelector('[data-x]').onclick=close;o.querySelector('#af-ok').onclick=async()=>{const u=osEu(),obs=o.querySelector('#af-t').value.trim();
+        let adm=[];try{const d=await S.db.doc('config/push').get();adm=(d.exists&&d.data().admins)||[]}catch(_){}const eu=EU();if(!adm.length&&eu&&eu.papel==='admin')adm=[eu.uid];
+        if(!adm.length){toast('Nao foi possivel encontrar o administrador. Tente mais tarde.');return}close();
+        await safe(()=>S.db.collection('avisos').add({de:u.uid,deNome:u.nome,para:adm,texto:`Falta: ${s.desc}${obs?' · '+obs:''}`,anexos:[{t:'item',id}],ts:Date.now(),estado:{},resp:[]}),'Aviso enviado ao administrador')}})}})}
 /* ---------- nova OS: 1a tela so escolhe o equipamento ---------- */
 const osEqs=()=>S.equips.filter(e=>e.status!=='inativo').slice().sort(byCode);
 function osEqLista(q){const k=nzM(q||''),L=osEqs().filter(e=>!k||nzM([e.codigo,e.desc,e.marca,e.modelo,e.tipo].join(' ')).includes(k));
@@ -4849,8 +4882,8 @@ function openMecs(aberto){nav('mecs',()=>openMecs(S.mecOpen));S.mecOpen=aberto||
       const l=(S.mecs||[]).map(m=>m.uid===k?{...m,enc,ativo:at}:enc?{...m,enc:false}:m);if(await salva(l)){toast('Salvo');setTimeout(()=>re(null),250)}};
     sh.querySelectorAll('[data-como]').forEach(b=>b.onclick=()=>{const m=(S.mecs||[]).find(x=>x.uid===b.dataset.como);osComo(m)})}})}
 function osComo(m){S.osComo=m?{uid:m.uid,nome:m.nome}:null;try{localStorage.setItem('frota.osComo',JSON.stringify(S.osComo))}catch(e){}closeSheet();render();toast(m?'Vendo o app como '+m.nome:'De volta como administrador')}
-function osTesteBar(){if(!OS_TESTE)return '';const u=EU()||{};if(u.papel!=='admin'&&!S.osComo)return '<div class="os-tb"><b>TESTE</b><span>Dados de teste: nada aqui mexe na frota real</span></div>';
-  return `<div class="os-tb"><b>TESTE</b>${S.osComo?`<span>Vendo como <b>${esc(S.osComo.nome)}</b></span><button type="button" data-tb="adm">Voltar a admin</button>`:`<button type="button" data-tb="mecs">Mecanicos</button><button type="button" data-tb="cop">Atualizar copia</button>`}</div>`}
+function osTesteBar(){if(!OS_TESTE)return '';const u=EU()||{};if(u.papel!=='admin'&&!S.osComo)return '<div class="os-tb"><b>TESTE</b><span>Dados de teste · nada mexe na frota real</span></div>';
+  return `<div class="os-tb"><b>TESTE</b>${S.osComo?`<span>Como <b>${esc(S.osComo.nome)}</b></span><button type="button" data-tb="adm">Voltar a admin</button>`:`<span>Admin</span><button type="button" data-tb="mecs">Mecanicos</button><button type="button" data-tb="cop">Atualizar copia</button>`}</div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-tb]');if(!b)return;const k=b.dataset.tb;
   if(k==='adm')osComo(null);else if(k==='mecs')openMecs();
   else if(k==='cop'){const box=document.createElement('div');document.body.appendChild(box);
@@ -4891,7 +4924,7 @@ const EST_K='frota.estado',EST_MAX=30*60000;
 const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:p[2]),alq:p=>openAlocEq(p[0]),ar:p=>p[0]==='esc'?formFiltroAr():formFiltroAr(undefined,p.join(':')),
   av:p=>openAviso(p.join(':')),avs:p=>openAvisos(p[0]||'r'),card:p=>openCartao(p.join(':')),cart:()=>openCart(),cbq:p=>openCombEq(p[0]),cr:p=>openPend(p[0],true),pd:p=>openPend(p[0]),
   del:p=>openDelete(p[0],p.slice(1).join(':')),dl:()=>openDelAbast(),edtr:p=>formEditTroca(p[0]),eq:p=>openEq(p[0]),eqv:p=>openEquiv(p[0]||undefined),esf:()=>esFilSheet(),
-  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
+  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
   hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
   mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
   rp:p=>formReprog(p[0],p[1]),ulp:p=>formUltPrev(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};

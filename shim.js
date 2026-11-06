@@ -236,24 +236,33 @@
   function screen(html,mount){css();let o=document.getElementById('lg');if(!o){o=document.createElement('div');o.id='lg';o.className='lg';document.body.appendChild(o)}
     o.innerHTML=`<div class="lg-top">${BRAND}</div><div class="lg-c">${html}</div>`;mount&&mount(o);return o}
   const closeScreen=()=>{const o=document.getElementById('lg');if(o)o.remove()};
-  /* ---------- entrar com o rosto ou a digital do aparelho (chave de acesso) ---------- */
-  const PK=()=>!!(window.PublicKeyCredential&&sb.auth&&typeof sb.auth.signInWithPasskey==='function');
-  const IOS=/iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-  const BIO=IOS?'Face ID':'digital',ART=IOS?'o Face ID':'a digital';
-  const FACE='<svg viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V6a2 2 0 0 1 2-2h2M16 4h2a2 2 0 0 1 2 2v2M20 16v2a2 2 0 0 1-2 2h-2M8 20H6a2 2 0 0 1-2-2v-2"/><path d="M9 9.5v1M15 9.5v1M12 9.5v3.5h-1M9.5 16c1.5 1.2 3.5 1.2 5 0"/></svg>';
-  const pkTop=t=>`<div class="lg-pk"><span>${FACE}</span></div><h1 style="text-align:center">${t}</h1>`;
-  let ofertaPK=false;
-  function pkEntrar(msg){screen(`${pkTop('Controle de Frota')}<p style="text-align:center" class="lg-e" id="pk-x">${esc(msg||'')}</p><button type="button" class="btn pri lg-pkb" id="pk-b">Entrar com ${BIO}</button><button type="button" class="lg-l lg-pkm" id="pk-m">Entrar com e-mail</button>`,o=>{
-    const b=o.querySelector('#pk-b'),x=o.querySelector('#pk-x');o.querySelector('#pk-m').onclick=()=>loginForm('',true);
-    b.onclick=async()=>{x.textContent='';b.disabled=true;b.textContent='Entrando…';acabouDeEntrar=true;let r=null;try{r=await sb.auth.signInWithPasskey()}catch(e){r={error:e}}
-      b.disabled=false;b.textContent='Entrar com '+BIO;const er=r&&r.error;if(!er)return;const m=String(er.message||er.code||er);console.warn('passkey',er);
-      x.textContent=/abort|cancel|NotAllowed/i.test(m)?'':/fetch|network|Failed to/i.test(m)||!navigator.onLine?'Sem internet. Para entrar e preciso internet.':/banned|disabled/i.test(m)?'Acesso desativado. Fale com o administrador.':'Este celular ainda nao foi ativado. Peca um QR de acesso ao administrador.'}})}
-  function pkOferta(nome){screen(`${pkTop('Ola, '+esc(String(nome||'').split(' ')[0]))}<p style="text-align:center">Ative ${ART} para entrar sempre assim.</p><p class="lg-e" id="po-x" style="text-align:center"></p><button type="button" class="btn pri lg-pkb" id="po-b">Ativar ${BIO==='digital'?'digital':BIO}</button>`,o=>{
-    const b=o.querySelector('#po-b'),x=o.querySelector('#po-x');
-    b.onclick=async()=>{if(b.dataset.ok){closeScreen();return}b.disabled=true;b.textContent='Ativando…';let r=null;try{r=await sb.auth.registerPasskey()}catch(e){r={error:e}}b.disabled=false;
-      if(r&&!r.error){try{localStorage.setItem('frota.pk','1')}catch(e){}closeScreen();return}
-      console.warn('passkey',r&&r.error);x.textContent='Nao foi possivel ativar agora. Voce continua entrando pelo QR.';b.textContent='Continuar';b.dataset.ok='1'}})}
-  function loginForm(msg,email){if(!email&&PK()){let m=null;try{m=localStorage.getItem('frota.email')}catch(e){}if(!m){pkEntrar(msg);return}}
+  /* ---------- mecanico: entrar com matricula + senha de 6 numeros ---------- */
+  const lsG=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsS=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
+  const fnAnon=async corpo=>{const x=await fetch(CFG.url+'/functions/v1/mecanico',{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+CFG.key},body:JSON.stringify(corpo)});const r=await x.json().catch(()=>null);return r||{erro:'falha'}};
+  function pinEntrar(msg){screen(`<h1>Entrar</h1><p>Digite sua matricula e sua senha de 6 numeros.</p>
+    <form class="lg-f" id="pn-f"><label class="f">Matricula<input id="pn-m" inputmode="numeric" autocomplete="username" required></label>
+    <label class="f">Senha<input id="pn-p" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="current-password" required></label><div class="lg-e" id="pn-x">${esc(msg||'')}</div>
+    <button class="btn pri" id="pn-b">Entrar</button></form><button type="button" class="lg-l lg-pkm" id="pn-e">Entrar com e-mail</button>`,o=>{
+    const f=o.querySelector('#pn-f'),x=o.querySelector('#pn-x'),b=o.querySelector('#pn-b'),mi=o.querySelector('#pn-m'),pi=o.querySelector('#pn-p');
+    const m0=lsG('frota.mat');if(m0)mi.value=m0;o.querySelector('#pn-e').onclick=()=>loginForm('',true);
+    f.onsubmit=async ev=>{ev.preventDefault();x.textContent='';const mat=mi.value.trim(),pin=pi.value.replace(/\D/g,'');if(pin.length!==6){x.textContent='A senha tem 6 numeros.';return}
+      b.disabled=true;b.textContent='Entrando…';let r;try{r=await fnAnon({acao:'pin_entrar',ns:NS,mat,pin})}catch(e){r={erro:'rede'}}
+      if(r&&r.senha){lsS('frota.mat',mat);lsS('frota.pinVia','1');acabouDeEntrar=true;const {error}=await sb.auth.signInWithPassword({email:r.email,password:r.senha});if(!error)return;r={erro:'falha'}}
+      b.disabled=false;b.textContent='Entrar';pi.value='';
+      x.textContent=r.erro==='rede'||!navigator.onLine?'Sem internet. Para entrar e preciso internet.':r.erro==='trava'?`Muitas tentativas. Tente de novo em ${r.min||15} min.`:r.erro==='off'?'Acesso desativado. Fale com o administrador.'
+        :r.erro==='sem_senha'?'Voce ainda nao criou sua senha. Peca um QR ao administrador.':r.erro==='senha'?'Matricula ou senha errada.'+(r.resta&&r.resta<=2?` Restam ${r.resta} tentativas.`:''):'Nao foi possivel entrar. Tente de novo.'}})}
+  /* depois de entrar pelo QR (ou se ainda nao tem senha): criar a senha de 6 numeros */
+  async function pinPrecisa(){if(!perfil||perfil.papel!=='mecanico'||!navigator.onLine)return false;if(lsG('frota.pinNovo'))return true;if(lsG('frota.pinVia')){lsS('frota.pinVia',null);lsS('frota.pinOk',perfil.user_id);return false}
+    let am={};try{const {data:{session}}=await sb.auth.getSession();am=(session&&session.user&&session.user.app_metadata)||{}}catch(e){}return !am.mec_pin&&lsG('frota.pinOk')!==perfil.user_id}
+  function pinCriar(){screen(`<h1>Crie sua senha</h1><p>6 numeros. Voce vai usar com a sua matricula para entrar pelo icone do app.</p>
+    <form class="lg-f" id="pc-f"><label class="f">Senha<input id="pc-1" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password" required></label>
+    <label class="f">Repita a senha<input id="pc-2" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="6" autocomplete="new-password" required></label><div class="lg-e" id="pc-x"></div>
+    <button class="btn pri" id="pc-b">Salvar senha</button></form>`,o=>{const f=o.querySelector('#pc-f'),x=o.querySelector('#pc-x'),b=o.querySelector('#pc-b');setTimeout(()=>o.querySelector('#pc-1').focus(),100);
+    f.onsubmit=async ev=>{ev.preventDefault();x.textContent='';const p1=o.querySelector('#pc-1').value.replace(/\D/g,''),p2=o.querySelector('#pc-2').value.replace(/\D/g,'');
+      if(p1.length!==6){x.textContent='A senha tem 6 numeros.';return}if(p1!==p2){x.textContent='As duas senhas nao conferem.';o.querySelector('#pc-2').value='';return}
+      b.disabled=true;b.textContent='Salvando…';try{await window.__frotaMec('pin_def',{pin:p1});lsS('frota.pinNovo',null);lsS('frota.pinOk',perfil.user_id);closeScreen();return}
+      catch(e){b.disabled=false;b.textContent='Salvar senha';const m=String(e.message||e);x.textContent=/fraca/.test(m)?'Senha muito facil. Evite 111111 ou 123456.':!navigator.onLine||/fetch|network/i.test(m)?'Sem internet. Conecte e toque de novo.':'Nao foi possivel salvar. Tente de novo.'}}})}
+  function loginForm(msg,email){if(!email&&!lsG('frota.email')){pinEntrar(msg);return}
     screen(`<h1>Entrar</h1><p>Use o e-mail e a senha que o administrador cadastrou para voce.</p>
     <form class="lg-f" id="lg-f"><label class="f">E-mail<input id="lg-m" type="email" autocomplete="username" inputmode="email" required></label>
     <label class="f">Senha<input id="lg-p" type="password" autocomplete="current-password" required></label><div class="lg-e" id="lg-x">${esc(msg||'')}</div>
@@ -304,7 +313,7 @@
   /* devolve true quando a tela ficou parada esperando o usuario */
   async function mecEntrar(m){const i=m.indexOf('.'),uid=m.slice(0,i),codigo=m.slice(i+1);
     let cur=null;try{({data:{session:cur}}=await sb.auth.getSession())}catch(e){}if(!cur)cur=sessaoGuardada();
-    if(cur&&cur.user&&cur.user.id===uid){mecLimpa();return false}
+    if(cur&&cur.user&&cur.user.id===uid){mecLimpa();lsS('frota.pinNovo','1');return false}
     if(cur&&cur.user){screen(`<h1>Acesso de mecanico</h1><p>Este celular ja esta conectado com outra conta (${esc(cur.user.email||'')}). Para entrar como mecanico, saia dessa conta primeiro.</p><div class="lg-e" id="mk-x"></div><button type="button" class="btn pri" id="mk-s">Sair e entrar como mecanico</button><button type="button" class="lg-l" id="mk-n">Cancelar</button>`,o=>{
         o.querySelector('#mk-s').onclick=()=>{if(OUT.length){o.querySelector('#mk-x').textContent='Ha alteracoes desta conta esperando internet. Conecte e aguarde antes de sair.';return}saindo=true;sb.auth.signOut()};
         o.querySelector('#mk-n').onclick=()=>{mecLimpa();closeScreen();start()}});return true}
@@ -312,10 +321,11 @@
     let r=null;try{const x=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+CFG.key},body:JSON.stringify({acao:'entrar',uid,codigo})});r=await x.json().catch(()=>null);if(!x.ok||!r||!r.senha)r={erro:(r&&r.erro)||'falha'}}catch(e){r={erro:'rede'}}
     if(r.erro==='rede'){screen('<h1>Sem internet</h1><p>Para o primeiro acesso e preciso internet. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="mk-t">Tentar de novo</button>',o=>{o.querySelector('#mk-t').onclick=()=>start()});return true}
     mecLimpa();
+    if(!r.erro)lsS('frota.pinNovo','1');
     if(r.erro){screen('<h1>Link sem validade</h1><p>Este link de acesso ja foi usado ou foi trocado. Peca um novo ao administrador.</p>');return true}
     acabouDeEntrar=true;const {error}=await sb.auth.signInWithPassword({email:r.email,password:r.senha});
     if(error){screen('<h1>Nao foi possivel entrar</h1><p>Peca um novo link ao administrador.</p>');return true}
-    ofertaPK=true;
+
     return false}
   /* para o administrador: criar mecanico, novo codigo, ativar/desativar */
   window.__frotaMec=async(acao,dados)=>{const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Entre de novo no app');
@@ -353,7 +363,7 @@
       else syncDepois();
       window.__frotaEu={uid:perfil.user_id,nome:perfil.nome||'',email:perfil.email||'',papel:perfil.papel};
       closeScreen();started=true;resolveReady();setTimeout(updSync,300);
-      if(ofertaPK){ofertaPK=false;if(PK()&&perfil.papel==='mecanico')setTimeout(()=>pkOferta(perfil.nome),400)}setTimeout(()=>{realtime();equipeSync()},conLenta()?3000:300);return}
+      setTimeout(async()=>{if(await pinPrecisa())pinCriar()},400);setTimeout(()=>{realtime();equipeSync()},conLenta()?3000:300);return}
     closeScreen()
   }
   sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}

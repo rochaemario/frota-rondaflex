@@ -7,7 +7,6 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(os.path.dirname(ROOT), 'frota.html')
 DIST = os.path.join(ROOT, 'dist')
 SB_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js'
-SB_JS_T = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js'
 
 def main():
     app = open(SRC, encoding='utf-8').read()
@@ -67,8 +66,7 @@ def main():
         shutil.copy(os.path.join(ROOT, 'src', 'leitor.html'), DIST)
     # versao de teste (/teste): mesmo app, dados com prefixo teste/, cache e banco do aparelho separados
     T = os.path.join(DIST, 'teste'); os.makedirs(T, exist_ok=True)
-    pt = page.replace(SB_JS, SB_JS_T)  # teste: biblioteca nova (entrar com Face ID / digital)
-    open(os.path.join(T, 'index.html'), 'w', encoding='utf-8').write(pt.replace('<title>', '<title>TESTE · ', 1) if '<title>' in pt else pt)
+    open(os.path.join(T, 'index.html'), 'w', encoding='utf-8').write(page.replace('<title>', '<title>TESTE · ', 1) if '<title>' in page else page)
     shutil.copy(os.path.join(DIST, 'shim.js'), T)
     shutil.copytree(os.path.join(ROOT, 'src', 'icons'), os.path.join(T, 'icons'))
     cfg = open(os.path.join(DIST, 'config.js'), encoding='utf-8').read()

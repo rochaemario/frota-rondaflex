@@ -5012,6 +5012,8 @@ function openMecFicha(id){const novo=id==='novo',m0=novo?null:(S.mecs||[]).find(
     sh.querySelector('#mff').onsubmit=async ev=>{ev.preventDefault();const nome=sh.querySelector('#mf-n').value.trim().replace(/\s+/g,' ');if(!nome){sh.querySelector('#mf-n').classList.add('bad');toast('Escreva o nome');return}
       const mat=sh.querySelector('#mf-m').value.trim(),tl=tel.value.replace(/\D/g,''),enc=sh.querySelector('#mf-enc').checked,atE=sh.querySelector('#mf-at'),at=atE?atE.checked:true;
       const bt=document.querySelector('#sheet [form="mff"]')||ev.submitter;const trava=v=>{if(bt)bt.disabled=v};
+      if(MF&&(novo||m.real)){if(!mat){sh.querySelector('#mf-m').classList.add('bad');toast('A matricula e usada para entrar no app','','Preencha a matricula');return}
+        const nz=x=>String(x||'').trim().replace(/^0+(?=.)/,'').toLowerCase();if((S.mecs||[]).some(x=>x.uid!==m.uid&&x.real&&nz(x.mat)===nz(mat))){sh.querySelector('#mf-m').classList.add('bad');toast('Outro mecanico ja usa essa matricula','','Matricula repetida');return}}
       const dados={nome,funcao:fn,mat,tel:tl,enc,ativo:at};
       if(novo){let uid0='mec-'+uid(),cod=null;
         if(MF){if(!navigator.onLine){toast('Criar o acesso precisa de internet','','Sem internet');return}trava(true);try{const r=await window.__frotaMec('criar',{nome});uid0=r.uid;cod=r.codigo}catch(e){console.error(e);trava(false);toast(String(e.message||e),'','Nao foi possivel criar');return}}

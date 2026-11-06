@@ -1194,9 +1194,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-ra{display:flex;align-items:center;gap:9px;border:0;border-top:1px solid var(--line);background:none;color:var(--accent);font:600 14px var(--body);padding:8px 10px;min-height:44px;cursor:pointer;text-align:left}.os-ra span{width:28px;height:28px;border-radius:50%;border:1.5px dashed #9fb0cf;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.118.0/dist/umd/supabase.js"></script>
-<script src="config.js?v=ddd9ddbc3b"></script>
-<script src="shim.js?v=ddd9ddbc3b"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js?v=292f4be2bc"></script>
+<script src="shim.js?v=292f4be2bc"></script>
 </head>
 <body>
 
@@ -5028,6 +5028,8 @@ function openMecFicha(id){const novo=id==='novo',m0=novo?null:(S.mecs||[]).find(
     sh.querySelector('#mff').onsubmit=async ev=>{ev.preventDefault();const nome=sh.querySelector('#mf-n').value.trim().replace(/\s+/g,' ');if(!nome){sh.querySelector('#mf-n').classList.add('bad');toast('Escreva o nome');return}
       const mat=sh.querySelector('#mf-m').value.trim(),tl=tel.value.replace(/\D/g,''),enc=sh.querySelector('#mf-enc').checked,atE=sh.querySelector('#mf-at'),at=atE?atE.checked:true;
       const bt=document.querySelector('#sheet [form="mff"]')||ev.submitter;const trava=v=>{if(bt)bt.disabled=v};
+      if(MF&&(novo||m.real)){if(!mat){sh.querySelector('#mf-m').classList.add('bad');toast('A matricula e usada para entrar no app','','Preencha a matricula');return}
+        const nz=x=>String(x||'').trim().replace(/^0+(?=.)/,'').toLowerCase();if((S.mecs||[]).some(x=>x.uid!==m.uid&&x.real&&nz(x.mat)===nz(mat))){sh.querySelector('#mf-m').classList.add('bad');toast('Outro mecanico ja usa essa matricula','','Matricula repetida');return}}
       const dados={nome,funcao:fn,mat,tel:tl,enc,ativo:at};
       if(novo){let uid0='mec-'+uid(),cod=null;
         if(MF){if(!navigator.onLine){toast('Criar o acesso precisa de internet','','Sem internet');return}trava(true);try{const r=await window.__frotaMec('criar',{nome});uid0=r.uid;cod=r.codigo}catch(e){console.error(e);trava(false);toast(String(e.message||e),'','Nao foi possivel criar');return}}

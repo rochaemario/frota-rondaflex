@@ -1033,7 +1033,8 @@ body.mec #fab,body.mec .brandmark,body.mec .stab{display:none!important}
 .os-bd{display:flex;flex-direction:column;gap:12px}
 .os-big{display:flex;align-items:center;justify-content:center;height:54px;border-radius:16px;background:#c8202f;color:#fff;font:700 17px var(--body);border:0;box-shadow:0 4px 12px rgba(200,32,47,.28);cursor:pointer;width:100%}
 .os-chips{display:flex;gap:8px;flex-wrap:wrap}
-.os-ch{height:38px;padding:0 16px;border-radius:19px;border:1px solid #cdd5e1;background:var(--surface);color:#3a4659;font:500 14px var(--body);cursor:pointer}.os-ch.on{background:#0f1b33;border-color:#0f1b33;color:#fff;font-weight:600}.os-ch.sm{height:30px;padding:0 11px;font-size:12.5px;vertical-align:middle}
+.os-ch{height:38px;padding:0 16px;border-radius:19px;border:1px solid #cdd5e1;background:var(--surface);color:#3a4659;font:500 14px var(--body);cursor:pointer}.os-bg{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;margin-left:7px;border-radius:999px;background:var(--accent);color:#fff;font:700 11.5px var(--body);font-style:normal;vertical-align:1px}.os-ch.on .os-bg{background:#fff;color:#0f1b33}
+.os-ch.on{background:#0f1b33;border-color:#0f1b33;color:#fff;font-weight:600}.os-ch.sm{height:30px;padding:0 11px;font-size:12.5px;vertical-align:middle}
 .os-ls{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .os-c{padding:13px 15px;border-radius:16px;background:var(--surface);box-shadow:0 1px 2px rgba(15,27,51,.05),0 2px 8px rgba(15,27,51,.05);display:flex;flex-direction:column;gap:5px;border:0;text-align:left;color:inherit;font:15px var(--body);width:100%;cursor:pointer}
 .os-l1{display:flex;align-items:center;gap:8px}
@@ -4470,7 +4471,7 @@ function osCard(v){const e=eqById(v.eq)||{},par=v.estado==='parado',pc=osAdm()?o
   return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
     <span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}${v.nAd?` · ${v.nAd} ${v.nAd===1?'adendo':'adendos'}`:''}${pend?' · recebe o numero quando tiver sinal':''}</small></button>`}
 function osListaHTML(){const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0),L=osFiltra();
-  return `<div class="os-chips"><button type="button" class="os-ch${f.tab==='abertas'&&!f.conf?' on':''}" data-ost="abertas">Abertas (${nAb})</button><button type="button" class="os-ch${f.tab==='fechadas'&&!f.conf?' on':''}" data-ost="fechadas">Fechadas</button><button type="button" class="os-ch${f.show||fil?' on':''}" data-osf>Filtrar${fil?` (${fil})`:''}</button></div>
+  return `<div class="os-chips"><button type="button" class="os-ch${f.tab==='abertas'&&!f.conf?' on':''}" data-ost="abertas">Abertas${nAb?`<em class="os-bg">${nAb}</em>`:''}</button><button type="button" class="os-ch${f.tab==='fechadas'&&!f.conf?' on':''}" data-ost="fechadas">Fechadas</button><button type="button" class="os-ch${f.show||fil?' on':''}" data-osf>Filtrar${fil?`<em class="os-bg">${fil}</em>`:''}</button></div>
   ${f.show?`<div class="os-box"><input class="os-in" id="os-q" type="search" placeholder="Equipamento ou o que aconteceu" value="${esc(f.q)}" autocomplete="off"><div class="os-chips"><button type="button" class="os-ch${f.par?' on':''}" data-osp="par">So parados</button><button type="button" class="os-ch${f.min?' on':''}" data-osp="min">Minhas</button>${osAdm()?`<button type="button" class="os-ch${f.conf?' on':''}" data-osp="conf">Pecas a conferir</button>`:''}${fil?'<button type="button" class="os-ch" data-osp="limpa">Limpar</button>':''}</div></div>`:''}
   <div class="os-ls" id="os-ls">${L.length?L.map(osCard).join(''):`<div class="os-vz">Nenhuma OS ${f.conf?'com peca a conferir':f.tab==='abertas'?'aberta':'fechada'}${fil&&!f.conf?' com esse filtro':''}.</div>`}</div>`}
 function osBindLista(root,redraw){
@@ -4603,7 +4604,7 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
   const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
   const pcRow=p=>`<button type="button" class="os-pr${adm&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${adm&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
   const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
-  const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes · horarios e acoes (${v.hist.length})</button>`;
+  const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes</button>`;
   const pai=v.vinc&&osById(v.vinc);
   const ext=[pai?`<button type="button" class="os-xr" data-osv="${esc(pai.id)}"><b class="a">${osNum(pai)}</b><span>Esta OS faz parte da ${osNum(pai)} · ${esc(pai.aconteceu)}</span></button>`:'',
     ...v.filhas.map(f=>`<button type="button" class="os-xr" data-osv="${esc(f.id)}"><b>${osNum(f)}</b><span>${esc(f.aconteceu)} · ${esc(f.porNome)} · vinculada${f.sit==='aberta'?' (aberta)':''}</span></button>`),
@@ -4616,7 +4617,7 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
      <div class="os-wtl"><div><small>Aberta em</small><b>${sdate(v.data)||'—'}</b></div><div class="nv"><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b></div><div><small>Ha</small><b>${tempo()}</b></div></div>
      <div class="os-ws"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
      <div class="os-ws"><div class="os-lb">Servico executado</div>${v.feito?`<div class="os-tx">${esc(v.feito)}${marca('feito')}</div>`:'<div class="os-vz2">Preencha ao concluir</div>'}</div>
-     ${v.pecas.length?`<div class="os-ws"><div class="os-lb"><span>Pecas</span><span>${v.pecas.length}</span></div>${v.pecas.map(pcRow).join('')}</div>`:''}
+     ${v.pecas.length?`<div class="os-ws"><div class="os-lb">Pecas</div>${v.pecas.map(pcRow).join('')}</div>`:''}
      ${fotos?`<div class="os-ws"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
      <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
      ${resp?`<div class="os-cta"><button type="button" class="os-ad pri w" data-a="concluir">Concluir OS</button><button type="button" class="os-ad" data-a="editar">Editar</button><button type="button" class="os-ad" data-a="informe">Informe</button></div>`

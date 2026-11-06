@@ -4865,11 +4865,12 @@ function openOSInf(id,modo){nav('osinf:'+id+':'+modo,()=>openOSInf(id,modo));con
 /* ---------- equipe de mecanicos (admin) e modo teste ---------- */
 function openMecs(aberto){nav('mecs',()=>openMecs(S.mecOpen));S.mecOpen=aberto||null;const L=(S.mecs||[]).slice().sort((a,b)=>_an(a.nome,b.nome));
   const chev='<svg class="os-cv" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
-  openSheet({title:'Mecanicos',sub:OS_TESTE?'Teste: mecanicos sem login, para ver o app como cada um':'Equipe',
-  body:`${L.length?`<div class="os-ml">${L.map(m=>{const op=S.mecOpen===m.uid;return `<div class="os-mc${m.ativo===false?' off':''}${op?' open':''}"><button type="button" class="os-mh" data-mx="${esc(m.uid)}" aria-expanded="${op}"><span class="os-mn"><span class="n">${esc(m.nome)}</span>${m.enc?'<span class="os-e" title="Encarregado de manutencao">E</span>':''}${m.ativo===false?'<span class="os-mut">desativado</span>':''}</span>${chev}</button>
+  const MF=!!window.__frotaMec;
+  openSheet({title:'Mecanicos',sub:MF?'Entram pelo QR, sem senha':'Equipe',
+  body:`${L.length?`<div class="os-ml">${L.map(m=>{const op=S.mecOpen===m.uid;return `<div class="os-mc${m.ativo===false?' off':''}${op?' open':''}"><button type="button" class="os-mh" data-mx="${esc(m.uid)}" aria-expanded="${op}"><span class="os-mn"><span class="n">${esc(m.nome)}</span>${m.enc?'<span class="os-e" title="Encarregado de manutencao">E</span>':''}${m.ativo===false?'<span class="os-mut">desativado</span>':''}${MF&&!m.real?'<span class="os-mut">sem login</span>':''}</span>${chev}</button>
     ${op?`<div class="os-mb"><label class="os-sw"><span><b>Encarregado de manutencao</b><small>Assina as OS em que nao for responsavel</small></span><input type="checkbox" id="mc-enc"${m.enc?' checked':''}><i></i></label>
      <label class="os-sw"><span><b>Ativo</b><small>Desativado nao entra no app</small></span><input type="checkbox" id="mc-at"${m.ativo===false?'':' checked'}><i></i></label>
-     <div class="os-mbt">${OS_TESTE?`<button type="button" class="btn sm" data-como="${esc(m.uid)}">Ver como</button>`:''}<button type="button" class="btn sm pri" data-msv="${esc(m.uid)}">Salvar</button></div></div>`:''}</div>`}).join('')}</div>`:'<div class="os-vz">Nenhum mecanico.</div>'}
+     <div class="os-mbt">${m.real&&m.ativo!==false?`<button type="button" class="btn sm" data-mqr="${esc(m.uid)}">Novo QR</button>`:''}${OS_TESTE?`<button type="button" class="btn sm" data-como="${esc(m.uid)}">Ver como</button>`:''}<button type="button" class="btn sm pri" data-msv="${esc(m.uid)}">Salvar</button></div></div>`:''}</div>`}).join('')}</div>`:'<div class="os-vz">Nenhum mecanico.</div>'}
    <p class="os-mut" style="margin:8px 4px 0;display:flex;align-items:center;gap:6px"><span class="os-e" style="margin:0">E</span>Encarregado de manutencao · toque no nome para ver as opcoes</p>
    <form id="mcf" class="os-frm" style="margin-top:14px"><label class="os-f"><span>Novo mecanico</span><input class="os-in" id="mc-n" placeholder="Nome" autocomplete="off"></label></form>`,
   foot:`<button class="btn pri" form="mcf">Adicionar</button>`,
@@ -4877,10 +4878,32 @@ function openMecs(aberto){nav('mecs',()=>openMecs(S.mecOpen));S.mecOpen=aberto||
     const re=u=>{const b=sh.querySelector('.sh-body'),y=b?b.scrollTop:0;NAV.pop();openMecs(u);const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y};
     sh.querySelectorAll('[data-mx]').forEach(b=>b.onclick=()=>re(S.mecOpen===b.dataset.mx?null:b.dataset.mx));
     sh.querySelector('#mcf').onsubmit=async ev=>{ev.preventDefault();const n=sh.querySelector('#mc-n').value.trim();if(!n){toast('Escreva o nome');return}
-      if(await salva([...(S.mecs||[]),{uid:'mec-'+uid(),nome:n,ativo:true}]))setTimeout(()=>re(null),250)};
+      if(!MF){if(await salva([...(S.mecs||[]),{uid:'mec-'+uid(),nome:n,ativo:true}]))setTimeout(()=>re(null),250);return}
+      if(!navigator.onLine){toast('Criar o acesso precisa de internet','','Sem internet');return}
+      const bt=$('#sheet .btn.pri[form="mcf"]')||document.querySelector('[form="mcf"]');if(bt)bt.disabled=true;
+      try{const r=await window.__frotaMec('criar',{nome:n});await salva([...(S.mecs||[]),{uid:r.uid,nome:n,ativo:true,real:true}]);setTimeout(()=>{re(null);mecQR(n,r.uid,r.codigo)},300)}
+      catch(e){console.error(e);toast(String(e.message||e),'','Nao foi possivel criar')}finally{if(bt)bt.disabled=false}};
+    const qb=sh.querySelector('[data-mqr]');if(qb)qb.onclick=()=>{const m=(S.mecs||[]).find(x=>x.uid===qb.dataset.mqr);if(!m)return;
+      osModal(`<h2>Novo QR</h2><p class="os-mut">Gera um QR novo para ${esc(m.nome)} entrar (ex.: trocou de celular). O QR anterior deixa de valer. Quem ja esta conectado continua.</p><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="nq-ok">Gerar</button></div>`,(o,close)=>{
+        o.querySelector('[data-x]').onclick=close;o.querySelector('#nq-ok').onclick=async ev=>{ev.target.disabled=true;try{const r=await window.__frotaMec('codigo',{uid:m.uid});close();mecQR(m.nome,m.uid,r.codigo)}catch(e){console.error(e);ev.target.disabled=false;toast(navigator.onLine?String(e.message||e):'Sem internet','','Nao foi possivel gerar')}}})};
     const sv=sh.querySelector('[data-msv]');if(sv)sv.onclick=async()=>{const k=sv.dataset.msv,enc=sh.querySelector('#mc-enc').checked,at=sh.querySelector('#mc-at').checked;
-      const l=(S.mecs||[]).map(m=>m.uid===k?{...m,enc,ativo:at}:enc?{...m,enc:false}:m);if(await salva(l)){toast('Salvo');setTimeout(()=>re(null),250)}};
+      const m0=(S.mecs||[]).find(m=>m.uid===k);
+      if(m0&&m0.real&&(m0.ativo!==false)!==at){sv.disabled=true;try{await window.__frotaMec('ativo',{uid:k,ativo:at})}catch(e){console.error(e);sv.disabled=false;toast(navigator.onLine?String(e.message||e):'Sem internet','','Nao foi possivel '+(at?'ativar':'desativar'));return}}
+      const l=(S.mecs||[]).map(m=>m.uid===k?{...m,enc,ativo:at}:enc?{...m,enc:false}:m);if(await salva(l)){toast(m0&&m0.real&&!at?'Desativado: saiu do app':'Salvo');setTimeout(()=>re(null),250)}};
     sh.querySelectorAll('[data-como]').forEach(b=>b.onclick=()=>{const m=(S.mecs||[]).find(x=>x.uid===b.dataset.como);osComo(m)})}})}
+/* QR de acesso do mecanico (uso unico) */
+let _qrLib=null;const qrLib=()=>_qrLib||(_qrLib=new Promise((ok,ko)=>{if(window.qrcode)return ok(window.qrcode);const sc=document.createElement('script');sc.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';sc.onload=()=>ok(window.qrcode);sc.onerror=()=>{_qrLib=null;ko(new Error('sem internet'))};document.head.appendChild(sc)}));
+function mecQR(nome,id,codigo){const url=location.origin+location.pathname+'?mec='+encodeURIComponent(id)+'.'+encodeURIComponent(codigo);
+  osModal(`<h2>Acesso de ${esc(nome)}</h2><p class="os-mut" style="margin-top:2px">Peca para ${esc(nome.split(' ')[0])} apontar a camera do celular para o QR, ou envie o link.</p>
+    <div id="mq-box" style="display:flex;justify-content:center;padding:10px 0 6px"><div class="os-mut">Gerando QR…</div></div>
+    <p class="os-mut" style="font-size:12.5px;text-align:center;margin:0 0 12px">Vale para um acesso. Depois de usado, deixa de valer.</p>
+    <div class="os-g2"><button type="button" class="os-op" data-x>Fechar</button><button type="button" class="os-op on" id="mq-sh">Enviar link</button></div>`,async(o,close)=>{
+    o.querySelector('[data-x]').onclick=close;
+    o.querySelector('#mq-sh').onclick=async()=>{const t=`Acesso ao Controle de Frota (${nome}). Abra no seu celular:`;
+      if(navigator.share){try{await navigator.share({title:'Controle de Frota',text:t,url});return}catch(e){if(e&&e.name==='AbortError')return}}
+      if(await copyTxt(url))toast('Cole na conversa com o mecanico','','Link copiado');else toast('Nao foi possivel copiar')};
+    const box=o.querySelector('#mq-box');try{const q=(await qrLib())(0,'M');q.addData(url);q.make();box.innerHTML=q.createSvgTag({cellSize:5,margin:4,scalable:true});const sv=box.querySelector('svg');if(sv){sv.style.cssText='width:230px;height:230px;display:block;background:#fff;border:1px solid var(--line);border-radius:10px'}}
+    catch(e){box.innerHTML='<div class="os-mut">Sem internet para gerar o QR. Use "Enviar link".</div>'}})}
 function osComo(m){S.osComo=m?{uid:m.uid,nome:m.nome}:null;try{localStorage.setItem('frota.osComo',JSON.stringify(S.osComo))}catch(e){}closeSheet();render();toast(m?'Vendo o app como '+m.nome:'De volta como administrador')}
 function osTesteBar(){if(!OS_TESTE)return '';const u=EU()||{};if(u.papel!=='admin'&&!S.osComo)return '<div class="os-tb"><b>TESTE</b><span>Dados de teste · nada mexe na frota real</span></div>';
   return `<div class="os-tb"><b>TESTE</b>${S.osComo?`<span>Como <b>${esc(S.osComo.nome)}</b></span><button type="button" data-tb="adm">Voltar a admin</button>`:`<span>Admin</span><button type="button" data-tb="mecs">Mecanicos</button><button type="button" data-tb="cop">Atualizar copia</button>`}</div>`}

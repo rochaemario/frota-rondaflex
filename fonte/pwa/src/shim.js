@@ -277,8 +277,32 @@
   /* sessao guardada no aparelho (para abrir sem internet) */
   const sessaoGuardada=()=>{try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(/^sb-.*-auth-token$/.test(k)){const v=JSON.parse(localStorage.getItem(k));const s=v&&(v.currentSession||v);if(s&&s.user)return s}}}catch(e){}return null};
   /* uma abertura por vez (o aviso de sessao do servidor pode chegar enquanto a abertura ainda corre) */
+  /* ---------- acesso do mecanico pelo QR / link (?mec=uid.codigo, uso unico) ---------- */
+  const MECK='frota.mecLink',FN=CFG.url+'/functions/v1/mecanico';
+  function mecParam(){try{const u=new URL(location.href),m=u.searchParams.get('mec');if(m){u.searchParams.delete('mec');history.replaceState(null,'',u.pathname+u.search+u.hash);localStorage.setItem(MECK,m)}return localStorage.getItem(MECK)}catch(e){return null}}
+  const mecLimpa=()=>{try{localStorage.removeItem(MECK)}catch(e){}};
+  /* devolve true quando a tela ficou parada esperando o usuario */
+  async function mecEntrar(m){const i=m.indexOf('.'),uid=m.slice(0,i),codigo=m.slice(i+1);
+    let cur=null;try{({data:{session:cur}}=await sb.auth.getSession())}catch(e){}if(!cur)cur=sessaoGuardada();
+    if(cur&&cur.user&&cur.user.id===uid){mecLimpa();return false}
+    if(cur&&cur.user){screen(`<h1>Acesso de mecanico</h1><p>Este celular ja esta conectado com outra conta (${esc(cur.user.email||'')}). Para entrar como mecanico, saia dessa conta primeiro.</p><div class="lg-e" id="mk-x"></div><button type="button" class="btn pri" id="mk-s">Sair e entrar como mecanico</button><button type="button" class="lg-l" id="mk-n">Cancelar</button>`,o=>{
+        o.querySelector('#mk-s').onclick=()=>{if(OUT.length){o.querySelector('#mk-x').textContent='Ha alteracoes desta conta esperando internet. Conecte e aguarde antes de sair.';return}saindo=true;sb.auth.signOut()};
+        o.querySelector('#mk-n').onclick=()=>{mecLimpa();closeScreen();start()}});return true}
+    screen('<h1>Entrando…</h1><p>Conferindo o seu acesso.</p>');
+    let r=null;try{const x=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+CFG.key},body:JSON.stringify({acao:'entrar',uid,codigo})});r=await x.json().catch(()=>null);if(!x.ok||!r||!r.senha)r={erro:(r&&r.erro)||'falha'}}catch(e){r={erro:'rede'}}
+    if(r.erro==='rede'){screen('<h1>Sem internet</h1><p>Para o primeiro acesso e preciso internet. Depois o app funciona sem internet.</p><button type="button" class="btn pri" id="mk-t">Tentar de novo</button>',o=>{o.querySelector('#mk-t').onclick=()=>start()});return true}
+    mecLimpa();
+    if(r.erro){screen('<h1>Link sem validade</h1><p>Este link de acesso ja foi usado ou foi trocado. Peca um novo ao administrador.</p>');return true}
+    acabouDeEntrar=true;const {error}=await sb.auth.signInWithPassword({email:r.email,password:r.senha});
+    if(error){screen('<h1>Nao foi possivel entrar</h1><p>Peca um novo link ao administrador.</p>');return true}
+    return false}
+  /* para o administrador: criar mecanico, novo codigo, ativar/desativar */
+  window.__frotaMec=async(acao,dados)=>{const {data:{session}}=await sb.auth.getSession();if(!session)throw new Error('Entre de novo no app');
+    const x=await fetch(FN,{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+session.access_token},body:JSON.stringify({acao,...(dados||{})})});
+    const r=await x.json().catch(()=>null);if(!x.ok||!r||r.erro)throw new Error((r&&(r.msg||r.erro))||('HTTP '+x.status));return r};
   let startP=null;function start(){if(startP)return startP;startP=start0().finally(()=>{startP=null});return startP}
   async function start0(){
+    if(!started){const mk=mecParam();if(mk&&await mecEntrar(mk))return}
     /* sessao: nao espera mais que 1,5 s pelo servidor; segue com a guardada e renova em segundo plano */
     let session=null;const guard=sessaoGuardada();
     if(guard&&!acabouDeEntrar&&!started){session=guard;sb.auth.getSession().catch(()=>{})}
@@ -296,11 +320,11 @@
     if(pf&&!acabouDeEntrar){data=pf;
       /* perfil guardado: abre na hora e confere com o servidor depois */
       buscaPerfil().then(({d,e})=>{if(e)return;if(!d){waiting();return}if(JSON.stringify(d)!==JSON.stringify(pf)){perfil=d;try{localStorage.setItem('frota.perfil',JSON.stringify(d))}catch(x){}
-        document.body.classList.remove('papel-admin','papel-editor','papel-consulta');document.body.classList.add('papel-'+d.papel);window.__frotaEu={uid:d.user_id,nome:d.nome||'',email:d.email||'',papel:d.papel};if(d.papel!==pf.papel)setTimeout(()=>location.reload(),300)}})}
+        document.body.classList.remove('papel-admin','papel-editor','papel-consulta','papel-mecanico');document.body.classList.add('papel-'+d.papel);window.__frotaEu={uid:d.user_id,nome:d.nome||'',email:d.email||'',papel:d.papel};if(d.papel!==pf.papel)setTimeout(()=>location.reload(),300)}})}
     else{const {d,e}=await buscaPerfil();if(e){if(!pf){loginForm('Sem conexao com o servidor. No primeiro acesso a internet e necessaria.');return}data=pf}else data=d}
     if(!data){waiting();return}
     perfil=data;try{localStorage.setItem('frota.perfil',JSON.stringify(data))}catch(e){}
-    document.body.classList.remove('papel-admin','papel-editor','papel-consulta');document.body.classList.add('papel-'+perfil.papel);
+    document.body.classList.remove('papel-admin','papel-editor','papel-consulta','papel-mecanico');document.body.classList.add('papel-'+perfil.papel);
     if(!started){
       const tem=await dbInit();
       if(!tem){screen('<h1>Carregando os dados</h1><p>Baixando a frota para este aparelho. So acontece no primeiro acesso.</p><p id="dl-pg" style="font-weight:600;color:var(--fg)">Conectando…</p>');
@@ -313,15 +337,15 @@
   sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}
     /* sessao perdida sem o usuario pedir (ex.: senha trocada): pede login de novo, sem apagar o que esta guardado */
     if(ev==='SIGNED_OUT'&&!saindo){if(started)loginForm('Entre de novo para enviar o que esta guardado neste aparelho.');return}
-    if(ev==='SIGNED_OUT'){window.__frotaSemEstado=true;try{sessionStorage.clear();localStorage.removeItem('frota.perfil');localStorage.removeItem('frota.estado')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase('frota');r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
+    if(ev==='SIGNED_OUT'){window.__frotaSemEstado=true;try{sessionStorage.clear();localStorage.removeItem('frota.perfil');localStorage.removeItem('frota.estado')}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase(NS?'frota-teste':'frota');try{indexedDB.deleteDatabase(NS?'frota':'frota-teste')}catch(e){}r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});
 
   /* ---------- conta e equipe (toque em "Sincronizado") ---------- */
-  const PAPEL={admin:'Administrador',editor:'Editor',consulta:'Consulta'};
+  const PAPEL={admin:'Administrador',editor:'Editor',consulta:'Consulta',mecanico:'Mecanico'};
   document.addEventListener('click',ev=>{const s=ev.target.closest&&ev.target.closest('#sync');const open=document.getElementById('acct');
     if(open&&!ev.target.closest('#acct')){open.remove();if(!s)return}
     if(!s||!perfil)return;ev.stopPropagation();ev.preventDefault();if(open)return;css();
     const d=document.createElement('div');d.id='acct';d.className='acct';
-    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${esc(perfil.email)} · ${PAPEL[perfil.papel]}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}${perfil.papel==='admin'?'<div class="dg-r" id="ac-nt" hidden><div><b>Notificacoes no celular</b><small>Avisos, vencimentos, estoque e lancamentos</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Notificacoes no celular"></button></div>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
+    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${perfil.papel==='mecanico'?'':esc(perfil.email)+' · '}${PAPEL[perfil.papel]||''}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}${perfil.papel==='admin'?'<div class="dg-r" id="ac-nt" hidden><div><b>Notificacoes no celular</b><small>Avisos, vencimentos, estoque e lancamentos</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Notificacoes no celular"></button></div>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
     document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alteracoes ainda nao enviadas',`Ha ${OUT.length} ${OUT.length>1?'alteracoes':'alteracao'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}(saindo=true,sb.auth.signOut())};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
     const dr=d.querySelector('#ac-dg'),sw=dr.querySelector('.sw');const pinta=()=>sw.setAttribute('aria-checked',!!dgLer(perfil.user_id));pinta();
     dgPode().then(v=>{dr.hidden=!v});

@@ -1348,8 +1348,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=5f2a59ae20"></script>
-<script src="shim.js?v=5f2a59ae20"></script>
+<script src="config.js?v=23b80336c7"></script>
+<script src="shim.js?v=23b80336c7"></script>
 </head>
 <body>
 
@@ -1694,7 +1694,8 @@ async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs='',
   if(custo){const cu={...(d.cus||{})};cu[custo]=Math.round(((Number(cu[custo])||0)+l)*10)/10;ex.cus=cu}
   await md.set({...d,dia,...ex,eq:{...(d.eq||{}),[e.id]:{lt:Math.round((x.lt+l)*10)/10,n:x.n+1,l:Math.round((x.l+(horas?L:0))*10)/10,h:Math.round((x.h+(horas||0))*10)/10}}});
   const up={combBase:nb,combUlt:{mes:m,id:ref.id},combUltData:dt};
-  if(h>(Number(e.horimetro)||0)){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
+  /* horimetro do equipamento so muda com informacao mais atual: valor maior e data igual ou mais nova que a leitura */
+  if(h>(Number(e.horimetro)||0)&&dt>=(e.horimetroData||'')){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
   await S.db.doc('equipamentos/'+e.id).update(up);
   Object.assign(e,up);return up}
 /* abastecimentos em lote (pacote preparado pelo Claude a partir das folhas):
@@ -1746,6 +1747,7 @@ async function openLoteAbast(lista){
   const sim={};for(const r of rows){const e0=sim[r.e.id]||{...r.e};const c=calcAbast(e0,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);r.c=c;
     if(!c.erro){if(c.lh!=null){const md=await combMedia(r.e.id,r.x.data);if(md&&(c.lh>md*1.5||c.lh<md*0.5))r.aviso=`Consumo fora do normal (media ${nf(md,1)} L/h)`}
       const sj=hmSalto(e0,c.h,r.x.data);if(sj){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro ${nf(sj.dif)} h acima do esperado`;r.fora=true}
+      if(hmAtras(e0,c.h,r.x.data)){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro maior que a leitura de ${fdate(e0.horimetroData)} (${nf(e0.horimetro,1)} h)`;r.fora=true}
       sim[r.e.id]={...e0,combBase:c.nb,combUltData:r.x.data,...(c.h>(Number(e0.horimetro)||0)?{horimetro:c.h,horimetroData:r.x.data}:{})}}}
   rows.forEach((r,i)=>{r.i=i;r.sel=!r.c.erro&&!r.fora});
   const linha=r=>`<button type="button" class="lt-r${r.c.erro?' er':r.aviso?' av':''}${r.sel?'':' off'}" data-lt="${r.i}"${r.c.erro?' disabled':''}><span class="lt-k" aria-hidden="true"></span><span class="lt-c num">${esc(r.e.codigo)}</span><span class="lt-m"><b class="num">${nf(r.x.horimetro,2)} h · ${nf(r.x.litros,2)} L</b><small>${r.c.erro?esc(r.c.erro):r.aviso?esc(r.aviso):r.c.lh!=null?nf(r.c.lh,1)+' L/h':'Vira a base da medicao'}</small></span></button>`;
@@ -1957,6 +1959,7 @@ async function cbxLote(dt0){
     const pad=cbxCustoR(e,c,x.r);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
     if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}
     const sj=hmSalto(e,r.h,st.dt);if(sj){o.av=1;o.msg.push(['warn',`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`])}
+    if(hmAtras(e,r.h,st.dt)){o.av=1;o.msg.push(['warn',`Horimetro maior que a leitura mais nova (${nf(e.horimetro,1)} h em ${fdate(e.horimetroData)}). Confira.`])}
     o.ok=true;return o};
   const tag=e=>!cbxNaObra(e)?`<span class="cbx-tag pq">${esc(e.alocacao||'Sem local')}</span>`:`<span class="cbx-tag">${esc(e.area==='Mina'&&e.frente==='UG'?'UG':e.area||'DM1')}</span>`;
   const linha=(e,x)=>{const o=chk(e,x),cu=x.c||cbxCustoR(e,c,x.r);const dis=!cbxNaObra(e)&&!x.r;
@@ -3344,6 +3347,8 @@ const hmRecua=(e,h,dt)=>e.horimetro!==''&&e.horimetro!=null&&h<Number(e.horimetr
 /* informacao lancada antes de uma troca de relogio e mostrada como foi lida (sem converter) */
 const hmOrig=(eqId,v,dt)=>{const d=hmDeltaApos(eqId,dt);return {v:Math.round((Number(v)-d)*10)/10,d}};
 /* salto impossivel: mais de 24 h por dia desde a ultima leitura (provavel erro de digitacao) */
+/* data mais antiga que a leitura atual, mas horimetro maior: um dos dois numeros esta errado */
+const hmAtras=(e,h,dt)=>e.horimetro!==''&&e.horimetro!=null&&!!e.horimetroData&&(dt||'')<e.horimetroData&&h>Number(e.horimetro);
 function hmSalto(e,h,dt){if(e.horimetro===''||e.horimetro==null||!e.horimetroData)return null;const last=Number(e.horimetro);if(!(h>last))return null;
   if((dt||'')<e.horimetroData)return null;const days=Math.max(1,Math.round((Date.parse(dt)-Date.parse(e.horimetroData))/864e5));const lim=24*days;
   return h-last>lim?{dif:Math.round((h-last)*10)/10,days,lim}:null}

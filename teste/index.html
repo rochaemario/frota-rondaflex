@@ -1364,8 +1364,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=41d7d56f44"></script>
-<script src="shim.js?v=41d7d56f44"></script>
+<script src="config.js?v=fdda13601a"></script>
+<script src="shim.js?v=fdda13601a"></script>
 </head>
 <body>
 
@@ -1730,6 +1730,8 @@ function formAbast(){
           box.innerHTML=`<div class="eqv-ask"><b>Consumo fora do normal</b><p class="note" style="margin:0">Este abastecimento da <b>${nf(lh,1)} L/h</b>. A media de ${esc(e.codigo)} e ${nf(md0,1)} L/h. Confira o horimetro e os litros.</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-go>Os valores estao certos</button></div></div>`;
           box.querySelector('[data-x]').onclick=()=>box.innerHTML='';box.querySelector('[data-go]').onclick=()=>{hmSt.cons=true;box.innerHTML='';sh.querySelector('#fab-f').onsubmit({preventDefault(){}})};
           box.scrollIntoView({block:'start',behavior:'smooth'});return}}
+      {const c=await cbxCfg();await cbxFechAll();const cb0=c.comboios[0]&&c.comboios[0].id,rs=cb0?await cbxRun(c,cb0,dt,{[dt]:-l}):null;
+        if(rs&&rs.min<0){sh.querySelector('#ab-g').innerHTML=cbxMsg('bad',cbxSemSaldo(rs,l));return}}
       const ok=await safe(()=>abastGravar(e,{dt,h0,h,dl:g.dl,l,cheio,horas,lh,L,nb,b,resp:sh.querySelector('#ab-r').value.trim(),obs:sh.querySelector('#ab-o').value.trim()}),lh!=null?`Abastecimento lancado · ${nf(lh,1)} L/h`:'Abastecimento lancado');
       if(ok)goBack()};
   }});
@@ -1811,7 +1813,11 @@ async function openLoteAbast(lista){
   foot:`<button type="button" class="btn pri" id="lt-go"></button>`,
   mount:sh=>{const go=sh.querySelector('#lt-go');const txt=()=>{const n=nSel();go.disabled=!n;go.textContent=n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada marcado'};txt();
     sh.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const r=rows[Number(b.dataset.lt)];r.sel=!r.sel;b.classList.toggle('off',!r.sel);txt()});
-    go.onclick=async()=>{const ok=rows.filter(r=>r.sel);go.disabled=true;let n=0,f=0;
+    go.onclick=async()=>{const ok=rows.filter(r=>r.sel);if(!ok.length)return;
+    /* sem saldo no comboio: nao lanca (lancamentos sem comboio contam no primeiro) */
+    {const c=await cbxCfg();await cbxFechAll();const cb0=c.comboios[0]&&c.comboios[0].id,aj={};ok.forEach(r=>aj[r.x.data]=Math.round(((aj[r.x.data]||0)-Number(r.x.litros))*10)/10);
+      const rs=cb0?await cbxRun(c,cb0,Object.keys(aj).sort()[0],aj):null;if(rs&&rs.min<0){sh.querySelector('#lt-st').innerHTML=cbxMsg('bad',cbxSemSaldo(rs));return}}
+    go.disabled=true;let n=0,f=0;
     for(const r of ok){go.textContent=`Lancando ${n+f+1} de ${ok.length}…`;const e=eqById(r.e.id);const c=calcAbast(e,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);
       if(c.erro){f++;continue}try{await abastGravar(e,c);n++}catch(er){console.error(er);f++}}
     toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimentos lancados`);goBack()}}});
@@ -1909,7 +1915,31 @@ async function cbxSomas(c,cb,de,ate){let ent=0,sai=0;const first=c.comboios[0]&&
     Object.entries(cbxSaiDia(d,cb,first)).forEach(([dk,v])=>{if(inR(dk))sai+=Number(v)||0})}
   return {ent:Math.round(ent*10)/10,sai:Math.round(sai*10)/10}}
 async function cbxTanque(c,cb){const F=cbxFechUlt(cb.id),t=today(),de=F?addDia(F.corte,1):t.slice(0,7)+'-01';
-  const s=await cbxSomas(c,cb.id,de,t>de?t:de);return {...s,de,base:F?Number(F.saldo):null,F,saldo:F?Math.round((Number(F.saldo)+s.ent-s.sai)*10)/10:null}}
+  const s=await cbxSomas(c,cb.id,de,t>de?t:de);
+  /* sem saldo informado (nenhum fechamento): entrada considerada igual a saida */
+  if(!F)return {...s,entReal:s.ent,ent:s.sai,est:true,de,base:null,F,saldo:null};
+  return {...s,de,base:Number(F.saldo),F,saldo:Math.round((Number(F.saldo)+s.ent-s.sai)*10)/10}}
+/* entradas e saidas por dia de um comboio entre duas datas: {aaaa-mm-dd:{e,s}} */
+async function cbxDias(c,cb,de,ate){const D={},first=c.comboios[0]&&c.comboios[0].id===cb,r1=v=>Math.round(v*10)/10;
+  for(let m=de.slice(0,7);m<=ate.slice(0,7);m=mesSeg(m)){let d={};try{const x=await S.db.doc('comb/'+m).get();d=x.exists?x.data():{}}catch(e){}
+    const put=(dk,k,v)=>{const dt=m+'-'+dk;if(dt<de||dt>ate)return;D[dt]=D[dt]||{e:0,s:0};D[dt][k]=r1(D[dt][k]+(Number(v)||0))};
+    Object.entries(((d.cbEnt||{})[cb])||{}).forEach(([dk,v])=>put(dk,'e',v));Object.entries(cbxSaiDia(d,cb,first)).forEach(([dk,v])=>put(dk,'s',v))}
+  return D}
+/* saldo dia a dia depois do ultimo fechamento, com ajustes {data:+L entrada/-L saida}.
+   min = menor saldo de 'from' em diante (saida so pode usar o que nao vai faltar depois); neg = dias que ficam negativos.
+   null = sem saldo informado (regra: entrada = saida, nao trava) */
+async function cbxRun(c,cb,from,aj){const F=cbxFechUlt(cb);if(!F||from<=F.corte)return null;aj=aj||{};const de=addDia(F.corte,1);
+  const ate=[today(),from,...Object.keys(aj)].sort().pop(),D=await cbxDias(c,cb,de,ate);let run=Number(F.saldo),min=null;const neg=[];
+  for(let d=de;d<=ate;d=addDia(d,1)){const x=D[d]||{e:0,s:0};run=Math.round((run+x.e-x.s+(Number(aj[d])||0))*10)/10;if(d>=from){if(min==null||run<min)min=run;if(run<0)neg.push(d)}}
+  return {min,neg,D}}
+const cbxSemSaldo=(r,L)=>`<b>Sem saldo no comboio.</b> ${L!=null?`Saida de ${nf(L,1)} L, `:''}faltam ${nf(-r.min,1)} L. Lance antes a entrada de diesel.`;
+/* entradas do mes para o relatorio: enquanto o comboio nao tem saldo informado (ate o 1o fechamento), entrada = saida */
+function cbxEntMes(c,d,m){let ent=0,est=false;const all=S.cbxFech||{};
+  c.comboios.forEach((k,i)=>{const F0=(all[k.id]||[])[0],sai=cbxSaiDia(d,k.id,i===0),en=((d.cbEnt||{})[k.id])||{};
+    new Set([...Object.keys(sai),...Object.keys(en)]).forEach(dk=>{const dt=m+'-'+dk;if(!F0||dt<=F0.corte){ent+=Number(sai[dk])||0;if(Number(sai[dk]))est=true}else ent+=Number(en[dk])||0})});
+  /* entradas de comboio que nao esta mais cadastrado */
+  Object.entries(d.cbEnt||{}).forEach(([k,o])=>{if(!c.comboios.some(z=>z.id===k))Object.values(o).forEach(v=>ent+=Number(v)||0)});
+  return {ent:Math.round(ent*10)/10,est}}
 const CBX_IC={more:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>',
   rel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-8M12 20V5M19 20v-6M3 20h18"/></svg>',
   up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
@@ -1961,8 +1991,9 @@ async function cbxComboio(){
       const pct=cap&&t.saldo!=null?Math.max(0,Math.min(100,Math.round(t.saldo/cap*100))):null;
       box.innerHTML=`<div class="cbx-sal"><div><small>Saldo</small><b>${t.saldo!=null?nf(t.saldo,1):'—'}<i>L</i></b></div>${pct!=null?`<em>${pct}%</em>`:''}</div>
         ${cap?`<div class="cbx-bar"><i style="width:${pct||0}%"></i><u style="left:25%"></u><u style="left:50%"></u><u style="left:75%"></u></div><div class="cbx-barl"><span>0</span><span>capacidade ${nf(cap)} L</span></div>`:''}
-        <div class="cbx-io"><div class="in"><small>${CBX_IC.up}Entradas</small><b>${nf(t.ent,1)} L</b></div><div class="out"><small>${CBX_IC.dn}Saidas</small><b>${nf(t.sai,1)} L</b></div></div>
-        <div class="cbx-ft">${t.F?`Desde o fechamento de <b>${fdate(t.F.corte).slice(0,5)}</b> · saldo inicial ${nf(t.base,1)} L`:`Desde ${fdate(t.de).slice(0,5)} · sem saldo inicial: use <b>Fechar mes</b> com o saldo medido`}</div>`}).catch(()=>{const box=sh.querySelector('#cbx-tk');if(box)box.innerHTML='<div class="s">Nao foi possivel carregar.</div>'})}});
+        <div class="cbx-io"><div class="in"><small>${CBX_IC.up}Entradas${t.est?' (estimada)':''}</small><b>${nf(t.ent,1)} L</b></div><div class="out"><small>${CBX_IC.dn}Saidas</small><b>${nf(t.sai,1)} L</b></div></div>
+        ${t.saldo!=null&&t.saldo<0?cbxMsg('bad',`<b>Saldo negativo.</b> Falta lancar entrada ou ha saida a conferir.`):''}
+        <div class="cbx-ft">${t.F?`Desde o fechamento de <b>${fdate(t.F.corte).slice(0,5)}</b> · saldo inicial ${nf(t.base,1)} L`:`Desde ${fdate(t.de).slice(0,5)} · sem saldo informado: entrada considerada igual a saida. Para informar: <b>Fechar mes</b>`}</div>`}).catch(()=>{const box=sh.querySelector('#cbx-tk');if(box)box.innerHTML='<div class="s">Nao foi possivel carregar.</div>'})}});
 }
 
 /* ---------- MSE: equipamento que nao e da Rondaflex nem alugado por ela, mas abastece no comboio ----------
@@ -1984,6 +2015,8 @@ async function cbxMseGravar(x,dt,cb){const m=mesKey(dt),l=Math.round(Number(x.l)
 async function cbxLote(dt0){
   const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c);
   const st=cbxLote.st&&cbxLote.st.cb===cb.id?cbxLote.st:(cbxLote.st={cb:cb.id,dt:today(),q:'',f:'todos',sf:''});if(dt0)st.dt=dt0;
+  /* saldo disponivel na data (null = sem saldo informado, nao trava) */
+  let disp=null,dispDt='';
   nav('cbx:lt',()=>cbxLote());
   const cus=cbxCustosAb(c);
   const rk=()=>'r:'+cb.id+':'+st.dt,dr=()=>cbxLS.get(rk())||{},save=d=>{Object.keys(d).forEach(k=>{const x=d[k];if(!x||(!x.h&&!x.l&&!x.r&&!x.c))delete d[k]});cbxLS.set(rk(),Object.keys(d).length?d:null)};
@@ -2029,7 +2062,7 @@ async function cbxLote(dt0){
   body:`<div class="cbx-tools"><div class="cbx-row1"><label class="cbx-dt">${CBX_IC.cal}<input type="date" id="cbx-dt" value="${st.dt}" max="${today()}" aria-label="Data"></label>
       <label class="cbx-q">${CBX_IC.q}<input id="cbx-q" type="search" placeholder="Buscar TAG" autocomplete="off" value="${esc(st.q)}" aria-label="Buscar TAG"></label></div>
       <div id="cbx-flt">${flt()}</div><div id="cbx-ask"></div><div id="cbx-pd"></div></div>
-    <div class="cbx-colh"><span>Horimetro</span><span>Litros</span><span>Custo</span></div><div class="cbx-rows" id="cbx-rows"></div><div id="cbx-mw"></div><div class="cbx-tot" id="cbx-tot"></div><div id="cbx-cf"></div>`,
+    <div class="cbx-colh"><span>Horimetro</span><span>Litros</span><span>Custo</span></div><div class="cbx-rows" id="cbx-rows"></div><div id="cbx-mw"></div><div class="cbx-tot" id="cbx-tot"></div><div id="cbx-ss"></div><div id="cbx-cf"></div>`,
   foot:`<button type="button" class="btn pri" id="lt-go">Lancar</button>`,
   mount:sh=>{const go=sh.querySelector('#lt-go'),rows=sh.querySelector('#cbx-rows'),mw=sh.querySelector('#cbx-mw');
     const mCu=(x,i)=>`<div class="cbx-cu" role="group" aria-label="Custo" style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-mc="${esc(k.id)}" aria-pressed="${x.c===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div>`;
@@ -2055,8 +2088,10 @@ async function cbxLote(dt0){
     cbxMore(sh,[{ic:CBX_IC.file,t:'Importar planilha',fn:()=>cbxImport()},{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxLote.st=null;cbxLote()})}]);
     const tot=()=>{const d=dr();let n=0,b=0,L=0;base().forEach(e=>{const x=d[e.id];if(!x||!(Number(x.l)>0))return;const o=chk(e,x);if(o.ok){n++;L+=Number(x.l)}else b++});
       mLoad();M.forEach(x=>{if(!(Number(x.l)>0))return;if(chkM(x).ok){n++;L+=Number(x.l)}else b++});
-      go.textContent=n?`Lancar ${n}`:'Lancar';go.disabled=!n;go.title=go.textContent;go.setAttribute('aria-label',n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada para lancar');
-      sh.querySelector('#cbx-tot').innerHTML=n||b?`<span><b>${n}</b> pronto${n===1?'':'s'}</span>${b?`<span class="pb"><b>${b}</b> pendente${b===1?'':'s'}</span>`:''}<span class="r">${nf(L,1)} L</span>`:''};
+      const sem=disp&&dispDt===st.dt&&n&&Math.round(L*10)/10>disp.min;
+      go.textContent=n?`Lancar ${n}`:'Lancar';go.disabled=!n||sem;go.title=go.textContent;go.setAttribute('aria-label',sem?'Sem saldo no comboio':n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada para lancar');
+      sh.querySelector('#cbx-tot').innerHTML=(n||b?`<span><b>${n}</b> pronto${n===1?'':'s'}</span>${b?`<span class="pb"><b>${b}</b> pendente${b===1?'':'s'}</span>`:''}<span class="r">${nf(L,1)} L</span>`:'');sh.querySelector('#cbx-ss').innerHTML=(sem?cbxMsg('bad',`<b>Sem saldo no comboio.</b> Disponivel ${nf(Math.max(0,disp.min),1)} L em ${fdate(st.dt).slice(0,5)}, faltam ${nf(Math.round(L*10)/10-disp.min,1)} L. Lance antes a entrada de diesel.`):'')};
+    const dsp=()=>{const dt=st.dt;cbxRun(c,cb.id,dt,{}).then(r=>{if(dt!==st.dt)return;disp=r;dispDt=dt;tot()}).catch(()=>{})};
     const pd=()=>{const l=pend();sh.querySelector('#cbx-pd').innerHTML=l.length?`<div class="cbx-pend">${CBX_IC.info}<span>${l.map(p=>`${p.n} nao lancado${p.n===1?'':'s'} de ${fdate(p.dt).slice(0,5)}`).join(' · ')}</span><button type="button" data-pv="${l[0].dt}">Ver</button></div>`:'';
       const v=sh.querySelector('[data-pv]');if(v)v.onclick=()=>{st.dt=v.dataset.pv;sh.querySelector('#cbx-dt').value=st.dt;all()}};
     const one=id=>{const e=eqById(id),el=rows.querySelector(`[data-r="${CSS.escape(id)}"]`);if(!e||!el)return;const ae=document.activeElement,f=ae&&el.contains(ae)?(ae.dataset.h!=null?'h':ae.dataset.l!=null?'l':''):'';
@@ -2073,7 +2108,7 @@ async function cbxLote(dt0){
       rows.querySelectorAll('.cbx-r').forEach(el=>{bindRow(el);const id=el.dataset.r;
         el.querySelector('[data-h]').addEventListener('input',ev=>{upd(id,'h',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)});
         el.querySelector('[data-l]').addEventListener('input',ev=>{upd(id,'l',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)})});
-      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();mAll();tot();pd()};
+      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();mAll();tot();pd();if(dispDt!==st.dt){disp=null;dsp()}};
     cbxUltBusca().then(l=>l.forEach(e=>{const el=rows.querySelector(`[data-r="${CSS.escape(e.id)}"] [data-l]`);if(el)el.placeholder=nf(cbxUltL(e),1)}));
     /* Enter do teclado pula: horimetro › litros › horimetro do proximo */
     rows.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;const ins=[...rows.querySelectorAll('input')],i=ins.indexOf(ev.target);if(i<0)return;ev.preventDefault();const n=ins[i+1];if(n){n.focus();n.select&&n.select()}else ev.target.blur()});
@@ -2092,6 +2127,9 @@ async function cbxLote(dt0){
         for(const r of okM)if(r.o.av)av.push(`MSE ${esc(r.x.t||'')} (${nf(Number(r.x.l),1)} L): ${r.o.msg.filter(m=>m[0]==='warn').map(m=>m[1]).join(' ')}`);
         if(av.length){cf.innerHTML=`<div class="eqv-ask"><b>${av.length} ${av.length===1?'atencao':'atencoes'}</b><p class="note" style="margin:0">${av.join('<br>')}</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-y>Lancar assim mesmo</button></div></div>`;
           cf.querySelector('[data-x]').onclick=()=>cf.innerHTML='';cf.querySelector('[data-y]').onclick=()=>{cf.innerHTML='';go._conf=1;go.click()};cf.scrollIntoView({block:'center',behavior:'smooth'});return}}
+      /* sem saldo no comboio: nao lanca (confere de novo com os dados mais novos) */
+      const LT=Math.round((ok.reduce((a,r)=>a+Number(r.x.l),0)+okM.reduce((a,r)=>a+Number(r.x.l),0))*10)/10,rs=await cbxRun(c,cb.id,st.dt,{[st.dt]:-LT});
+      if(rs&&rs.min<0){disp={min:Math.round((rs.min+LT)*10)/10};dispDt=st.dt;tot();cf.innerHTML=cbxMsg('bad',cbxSemSaldo(rs,LT));cf.scrollIntoView({block:'center',behavior:'smooth'});return}
       go._conf=0;go.disabled=true;let n=0,f=0;const T=ok.length+okM.length;
       for(const r of ok){go.textContent=`${n+f+1}/${T}`;let e=eqById(r.e.id);
         try{if(r.x.r){const k=c.custos.find(z=>z.id===r.x.r),nm=k?k.nome:'';const up=nm==='UG'?{alocacao:'DM1',area:'Mina',frente:'UG'}:{alocacao:'DM1',area:nm,frente:'Geral'};
@@ -2099,7 +2137,7 @@ async function cbxLote(dt0){
           const cc=calcAbast(e,st.dt,Number(r.x.h),Number(r.x.l),true);if(cc.erro){f++;continue}
           await abastGravar(e,{...cc,custo:r.o.cu,cb:cb.id});n++;const dd=dr();delete dd[e.id];save(dd)}catch(er){console.error(er);f++}}
       for(const r of okM){go.textContent=`${n+f+1}/${T}`;try{await cbxMseGravar(r.x,st.dt,cb.id);n++;const j=M.indexOf(r.x);if(j>=0)M.splice(j,1);msave()}catch(er){console.error(er);f++}}
-      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;all()};
+      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;disp=null;dispDt='';all()};
     all();
   }});
 }
@@ -2164,6 +2202,10 @@ async function cbxDelEnt(){nav('cbx:de',()=>cbxDelEnt());const c=await cbxCfg();
   body:l.length?`<div class="list">${l.map(x=>`<div class="cbx-de"><span><b>${nf(x.litros,1)} L</b><small>${fdate(x.data)}${x.hora?' · '+esc(x.hora):''} · ${esc(cbxCuNome(x.custo))}</small></span><button type="button" class="btn sm danger" data-dx="${esc(x.mes+'/'+x.id)}">Excluir</button></div><div data-dxc="${esc(x.mes+'/'+x.id)}"></div>`).join('')}</div>`:'<div class="empty">Nenhuma entrada no periodo aberto.</div>',
   mount:sh=>sh.querySelectorAll('[data-dx]').forEach(b=>b.onclick=()=>{const k=b.dataset.dx,x=l.find(z=>z.mes+'/'+z.id===k);if(!x)return;
     askDelete(sh.querySelector(`[data-dxc="${CSS.escape(k)}"]`),`Excluir a entrada de ${nf(x.litros,1)} L de ${fdate(x.data)}?`,async()=>{
+      /* sem esta entrada, saidas ja lancadas ficariam sem saldo: nao exclui */
+      const rs=await cbxRun(c,x.comboio,x.data,{[x.data]:-Number(x.litros)});
+      if(rs&&rs.min<0){const sd=rs.neg.filter(d=>rs.D[d]&&rs.D[d].s>0).map(d=>`${fdate(d).slice(0,5)} (${nf(rs.D[d].s,1)} L)`);
+        sh.querySelector(`[data-dxc="${CSS.escape(k)}"]`).innerHTML=cbxMsg('bad',`<b>Nao da para excluir.</b> Sem esta entrada ficariam sem saldo as saidas de ${sd.join(', ')||fdate(rs.neg[0]).slice(0,5)}.`);return}
       const ok=await safe(async()=>{const md=S.db.doc('comb/'+x.mes),cur=await md.get(),d=(cur.exists&&cur.data())||{},dk=x.data.slice(8,10);const ce={...(d.cbEnt||{})},o={...(ce[x.comboio]||{})};
         if(o[dk]!=null){o[dk]=Math.round((o[dk]-x.litros)*10)/10;if(o[dk]<=0)delete o[dk]}ce[x.comboio]=o;const ue={...(d.cusEnt||{})};if(ue[x.custo]!=null){ue[x.custo]=Math.round((ue[x.custo]-x.litros)*10)/10;if(ue[x.custo]<=0)delete ue[x.custo]}
         await md.set({...d,cbEnt:ce,cusEnt:ue});await S.db.doc(`comb/${x.mes}/ent/${x.id}`).delete()},'Entrada excluida');if(ok){NAV.pop();cbxDelEnt()}})})});
@@ -2201,11 +2243,11 @@ async function cbxFechar(){
 /* ---------- Relatorio: totais do mes, por custo e por equipamento (abre a tela do equipamento) ---------- */
 async function cbxRel(m0){
   const m=m0||cbxRel.m||mesKey();cbxRel.m=m;nav('cbx:rel',()=>cbxRel());
-  const c=await cbxCfg();
+  const c=await cbxCfg();await cbxFechAll();
   openSheet({title:'Relatorio',sub:'Combustivel',body:`<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div><div id="rl-b"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
   mount:sh=>{sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
     S.db.doc('comb/'+m).get().then(x=>{const b=sh.querySelector('#rl-b');if(!b||!b.isConnected)return;const d=x.exists?x.data():{},eq=d.eq||{};
-      const ms=Object.values(d.mse||{}).sort((a,b)=>String(a.tag).localeCompare(String(b.tag),'pt',{numeric:true})),sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0)+ms.reduce((a,v)=>a+(Number(v.lt)||0),0);let ent=0;Object.values(d.cbEnt||{}).forEach(o=>Object.values(o).forEach(v=>ent+=Number(v)||0));
+      const ms=Object.values(d.mse||{}).sort((a,b)=>String(a.tag).localeCompare(String(b.tag),'pt',{numeric:true})),sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0)+ms.reduce((a,v)=>a+(Number(v.lt)||0),0);const EM=cbxEntMes(c,d,m),ent=EM.ent;
       const cu=d.cus||{},semC=Math.round((sai-Object.values(cu).reduce((a,v)=>a+(Number(v)||0),0))*10)/10;
       const tops=c.custos.filter(k=>!k.pai),pct=v=>sai?Math.max(0,Math.min(100,v/sai*100)):0;
       const cuH=tops.map(k=>{const filhos=c.custos.filter(z=>z.pai===k.id),tf=filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0),own=Number(cu[k.id])||0,tt=own+tf;
@@ -2213,7 +2255,7 @@ async function cbxRel(m0){
           ${filhos.length?`<div class="k"><span><u></u>${esc(k.nome.toLowerCase())} <b>${nf(own,1)} L</b></span>${filhos.map(z=>`<span><u class="b"></u>${esc(z.nome)} <b>${nf(cu[z.id]||0,1)} L</b></span>`).join('')}</div>`:''}</div>`}).join('');
       const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.equipsAll.filter(e=>(e.status!=='inativo'&&(!soCad(e)||ehVL(e)))||eq[e.id]);
       const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
-      b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas</small><b>${nf(ent,1)} L</b></div></div>
+      b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas${EM.est?' (estimada)':''}</small><b>${nf(ent,1)} L</b></div></div>
         <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo</span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
         <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=lhNum(e,v&&v.h>0?v.l/v.h:null);return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+(ehVL(e)?' km/L':' L/h'):v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}
         ${ms.length?`<section class="tsec"><h3 class="tsec-h"><span>MSE</span><em>${ms.length}</em></h3><div class="tsec-l">${ms.map(v=>`<div class="tq"><span class="tq-c">${esc(v.tag)}</span><span class="tq-m"></span><span class="tq-d">${nf(v.lt,1)} L<small>${v.n} abast.</small></span></div>`).join('')}</div></section>`:''}</div>`;

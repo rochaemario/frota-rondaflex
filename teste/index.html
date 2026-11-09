@@ -414,6 +414,12 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-de{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);box-shadow:inset 0 -1px 0 var(--line)}
 .ab-ed{margin:10px 0 4px;padding:12px;background:var(--surface);border-radius:12px;box-shadow:inset 0 0 0 1px var(--line)}.ab-ed .pn-bt{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}.ab-bt{display:flex;gap:8px;flex-wrap:wrap}
 .cbx-de span{flex:1;min-width:0}.cbx-de b{display:block;font-variant-numeric:tabular-nums}.cbx-de small{color:var(--muted);font-size:12.5px}
+.rl .tsec-h{position:static}
+.rl-seg{margin-bottom:12px}
+.rl-dl .cb-abh,.rl-dl .cb-abr{grid-template-columns:1.15fr 1fr .9fr .55fr}
+.rl-ms .cb-abh,.rl-ms .cb-abr{grid-template-columns:1fr 1fr .9fr .9fr}
+.rl-dl button.cb-abr{width:100%;border:0;background:none;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.rl-dl .cb-abr span:first-child{font-family:var(--mono);font-weight:600}
 .cbx-mn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
 .cbx-mn b{font-size:16px}
 .cbx-nx svg{transform:rotate(180deg)}
@@ -1365,8 +1371,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=8a57e1fd08"></script>
-<script src="shim.js?v=8a57e1fd08"></script>
+<script src="config.js?v=c7e5799c67"></script>
+<script src="shim.js?v=c7e5799c67"></script>
 </head>
 <body>
 
@@ -1641,9 +1647,9 @@ const lhU=e=>ehVL(e)?'km':'h';
 const lhNum=(e,lh)=>lh==null||!isFinite(lh)||!(lh>0)?null:ehVL(e)?1/lh:lh;
 const consTxt=(e,lh)=>{const v=lhNum(e,lh);return v==null?'—':nf(v,1)+(ehVL(e)?' km/L':' L/h')};
 /* tela do equipamento: cartao do mes atual + linha "Abastecimentos" que so busca a lista ao abrir */
-function openCombEq(id){
-  nav('cbq:'+id,()=>openCombEq(id));
-  const e=eqById(id);if(!e){goBack();return}const m=mesKey();
+function openCombEq(id,m0){
+  const m=m0||mesKey();nav('cbq:'+id,()=>openCombEq(id,m));
+  const e=eqById(id)||S.equipsAll.find(z=>z.id===id);if(!e){goBack();return}
   const row=(k,v,u,note)=>`<div class="cb-c"><span class="k">${k}</span><b>${v}</b><span class="u">${u||''}</span>${note?`<em>${note}</em>`:''}</div>`;
   openSheet({title:esc(e.codigo),sub:esc([e.tipo,alocTxt(e)].filter(Boolean).join(' · ')),
   body:`<div class="cb-card"><div class="cb-mh">Combustivel · ${mesNome(m)}</div><div id="cb-card">${row(ehVL(e)?'Consumo':'Consumo por hora','…',ehVL(e)?'km/L':'L/h')}${row('Consumo acumulado','…','L')}${row('Abastecimentos','…','')}</div></div>
@@ -1715,11 +1721,16 @@ function formAbast(){
       if(!b||b.h==null){pv.innerHTML='Vira a base da medicao.';return}
       const hs=Math.round((h-b.h)*10)/10,L=l+(b.pend||0);
       pv.innerHTML=hs>0?`<span class="cb-pv"><span><small>Horas</small><b>${nf(hs,1)} h</b></span><span><small>Litros</small><b>${nf(L,1)} L</b></span><span class="r"><small>Consumo</small><b class="cb-big">${nf(L/hs,1)} L/h</b></span></span>`:`<span style="color:var(--bad)">O horimetro precisa ser maior que o do ultimo tanque cheio (${nf(b.h,2)} h).</span>`};
-    [hm,lt,dtI].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false;hmSt.cons=false;calc()}));sel.onchange=()=>{hmSt.ok=false;hmSt.salto=false;hmSt.cons=false;const e=eqById(sel.value);hm.placeholder=e&&e.horimetro!==''&&e.horimetro!=null?'Atual '+nf(e.horimetro,2):'';calc()};
+    [hm,lt,dtI].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false;hmSt.cons=false;hmSt.dup=false;calc()}));sel.onchange=()=>{hmSt.ok=false;hmSt.salto=false;hmSt.cons=false;hmSt.dup=false;const e=eqById(sel.value);hm.placeholder=e&&e.horimetro!==''&&e.horimetro!=null?'Atual '+nf(e.horimetro,2):'';calc()};
     sh.querySelector('#fab-f').onsubmit=async ev=>{ev.preventDefault();const e=eqById(sel.value);if(!e)return;
       const dt=dtI.value||today(),h0=Number(hm.value),l=Number(lt.value);if(!(l>0)){toast('Informe os litros.');return}
       const b=e.combBase||null;
       const g=hmGuard(sh.querySelector('#ab-g'),e,h0,dt,hmSt,()=>sh.querySelector('#fab-f').onsubmit({preventDefault(){}}));if(!g)return;const h=g.h;
+      /* abastecimento igual (mesmo horimetro): avisa e deixa lancar assim mesmo */
+      if(!hmSt.dup){const dp=abDupEq(await abDupCarga(dt),e.id,h0);if(dp){const box=sh.querySelector('#ab-g');
+        box.innerHTML=`<div class="eqv-ask"><p class="note" style="margin:0">${abDupTxt({v:h0,data:dp.data},ehVL(e)?'km':'horimetro')}</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-go>Lancar assim mesmo</button></div></div>`;
+        box.querySelector('[data-x]').onclick=()=>box.innerHTML='';box.querySelector('[data-go]').onclick=()=>{hmSt.dup=true;box.innerHTML='';sh.querySelector('#fab-f').onsubmit({preventDefault(){}})};
+        box.scrollIntoView({block:'start',behavior:'smooth'});return}}
       if(e.combUltData&&dt<e.combUltData){let rr;const ok=await safe(async()=>{rr=await abastOp(e,{tipo:'add',x:{data:dt,h0,litros:l,cheio,resp:sh.querySelector('#ab-r').value.trim(),obs:sh.querySelector('#ab-o').value.trim()}})});
         if(rr&&rr.erro){sh.querySelector('#ab-g').innerHTML=cbxMsg('bad',esc(rr.erro)+'.');return}if(ok){toast('Abastecimento lancado · consumo recalculado');goBack()}return}
       let horas=null,lh=null,L=0,nb;
@@ -1806,6 +1817,9 @@ async function openLoteAbast(lista){
       const sj=hmSalto(e0,c.h,r.x.data);if(sj){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro ${nf(sj.dif)} h acima do esperado`;r.fora=true}
       if(hmAtras(e0,c.h,r.x.data)){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro maior que a leitura de ${fdate(e0.horimetroData)} (${nf(e0.horimetro,1)} h)`;r.fora=true}
       sim[r.e.id]={...e0,combBase:c.nb,combUltData:r.x.data,...(c.h>(Number(e0.horimetro)||0)?{horimetro:c.h,horimetroData:r.x.data}:{})}}}
+  /* abastecimento igual (ja lancado ou repetido na propria folha): vem desmarcado */
+  {const DC={};for(const r of rows){const k=mesKey(r.x.data);if(!DC[k])DC[k]=await abDupCarga(r.x.data);const dp=abDupEq(DC[k],r.e.id,r.x.horimetro)||rows.find(z=>z!==r&&z.e.id===r.e.id&&Number(z.x.horimetro)===Number(r.x.horimetro)&&rows.indexOf(z)<rows.indexOf(r));
+    if(dp){r.aviso=(r.aviso?r.aviso+' · ':'')+'Ja existe abastecimento igual';r.fora=true}}}
   rows.forEach((r,i)=>{r.i=i;r.sel=!r.c.erro&&!r.fora});
   const linha=r=>`<button type="button" class="lt-r${r.c.erro?' er':r.aviso?' av':''}${r.sel?'':' off'}" data-lt="${r.i}"${r.c.erro?' disabled':''}><span class="lt-k" aria-hidden="true"></span><span class="lt-c num">${esc(r.e.codigo)}</span><span class="lt-m"><b class="num">${nf(r.x.horimetro,2)} h · ${nf(r.x.litros,2)} L</b><small>${r.c.erro?esc(r.c.erro):r.aviso?esc(r.aviso):r.c.lh!=null?nf(r.c.lh,1)+' L/h':'Vira a base da medicao'}</small></span></button>`;
   const dias=[...new Set(rows.map(r=>r.x.data))];
@@ -2072,6 +2086,16 @@ async function cbxComboio(){
    config/combMse {tagNz:{tag,dono,placa}} guarda de quem e cada TAG: ao digitar a TAG o app ja busca */
 async function cbxMseDir(){if(S.cbxMse)return S.cbxMse;try{const d=await S.db.doc('config/combMse').get();S.cbxMse=d.exists?d.data():{}}catch(e){S.cbxMse=S.cbxMse||{}}return S.cbxMse}
 const cbxNum=v=>v===''||v==null?null:Number(v);
+/* abastecimento igual: frota = mesmo equipamento com o mesmo horimetro (km nos VL); MSE = mesma TAG com o mesmo horimetro ou km
+   (sem TAG: qualquer MSE). Confere o mes da data e os vizinhos. So avisa: Revisar ou Lancar assim mesmo */
+async function abDupCarga(dt){const m=mesKey(dt),[y,mo]=m.split('-').map(Number),pm=mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`,ms=[pm,m,mesSeg(m)].filter(k=>k<=mesKey());
+  const E={},M=[];for(const k of ms){try{const q=await S.db.collection('comb/'+k+'/abast').get();q.docs.forEach(d=>{const x=d.data();if(x.horimetro===''||x.horimetro==null)return;(E[x.equipId]=E[x.equipId]||[]).push({h:Number(x.horimetro),data:x.data})})}catch(e){}
+    try{const q=await S.db.collection('comb/'+k+'/mse').get();q.docs.forEach(d=>{const x=d.data();M.push({t:nzCod(x.tag||''),h:cbxNum(x.horimetro),km:cbxNum(x.km),data:x.data})})}catch(e){}}
+  return {E,M}}
+const abDupEq=(D,eId,h)=>D&&h!==''&&h!=null?(D.E[eId]||[]).find(r=>r.h===Number(h)):null;
+const abDupMse=(L,x)=>{const t=nzCod(x.t||''),h=cbxNum(x.h),km=cbxNum(x.km);if(h==null&&km==null)return null;
+  return (L||[]).find(r=>(!t||r.t===t)&&((h!=null&&r.h!=null&&Number(r.h)===h)||(km!=null&&r.km!=null&&Number(r.km)===km)))};
+const abDupTxt=(r,un)=>`<b>Ja existe abastecimento igual</b> (${un} ${nf(r.v,1)}${r.data?' em '+fdate(r.data).slice(0,5):''}).`;
 async function cbxMseGravar(x,dt,cb){const m=mesKey(dt),l=Math.round(Number(x.l)*10)/10,tag=String(x.t||'').trim().toUpperCase(),dono=String(x.d||'').trim(),placa=String(x.p||'').trim().toUpperCase(),custo=x.c||'',k=nzCod(tag)||'_';
   await S.db.collection('comb/'+m+'/mse').doc().set({data:dt,tag,dono,horimetro:cbxNum(x.h),km:cbxNum(x.km),placa,litros:l,...(custo?{custo}:{}),comboio:cb,ts:Date.now()});
   const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},dk=dt.slice(8,10),r=v=>Math.round(v*10)/10;
@@ -2095,11 +2119,14 @@ async function cbxLote(dt0){
     cbxLS.keys('m:'+cb.id+':').filter(k=>k!==st.dt).forEach(k=>o[k]=(o[k]||0)+(cbxLS.get('m:'+cb.id+':'+k)||[]).filter(x=>Number(x.l)>0).length);
     return Object.entries(o).map(([dt,n])=>({dt,n})).filter(x=>x.n).sort((a,b)=>a.dt.localeCompare(b.dt))};
   /* MSE: linhas do rascunho desta data (ficam no aparelho como as da frota) */
+  let DUP=null,dupDt='';
   let M=[],mDt='';const mk=()=>'m:'+cb.id+':'+st.dt,mLoad=()=>{if(mDt!==st.dt){M=cbxLS.get(mk())||[];mDt=st.dt}},
     mTem=x=>['t','d','h','km','p','l','c'].some(k=>x[k]!=null&&String(x[k]).trim()!==''),msave=()=>{const a=M.filter(mTem);cbxLS.set(mk(),a.length?a:null)};
   const chkM=x=>{const o={msg:[],ok:false,tem:Number(x.l)>0};if(!o.tem){if(mTem(x))o.msg.push(['info','Sem litros: a linha nao entra no lancamento.']);return o}
     const tv=cbxTrava(cb.id,st.dt);if(tv){o.msg.push(['bad',`Periodo fechado ate ${fdate(tv)}.`]);return o}
     if(!String(x.t||'').trim()){o.av=1;o.msg.push(['warn','Sem TAG.'])}if(!x.c){o.av=1;o.msg.push(['warn','Sem centro de custo.'])}
+    {const L=[...(dupDt===st.dt&&DUP?DUP.M:[]),...M.filter(y=>y!==x&&Number(y.l)>0).map(y=>({t:nzCod(y.t||''),h:cbxNum(y.h),km:cbxNum(y.km),data:st.dt}))],dp=abDupMse(L,x);
+      if(dp){const hk=cbxNum(x.h)!=null&&dp.h!=null&&Number(dp.h)===cbxNum(x.h);o.av=1;o.msg.push(['warn',abDupTxt({v:hk?cbxNum(x.h):cbxNum(x.km),data:dp.data},hk?'horimetro':'km')])}}
     o.ok=true;return o};
   const base=()=>eqComb();
   const lista=()=>{const q=nzCod(st.q),d=dr();let l=base();
@@ -2118,7 +2145,9 @@ async function cbxLote(dt0){
     const cu=x.c||cbxCustoR(e,c,x.r);if(!cu){o.msg.push(['bad','Escolha o custo.']);return o}o.cu=cu;
     if(x.r){const rn=cbxCuNome(x.r);o.msg.push(['info',`Sera realocado para ${esc(rn==='UG'?'Mina › UG':rn)} ao lancar.`])}
     const pad=cbxCustoR(e,c,x.r);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
-    if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}
+    const dp=dupDt===st.dt&&abDupEq(DUP,e.id,x.h);
+    if(dp){o.av=1;o.msg.push(['warn',abDupTxt({v:Number(x.h),data:dp.data},ehVL(e)?'km':'horimetro')])}
+    else if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}
     const sj=hmSalto(e,r.h,st.dt);if(sj){o.av=1;o.msg.push(['warn',`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`])}
     if(hmAtras(e,r.h,st.dt)){o.av=1;o.msg.push(['warn',`Horimetro maior que a leitura mais nova (${nf(e.horimetro,1)} h em ${fdate(e.horimetroData)}). Confira.`])}
     o.ok=true;return o};
@@ -2180,7 +2209,9 @@ async function cbxLote(dt0){
       rows.querySelectorAll('.cbx-r').forEach(el=>{bindRow(el);const id=el.dataset.r;
         el.querySelector('[data-h]').addEventListener('input',ev=>{upd(id,'h',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)});
         el.querySelector('[data-l]').addEventListener('input',ev=>{upd(id,'l',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)})});
-      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();mAll();tot();pd();if(dispDt!==st.dt){disp=null;dsp()}};
+      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();mAll();tot();pd();if(dispDt!==st.dt){disp=null;dsp()}if(dupDt!==st.dt)dupC()};
+    /* carrega os abastecimentos ja lancados para avisar de igual; confere de novo so as linhas preenchidas (o teclado nao fecha) */
+    const dupC=()=>{const dt=st.dt;abDupCarga(dt).then(D=>{if(dt!==st.dt||!rows.isConnected)return;DUP=D;dupDt=dt;Object.keys(dr()).forEach(one);mLoad();M.forEach((x,i)=>mOne(i));tot()}).catch(()=>{})};
     cbxUltBusca().then(l=>l.forEach(e=>{const el=rows.querySelector(`[data-r="${CSS.escape(e.id)}"] [data-l]`);if(el)el.placeholder=nf(cbxUltL(e),1)}));
     /* Enter do teclado pula: horimetro › litros › horimetro do proximo */
     rows.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;const ins=[...rows.querySelectorAll('input')],i=ins.indexOf(ev.target);if(i<0)return;ev.preventDefault();const n=ins[i+1];if(n){n.focus();n.select&&n.select()}else ev.target.blur()});
@@ -2210,7 +2241,7 @@ async function cbxLote(dt0){
           if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:st.dt,h0:Number(r.x.h),litros:Number(r.x.l),cheio:true,custo:r.o.cu,cb:cb.id}});if(rr.erro){f++;fe.push(`${esc(e.codigo)}: ${esc(rr.erro)}.`);continue}}
           else await abastGravar(e,{...cc,custo:r.o.cu,cb:cb.id});n++;const dd=dr();delete dd[e.id];save(dd)}catch(er){console.error(er);f++}}
       for(const r of okM){go.textContent=`${n+f+1}/${T}`;try{await cbxMseGravar(r.x,st.dt,cb.id);n++;const j=M.indexOf(r.x);if(j>=0)M.splice(j,1);msave()}catch(er){console.error(er);f++}}
-      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;disp=null;dispDt='';all();if(fe.length)cf.innerHTML=cbxMsg('bad',`<b>Nao lancados:</b><br>${fe.join('<br>')}`)};
+      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;disp=null;dispDt='';dupDt='';all();if(fe.length)cf.innerHTML=cbxMsg('bad',`<b>Nao lancados:</b><br>${fe.join('<br>')}`)};
     all();
   }});
 }
@@ -2332,26 +2363,89 @@ async function cbxFechar(){
       if(await safe(()=>S.db.doc('config/combFech').set({...all,[cb.id]:l}),`${cbxMesNome(corte.slice(0,7))} fechado · saldo ${nf(s,1)} L`)){S.cbxFech={...all,[cb.id]:l};goBack()}}}});
 }
 
-/* ---------- Relatorio: totais do mes, por custo e por equipamento (abre a tela do equipamento) ---------- */
+/* ---------- Relatorio: Mes (totais, por custo e por equipamento) ou Dia (todos os abastecimentos da data) ----------
+   so aparecem equipamentos que receberam abastecimento; o consumo fica na tela do equipamento (toque na linha) */
+const rlSeg=v=>`<div class="seg rl-seg" role="group" aria-label="Relatorio por"><button type="button" data-rv="mes" aria-pressed="${v==='mes'}">Mes</button><button type="button" data-rv="dia" aria-pressed="${v==='dia'}">Dia</button></div>`;
+const rlSegBind=sh=>sh.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{if(b.dataset.rv===(cbxRel.v||'mes'))return;cbxRel.v=b.dataset.rv;NAV.pop();cbxRel()});
 async function cbxRel(m0){
+  if(cbxRel.v==='dia'){cbxRelDia();return}
   const m=m0||cbxRel.m||mesKey();cbxRel.m=m;nav('cbx:rel',()=>cbxRel());
   const c=await cbxCfg();await cbxFechAll();
-  openSheet({title:'Relatorio',sub:'Combustivel',body:`<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div><div id="rl-b"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
-  mount:sh=>{sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
+  openSheet({title:'Relatorio',sub:'Combustivel',body:`${rlSeg('mes')}<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div><div id="rl-b" class="rl"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
+  mount:sh=>{rlSegBind(sh);sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
     S.db.doc('comb/'+m).get().then(x=>{const b=sh.querySelector('#rl-b');if(!b||!b.isConnected)return;const d=x.exists?x.data():{},eq=d.eq||{};
-      const ms=Object.values(d.mse||{}).sort((a,b)=>String(a.tag).localeCompare(String(b.tag),'pt',{numeric:true})),sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0)+ms.reduce((a,v)=>a+(Number(v.lt)||0),0);const EM=cbxEntMes(c,d,m),ent=EM.ent;
+      const ms=Object.values(d.mse||{}),sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0)+ms.reduce((a,v)=>a+(Number(v.lt)||0),0);const EM=cbxEntMes(c,d,m),ent=EM.ent;
       const cu=d.cus||{},semC=Math.round((sai-Object.values(cu).reduce((a,v)=>a+(Number(v)||0),0))*10)/10;
       const tops=c.custos.filter(k=>!k.pai),pct=v=>sai?Math.max(0,Math.min(100,v/sai*100)):0;
       const cuH=tops.map(k=>{const filhos=c.custos.filter(z=>z.pai===k.id),tf=filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0),own=Number(cu[k.id])||0,tt=own+tf;
         return `<div class="cbx-cr"><div class="h"><span>${esc(k.nome)}</span><b>${nf(tt,1)} L</b></div><div class="cbx-bar s"><i style="width:${pct(own)}%"></i>${filhos.length?`<i class="b" style="left:${pct(own)}%;width:${pct(tf)}%"></i>`:''}</div>
           ${filhos.length?`<div class="k"><span><u></u>${esc(k.nome.toLowerCase())} <b>${nf(own,1)} L</b></span>${filhos.map(z=>`<span><u class="b"></u>${esc(z.nome)} <b>${nf(cu[z.id]||0,1)} L</b></span>`).join('')}</div>`:''}</div>`}).join('');
-      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.equipsAll.filter(e=>(e.status!=='inativo'&&(!soCad(e)||ehVL(e)))||eq[e.id]);
+      const abs=v=>v&&(Number(v.n)>0||Number(v.lt)>0);
+      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.equipsAll.filter(e=>abs(eq[e.id]));
       const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
       b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas${EM.est?' (estimada)':''}</small><b>${nf(ent,1)} L</b></div></div>
         <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo</span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
-        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=lhNum(e,v&&v.h>0?v.l/v.h:null);return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+(ehVL(e)?' km/L':' L/h'):v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}
-        ${ms.length?`<section class="tsec"><h3 class="tsec-h"><span>MSE</span><em>${ms.length}</em></h3><div class="tsec-l">${ms.map(v=>`<div class="tq"><span class="tq-c">${esc(v.tag)}</span><span class="tq-m"></span><span class="tq-d">${nf(v.lt,1)} L<small>${v.n} abast.</small></span></div>`).join('')}</div></section>`:''}</div>`;
-      b.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe))}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
+        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id];return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span><span class="tq-d">${nf(v.lt,1)} L<small>${v.n} abast.</small></span>${I.chev}</button>`}).join('')}</div></section>`).join('')}
+        <div id="rl-mse"></div>${!G.length&&!ms.length?'<div class="empty">Nenhum abastecimento neste mes.</div>':''}</div>`;
+      b.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe,m));
+      if(ms.length)S.db.collection('comb/'+m+'/mse').get().then(q=>{const w=b.querySelector('#rl-mse');if(!w||!w.isConnected)return;const g=mseEquips(q.docs.map(z=>({...z.data(),id:z.id})));if(!g.length)return;
+        w.innerHTML=`<section class="tsec"><h3 class="tsec-h"><span>MSE</span><em>${g.length}</em></h3><div class="tsec-l">${g.map((x,i)=>`<button class="tq" data-cbm="${i}"><span class="tq-c">${esc(x.nome)}</span><span class="tq-m">${esc(x.sub)}</span><span class="tq-d">${nf(x.lt,1)} L<small>${x.l.length} abast.</small></span>${I.chev}</button>`).join('')}</div></section>`;
+        w.querySelectorAll('[data-cbm]').forEach(z=>z.onclick=()=>cbxMseEq(g[Number(z.dataset.cbm)],m))}).catch(()=>{})}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
+}
+/* MSE: TAG em texto livre pode repetir ou faltar. Separa os equipamentos pela TAG e pela sequencia do horimetro, do km e da placa:
+   leitura que volta ou que avanca demais para os dias passados vira outro equipamento */
+function mseEquips(l){const G=[],num=v=>v===''||v==null||!isFinite(Number(v))?null:Number(v),dias=(a,b)=>Math.max(0,Math.round((new Date(b+'T12:00:00')-new Date(a+'T12:00:00'))/864e5));
+  l.slice().sort((a,b)=>(a.data||'').localeCompare(b.data||'')||(a.ts||0)-(b.ts||0)).forEach(x=>{const t=nzCod(x.tag||''),h=num(x.horimetro),km=num(x.km),pl=nzCod(x.placa||'');let best=null,bs=Infinity;
+    for(const g of G){if(g.t!==t)continue;const dd=dias(g.ud,x.data||g.ud)+1;let s=0,cmp=false,ok=true;
+      if(pl&&g.pl){cmp=true;if(pl!==g.pl)ok=false}
+      if(ok&&h!=null&&g.h!=null){cmp=true;const d=h-g.h;if(d<0||d>24*dd)ok=false;else s+=d}
+      if(ok&&km!=null&&g.km!=null){cmp=true;const d=km-g.km;if(d<0||d>1500*dd)ok=false;else s+=d/50}
+      if(!cmp&&t)cmp=true;if(ok&&cmp&&s<bs){best=g;bs=s}}
+    if(!best)G.push(best={t,tag:'',l:[],h:null,km:null,pl:'',placa:'',dono:'',lt:0});
+    best.l.push(x);best.ud=x.data||best.ud;best.lt=Math.round((best.lt+(Number(x.litros)||0))*10)/10;
+    if(h!=null)best.h=h;if(km!=null)best.km=km;if(pl){best.pl=pl;best.placa=x.placa}if(x.tag)best.tag=String(x.tag).toUpperCase();if(x.dono)best.dono=x.dono});
+  G.sort((a,b)=>(a.t?0:1)-(b.t?0:1)||a.tag.localeCompare(b.tag,'pt',{numeric:true}));
+  const cnt={};G.forEach(g=>cnt[g.t]=(cnt[g.t]||0)+1);const seq={};
+  G.forEach(g=>{const n=cnt[g.t]>1?` (${seq[g.t]=(seq[g.t]||0)+1})`:'';g.nome=(g.tag||'Sem TAG')+n;
+    g.sub=[g.placa,g.dono,g.h!=null?nf(g.h,1)+' h':'',g.km!=null?nf(g.km,0)+' km':''].filter(Boolean).slice(0,2).join(' · ')});
+  return G}
+function cbxMseEq(g,m){
+  nav('cbx:mse',()=>cbxMseEq(g,m));const l=g.l.slice().sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));
+  openSheet({title:esc(g.nome),sub:esc(['MSE',cbxMesNome(m)+' '+m.slice(0,4)].join(' · ')),
+  body:`${g.placa||g.dono?`<p class="note" style="margin:0 2px 10px">${esc([g.placa&&'Placa '+g.placa,g.dono].filter(Boolean).join(' · '))}</p>`:''}
+    <div class="cb-ab rl-ms"><div class="cb-abh"><span>Data</span><span>Horimetro</span><span>Km</span><span>Litros</span></div>${l.map(f=>`<div class="cb-abr"><span>${fdate(f.data).slice(0,5)}${f.custo?`<i>${esc(cbxCuCurto(cbxCuNome(f.custo)))}</i>`:''}</span><span>${f.horimetro!=null&&f.horimetro!==''?nf(f.horimetro,1):'—'}</span><span>${f.km!=null&&f.km!==''?nf(f.km,0):'—'}</span><span>${nf(f.litros,1)}<i>L</i></span></div>`).join('')}</div>
+    <div class="cbx-io big" style="margin-top:12px"><div><small>Total</small><b>${nf(g.lt,1)} L</b></div><div><small>Abastecimentos</small><b>${l.length}</b></div></div>`});
+}
+/* Relatorio do dia: escolhe a data como na tela de horimetros; lista frota e MSE daquele dia */
+async function cbxRelDia(){
+  const t=today();let dt=cbxRel.d&&cbxRel.d<=t?cbxRel.d:t;cbxRel.d=dt;nav('cbx:rel',()=>cbxRel());
+  await cbxCfg();
+  openSheet({title:'Relatorio',sub:'Combustivel',body:`${rlSeg('dia')}<div class="lr-top" id="rl-ds"></div><div id="rl-b" class="rl"></div>`,
+  mount:sh=>{rlSegBind(sh);let on=new Set();const top=sh.querySelector('#rl-ds');
+    const strip=()=>{top.innerHTML=dayStrip(dt,{lbl:'Data do abastecimento',on,id:'rl-dt'});top.querySelectorAll('[data-dd]').forEach(b=>b.onclick=()=>go(b.dataset.dd));
+      top.querySelector('#rl-dt').onchange=ev=>go(ev.target.value);const st=top.querySelector('.dstrip'),sel=st.querySelector('[aria-pressed="true"]');st.scrollLeft=st.scrollWidth;if(sel&&sel.offsetLeft<st.scrollLeft)st.scrollLeft=sel.offsetLeft-4};
+    /* bolinha nos dias com abastecimento (resumo de cada mes da faixa) */
+    const dots=async()=>{const d0=new Date(t+'T12:00:00');d0.setDate(d0.getDate()-20);let ini=iso(d0);if(dt<ini)ini=dt;const s=new Set();
+      for(let k=ini.slice(0,7);k<=t.slice(0,7);k=mesSeg(k)){try{const x=await S.db.doc('comb/'+k).get();const dd=x.exists&&x.data().dia||{};Object.keys(dd).forEach(z=>{if(Number(dd[z])>0)s.add(k+'-'+z)})}catch(e){}}
+      if(!top.isConnected)return;on=s;strip()};
+    const go=v=>{v=v||t;if(v>t)v=t;dt=v;cbxRel.d=v;strip();load();dots()};
+    const load=async()=>{const b=sh.querySelector('#rl-b'),d=dt,m=mesKey(d);b.innerHTML='<div class="card-wait" style="min-height:120px">Carregando…</div>';
+      let A=[],M=[];try{const [qa,qm]=await Promise.all([S.db.collection('comb/'+m+'/abast').where('data','==',d).get(),S.db.collection('comb/'+m+'/mse').where('data','==',d).get()]);
+        A=qa.docs.map(z=>({...z.data(),id:z.id}));M=qm.docs.map(z=>({...z.data(),id:z.id}))}catch(e){if(d===dt&&b.isConnected)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>';return}
+      if(d!==dt||!b.isConnected)return;
+      const cod=x=>{const e=eqById(x.equipId)||S.equipsAll.find(z=>z.id===x.equipId);return e?e.codigo:x.equipId};
+      A.sort((a,b)=>String(cod(a)).localeCompare(String(cod(b)),'pt',{numeric:true})||abH(a)-abH(b));
+      M.sort((a,b)=>(a.tag?0:1)-(b.tag?0:1)||String(a.tag||'').localeCompare(String(b.tag||''),'pt',{numeric:true}));
+      const L=Math.round((A.reduce((s,x)=>s+(Number(x.litros)||0),0)+M.reduce((s,x)=>s+(Number(x.litros)||0),0))*10)/10,n=A.length+M.length;
+      const cu=x=>x.custo?esc(cbxCuCurto(cbxCuNome(x.custo))):'—';
+      const rA=x=>{const e=eqById(x.equipId)||S.equipsAll.find(z=>z.id===x.equipId);return `<button type="button" class="cb-abr" data-cbe="${esc(x.equipId)}"><span>${esc(cod(x))}</span><span>${nf(x.horimetro,1)}<i>${e?lhU(e):'h'}</i></span><span>${nf(x.litros,1)}<i>L</i></span><span>${cu(x)}</span></button>`};
+      const rM=x=>`<div class="cb-abr"><span>${esc(x.tag||'Sem TAG')}</span><span>${x.horimetro!=null&&x.horimetro!==''?`${nf(x.horimetro,1)}<i>h</i>`:x.km!=null&&x.km!==''?`${nf(x.km,0)}<i>km</i>`:'—'}</span><span>${nf(x.litros,1)}<i>L</i></span><span>${cu(x)}</span></div>`;
+      const H='<div class="cb-abh"><span>TAG</span><span>Horimetro</span><span>Litros</span><span>Custo</span></div>';
+      b.innerHTML=n?`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(L,1)} L</b></div><div><small>Abastecimentos</small><b>${n}</b></div></div>
+        ${A.length?`<div class="cb-ab rl-dl" style="margin-top:12px">${H}${A.map(rA).join('')}</div>`:''}
+        ${M.length?`<div class="lbl" style="margin-top:16px">MSE</div><div class="cb-ab rl-dl">${H}${M.map(rM).join('')}</div>`:''}`:'<div class="empty">Nenhum abastecimento nesta data.</div>';
+      b.querySelectorAll('[data-cbe]').forEach(z=>z.onclick=()=>openCombEq(z.dataset.cbe,m))};
+    strip();load();dots()}});
 }
 
 /* ---------- + › Ajustes do app › Combustivel: centros de custo e comboios ---------- */
@@ -3452,15 +3546,15 @@ const hmGroupOf=e=>e.alocacao||'';
    em algum equipamento. O icone de calendario abre o seletor para datas mais antigas; datas futuras bloqueadas */
 const DSEM=['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
 const CAL_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18"/></svg>';
-function dayStrip(sel){
-  const t=today(),lidos=new Set(S.eqCtl.map(e=>e.horimetroData).filter(Boolean));
+function dayStrip(sel,o){o=o||{};
+  const t=today(),lidos=o.on||new Set(S.eqCtl.map(e=>e.horimetroData).filter(Boolean));
   const d0=new Date(t+'T12:00:00');d0.setDate(d0.getDate()-20);
   let ini=iso(d0);if(sel&&sel<ini)ini=sel;
   const out=[];for(const d=new Date(ini+'T12:00:00');iso(d)<=t;d.setDate(d.getDate()+1)){const k=iso(d);
     const nome=k===t?'HOJE':DSEM[d.getDay()];
     out.push(`<button type="button" class="dday" data-dd="${k}" aria-pressed="${k===sel}" aria-label="${nome} ${fdate(k)}"><small>${nome}</small><b>${d.getDate()}</b><i class="${lidos.has(k)?'on':''}"></i></button>`)}
-  return `<div class="dstrip-l"><span>Data da leitura</span><b>${sel===t?'Hoje':''} ${fdate(sel)}</b></div>
-  <div class="dstrip-w"><div class="dstrip">${out.join('')}</div><label class="dcal" aria-label="Escolher outra data">${CAL_IC}<input id="lr-dt" type="date" max="${t}" value="${esc(sel)}"></label></div>`}
+  return `<div class="dstrip-l"><span>${o.lbl||'Data da leitura'}</span><b>${sel===t?'Hoje':''} ${fdate(sel)}</b></div>
+  <div class="dstrip-w"><div class="dstrip">${out.join('')}</div><label class="dcal" aria-label="Escolher outra data">${CAL_IC}<input id="${o.id||'lr-dt'}" type="date" max="${t}" value="${esc(sel)}"></label></div>`}
 function formLeituras(focusId){
   nav('leit',()=>formLeituras());
   const D=hmDraft();D.v=D.v||{};D.jok=false;/* data da leitura: sempre hoje; uma data alterada vale so para aquele dia */if(!D.dt||D.dtDia!==today()){D.dt=today();delete D.dtDia}D.g=D.g??'';if(focusId)D.g='';

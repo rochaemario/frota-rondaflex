@@ -22,7 +22,7 @@ git add -A
 git -c user.name=Claude -c user.email=noreply@anthropic.com commit -q -m "$MSG
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
-Claude-Session: https://claude.ai/code/session_016XYnVWZdtVqFFFUbEwW5JG"
+Claude-Session: https://claude.ai/code/session_016XYnVZ51mvpppc7XEBDnBD"
 for t in 1 2 3; do git push -q origin main && break; sleep 3; done
 git ls-remote origin main | grep -q "$(git rev-parse HEAD)" || { echo "FALHOU: envio ao GitHub nao confirmado"; exit 4; }
 git push -q -f origin "HEAD:refs/heads/versao-$V"

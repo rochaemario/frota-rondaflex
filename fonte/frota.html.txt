@@ -350,7 +350,6 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-rh b{font-family:var(--mono);font-size:15px;font-weight:600}
 .cbx-tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--sunk);color:var(--muted)}
 .cbx-tag.pq{background:var(--bad-bg);color:var(--bad)}
-.cbx-rh small{margin-left:auto;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .cbx-g input{min-width:0;width:100%;height:46px;border:1px solid var(--line-2);border-radius:10px;padding:0 10px;font:600 16px var(--body);font-variant-numeric:tabular-nums;background:var(--surface);color:var(--fg);-moz-appearance:textfield}
 .cbx-g input::-webkit-outer-spin-button,.cbx-g input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
 .cbx-g input.l{text-align:right;font-weight:700}
@@ -376,6 +375,7 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-g.m2{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px}.cbx-g.m3{grid-template-columns:repeat(3,minmax(0,1fr))}.cbx-g.mc{grid-template-columns:minmax(0,1fr) 128px}
 .cbx-g [data-mf="t"],.cbx-g [data-mf="p"]{text-transform:uppercase}
 .cbx-g input::placeholder{font-weight:500;color:var(--faint)}
+.cbx-r .cbx-g input::placeholder{font-weight:400;opacity:.7}
 .cbx-mx{border:0;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;padding:0}
 .cbx-ugl{display:flex;flex-wrap:wrap;gap:8px}
 .cbx-ugc{display:inline-flex;align-items:center;gap:2px;height:36px;padding:0 4px 0 12px;border-radius:18px;background:var(--accent-soft);color:var(--accent-tx);font:600 14px var(--mono)}
@@ -1728,7 +1728,7 @@ async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs='',
   const ex={};if(cb){const cd={...(d.cbDia||{})},o={...(cd[cb]||{})};o[dk]=Math.round(((Number(o[dk])||0)+l)*10)/10;cd[cb]=o;ex.cbDia=cd}
   if(custo){const cu={...(d.cus||{})};cu[custo]=Math.round(((Number(cu[custo])||0)+l)*10)/10;ex.cus=cu}
   await md.set({...d,dia,...ex,eq:{...(d.eq||{}),[e.id]:{lt:Math.round((x.lt+l)*10)/10,n:x.n+1,l:Math.round((x.l+(horas?L:0))*10)/10,h:Math.round((x.h+(horas||0))*10)/10}}});
-  const up={combBase:nb,combUlt:{mes:m,id:ref.id},combUltData:dt};
+  const up={combBase:nb,combUlt:{mes:m,id:ref.id,l},combUltData:dt};
   /* horimetro do equipamento so muda com informacao mais atual: valor maior e data igual ou mais nova que a leitura */
   if(h>(Number(e.horimetro)||0)&&dt>=(e.horimetroData||'')){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
   await S.db.doc('equipamentos/'+e.id).update(up);
@@ -1847,6 +1847,11 @@ async function openDelAbast(){
    ===================================================================== */
 const CBX_DEF={comboios:[{id:'c01',nome:'Comboio 01',cap:null,corte:null}],custos:[{id:'planta',nome:'Planta'},{id:'mina',nome:'Mina'},{id:'ug',nome:'UG',pai:'mina'}],ugEq:['EH-01','EH-02','MT-01','PC-03','PC-05','RE-02','RE-03']};
 const CBX_NS=()=>(window.__frotaNS||'');
+/* litros do ultimo abastecimento do equipamento: novos ja vem no combUlt; antigos sao buscados uma vez e ficam no aparelho */
+const cbxUltL=e=>{const u=e&&e.combUlt;if(!u||!u.id)return null;if(u.l!=null)return Number(u.l);const v=cbxLS.get('ul:'+u.id);return v==null?null:Number(v)};
+async function cbxUltBusca(){if(!navigator.onLine)return [];const f=eqComb().filter(e=>e.combUlt&&e.combUlt.id&&cbxUltL(e)==null);
+  const r=await Promise.all(f.map(e=>S.db.doc(`comb/${e.combUlt.mes}/abast/${e.combUlt.id}`).get().then(d=>{const x=d.exists&&d.data();if(x&&x.litros!=null){cbxLS.set('ul:'+e.combUlt.id,Number(x.litros));return e}return null}).catch(()=>null)));
+  return r.filter(Boolean)}
 const cbxLS={get:k=>{try{return JSON.parse(localStorage.getItem('cbx.'+CBX_NS()+k)||'null')}catch(e){return null}},set:(k,v)=>{try{if(v==null)localStorage.removeItem('cbx.'+CBX_NS()+k);else localStorage.setItem('cbx.'+CBX_NS()+k,JSON.stringify(v))}catch(e){}},
   keys:p=>{const out=[],pre='cbx.'+CBX_NS()+p;try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(pre))out.push(k.slice(pre.length))}}catch(e){}return out}};
 async function cbxCfg(force){if(S.cbxCfg&&!force)return S.cbxCfg;
@@ -1998,8 +2003,8 @@ async function cbxLote(dt0){
     o.ok=true;return o};
   const tag=e=>!cbxNaObra(e)?`<span class="cbx-tag pq">${esc(e.alocacao||'Sem local')}</span>`:`<span class="cbx-tag">${esc(e.area==='Mina'&&e.frente==='UG'?'UG':e.area||'DM1')}</span>`;
   const linha=(e,x)=>{const o=chk(e,x),cu=x.c||cbxCustoR(e,c,x.r);const dis=!cbxNaObra(e)&&!x.r;
-    return `<div class="cbx-r${o.msg.some(m=>m[0]==='bad')?' er':o.av?' av':''}" data-r="${esc(e.id)}"><div class="cbx-rh"><b>${esc(e.codigo)}</b>${tag(e)}<small>${e.horimetro!==''&&e.horimetro!=null?'ult '+nf(e.horimetro,1):'sem leitura'}</small></div>
-      <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" aria-label="Horimetro ${esc(e.codigo)}" data-h value="${x.h??''}"${o.hb?' class="bad"':''}><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="next" aria-label="Litros ${esc(e.codigo)}" class="l" data-l value="${x.l??''}">
+    return `<div class="cbx-r${o.msg.some(m=>m[0]==='bad')?' er':o.av?' av':''}" data-r="${esc(e.id)}"><div class="cbx-rh"><b>${esc(e.codigo)}</b>${tag(e)}</div>
+      <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" aria-label="Horimetro ${esc(e.codigo)}" data-h placeholder="${e.horimetro!==''&&e.horimetro!=null?nf(e.horimetro,1):''}" value="${x.h??''}"${o.hb?' class="bad"':''}><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="next" aria-label="Litros ${esc(e.codigo)}" class="l" data-l placeholder="${cbxUltL(e)!=null?nf(cbxUltL(e),1):''}" value="${x.l??''}">
       <div class="cbx-cu" role="group" aria-label="Custo"${dis?' aria-disabled="true"':''} style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-cu="${esc(k.id)}" aria-pressed="${cu===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div></div>
       ${o.msg.map(([l,t])=>cbxMsg(l,t)).join('')}${o.pq?`<div class="cbx-rl">${cus.filter(k=>k.nome==='UG'||AREAS.includes(k.nome)).map(k=>`<button type="button" data-ra="${esc(k.id)}">${esc(k.nome)}</button>`).join('')}</div>`:''}</div>`};
   const flt=()=>`<div class="seg cbx-f3" role="group" aria-label="Filtrar">${[['todos','Todos'],['planta','Planta'],['mina','Mina']].map(([k,t])=>`<button type="button" data-f="${k}" aria-pressed="${st.f===k}">${t}</button>`).join('')}</div>
@@ -2053,6 +2058,7 @@ async function cbxLote(dt0){
         el.querySelector('[data-h]').addEventListener('input',ev=>{upd(id,'h',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)});
         el.querySelector('[data-l]').addEventListener('input',ev=>{upd(id,'l',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)})});
       sh.querySelector('#cbx-flt').innerHTML=flt();bindF();mAll();tot();pd()};
+    cbxUltBusca().then(l=>l.forEach(e=>{const el=rows.querySelector(`[data-r="${CSS.escape(e.id)}"] [data-l]`);if(el)el.placeholder=nf(cbxUltL(e),1)}));
     /* Enter do teclado pula: horimetro › litros › horimetro do proximo */
     rows.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;const ins=[...rows.querySelectorAll('input')],i=ins.indexOf(ev.target);if(i<0)return;ev.preventDefault();const n=ins[i+1];if(n){n.focus();n.select&&n.select()}else ev.target.blur()});
     const bindF=()=>{sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{st.f=b.dataset.f;st.sf='';all()});sh.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{st.sf=st.sf===b.dataset.sf?'':b.dataset.sf;all()})};

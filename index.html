@@ -266,6 +266,147 @@ body.focus .sidetabs{display:none!important}
 .cb-abr span:nth-child(n+2),.cb-abh span:nth-child(n+2){text-align:right}
 .cb-abr i{font-style:normal;font-size:12px;color:var(--muted);margin-left:3px}
 .cb-prev{background:var(--accent-soft);border-radius:12px;padding:11px 14px;font-size:14px}
+/* combustivel v2: comboio, lote, entrada, fechar mes, relatorio */
+.cbx-hub{display:flex;flex-direction:column;gap:10px}
+.cbx-go{display:flex;align-items:center;gap:14px;width:100%;min-height:80px;padding:12px 14px 12px 16px;border-radius:16px;border:1px solid var(--line);background:var(--surface);color:var(--fg);cursor:pointer;text-align:left;font:inherit}
+.cbx-go .ic{width:50px;height:50px;border-radius:14px;background:var(--accent-soft);color:var(--accent-tx);display:grid;place-items:center;flex:none}
+.cbx-go.pri .ic{background:var(--accent);color:#fff}
+.cbx-go .ic svg{width:26px;height:26px}
+.cbx-go>span:nth-child(2){flex:1;min-width:0}
+.cbx-go b{display:block;font-size:17px;line-height:1.2}
+.cbx-go small{display:block;font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbx-go>svg{width:18px;height:18px;color:var(--faint);flex:none}
+.cbx-go:active{transform:scale(.99)}
+.cbx-acts{display:flex;flex-direction:column;gap:8px}
+.cbx-acts .btn{min-height:56px;font-size:16px;border-radius:14px;gap:10px}
+.cbx-acts .btn svg{width:22px;height:22px}
+.cbx-gr{display:inline-grid;color:var(--ok)}
+.cbx-tkh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:22px 2px 10px}
+.cbx-tkh h3{margin:0;font-size:16px}
+.cbx-tkh h3 span{font-weight:500;color:var(--muted)}
+.cbx-fm{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:18px;border:1px solid var(--line-2);background:var(--surface);color:var(--accent-tx);font:600 13px var(--body);cursor:pointer;white-space:nowrap}
+.cbx-fm svg{width:14px;height:14px}
+.cbx-tk{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.cbx-sal{display:flex;align-items:flex-end;justify-content:space-between;gap:8px}
+.cbx-sal small{display:block;font-size:12.5px;font-weight:600;color:var(--muted)}
+.cbx-sal b{display:block;font-size:34px;line-height:1.1;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em;white-space:nowrap}
+.cbx-sal b i{font-style:normal;font-size:18px;color:var(--muted);font-weight:600;margin-left:5px}
+.cbx-sal em{font-style:normal;font-size:20px;font-weight:700;color:var(--accent-tx);font-variant-numeric:tabular-nums}
+.cbx-bar{position:relative;height:12px;border-radius:6px;background:var(--sunk);overflow:hidden}
+.cbx-bar>i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--accent)}
+.cbx-bar>i.b{border-radius:0;background:var(--ink)}
+.cbx-bar>u{position:absolute;top:0;bottom:0;width:2px;background:var(--surface);opacity:.8}
+.cbx-bar.s{height:8px;border-radius:4px}
+.cbx-barl{display:flex;justify-content:space-between;font-size:12px;color:var(--faint);margin-top:-6px;font-variant-numeric:tabular-nums}
+.cbx-io{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cbx-io>div{border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:2px;background:var(--bad-bg);color:var(--bad);min-width:0}
+.cbx-io>div.in{background:var(--ok-bg);color:var(--ok)}
+.cbx-io small{display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600}
+.cbx-io small svg{width:13px;height:13px}
+.cbx-io b{font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.cbx-io.big>div{background:var(--surface);border:1px solid var(--line);color:var(--fg)}
+.cbx-io.big>div small{color:var(--muted)}
+.cbx-io.big>div.in b{color:var(--ok)}
+.cbx-io.big b{font-size:22px}
+.cbx-ft{border-top:1px solid var(--line);padding-top:11px;font-size:13px;color:var(--muted)}
+.cbx-mb{width:40px;height:40px;flex:none;border:0;border-radius:20px;background:var(--sunk);color:var(--muted);display:grid;place-items:center;cursor:pointer;margin-left:auto}
+.cbx-mb svg{width:20px;height:20px}
+.cbx-mb+.hd-pri{margin-left:6px}
+.sh-top{position:relative}
+.cbx-pop{position:absolute;z-index:5;right:max(14px,env(safe-area-inset-right,0px));top:calc(100% - 6px);min-width:230px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 28px rgba(11,36,112,.18);padding:6px;display:flex;flex-direction:column}
+.cbx-pop button{display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;border:0;border-radius:10px;background:none;font:600 15px var(--body);color:var(--fg);text-align:left;cursor:pointer}
+.cbx-pop button:active{background:var(--sunk)}
+.cbx-pop svg{width:20px;height:20px;color:var(--accent-tx);flex:none}
+.cbx-pop small{margin-left:auto;font-size:12px;color:var(--muted)}
+.cbx-tools{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.cbx-row1{display:flex;gap:8px}
+.cbx-dt,.cbx-q{display:flex;align-items:center;gap:8px;height:46px;border:1px solid var(--line-2);border-radius:12px;background:var(--surface);padding:0 10px 0 12px}
+.cbx-dt{flex:none}.cbx-q{flex:1;min-width:0;background:var(--sunk)}
+.cbx-dt svg,.cbx-q svg{width:18px;height:18px;flex:none;color:var(--accent-tx)}.cbx-q svg{color:var(--muted)}
+.cbx-dt input,.cbx-q input{border:0;outline:none;background:transparent;font:600 15px var(--body);color:var(--fg);min-width:0;padding:0;font-variant-numeric:tabular-nums}
+.cbx-q input{flex:1;font-weight:500;-webkit-appearance:none;appearance:none}
+.cbx-dt input,.cbx-q input{border:0!important;box-shadow:none!important;outline:none!important;height:auto!important;border-radius:0!important}
+.cbx-f3{grid-template-columns:repeat(3,1fr)}
+.cbx-sub{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.cbx-chip{min-height:36px;padding:0 16px;border-radius:18px;border:1px solid var(--line-2);background:var(--surface);font:600 13px var(--body);color:var(--muted);cursor:pointer}
+.cbx-chip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-tx)}
+.cbx-pend{display:flex;align-items:center;gap:8px;min-height:42px;padding:4px 6px 4px 12px;border-radius:12px;background:var(--accent-soft);color:var(--accent-tx);font-size:13.5px}
+.cbx-pend svg{width:16px;height:16px;flex:none}
+.cbx-pend span{flex:1}
+.cbx-pend button{min-height:36px;padding:0 12px;border:0;background:none;color:var(--accent-tx);font:700 13.5px var(--body);cursor:pointer}
+.cbx-colh,.cbx-g{display:grid;grid-template-columns:minmax(0,1fr) 76px 128px;gap:8px}
+.cbx-colh{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;padding:0 13px 6px}
+.cbx-colh span:last-child{text-align:center}
+.cbx-rows{display:flex;flex-direction:column;gap:8px}
+.cbx-r{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:9px}
+.cbx-r.er{border:2px solid var(--bad);padding:10px 11px}
+.cbx-r.av{border-color:var(--warn)}
+.cbx-rh{display:flex;align-items:center;gap:8px;min-height:22px}
+.cbx-rh b{font-family:var(--mono);font-size:15px;font-weight:600}
+.cbx-tag{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border-radius:5px;padding:2px 6px;background:var(--sunk);color:var(--muted)}
+.cbx-tag.pq{background:var(--bad-bg);color:var(--bad)}
+.cbx-rh small{margin-left:auto;font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.cbx-g input{min-width:0;width:100%;height:46px;border:1px solid var(--line-2);border-radius:10px;padding:0 10px;font:600 16px var(--body);font-variant-numeric:tabular-nums;background:var(--surface);color:var(--fg);-moz-appearance:textfield}
+.cbx-g input::-webkit-outer-spin-button,.cbx-g input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.cbx-g input.l{text-align:right;font-weight:700}
+.cbx-g input.bad{border:2px solid var(--bad);color:var(--bad);padding:0 9px}
+.cbx-g input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.cbx-cu{display:grid;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;height:46px}
+.cbx-cu button{border:0;background:var(--surface);font:600 13px var(--body);color:var(--muted);cursor:pointer;min-width:0;padding:0}
+.cbx-cu button+button{border-left:1px solid var(--line-2)}
+.cbx-cu button[aria-pressed="true"]{background:var(--accent);color:#fff;font-weight:700}
+.cbx-cu[aria-disabled="true"]{opacity:.4;pointer-events:none}
+.cbx-msg{display:flex;gap:8px;align-items:flex-start;border-radius:9px;padding:8px 10px;font-size:13px;line-height:1.4}
+.cbx-msg svg{width:16px;height:16px;flex:none;margin-top:1px}
+.cbx-msg.bad{background:var(--bad-bg);color:var(--bad)}
+.cbx-msg.warn{background:var(--warn-bg);color:var(--warn)}
+.cbx-msg.info{background:var(--accent-soft);color:var(--accent-tx)}
+.cbx-rl{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:-2px}
+.cbx-rl button{min-height:42px;border-radius:10px;border:1px solid var(--bad);background:var(--surface);color:var(--bad);font:700 14px var(--body);cursor:pointer}
+.cbx-tot{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--muted);padding:12px 2px 0}
+.cbx-tot:empty{display:none}
+.cbx-tot b{color:var(--fg)}.cbx-tot .pb,.cbx-tot .pb b{color:var(--bad)}
+.cbx-tot .r{margin-left:auto;font-size:15px;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums}
+.cbx-big{display:flex;align-items:center;gap:8px;height:66px;border:2px solid var(--accent);border-radius:14px;background:var(--surface);padding:0 16px}
+.cbx-big input{flex:1;min-width:0;border:0!important;outline:none;background:transparent!important;font:700 28px var(--body);color:var(--fg);padding:0!important;height:auto!important;font-variant-numeric:tabular-nums;box-shadow:none!important}
+.cbx-big input::-webkit-outer-spin-button,.cbx-big input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.cbx-big input{-moz-appearance:textfield}
+.cbx-big i{font-style:normal;font-size:17px;font-weight:600;color:var(--muted)}
+.cbx-hint{font-size:12.5px;font-weight:500;color:var(--muted)}
+.cbx-sum{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px 16px}
+.cbx-sum>div{display:flex;align-items:center;justify-content:space-between;min-height:44px;font-size:15px;border-bottom:1px solid var(--line);color:var(--muted)}
+.cbx-sum>div b{color:var(--fg);font-weight:600;font-variant-numeric:tabular-nums}
+.cbx-sum>div b.in{color:var(--ok)}.cbx-sum>div b.out{color:var(--bad)}
+.cbx-sum>div.t{border-bottom:0;border-top:1px solid var(--line-2);min-height:50px;color:var(--fg);font-weight:700}
+.cbx-sum>div.t b{font-weight:700;font-size:16px}
+.cbx-sum small{font-size:12.5px}
+.cbx-dif{display:flex;justify-content:space-between;align-items:center;min-height:40px;padding:0 12px;border-radius:10px;background:var(--warn-bg);color:var(--warn);font-weight:600;font-size:14px}
+.cbx-dif b{font-variant-numeric:tabular-nums}
+.cbx-reab{margin-top:18px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.cbx-de{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);box-shadow:inset 0 -1px 0 var(--line)}
+.cbx-de span{flex:1;min-width:0}.cbx-de b{display:block;font-variant-numeric:tabular-nums}.cbx-de small{color:var(--muted);font-size:12.5px}
+.cbx-mn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.cbx-mn b{font-size:16px}
+.cbx-nx svg{transform:rotate(180deg)}
+.cbx-mn .btn[disabled]{opacity:.35}
+.cbx-cs{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:14px}
+.cbx-cr{display:flex;flex-direction:column;gap:6px}
+.cbx-cr .h{display:flex;justify-content:space-between;gap:8px;font-size:15px}
+.cbx-cr .h span{font-weight:600}.cbx-cr .h small{font-weight:500;color:var(--muted)}
+.cbx-cr .h b{font-variant-numeric:tabular-nums}
+.cbx-cr .k{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:12.5px;color:var(--muted)}
+.cbx-cr .k span{display:inline-flex;align-items:center;gap:6px}
+.cbx-cr .k b{color:var(--fg);font-variant-numeric:tabular-nums}
+.cbx-cr .k u{width:8px;height:8px;border-radius:2px;background:var(--accent)}.cbx-cr .k u.b{background:var(--ink)}
+.cbx-ajl{display:flex;flex-direction:column;gap:8px}
+.cbx-aj{display:flex;align-items:center;gap:8px}
+.cbx-aj input{flex:1;min-width:0;height:44px;border:1px solid var(--line-2);border-radius:10px;padding:0 12px;font:600 15px var(--body);background:var(--surface);color:var(--fg)}
+.cbx-aj small{font-size:12px;color:var(--muted);white-space:nowrap}
+.cbx-aj.off input,.cbx-ajc.off input{opacity:.5;text-decoration:line-through}
+.cbx-ajc{background:var(--sunk);border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:10px}
+.cbx-add{display:flex;gap:8px;margin-top:8px}
+.cbx-add input{flex:1;min-width:0;height:44px;border:1px dashed var(--line-2);border-radius:10px;padding:0 12px;font:500 15px var(--body);background:transparent;color:var(--fg)}
+.cbx-add .btn svg{width:16px;height:16px}
 .cb-pv{display:grid;grid-template-columns:1fr 1fr 1.2fr;align-items:start;gap:8px}.cb-pv>span{display:flex;flex-direction:column;gap:2px}.cb-pv .r{text-align:right}
 .cb-pv small{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);line-height:1.2}.cb-pv b{font-variant-numeric:tabular-nums;font-size:17px;line-height:1.25}
 .cb-big{color:var(--accent-tx,var(--accent))}
@@ -1195,8 +1336,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=292f4be2bc"></script>
-<script src="shim.js?v=292f4be2bc"></script>
+<script src="config.js?v=693e45e205"></script>
+<script src="shim.js?v=693e45e205"></script>
 </head>
 <body>
 
@@ -1465,15 +1606,6 @@ const mesKey=d=>(d||today()).slice(0,7);
 const MESES=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const mesNome=m=>{const[y,mm]=m.split('-');return `${MESES[Number(mm)-1]} ${y}`};
 const lhTxt=v=>v==null||!isFinite(v)?'—':nf(v,1)+' L/h';
-/* topico: so a lista de equipamentos por alocacao (usa o cadastro ja carregado; nada de combustivel e buscado aqui) */
-function vComb(){
-  if(S.focus!=='comb')return '';
-  const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);
-  const eqs=S.eqCtl.filter(e=>e.status!=='inativo');
-  const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
-  if(!G.length)return '<div class="empty"><b>Nenhum equipamento</b>Cadastre pelo botao +.</div>';
-  return `<div class="tsec-wrap">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>`<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${I.chev}</button>`).join('')}</div></section>`).join('')}</div>`;
-}
 /* tela do equipamento: cartao do mes atual + linha "Abastecimentos" que so busca a lista ao abrir */
 function openCombEq(id){
   nav('cbq:'+id,()=>openCombEq(id));
@@ -1540,13 +1672,15 @@ function formAbast(){
   }});
 }
 /* grava um abastecimento: registro do mes, resumo do mes e base de consumo do equipamento */
-async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs=''}){
+async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs='',custo='',cb=''}){
   const m=mesKey(dt),ref=S.db.collection('comb/'+m+'/abast').doc();
-  await ref.set({equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),litros:l,cheio,horas,lh,litrosMedidos:horas?L:null,tipo:e.tipo||'',alocacao:e.alocacao||'',area:e.area||'',frente:e.frente||'',resp,obs,ts:Date.now(),
+  await ref.set({equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),litros:l,cheio,horas,lh,litrosMedidos:horas?L:null,tipo:e.tipo||'',alocacao:e.alocacao||'',area:e.area||'',frente:e.frente||'',...(custo?{custo}:{}),...(cb?{comboio:cb}:{}),resp,obs,ts:Date.now(),
     antBase:b||null,antUlt:e.combUlt||null,antUltData:e.combUltData||''});
   const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},x=(d.eq||{})[e.id]||{lt:0,n:0,l:0,h:0};
   const dk=dt.slice(8,10),dia={...(d.dia||{})};dia[dk]=Math.round(((dia[dk]||0)+l)*10)/10;
-  await md.set({...d,dia,eq:{...(d.eq||{}),[e.id]:{lt:Math.round((x.lt+l)*10)/10,n:x.n+1,l:Math.round((x.l+(horas?L:0))*10)/10,h:Math.round((x.h+(horas||0))*10)/10}}});
+  const ex={};if(cb){const cd={...(d.cbDia||{})},o={...(cd[cb]||{})};o[dk]=Math.round(((Number(o[dk])||0)+l)*10)/10;cd[cb]=o;ex.cbDia=cd}
+  if(custo){const cu={...(d.cus||{})};cu[custo]=Math.round(((Number(cu[custo])||0)+l)*10)/10;ex.cus=cu}
+  await md.set({...d,dia,...ex,eq:{...(d.eq||{}),[e.id]:{lt:Math.round((x.lt+l)*10)/10,n:x.n+1,l:Math.round((x.l+(horas?L:0))*10)/10,h:Math.round((x.h+(horas||0))*10)/10}}});
   const up={combBase:nb,combUlt:{mes:m,id:ref.id},combUltData:dt};
   if(h>(Number(e.horimetro)||0)){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
   await S.db.doc('equipamentos/'+e.id).update(up);
@@ -1623,7 +1757,7 @@ async function backupAll(btn){if(backupAll.busy)return;
   backupAll.busy=true;const tx=btn&&btn.querySelector('.tx span'),t0=tx&&tx.textContent;if(tx)tx.textContent='Preparando o arquivo…';
   try{const col=async p=>{const q=await S.db.collection(p).get();const r={};q.docs.forEach(d=>{r[d.id]=d.data()});return r};
     const dados={};for(const c of ['equipamentos','trocas','estoque','movs','listas','config'])dados[c]=await col(c);
-    const comb=await col('comb');dados.combustivel={};for(const m of Object.keys(comb).sort())dados.combustivel[m]={resumo:comb[m],abastecimentos:await col('comb/'+m+'/abast')};
+    const comb=await col('comb');dados.combustivel={};for(const m of Object.keys(comb).sort())dados.combustivel[m]={resumo:comb[m],abastecimentos:await col('comb/'+m+'/abast'),entradas:await col('comb/'+m+'/ent')};
     const n=Object.values(dados).reduce((a,o)=>a+Object.keys(o).length,0);
     const json=JSON.stringify({app:'Controle de Frota',formato:1,geradoEm:new Date().toISOString(),dados},null,1);
     await dl.save({filename:`frota-copia-${today()}.json`,data:new Blob([json],{type:'application/json'})});toast(`Copia salva · ${n} registros`)}
@@ -1648,10 +1782,343 @@ async function openDelAbast(){
   mount:sh=>sh.querySelectorAll('[data-dab]').forEach(b=>b.onclick=()=>{const k=b.dataset.dab,f=l.find(x=>x.mes+'/'+x.id===k),e=f&&eqById(f.equipId);if(!e)return;
     askDelete(sh.querySelector(`[data-dabc="${CSS.escape(k)}"]`),`Excluir o abastecimento de ${esc(e.codigo)} de ${fdate(f.data)}? A medicao volta ao lancamento anterior. Nao da para desfazer.`,async()=>{
       const ok=await safe(async()=>{const md=S.db.doc('comb/'+f.mes),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},x=(d.eq||{})[e.id];
-        if(x){const nx={lt:Math.round((x.lt-f.litros)*10)/10,n:x.n-1,l:Math.round((x.l-(f.litrosMedidos||0))*10)/10,h:Math.round((x.h-(f.horas||0))*10)/10};const eq={...d.eq};if(nx.n>0)eq[e.id]=nx;else delete eq[e.id];const dk=(f.data||'').slice(8,10),dia={...(d.dia||{})};if(dia[dk]!=null){dia[dk]=Math.round((dia[dk]-f.litros)*10)/10;if(dia[dk]<=0)delete dia[dk]}await md.set({...d,eq,dia})}
+        if(x){const nx={lt:Math.round((x.lt-f.litros)*10)/10,n:x.n-1,l:Math.round((x.l-(f.litrosMedidos||0))*10)/10,h:Math.round((x.h-(f.horas||0))*10)/10};const eq={...d.eq};if(nx.n>0)eq[e.id]=nx;else delete eq[e.id];const dk=(f.data||'').slice(8,10),dia={...(d.dia||{})};if(dia[dk]!=null){dia[dk]=Math.round((dia[dk]-f.litros)*10)/10;if(dia[dk]<=0)delete dia[dk]}const ex={};if(f.comboio&&d.cbDia&&d.cbDia[f.comboio]){const cd={...d.cbDia},o={...cd[f.comboio]};if(o[dk]!=null){o[dk]=Math.round((o[dk]-f.litros)*10)/10;if(o[dk]<=0)delete o[dk]}cd[f.comboio]=o;ex.cbDia=cd}if(f.custo&&d.cus&&d.cus[f.custo]!=null){const cu={...d.cus};cu[f.custo]=Math.round((cu[f.custo]-f.litros)*10)/10;if(cu[f.custo]<=0)delete cu[f.custo];ex.cus=cu}await md.set({...d,eq,dia,...ex})}
         await S.db.doc('equipamentos/'+e.id).update({combBase:f.antBase||null,combUlt:f.antUlt||null,combUltData:f.antUltData||''});
         await S.db.doc(`comb/${f.mes}/abast/${f.id}`).delete()},'Abastecimento excluido');
       if(ok)goBack()})})});
+}
+
+/* =====================================================================
+   COMBUSTIVEL v2 — Comboio (tanque), abastecer a frota em lote, entrada no tanque, fechar mes, relatorio
+   config/comb       {comboios:[{id,nome,cap,corte,off}], custos:[{id,nome,pai,off}]}
+   config/combFech   {[comboio]:[{corte,saldo,calc,ts}]}  fechamentos; o ultimo e a base do saldo e trava as datas ate o corte
+   comb/{m}          + cbDia{cb:{dd:L}} saidas por comboio, cbEnt{cb:{dd:L}} entradas, cus{custo:L} saidas por custo, cusEnt{custo:L}
+   comb/{m}/ent/{id} entrada no tanque {comboio,data,hora,litros,custo,ts}
+   Rascunho do lote fica no aparelho (nao se perde ao sair da tela): localStorage cbx.r:{ns}{cb}:{data}
+   ===================================================================== */
+const CBX_DEF={comboios:[{id:'c01',nome:'Comboio 01',cap:null,corte:null}],custos:[{id:'planta',nome:'Planta'},{id:'mina',nome:'Mina'},{id:'ug',nome:'UG',pai:'mina'}]};
+const CBX_NS=()=>(window.__frotaNS||'');
+const cbxLS={get:k=>{try{return JSON.parse(localStorage.getItem('cbx.'+CBX_NS()+k)||'null')}catch(e){return null}},set:(k,v)=>{try{if(v==null)localStorage.removeItem('cbx.'+CBX_NS()+k);else localStorage.setItem('cbx.'+CBX_NS()+k,JSON.stringify(v))}catch(e){}},
+  keys:p=>{const out=[],pre='cbx.'+CBX_NS()+p;try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(pre))out.push(k.slice(pre.length))}}catch(e){}return out}};
+async function cbxCfg(force){if(S.cbxCfg&&!force)return S.cbxCfg;
+  try{const d=await S.db.doc('config/comb').get();const v=d.exists?d.data():{};S.cbxCfg={comboios:(v.comboios&&v.comboios.length?v.comboios:CBX_DEF.comboios),custos:(v.custos&&v.custos.length?v.custos:CBX_DEF.custos)}}
+  catch(e){S.cbxCfg=S.cbxCfg||JSON.parse(JSON.stringify(CBX_DEF))}return S.cbxCfg}
+async function cbxFechAll(){try{const d=await S.db.doc('config/combFech').get();S.cbxFech=d.exists?d.data():{}}catch(e){S.cbxFech=S.cbxFech||{}}return S.cbxFech}
+const cbxFechUlt=cb=>{const l=(S.cbxFech||{})[cb]||[];return l.length?l[l.length-1]:null};
+const cbxAtivos=c=>c.comboios.filter(x=>!x.off);
+const cbxCur=c=>{const l=cbxAtivos(c),k=cbxLS.get('cb');return l.find(x=>x.id===k)||l[0]||c.comboios[0]};
+const cbxCustosAb=c=>c.custos.filter(x=>!x.off);
+const cbxCustosEnt=c=>c.custos.filter(x=>!x.off&&!x.pai);
+const cbxCuNome=id=>{const c=(S.cbxCfg||CBX_DEF).custos.find(x=>x.id===id);return c?c.nome:id||'—'};
+const cbxCuCurto=n=>String(n||'').length<=3?String(n).toUpperCase():String(n).charAt(0).toUpperCase();
+/* custo padrao do equipamento: sai da alocacao (Planta, Mina ou UG); fora do DM1 nao tem */
+function cbxCustoPad(e,c){if(!e||e.alocacao!=='DM1')return '';const cs=cbxCustosAb(c),nm=e.area==='Mina'&&e.frente==='UG'?'UG':e.area;const x=cs.find(k=>nzCod(k.nome)===nzCod(nm));return x?x.id:''}
+const cbxNaObra=e=>e&&e.alocacao==='DM1';
+const addDia=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return iso(x)};
+const fimMes=m=>{const[y,mo]=m.split('-').map(Number);return iso(new Date(y,mo,0,12))};
+const mesSeg=m=>{const[y,mo]=m.split('-').map(Number);return mo===12?`${y+1}-01`:`${y}-${String(mo+1).padStart(2,'0')}`};
+const corteDe=(m,dia)=>{if(!dia)return fimMes(m);const f=fimMes(m),d=Math.min(Number(dia),Number(f.slice(8,10)));return m+'-'+String(d).padStart(2,'0')};
+const cbxMesNome=m=>{const n=MESES[Number(m.slice(5,7))-1];return n.charAt(0).toUpperCase()+n.slice(1)};
+/* proximo corte sugerido: o mes depois do ultimo fechamento; sem fechamento, o ultimo corte que ja passou */
+function cbxCorteSug(cb){const F=cbxFechUlt(cb.id);if(F)return corteDe(mesSeg(F.corte.slice(0,7)),cb.corte);
+  const t=today(),m=t.slice(0,7),c=corteDe(m,cb.corte);if(c<=t)return c;const[y,mo]=m.split('-').map(Number);return corteDe(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`,cb.corte)}
+const cbxTrava=(cb,dt)=>{const F=cbxFechUlt(cb);return F&&dt<=F.corte?F.corte:''};
+/* saidas por dia de um comboio no resumo do mes; lancamentos antigos (sem comboio) contam no primeiro comboio */
+function cbxSaiDia(d,cb,first){const own=((d.cbDia||{})[cb])||{};if(!first)return own;const r={...own};
+  Object.entries(d.dia||{}).forEach(([dk,v])=>{let s=0;Object.values(d.cbDia||{}).forEach(o=>s+=Number(o[dk])||0);const leg=Math.round(((Number(v)||0)-s)*10)/10;if(leg>0)r[dk]=Math.round(((Number(r[dk])||0)+leg)*10)/10});return r}
+/* soma entradas e saidas de um comboio entre duas datas (inclusive) */
+async function cbxSomas(c,cb,de,ate){let ent=0,sai=0;const first=c.comboios[0]&&c.comboios[0].id===cb;
+  for(let m=de.slice(0,7);m<=ate.slice(0,7);m=mesSeg(m)){let d={};try{const x=await S.db.doc('comb/'+m).get();d=x.exists?x.data():{}}catch(e){}
+    const inR=dk=>{const dt=m+'-'+dk;return dt>=de&&dt<=ate};
+    Object.entries(((d.cbEnt||{})[cb])||{}).forEach(([dk,v])=>{if(inR(dk))ent+=Number(v)||0});
+    Object.entries(cbxSaiDia(d,cb,first)).forEach(([dk,v])=>{if(inR(dk))sai+=Number(v)||0})}
+  return {ent:Math.round(ent*10)/10,sai:Math.round(sai*10)/10}}
+async function cbxTanque(c,cb){const F=cbxFechUlt(cb.id),t=today(),de=F?addDia(F.corte,1):t.slice(0,7)+'-01';
+  const s=await cbxSomas(c,cb.id,de,t>de?t:de);return {...s,de,base:F?Number(F.saldo):null,F,saldo:F?Math.round((Number(F.saldo)+s.ent-s.sai)*10)/10:null}}
+const CBX_IC={more:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>',
+  rel:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20v-8M12 20V5M19 20v-6M3 20h18"/></svg>',
+  up:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M6 11l6-6 6 6"/></svg>',
+  dn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M6 13l6 6 6-6"/></svg>',
+  plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  bad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v4M12 17.5v.5"/></svg>',
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg>',
+  file:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L4 7l3 3M4 7h16M17 14l3 3-3 3M20 17H4"/></svg>',
+  cal:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
+  q:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>'};
+const cbxMsg=(lvl,html)=>`<div class="cbx-msg ${lvl}">${CBX_IC[lvl]||''}<span>${html}</span></div>`;
+/* menu ⋯ no cabecalho da gaveta */
+function cbxMore(sh,itens){const hd=sh.querySelector('.sh-head');if(!hd)return;const b=document.createElement('button');b.type='button';b.className='cbx-mb';b.setAttribute('aria-label','Mais opcoes');b.setAttribute('aria-expanded','false');b.innerHTML=CBX_IC.more;
+  const pri=hd.querySelector('.hd-pri');pri?hd.insertBefore(b,pri):hd.appendChild(b);
+  const pop=document.createElement('div');pop.className='cbx-pop';pop.hidden=true;pop.innerHTML=itens.map((x,i)=>`<button type="button" data-cm="${i}">${x.ic||''}<span>${x.t}</span>${x.d?`<small>${esc(x.d)}</small>`:''}</button>`).join('');
+  sh.querySelector('.sh-top').appendChild(pop);
+  const close=()=>{pop.hidden=true;b.setAttribute('aria-expanded','false');document.removeEventListener('click',out,true)};
+  const out=ev=>{if(!pop.contains(ev.target)&&ev.target!==b&&!b.contains(ev.target))close()};
+  b.onclick=()=>{if(!pop.hidden){close();return}pop.hidden=false;b.setAttribute('aria-expanded','true');setTimeout(()=>document.addEventListener('click',out,true),0)};
+  pop.querySelectorAll('[data-cm]').forEach(x=>x.onclick=()=>{close();itens[Number(x.dataset.cm)].fn()})}
+async function cbxTrocar(after){const c=await cbxCfg(),l=cbxAtivos(c);if(l.length<2){toast('So ha um comboio cadastrado. Para outro: + › Ajustes do app › Combustivel.');return}
+  const cur=cbxCur(c);nav('cbx:tc',()=>cbxTrocar(after));
+  openSheet({title:'Trocar comboio',body:`<div class="menu">${l.map(x=>`<button class="mi mi1" data-tc="${esc(x.id)}"><span class="ic">${I.comb}</span><span class="tx"><b>${esc(x.nome)}</b></span>${x.id===cur.id?'<span class="pill ok">Atual</span>':I.chev}</button>`).join('')}</div>`,
+  mount:sh=>sh.querySelectorAll('[data-tc]').forEach(b=>b.onclick=()=>{cbxLS.set('cb',b.dataset.tc);NAV.pop();after?after():goBack()})})}
+
+/* ---------- topico Combustivel: Comboio e Relatorio ---------- */
+function vComb(){
+  if(S.focus!=='comb')return '';
+  return `<div class="cbx-hub"><button type="button" class="cbx-go pri" data-cbx="cb"><span class="ic">${I.comb}</span><span><b>Comboio</b><small>Abastecer frota e entradas</small></span>${I.chev}</button>
+    <button type="button" class="cbx-go" data-cbx="rel"><span class="ic">${CBX_IC.rel}</span><span><b>Relatorio</b><small>Litros por equipamento e custo</small></span>${I.chev}</button></div>`;
+}
+function cbxBind(app){app.querySelectorAll('[data-cbx]').forEach(b=>b.onclick=()=>{NAV.length=0;b.dataset.cbx==='cb'?cbxComboio():cbxRel()})}
+
+/* ---------- Comboio: acoes e tanque ---------- */
+async function cbxComboio(){
+  nav('cbx:cb',()=>cbxComboio());
+  const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c);
+  const mes=cbxMesNome(cbxFechUlt(cb.id)?cbxCorteSug(cb).slice(0,7):mesKey());
+  openSheet({title:'Comboio',sub:cbxAtivos(c).length>1?esc(cb.nome):'',
+  body:`<div class="cbx-acts"><button type="button" class="btn pri" id="cbx-ab">${I.comb}Abastecer frota</button><button type="button" class="btn" id="cbx-en"><span class="cbx-gr">${CBX_IC.plus}</span>Entrada de diesel</button></div>
+    <div class="cbx-tkh"><h3>Tanque <span>· ${mes}</span></h3><button type="button" class="cbx-fm" id="cbx-fm">${CBX_IC.lock}Fechar mes</button></div>
+    <div class="cbx-tk" id="cbx-tk"><div class="card-wait" style="min-height:120px">Carregando…</div></div>`,
+  mount:sh=>{sh.querySelector('#cbx-ab').onclick=()=>cbxLote();sh.querySelector('#cbx-en').onclick=()=>cbxEntrada();sh.querySelector('#cbx-fm').onclick=()=>cbxFechar();
+    cbxMore(sh,[{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxComboio()})},{ic:CBX_IC.bad,t:'Excluir entrada',fn:()=>cbxDelEnt()}]);
+    cbxTanque(c,cb).then(t=>{const box=sh.querySelector('#cbx-tk');if(!box||!box.isConnected)return;const cap=Number(cb.cap)||0;
+      const pct=cap&&t.saldo!=null?Math.max(0,Math.min(100,Math.round(t.saldo/cap*100))):null;
+      box.innerHTML=`<div class="cbx-sal"><div><small>Saldo</small><b>${t.saldo!=null?nf(t.saldo,1):'—'}<i>L</i></b></div>${pct!=null?`<em>${pct}%</em>`:''}</div>
+        ${cap?`<div class="cbx-bar"><i style="width:${pct||0}%"></i><u style="left:25%"></u><u style="left:50%"></u><u style="left:75%"></u></div><div class="cbx-barl"><span>0</span><span>capacidade ${nf(cap)} L</span></div>`:''}
+        <div class="cbx-io"><div class="in"><small>${CBX_IC.up}Entradas</small><b>${nf(t.ent,1)} L</b></div><div class="out"><small>${CBX_IC.dn}Saidas</small><b>${nf(t.sai,1)} L</b></div></div>
+        <div class="cbx-ft">${t.F?`Desde o fechamento de <b>${fdate(t.F.corte).slice(0,5)}</b> · saldo inicial ${nf(t.base,1)} L`:`Desde ${fdate(t.de).slice(0,5)} · sem saldo inicial: use <b>Fechar mes</b> com o saldo medido`}</div>`}).catch(()=>{const box=sh.querySelector('#cbx-tk');if(box)box.innerHTML='<div class="s">Nao foi possivel carregar.</div>'})}});
+}
+
+/* ---------- Abastecer frota: lancamento em lote ---------- */
+async function cbxLote(dt0){
+  const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c);
+  const st=cbxLote.st&&cbxLote.st.cb===cb.id?cbxLote.st:(cbxLote.st={cb:cb.id,dt:today(),q:'',f:'todos',sf:''});if(dt0)st.dt=dt0;
+  nav('cbx:lt',()=>cbxLote());
+  const cus=cbxCustosAb(c);
+  const rk=()=>'r:'+cb.id+':'+st.dt,dr=()=>cbxLS.get(rk())||{},save=d=>{Object.keys(d).forEach(k=>{const x=d[k];if(!x||(!x.h&&!x.l&&!x.r&&!x.c))delete d[k]});cbxLS.set(rk(),Object.keys(d).length?d:null)};
+  const pend=()=>cbxLS.keys('r:'+cb.id+':').filter(k=>k!==st.dt).map(k=>({dt:k,n:Object.values(cbxLS.get('r:'+cb.id+':'+k)||{}).filter(x=>Number(x.l)>0).length})).filter(x=>x.n).sort((a,b)=>a.dt.localeCompare(b.dt));
+  const base=()=>S.eqCtl.filter(e=>e.status!=='inativo');
+  const lista=()=>{const q=nzCod(st.q),d=dr();let l=base();
+    if(q)l=l.filter(e=>nzCod(e.codigo).includes(q)||(e.placa&&nzCod(e.placa).includes(q)));
+    else{l=l.filter(e=>cbxNaObra(e)||d[e.id]);
+      if(st.f==='planta')l=l.filter(e=>e.area==='Planta');
+      if(st.f==='mina')l=l.filter(e=>e.area==='Mina'&&(st.sf==='mina'?e.frente!=='UG':st.sf==='ug'?e.frente==='UG':true))}
+    return l.sort(byCode)};
+  /* confere uma linha: erro trava, atencao pede confirmacao, info so avisa */
+  const chk=(e,x)=>{const o={msg:[],ok:false,tem:Number(x.l)>0};if(!o.tem){if(x.h)o.msg.push(['info','Sem litros: a linha nao entra no lancamento.']);return o}
+    const tv=cbxTrava(cb.id,st.dt);if(tv){o.msg.push(['bad',`Periodo fechado ate ${fdate(tv)}.`]);return o}
+    if(!cbxNaObra(e)&&!x.r){o.pq=1;o.msg.push(['bad',`<b>Em ${esc(e.alocacao||'nenhum local')} nao recebe diesel da DM1.</b> Realocar para:`]);return o}
+    if(x.h===''||x.h==null){o.msg.push(['bad','Informe o horimetro.']);return o}
+    const r=calcAbast(e,st.dt,Number(x.h),Number(x.l),true);o.c=r;if(r.erro){o.hb=1;o.msg.push(['bad',esc(r.erro)+'.']);return o}
+    const cu=x.c||(x.r?x.r:cbxCustoPad(e,c));if(!cu){o.msg.push(['bad','Escolha o custo.']);return o}o.cu=cu;
+    if(x.r){const rn=cbxCuNome(x.r);o.msg.push(['info',`Sera realocado para ${esc(rn==='UG'?'Mina › UG':rn)} ao lancar.`])}
+    const pad=x.r||cbxCustoPad(e,c);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
+    if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}
+    const sj=hmSalto(e,r.h,st.dt);if(sj){o.av=1;o.msg.push(['warn',`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`])}
+    o.ok=true;return o};
+  const tag=e=>!cbxNaObra(e)?`<span class="cbx-tag pq">${esc(e.alocacao||'Sem local')}</span>`:`<span class="cbx-tag">${esc(e.area==='Mina'&&e.frente==='UG'?'UG':e.area||'DM1')}</span>`;
+  const linha=(e,x)=>{const o=chk(e,x),cu=x.c||(x.r||cbxCustoPad(e,c));const dis=!cbxNaObra(e)&&!x.r;
+    return `<div class="cbx-r${o.msg.some(m=>m[0]==='bad')?' er':o.av?' av':''}" data-r="${esc(e.id)}"><div class="cbx-rh"><b>${esc(e.codigo)}</b>${tag(e)}<small>${e.horimetro!==''&&e.horimetro!=null?'ult '+nf(e.horimetro,1):'sem leitura'}</small></div>
+      <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" aria-label="Horimetro ${esc(e.codigo)}" data-h value="${x.h??''}"${o.hb?' class="bad"':''}><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="next" aria-label="Litros ${esc(e.codigo)}" class="l" data-l value="${x.l??''}">
+      <div class="cbx-cu" role="group" aria-label="Custo"${dis?' aria-disabled="true"':''} style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-cu="${esc(k.id)}" aria-pressed="${cu===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div></div>
+      ${o.msg.map(([l,t])=>cbxMsg(l,t)).join('')}${o.pq?`<div class="cbx-rl">${cus.filter(k=>k.nome==='UG'||AREAS.includes(k.nome)).map(k=>`<button type="button" data-ra="${esc(k.id)}">${esc(k.nome)}</button>`).join('')}</div>`:''}</div>`};
+  const flt=()=>`<div class="seg cbx-f3" role="group" aria-label="Filtrar">${[['todos','Todos'],['planta','Planta'],['mina','Mina']].map(([k,t])=>`<button type="button" data-f="${k}" aria-pressed="${st.f===k}">${t}</button>`).join('')}</div>
+    ${st.f==='mina'?`<div class="cbx-sub">${[['mina','Mina'],['ug','UG']].map(([k,t])=>`<button type="button" class="cbx-chip" data-sf="${k}" aria-pressed="${st.sf===k}">${t}</button>`).join('')}</div>`:''}`;
+  openSheet({title:'Abastecer',sub:cbxAtivos(c).length>1?esc(cb.nome):'',
+  body:`<div class="cbx-tools"><div class="cbx-row1"><label class="cbx-dt">${CBX_IC.cal}<input type="date" id="cbx-dt" value="${st.dt}" max="${today()}" aria-label="Data"></label>
+      <label class="cbx-q">${CBX_IC.q}<input id="cbx-q" type="search" placeholder="Buscar TAG" autocomplete="off" value="${esc(st.q)}" aria-label="Buscar TAG"></label></div>
+      <div id="cbx-flt">${flt()}</div><div id="cbx-ask"></div><div id="cbx-pd"></div></div>
+    <div class="cbx-colh"><span>Horimetro</span><span>Litros</span><span>Custo</span></div><div class="cbx-rows" id="cbx-rows"></div><div class="cbx-tot" id="cbx-tot"></div><div id="cbx-cf"></div>`,
+  foot:`<button type="button" class="btn pri" id="lt-go">Lancar</button>`,
+  mount:sh=>{const go=sh.querySelector('#lt-go'),rows=sh.querySelector('#cbx-rows');
+    cbxMore(sh,[{ic:CBX_IC.file,t:'Importar planilha',fn:()=>cbxImport()},{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxLote.st=null;cbxLote()})}]);
+    const tot=()=>{const d=dr();let n=0,b=0,L=0;base().forEach(e=>{const x=d[e.id];if(!x||!(Number(x.l)>0))return;const o=chk(e,x);if(o.ok){n++;L+=Number(x.l)}else b++});
+      go.textContent=n?`Lancar ${n}`:'Lancar';go.disabled=!n;go.title=go.textContent;go.setAttribute('aria-label',n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada para lancar');
+      sh.querySelector('#cbx-tot').innerHTML=n||b?`<span><b>${n}</b> pronto${n===1?'':'s'}</span>${b?`<span class="pb"><b>${b}</b> pendente${b===1?'':'s'}</span>`:''}<span class="r">${nf(L,1)} L</span>`:''};
+    const pd=()=>{const l=pend();sh.querySelector('#cbx-pd').innerHTML=l.length?`<div class="cbx-pend">${CBX_IC.info}<span>${l.map(p=>`${p.n} nao lancado${p.n===1?'':'s'} de ${fdate(p.dt).slice(0,5)}`).join(' · ')}</span><button type="button" data-pv="${l[0].dt}">Ver</button></div>`:'';
+      const v=sh.querySelector('[data-pv]');if(v)v.onclick=()=>{st.dt=v.dataset.pv;sh.querySelector('#cbx-dt').value=st.dt;all()}};
+    const one=id=>{const e=eqById(id),el=rows.querySelector(`[data-r="${CSS.escape(id)}"]`);if(!e||!el)return;const ae=document.activeElement,f=ae&&el.contains(ae)?(ae.dataset.h!=null?'h':ae.dataset.l!=null?'l':''):'';
+      const tmp=document.createElement('div');tmp.innerHTML=linha(e,dr()[id]||{});const nw=tmp.firstElementChild;
+      /* troca so as mensagens e estilos; os campos ficam (o teclado nao fecha) */
+      el.className=nw.className;el.querySelectorAll('.cbx-msg,.cbx-rl').forEach(x=>x.remove());nw.querySelectorAll('.cbx-msg,.cbx-rl').forEach(x=>el.appendChild(x));
+      el.querySelector('[data-h]').classList.toggle('bad',nw.querySelector('[data-h]').classList.contains('bad'));
+      el.querySelector('.cbx-cu').replaceWith(nw.querySelector('.cbx-cu'));bindRow(el);if(f)el.querySelector(f==='h'?'[data-h]':'[data-l]').focus({preventScroll:true});tot()};
+    const upd=(id,k,v)=>{const d=dr();d[id]={...(d[id]||{}),[k]:v};save(d)};
+    const bindRow=el=>{const id=el.dataset.r;
+      el.querySelectorAll('[data-cu]').forEach(b=>b.onclick=()=>{upd(id,'c',b.dataset.cu);one(id)});
+      el.querySelectorAll('[data-ra]').forEach(b=>b.onclick=()=>{upd(id,'r',b.dataset.ra);one(id)})};
+    const all=()=>{const d=dr(),l=lista();rows.innerHTML=l.length?l.map(e=>linha(e,d[e.id]||{})).join(''):`<div class="empty">${st.q?'<b>Nenhuma TAG encontrada</b>Confira o codigo.':'<b>Nenhum equipamento</b>Nada alocado aqui.'}</div>`;
+      rows.querySelectorAll('.cbx-r').forEach(el=>{bindRow(el);const id=el.dataset.r;
+        el.querySelector('[data-h]').addEventListener('input',ev=>{upd(id,'h',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)});
+        el.querySelector('[data-l]').addEventListener('input',ev=>{upd(id,'l',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)})});
+      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();tot();pd()};
+    /* Enter do teclado pula: horimetro › litros › horimetro do proximo */
+    rows.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;const ins=[...rows.querySelectorAll('input')],i=ins.indexOf(ev.target);if(i<0)return;ev.preventDefault();const n=ins[i+1];if(n){n.focus();n.select&&n.select()}else ev.target.blur()});
+    const bindF=()=>{sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{st.f=b.dataset.f;st.sf='';all()});sh.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{st.sf=st.sf===b.dataset.sf?'':b.dataset.sf;all()})};
+    let qT;sh.querySelector('#cbx-q').addEventListener('input',ev=>{clearTimeout(qT);qT=setTimeout(()=>{st.q=ev.target.value.trim();all()},200)});
+    /* trocar a data com linhas preenchidas: lancar agora ou guardar nesta data */
+    const dI=sh.querySelector('#cbx-dt');dI.addEventListener('change',()=>{const nv=dI.value;if(!nv||nv===st.dt)return;const n=Object.values(dr()).filter(x=>Number(x.l)>0).length;
+      if(!n){st.dt=nv;all();return}const old=st.dt;dI.value=old;const box=sh.querySelector('#cbx-ask');
+      box.innerHTML=`<div class="eqv-ask"><b>${n} abastecimento${n===1?'':'s'} preenchido${n===1?'':'s'} em ${fdate(old)}</b><div class="eqv-f"><button type="button" class="btn" data-g>Guardar nesta data</button><button type="button" class="btn pri" data-n>Lancar agora</button></div></div>`;
+      box.querySelector('[data-g]').onclick=()=>{box.innerHTML='';st.dt=nv;dI.value=nv;all()};box.querySelector('[data-n]').onclick=()=>{box.innerHTML='';go.click()}});
+    go.onclick=async()=>{const d=dr(),ok=[];base().forEach(e=>{const x=d[e.id];if(x&&Number(x.l)>0){const o=chk(e,x);if(o.ok)ok.push({e,x,o})}});if(!ok.length)return;
+      /* consumo fora da media: confere antes de gravar */
+      const cf=sh.querySelector('#cbx-cf');if(!go._conf){const av=[];for(const r of ok){if(r.o.av)av.push(`${esc(r.e.codigo)}: ${r.o.msg.filter(m=>m[0]==='warn').map(m=>m[1]).join(' ')}`);
+          if(r.o.c&&r.o.c.lh!=null){const md=await combMedia(r.e.id,st.dt);if(md&&(r.o.c.lh>md*1.5||r.o.c.lh<md*.5))av.push(`${esc(r.e.codigo)}: consumo ${nf(r.o.c.lh,1)} L/h, media ${nf(md,1)} L/h.`)}}
+        if(av.length){cf.innerHTML=`<div class="eqv-ask"><b>${av.length} ${av.length===1?'atencao':'atencoes'}</b><p class="note" style="margin:0">${av.join('<br>')}</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-y>Lancar assim mesmo</button></div></div>`;
+          cf.querySelector('[data-x]').onclick=()=>cf.innerHTML='';cf.querySelector('[data-y]').onclick=()=>{cf.innerHTML='';go._conf=1;go.click()};cf.scrollIntoView({block:'center',behavior:'smooth'});return}}
+      go._conf=0;go.disabled=true;let n=0,f=0;
+      for(const r of ok){go.textContent=`${n+f+1}/${ok.length}`;let e=eqById(r.e.id);
+        try{if(r.x.r){const k=c.custos.find(z=>z.id===r.x.r),nm=k?k.nome:'';const up=nm==='UG'?{alocacao:'DM1',area:'Mina',frente:'UG'}:{alocacao:'DM1',area:nm,frente:'Geral'};
+            await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up)}
+          const cc=calcAbast(e,st.dt,Number(r.x.h),Number(r.x.l),true);if(cc.erro){f++;continue}
+          await abastGravar(e,{...cc,custo:r.o.cu,cb:cb.id});n++;const dd=dr();delete dd[e.id];save(dd)}catch(er){console.error(er);f++}}
+      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;all()};
+    all();
+  }});
+}
+
+/* ---------- Importar planilha (xlsx ou csv) para o rascunho do lote ---------- */
+function cbxImport(){const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv,text/csv';
+  inp.onchange=async()=>{const fl=inp.files&&inp.files[0];if(!fl)return;toast('Lendo a planilha…');
+    try{let aoa;if(/\.csv$/i.test(fl.name)||fl.type==='text/csv'){const t=await fl.text(),sep=(t.split('\n')[0].match(/;/g)||[]).length>=(t.split('\n')[0].match(/,/g)||[]).length?';':',';aoa=t.split(/\r?\n/).map(l=>l.split(sep).map(v=>v.replace(/^"|"$/g,'').trim()))}
+      else{if(!window.XLSX)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(new Error('xlsx'));document.head.appendChild(s)});
+        const wb=XLSX.read(await fl.arrayBuffer(),{type:'array',cellDates:false});aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
+      const r=await cbxImportAoa(aoa);if(!r)return;
+      toast(`${r.n} abastecimento${r.n===1?'':'s'} na tela para conferir${r.fora.length?` · ${r.fora.length} TAG nao encontrada${r.fora.length===1?'':'s'}: ${r.fora.slice(0,4).join(', ')}`:''}`);
+      cbxLote.st&&(cbxLote.st.q='',cbxLote.st.f='todos');NAV.pop();cbxLote(r.dt)}
+    catch(e){console.error(e);toast(e&&e.message==='xlsx'?'Para ler .xlsx precisa de internet na primeira vez. Ou salve como .csv.':'Nao foi possivel ler a planilha.')}};
+  inp.click()}
+async function cbxImportAoa(aoa){const c=await cbxCfg(),cb=cbxCur(c);const N=v=>nzCod(String(v||''));
+  const hi=aoa.findIndex(r=>r.some(v=>/^(tag|equip|equipamento|codigo|frota|prefixo)$/.test(N(v)))&&r.some(v=>/litro|^lts?$|quantidade|^qtd/.test(N(v))));
+  if(hi<0){toast('Nao achei os titulos das colunas (TAG e Litros).');return null}
+  const H=aoa[hi].map(N),col=re=>H.findIndex(h=>re.test(h));
+  const ci={eq:col(/^(tag|equip|equipamento|codigo|frota|prefixo)$/),dt:col(/^(data|dia)$/),h:col(/horimetro|^hm$|^horas?$|^km$|odometro/),l:col(/litro|^lts?$|quantidade|^qtd/),c:col(/custo|centro/)};
+  const dtOf=v=>{if(typeof v==='number'&&v>20000){const d=new Date(Math.round((v-25569)*864e5));return iso(new Date(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate(),12))}
+    const s=String(v||'').trim();let m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
+    m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''};
+  const num=v=>{if(typeof v==='number')return v;let s=String(v||'').trim().replace(/\s/g,'');if(!s)return NaN;if(/,\d{1,2}$/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');return Number(s)};
+  const cus=cbxCustosAb(c),fora=[],by={};let n=0;
+  aoa.slice(hi+1).forEach(r=>{const tg=String(r[ci.eq]||'').trim();const l=num(r[ci.l]);if(!tg||!(l>0))return;
+    const e=S.eqCtl.find(x=>N(x.codigo)===N(tg))||S.eqCtl.find(x=>x.placa&&N(x.placa)===N(tg));if(!e){if(!fora.includes(tg))fora.push(tg);return}
+    const dt=ci.dt>=0?dtOf(r[ci.dt])||today():today(),h=ci.h>=0?num(r[ci.h]):NaN,cn=ci.c>=0?N(r[ci.c]):'',cu=cn?(cus.find(k=>N(k.nome)===cn||N(k.id)===cn)||{}).id||'':'';
+    const k='r:'+cb.id+':'+dt;by[k]=by[k]||cbxLS.get(k)||{};by[k][e.id]={...(by[k][e.id]||{}),l:String(l),...(isFinite(h)?{h:String(h)}:{}),...(cu?{c:cu}:{})};n++});
+  Object.entries(by).forEach(([k,v])=>cbxLS.set(k,v));const dts=Object.keys(by).map(k=>k.split(':').pop()).sort();
+  if(!n){toast(fora.length?`Nenhuma TAG encontrada (${fora.slice(0,4).join(', ')}).`:'Nenhuma linha com litros.');return null}
+  return {n,fora,dt:dts[0]}}
+
+/* ---------- Entrada de diesel no tanque ---------- */
+async function cbxEntrada(){
+  nav('cbx:en',()=>cbxEntrada());
+  const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),cus=cbxCustosEnt(c);let cu=cbxLS.get('entCu')||(cus[cus.length>1?1:0]||{}).id||'';
+  openSheet({title:'Entrada de diesel',sub:cbxAtivos(c).length>1?esc(cb.nome):'',
+  body:`<form id="cbx-ef"><div class="fset"><label class="f">Litros<span class="cbx-big"><input id="en-l" type="number" inputmode="decimal" step="0.1" min="0" required><i>L</i></span></label>
+    <div class="grid"><label class="f">Data<input id="en-d" type="date" required value="${today()}" max="${today()}"></label><label class="f">Hora (opcional)<input id="en-h" type="time"></label></div>
+    <div class="f">Centro de custo<div class="seg" role="group" aria-label="Centro de custo" style="grid-template-columns:repeat(${cus.length||1},1fr)">${cus.map(k=>`<button type="button" data-ec="${esc(k.id)}" aria-pressed="${cu===k.id}">${esc(k.nome)}</button>`).join('')}</div>
+    ${cus.some(k=>c.custos.some(z=>z.pai===k.id))?`<span class="cbx-hint">${cus.filter(k=>c.custos.some(z=>z.pai===k.id)).map(k=>`${esc(k.nome)} inclui ${c.custos.filter(z=>z.pai===k.id).map(z=>esc(z.nome)).join(', ')}`).join(' · ')}.</span>`:''}</div></div><div id="en-x"></div></form>`,
+  foot:`<button class="btn pri" form="cbx-ef">Lancar</button>`,
+  mount:sh=>{sh.querySelectorAll('[data-ec]').forEach(b=>b.onclick=()=>{cu=b.dataset.ec;sh.querySelectorAll('[data-ec]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+    setTimeout(()=>sh.querySelector('#en-l').focus(),80);
+    sh.querySelector('#cbx-ef').onsubmit=async ev=>{ev.preventDefault();const l=Number(sh.querySelector('#en-l').value),dt=sh.querySelector('#en-d').value||today(),hr=sh.querySelector('#en-h').value||'';
+      if(!(l>0)){toast('Informe os litros.');return}if(!cu){toast('Escolha o centro de custo.');return}
+      const tv=cbxTrava(cb.id,dt);if(tv){toast(`Periodo fechado ate ${fdate(tv)}. Escolha outra data.`);return}
+      const cap=Number(cb.cap)||0;if(cap&&l>cap){sh.querySelector('#en-x').innerHTML=cbxMsg('bad',`Mais que a capacidade do comboio (${nf(cap)} L). Confira.`);return}
+      cbxLS.set('entCu',cu);
+      const ok=await safe(async()=>{const m=mesKey(dt),dk=dt.slice(8,10);await S.db.collection('comb/'+m+'/ent').add({comboio:cb.id,data:dt,hora:hr,litros:l,custo:cu,ts:Date.now()});
+        const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}};const ce={...(d.cbEnt||{})},o={...(ce[cb.id]||{})};o[dk]=Math.round(((Number(o[dk])||0)+l)*10)/10;ce[cb.id]=o;
+        const ue={...(d.cusEnt||{})};ue[cu]=Math.round(((Number(ue[cu])||0)+l)*10)/10;await md.set({...d,cbEnt:ce,cusEnt:ue})},`Entrada de ${nf(l,1)} L lancada`);
+      if(ok)goBack()}}});
+}
+/* excluir uma entrada do periodo aberto (desfazer) */
+async function cbxDelEnt(){nav('cbx:de',()=>cbxDelEnt());const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),F=cbxFechUlt(cb.id),de=F?addDia(F.corte,1):today().slice(0,7)+'-01';
+  openSheet({title:'Excluir entrada',sub:'Periodo aberto',body:'<div class="card-wait" style="min-height:120px">Carregando…</div>'});
+  const l=[];for(let m=de.slice(0,7);m<=today().slice(0,7);m=mesSeg(m)){try{const q=await S.db.collection('comb/'+m+'/ent').get();q.docs.forEach(d=>{const x=d.data();if(x.comboio===cb.id&&x.data>=de)l.push({...x,id:d.id,mes:m})})}catch(e){}}
+  l.sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));if(NAV[NAV.length-1]?.key!=='cbx:de')return;
+  openSheet({title:'Excluir entrada',sub:'Periodo aberto',
+  body:l.length?`<div class="list">${l.map(x=>`<div class="cbx-de"><span><b>${nf(x.litros,1)} L</b><small>${fdate(x.data)}${x.hora?' · '+esc(x.hora):''} · ${esc(cbxCuNome(x.custo))}</small></span><button type="button" class="btn sm danger" data-dx="${esc(x.mes+'/'+x.id)}">Excluir</button></div><div data-dxc="${esc(x.mes+'/'+x.id)}"></div>`).join('')}</div>`:'<div class="empty">Nenhuma entrada no periodo aberto.</div>',
+  mount:sh=>sh.querySelectorAll('[data-dx]').forEach(b=>b.onclick=()=>{const k=b.dataset.dx,x=l.find(z=>z.mes+'/'+z.id===k);if(!x)return;
+    askDelete(sh.querySelector(`[data-dxc="${CSS.escape(k)}"]`),`Excluir a entrada de ${nf(x.litros,1)} L de ${fdate(x.data)}?`,async()=>{
+      const ok=await safe(async()=>{const md=S.db.doc('comb/'+x.mes),cur=await md.get(),d=(cur.exists&&cur.data())||{},dk=x.data.slice(8,10);const ce={...(d.cbEnt||{})},o={...(ce[x.comboio]||{})};
+        if(o[dk]!=null){o[dk]=Math.round((o[dk]-x.litros)*10)/10;if(o[dk]<=0)delete o[dk]}ce[x.comboio]=o;const ue={...(d.cusEnt||{})};if(ue[x.custo]!=null){ue[x.custo]=Math.round((ue[x.custo]-x.litros)*10)/10;if(ue[x.custo]<=0)delete ue[x.custo]}
+        await md.set({...d,cbEnt:ce,cusEnt:ue});await S.db.doc(`comb/${x.mes}/ent/${x.id}`).delete()},'Entrada excluida');if(ok){NAV.pop();cbxDelEnt()}})})});
+}
+
+/* ---------- Fechar mes: confere o saldo na data de corte e abre o proximo ---------- */
+async function cbxFechar(){
+  nav('cbx:fm',()=>cbxFechar());
+  const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),F=cbxFechUlt(cb.id);let corte=cbxCorteSug(cb);
+  const de=F?addDia(F.corte,1):null;
+  openSheet({title:'Fechar '+cbxMesNome(corte.slice(0,7)),sub:cbxAtivos(c).length>1?esc(cb.nome):'',
+  body:`<form id="cbx-ff"><div class="fset"><label class="f">Data de corte<input id="fm-c" type="date" required value="${corte}" max="${today()}"${de?` min="${de}"`:''}></label>
+    <div id="fm-r"><div class="card-wait" style="min-height:120px">Calculando…</div></div>
+    <label class="f">Saldo conferido<span class="cbx-big"><input id="fm-s" type="number" inputmode="decimal" step="0.1" min="0" required><i>L</i></span></label><div id="fm-d"></div>
+    <div id="fm-i"></div></div></form>${F?`<div class="cbx-reab"><button type="button" class="btn sm ghost" id="fm-x">Reabrir fechamento de ${fdate(F.corte)}</button><div id="fm-xc"></div></div>`:''}`,
+  foot:`<button class="btn pri" form="cbx-ff">Fechar</button>`,
+  mount:sh=>{let calc=null;const cI=sh.querySelector('#fm-c'),sI=sh.querySelector('#fm-s');
+    const dif=()=>{const b=sh.querySelector('#fm-d');if(calc==null||sI.value===''){b.innerHTML='';return}const d=Math.round((Number(sI.value)-calc)*10)/10;
+      b.innerHTML=d?`<div class="cbx-dif">Diferenca<b>${d>0?'+':''}${nf(d,1)} L${calc?` (${d>0?'+':''}${nf(d/calc*100,1)}%)`:''}</b></div>`:''};
+    const run=async()=>{corte=cI.value;const r=sh.querySelector('#fm-r');if(!corte)return;if(de&&corte<de){r.innerHTML=cbxMsg('bad',`O corte precisa ser depois de ${fdate(F.corte)}.`);return}
+      if(!F){calc=null;r.innerHTML=cbxMsg('info','Primeiro fechamento: informe o saldo medido no tanque na data de corte. Ele vira a base do saldo.');sh.querySelector('#fm-i').innerHTML='';dif();return}
+      const s=await cbxSomas(c,cb.id,de,corte);calc=Math.round((Number(F.saldo)+s.ent-s.sai)*10)/10;
+      r.innerHTML=`<div class="cbx-sum"><div><span>Saldo inicial <small>(${fdate(F.corte).slice(0,5)})</small></span><b>${nf(F.saldo,1)} L</b></div><div><span>Entradas</span><b class="in">+${nf(s.ent,1)} L</b></div><div><span>Saidas</span><b class="out">-${nf(s.sai,1)} L</b></div><div class="t"><span>Saldo calculado</span><b>${nf(calc,1)} L</b></div></div>`;
+      if(sI.value==='')sI.value=calc;dif();
+      const t=today();if(corte<t){const p=await cbxSomas(c,cb.id,addDia(corte,1),t);const nx=cbxMesNome(mesSeg(corte.slice(0,7)));
+        sh.querySelector('#fm-i').innerHTML=p.ent||p.sai?cbxMsg('info',`Lancamentos depois do corte (${nf(p.ent,1)} L de entrada, ${nf(p.sai,1)} L de saida) passam para ${nx}.`):''}else sh.querySelector('#fm-i').innerHTML=''};
+    cI.addEventListener('change',run);sI.addEventListener('input',dif);run();
+    const x=sh.querySelector('#fm-x');if(x)x.onclick=()=>askConfirm(sh.querySelector('#fm-xc'),'Reabrir',`Reabrir o fechamento de ${fdate(F.corte)}? As datas ate o corte voltam a aceitar lancamentos e o saldo volta a partir do fechamento anterior.`,async()=>{
+      const all=await cbxFechAll(),l=(all[cb.id]||[]).slice(0,-1);if(await safe(()=>S.db.doc('config/combFech').set({...all,[cb.id]:l}),'Fechamento reaberto')){S.cbxFech={...all,[cb.id]:l};goBack()}});
+    sh.querySelector('#cbx-ff').onsubmit=async ev=>{ev.preventDefault();if(!corte||(de&&corte<de))return;const s=Number(sI.value);if(sI.value===''||!(s>=0)){toast('Informe o saldo conferido.');return}
+      const all=await cbxFechAll(),l=[...(all[cb.id]||[]),{corte,saldo:s,calc,ts:Date.now()}];
+      if(await safe(()=>S.db.doc('config/combFech').set({...all,[cb.id]:l}),`${cbxMesNome(corte.slice(0,7))} fechado · saldo ${nf(s,1)} L`)){S.cbxFech={...all,[cb.id]:l};goBack()}}}});
+}
+
+/* ---------- Relatorio: totais do mes, por custo e por equipamento (abre a tela do equipamento) ---------- */
+async function cbxRel(m0){
+  const m=m0||cbxRel.m||mesKey();cbxRel.m=m;nav('cbx:rel',()=>cbxRel());
+  const c=await cbxCfg();
+  openSheet({title:'Relatorio',sub:'Combustivel',body:`<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div><div id="rl-b"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
+  mount:sh=>{sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
+    S.db.doc('comb/'+m).get().then(x=>{const b=sh.querySelector('#rl-b');if(!b||!b.isConnected)return;const d=x.exists?x.data():{},eq=d.eq||{};
+      const sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0);let ent=0;Object.values(d.cbEnt||{}).forEach(o=>Object.values(o).forEach(v=>ent+=Number(v)||0));
+      const cu=d.cus||{},semC=Math.round((sai-Object.values(cu).reduce((a,v)=>a+(Number(v)||0),0))*10)/10;
+      const tops=c.custos.filter(k=>!k.pai),pct=v=>sai?Math.max(0,Math.min(100,v/sai*100)):0;
+      const cuH=tops.map(k=>{const filhos=c.custos.filter(z=>z.pai===k.id),tf=filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0),own=Number(cu[k.id])||0,tt=own+tf;
+        return `<div class="cbx-cr"><div class="h"><span>${esc(k.nome)}</span><b>${nf(tt,1)} L</b></div><div class="cbx-bar s"><i style="width:${pct(own)}%"></i>${filhos.length?`<i class="b" style="left:${pct(own)}%;width:${pct(tf)}%"></i>`:''}</div>
+          ${filhos.length?`<div class="k"><span><u></u>${esc(k.nome.toLowerCase())} <b>${nf(own,1)} L</b></span>${filhos.map(z=>`<span><u class="b"></u>${esc(z.nome)} <b>${nf(cu[z.id]||0,1)} L</b></span>`).join('')}</div>`:''}</div>`}).join('');
+      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.eqCtl.filter(e=>e.status!=='inativo'||eq[e.id]);
+      const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
+      b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas</small><b>${nf(ent,1)} L</b></div></div>
+        <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo <small>(antes do novo lancamento)</small></span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
+        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=v&&v.h>0?v.l/v.h:null;return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+' L/h':v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}</div>`;
+      b.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe))}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
+}
+
+/* ---------- + › Ajustes do app › Combustivel: centros de custo e comboios ---------- */
+async function cbxAjustes(){
+  nav('cbx:aj',()=>cbxAjustes());
+  const c=JSON.parse(JSON.stringify(await cbxCfg(true)));
+  const cuRow=(k,i)=>`<div class="cbx-aj${k.off?' off':''}"><input data-cn="${i}" value="${esc(k.nome)}" aria-label="Nome do centro de custo">${k.pai?`<small>parte de ${esc((c.custos.find(z=>z.id===k.pai)||{}).nome||'')}</small>`:''}<button type="button" class="btn sm ghost" data-co="${i}">${k.off?'Reativar':'Desativar'}</button></div>`;
+  const cbRow=(k,i)=>`<div class="cbx-ajc${k.off?' off':''}"><div class="cbx-aj"><input data-bn="${i}" value="${esc(k.nome)}" aria-label="Nome do comboio"><button type="button" class="btn sm ghost" data-bo="${i}">${k.off?'Reativar':'Desativar'}</button></div>
+    <div class="grid"><label class="f">Capacidade (L)<input data-bc="${i}" type="number" inputmode="numeric" min="0" value="${k.cap??''}" placeholder="Opcional"></label><label class="f">Dia de corte<input data-bd="${i}" type="number" inputmode="numeric" min="1" max="31" value="${k.corte??''}" placeholder="Fim do mes"></label></div></div>`;
+  openSheet({title:'Combustivel',sub:'Ajustes do app',
+  body:`<form id="cbx-af"><div class="lbl">Centros de custo</div><div class="cbx-ajl" id="aj-cu">${c.custos.map(cuRow).join('')}</div>
+    <div class="cbx-add"><input id="aj-ncu" placeholder="Novo centro de custo" aria-label="Novo centro de custo"><button type="button" class="btn sm" id="aj-acu">${CBX_IC.plus}Adicionar</button></div>
+    <div class="lbl" style="margin-top:22px">Comboios</div><div class="cbx-ajl" id="aj-cb">${c.comboios.map(cbRow).join('')}</div>
+    <div class="cbx-add"><input id="aj-ncb" placeholder="Novo comboio" aria-label="Novo comboio"><button type="button" class="btn sm" id="aj-acb">${CBX_IC.plus}Adicionar</button></div>
+    <p class="note" style="margin:14px 2px 0">Nada e apagado: o que ja foi usado so pode ser desativado. Mudar o nome nao altera o historico.</p></form>`,
+  foot:`<button class="btn pri" form="cbx-af">Salvar</button>`,
+  mount:sh=>{const ler=()=>{sh.querySelectorAll('[data-cn]').forEach(x=>c.custos[x.dataset.cn].nome=x.value.trim()||c.custos[x.dataset.cn].nome);
+      sh.querySelectorAll('[data-bn]').forEach(x=>c.comboios[x.dataset.bn].nome=x.value.trim()||c.comboios[x.dataset.bn].nome);
+      sh.querySelectorAll('[data-bc]').forEach(x=>c.comboios[x.dataset.bc].cap=x.value===''?null:Number(x.value));
+      sh.querySelectorAll('[data-bd]').forEach(x=>c.comboios[x.dataset.bd].corte=x.value===''?null:Math.max(1,Math.min(31,Number(x.value))))};
+    const draw=()=>{sh.querySelector('#aj-cu').innerHTML=c.custos.map(cuRow).join('');sh.querySelector('#aj-cb').innerHTML=c.comboios.map(cbRow).join('');bind()};
+    const bind=()=>{sh.querySelectorAll('[data-co]').forEach(b=>b.onclick=()=>{ler();const k=c.custos[b.dataset.co];if(!k.off&&c.custos.filter(z=>!z.off).length<2){toast('Precisa ficar ao menos um centro de custo.');return}k.off=!k.off;draw()});
+      sh.querySelectorAll('[data-bo]').forEach(b=>b.onclick=()=>{ler();const k=c.comboios[b.dataset.bo];if(!k.off&&c.comboios.filter(z=>!z.off).length<2){toast('Precisa ficar ao menos um comboio.');return}k.off=!k.off;draw()})};bind();
+    const nid=(p,l)=>{let i=l.length+1,id;do{id=p+String(i++).padStart(2,'0')}while(l.some(z=>z.id===id));return id};
+    sh.querySelector('#aj-acu').onclick=()=>{ler();const i=sh.querySelector('#aj-ncu'),v=i.value.trim();if(!v)return;if(c.custos.some(z=>nzCod(z.nome)===nzCod(v))){toast('Ja existe.');return}c.custos.push({id:nid('cu',c.custos),nome:v});i.value='';draw()};
+    sh.querySelector('#aj-acb').onclick=()=>{ler();const i=sh.querySelector('#aj-ncb'),v=i.value.trim();if(!v)return;c.comboios.push({id:nid('c',c.comboios),nome:v,cap:null,corte:null});i.value='';draw()};
+    sh.querySelector('#cbx-af').onsubmit=async ev=>{ev.preventDefault();ler();if(await safe(()=>S.db.doc('config/comb').set(c),'Ajustes salvos')){S.cbxCfg=c;goBack()}}}});
 }
 
 function render(){
@@ -1986,6 +2453,7 @@ function bindView(){
         if(r.top<off||r.bottom>vh){const d=r.top-off;sc===window?scrollBy({top:d,behavior:'smooth'}):sc.scrollBy({top:d,behavior:'smooth'})}}};
     h.onclick=go;h.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go()}}});
   app.querySelectorAll('[data-cbe]').forEach(b=>b.onclick=()=>{NAV.length=0;openCombEq(b.dataset.cbe)});
+  cbxBind(app);
   app.querySelectorAll('[data-site]').forEach(b=>b.onclick=()=>{S.alocSite=b.dataset.site;S.alocSel='';render();topAloc()});
   app.querySelectorAll('[data-dmv]').forEach(b=>b.onclick=()=>{S.dmAll=b.dataset.dmv==='all';try{localStorage.setItem('frota.dmAll',S.dmAll?'1':'')}catch(e){}render();topAloc()});
   app.querySelectorAll('[data-area]').forEach(b=>b.onclick=()=>{S.alocSel=b.dataset.area;render();topAloc()});
@@ -2141,9 +2609,9 @@ function openMenu(mode){
       +g('Correcoes')+mi('thm-x',I.back,'Desfazer troca de horimetro','Volta a contagem do relogio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saida do estoque','Retirada avulsa, fora das preventivas')
       +mi('x:st',I.estoque,'Filtros e oleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')},
-    comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('abast',I.comb,'Abastecimento','Litros e horimetro para o consumo por hora')+g('Correcoes')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o ultimo abastecimento de um equipamento')},
+    comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o ultimo abastecimento de um equipamento')+mi('cbx-de',DEL,'Excluir entrada','Apaga uma entrada do periodo aberto')},
     aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:cats',ICON_TAG,'Categorias de itens','Filtro, oleo, graxa, correia e outros do estoque')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
-      +g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
+      +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo e comboios')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
   /* tela limpa: Novo · Editar · Excluir */
   const X=(t,k,n)=>({title:t,sub:'O que voce quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
   T['x:eq']=X('Equipamentos','eq','equipamento');T['x:st']=X('Filtros e oleos','st','item do estoque');T['x:kit']=X('Kits','kit','kit');
@@ -2154,7 +2622,7 @@ function openMenu(mode){
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
-      const A={backup:()=>backupAll(b),abast:formAbast,cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar('',true),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
+      const A={backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar('',true),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
         'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }

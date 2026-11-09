@@ -1,0 +1,16 @@
+const {chromium}=require('playwright');const fs=require('fs');
+const D='/home/claude/pwa/dist/';const mock=fs.readFileSync('sbmock.js','utf8');
+const eq=(id,aloc,area,frente,hm)=>['equipamentos/'+id,{codigo:id,tipo:'X',alocacao:aloc,area,frente,horimetro:hm,horimetroData:'2026-11-01',status:'ativo',itens:[]}];
+const seed=Object.fromEntries([eq('CAM-05','DM1','Mina','Geral',48210),eq('ESC-02','DM1','Mina','UG',12430)]);
+fs.writeFileSync('/tmp/ab.csv','Data;TAG;Horimetro;Litros;Custo\n08/11/2026;CAM-05;48.250;210,5;Mina\n08/11/2026;ESC-02;12440;150;\n08/11/2026;XYZ-9;100;50;\n');
+(async()=>{const b=await chromium.launch();const p=await (await b.newContext({viewport:{width:390,height:844}})).newPage();const errs=[];p.on('pageerror',e=>errs.push(e.message));
+await p.addInitScript(([s])=>{window.__SEED=s;window.__LOGGED=1},[seed]);
+await p.route('**/*',r=>{const u=new URL(r.request().url());if(u.hostname==='cdn.jsdelivr.net'&&u.pathname.includes('supabase'))return r.fulfill({contentType:'text/javascript',body:mock});
+ if(u.hostname==='frota.test'){let f=u.pathname.replace(/^\//,'')||'index.html';const fp=D+f;if(fs.existsSync(fp))return r.fulfill({body:fs.readFileSync(fp),contentType:f.endsWith('.html')?'text/html; charset=utf-8':'text/javascript'});return r.fulfill({status:404})}return r.abort()});
+await p.goto('http://frota.test/');await p.waitForTimeout(1500);
+await p.click('[data-acc="frota"]');await p.waitForTimeout(300);await p.click('[data-fr="comb"]');await p.waitForTimeout(300);await p.click('[data-cbx="cb"]');await p.waitForTimeout(500);
+await p.screenshot({path:'/home/claude/shots/i0.png'});
+await p.click('#cbx-ab');await p.waitForTimeout(500);await p.click('.cbx-mb');await p.waitForTimeout(200);
+const [fc]=await Promise.all([p.waitForEvent('filechooser'),p.click('.cbx-pop [data-cm="0"]')]);await fc.setFiles('/tmp/ab.csv');await p.waitForTimeout(1200);
+console.log('toast',await p.evaluate(()=>document.querySelector('.toast')?.textContent));console.log('data',await p.inputValue('#cbx-dt'));
+await p.screenshot({path:'/home/claude/shots/i1.png'});console.log(errs);await b.close()})();

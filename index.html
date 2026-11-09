@@ -363,6 +363,18 @@ body.focus .sidetabs{display:none!important}
 .cbx-msg.info{background:var(--accent-soft);color:var(--accent-tx)}
 .cbx-rl{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:-2px}
 .cbx-rl button{min-height:42px;border-radius:10px;border:1px solid var(--bad);background:var(--surface);color:var(--bad);font:700 14px var(--body);cursor:pointer}
+.cbx-mse{background:var(--surface);border:1px dashed var(--line-2);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.cbx-madd{margin-left:auto;display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--accent);background:var(--surface);color:var(--accent-tx);font:600 14px var(--body);cursor:pointer}
+.cbx-madd svg{width:16px;height:16px}
+.cbx-mr{display:flex;flex-direction:column;gap:8px;padding-top:10px;border-top:1px solid var(--line)}
+.cbx-mr.er{border-top:2px solid var(--bad)}.cbx-mr.av .cbx-g.mc input.l{border-color:var(--warn)}
+.cbx-g.m2{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px}.cbx-g.m3{grid-template-columns:repeat(3,minmax(0,1fr))}.cbx-g.mc{grid-template-columns:minmax(0,1fr) 128px}
+.cbx-g [data-mf="t"],.cbx-g [data-mf="p"]{text-transform:uppercase}
+.cbx-g input::placeholder{font-weight:500;color:var(--faint)}
+.cbx-mx{border:0;background:none;color:var(--muted);font-size:24px;line-height:1;cursor:pointer;padding:0}
+.cbx-ugl{display:flex;flex-wrap:wrap;gap:8px}
+.cbx-ugc{display:inline-flex;align-items:center;gap:2px;height:36px;padding:0 4px 0 12px;border-radius:18px;background:var(--accent-soft);color:var(--accent-tx);font:600 14px var(--mono)}
+.cbx-ugc button{border:0;background:none;color:inherit;font-size:20px;line-height:1;width:30px;height:30px;cursor:pointer}
 .cbx-tot{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--muted);padding:12px 2px 0}
 .cbx-tot:empty{display:none}
 .cbx-tot b{color:var(--fg)}.cbx-tot .pb,.cbx-tot .pb b{color:var(--bad)}
@@ -1336,8 +1348,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=d86e7f652b"></script>
-<script src="shim.js?v=d86e7f652b"></script>
+<script src="config.js?v=5f2a59ae20"></script>
+<script src="shim.js?v=5f2a59ae20"></script>
 </head>
 <body>
 
@@ -1796,12 +1808,12 @@ async function openDelAbast(){
    comb/{m}/ent/{id} entrada no tanque {comboio,data,hora,litros,custo,ts}
    Rascunho do lote fica no aparelho (nao se perde ao sair da tela): localStorage cbx.r:{ns}{cb}:{data}
    ===================================================================== */
-const CBX_DEF={comboios:[{id:'c01',nome:'Comboio 01',cap:null,corte:null}],custos:[{id:'planta',nome:'Planta'},{id:'mina',nome:'Mina'},{id:'ug',nome:'UG',pai:'mina'}]};
+const CBX_DEF={comboios:[{id:'c01',nome:'Comboio 01',cap:null,corte:null}],custos:[{id:'planta',nome:'Planta'},{id:'mina',nome:'Mina'},{id:'ug',nome:'UG',pai:'mina'}],ugEq:['EH-01','EH-02','MT-01','PC-03','PC-05','RE-02','RE-03']};
 const CBX_NS=()=>(window.__frotaNS||'');
 const cbxLS={get:k=>{try{return JSON.parse(localStorage.getItem('cbx.'+CBX_NS()+k)||'null')}catch(e){return null}},set:(k,v)=>{try{if(v==null)localStorage.removeItem('cbx.'+CBX_NS()+k);else localStorage.setItem('cbx.'+CBX_NS()+k,JSON.stringify(v))}catch(e){}},
   keys:p=>{const out=[],pre='cbx.'+CBX_NS()+p;try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(pre))out.push(k.slice(pre.length))}}catch(e){}return out}};
 async function cbxCfg(force){if(S.cbxCfg&&!force)return S.cbxCfg;
-  try{const d=await S.db.doc('config/comb').get();const v=d.exists?d.data():{};S.cbxCfg={comboios:(v.comboios&&v.comboios.length?v.comboios:CBX_DEF.comboios),custos:(v.custos&&v.custos.length?v.custos:CBX_DEF.custos)}}
+  try{const d=await S.db.doc('config/comb').get();const v=d.exists?d.data():{};S.cbxCfg={comboios:(v.comboios&&v.comboios.length?v.comboios:CBX_DEF.comboios),custos:(v.custos&&v.custos.length?v.custos:CBX_DEF.custos),ugEq:(Array.isArray(v.ugEq)?v.ugEq:CBX_DEF.ugEq.slice())}}
   catch(e){S.cbxCfg=S.cbxCfg||JSON.parse(JSON.stringify(CBX_DEF))}return S.cbxCfg}
 async function cbxFechAll(){try{const d=await S.db.doc('config/combFech').get();S.cbxFech=d.exists?d.data():{}}catch(e){S.cbxFech=S.cbxFech||{}}return S.cbxFech}
 const cbxFechUlt=cb=>{const l=(S.cbxFech||{})[cb]||[];return l.length?l[l.length-1]:null};
@@ -1811,8 +1823,13 @@ const cbxCustosAb=c=>c.custos.filter(x=>!x.off);
 const cbxCustosEnt=c=>c.custos.filter(x=>!x.off&&!x.pai);
 const cbxCuNome=id=>{const c=(S.cbxCfg||CBX_DEF).custos.find(x=>x.id===id);return c?c.nome:id||'—'};
 const cbxCuCurto=n=>String(n||'').length<=3?String(n).toUpperCase():String(n).charAt(0).toUpperCase();
-/* custo padrao do equipamento: sai da alocacao (Planta, Mina ou UG); fora do DM1 nao tem */
-function cbxCustoPad(e,c){if(!e||e.alocacao!=='DM1')return '';const cs=cbxCustosAb(c),nm=e.area==='Mina'&&e.frente==='UG'?'UG':e.area;const x=cs.find(k=>nzCod(k.nome)===nzCod(nm));return x?x.id:''}
+/* custo padrao do equipamento: sai da alocacao (Planta, Mina ou UG); fora do DM1 nao tem.
+   UG so para quem esta na lista de Ajustes › Combustivel; o resto alocado na UG abastece como Mina */
+const cbxUgAbast=(e,c)=>!!e&&((c&&c.ugEq)||CBX_DEF.ugEq).some(t=>nzCod(t)===nzCod(e.codigo));
+const cbxCuId=(c,nm)=>{const x=cbxCustosAb(c).find(k=>nzCod(k.nome)===nzCod(nm));return x?x.id:''};
+function cbxCustoPad(e,c){if(!e||e.alocacao!=='DM1')return '';const nm=e.area==='Mina'&&e.frente==='UG'?(cbxUgAbast(e,c)?'UG':'Mina'):e.area;return cbxCuId(c,nm)}
+/* custo de quem vai ser realocado agora: realocar na UG quem nao esta na lista cobra Mina */
+function cbxCustoR(e,c,r){if(!r)return cbxCustoPad(e,c);const k=c.custos.find(z=>z.id===r);return k&&k.nome==='UG'&&!cbxUgAbast(e,c)?(cbxCuId(c,'Mina')||r):r}
 const cbxNaObra=e=>e&&e.alocacao==='DM1';
 const addDia=(d,n)=>{const x=new Date(d+'T12:00:00');x.setDate(x.getDate()+n);return iso(x)};
 const fimMes=m=>{const[y,mo]=m.split('-').map(Number);return iso(new Date(y,mo,0,12))};
@@ -1890,6 +1907,21 @@ async function cbxComboio(){
         <div class="cbx-ft">${t.F?`Desde o fechamento de <b>${fdate(t.F.corte).slice(0,5)}</b> · saldo inicial ${nf(t.base,1)} L`:`Desde ${fdate(t.de).slice(0,5)} · sem saldo inicial: use <b>Fechar mes</b> com o saldo medido`}</div>`}).catch(()=>{const box=sh.querySelector('#cbx-tk');if(box)box.innerHTML='<div class="s">Nao foi possivel carregar.</div>'})}});
 }
 
+/* ---------- MSE: equipamento que nao e da Rondaflex nem alugado por ela, mas abastece no comboio ----------
+   comb/{m}/mse/{id} {data,tag,dono,horimetro,km,placa,litros,custo,comboio,ts}; comb/{m}.mse{tagNz:{tag,lt,n}}
+   config/combMse {tagNz:{tag,dono,placa}} guarda de quem e cada TAG: ao digitar a TAG o app ja busca */
+async function cbxMseDir(){if(S.cbxMse)return S.cbxMse;try{const d=await S.db.doc('config/combMse').get();S.cbxMse=d.exists?d.data():{}}catch(e){S.cbxMse=S.cbxMse||{}}return S.cbxMse}
+const cbxNum=v=>v===''||v==null?null:Number(v);
+async function cbxMseGravar(x,dt,cb){const m=mesKey(dt),l=Math.round(Number(x.l)*10)/10,tag=String(x.t||'').trim().toUpperCase(),dono=String(x.d||'').trim(),placa=String(x.p||'').trim().toUpperCase(),custo=x.c||'',k=nzCod(tag)||'_';
+  await S.db.collection('comb/'+m+'/mse').doc().set({data:dt,tag,dono,horimetro:cbxNum(x.h),km:cbxNum(x.km),placa,litros:l,...(custo?{custo}:{}),comboio:cb,ts:Date.now()});
+  const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},dk=dt.slice(8,10),r=v=>Math.round(v*10)/10;
+  const dia={...(d.dia||{})};dia[dk]=r((Number(dia[dk])||0)+l);const cd={...(d.cbDia||{})},o={...(cd[cb]||{})};o[dk]=r((Number(o[dk])||0)+l);cd[cb]=o;
+  const ex={};if(custo){const cu={...(d.cus||{})};cu[custo]=r((Number(cu[custo])||0)+l);ex.cus=cu}
+  const ms={...(d.mse||{})},y=ms[k]||{tag:tag||'Sem TAG',lt:0,n:0};ms[k]={tag:y.tag,lt:r(y.lt+l),n:y.n+1};
+  await md.set({...d,dia,cbDia:cd,...ex,mse:ms});
+  if(tag){const dir=await cbxMseDir(),a=dir[k]||{},nw={tag,dono:dono||a.dono||'',placa:placa||a.placa||''};
+    if(nw.dono!==(a.dono||'')||nw.placa!==(a.placa||'')||!dir[k]){const all={...dir,[k]:nw};await S.db.doc('config/combMse').set(all);S.cbxMse=all}}}
+
 /* ---------- Abastecer frota: lancamento em lote ---------- */
 async function cbxLote(dt0){
   const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c);
@@ -1897,7 +1929,16 @@ async function cbxLote(dt0){
   nav('cbx:lt',()=>cbxLote());
   const cus=cbxCustosAb(c);
   const rk=()=>'r:'+cb.id+':'+st.dt,dr=()=>cbxLS.get(rk())||{},save=d=>{Object.keys(d).forEach(k=>{const x=d[k];if(!x||(!x.h&&!x.l&&!x.r&&!x.c))delete d[k]});cbxLS.set(rk(),Object.keys(d).length?d:null)};
-  const pend=()=>cbxLS.keys('r:'+cb.id+':').filter(k=>k!==st.dt).map(k=>({dt:k,n:Object.values(cbxLS.get('r:'+cb.id+':'+k)||{}).filter(x=>Number(x.l)>0).length})).filter(x=>x.n).sort((a,b)=>a.dt.localeCompare(b.dt));
+  const pend=()=>{const o={};cbxLS.keys('r:'+cb.id+':').filter(k=>k!==st.dt).forEach(k=>o[k]=(o[k]||0)+Object.values(cbxLS.get('r:'+cb.id+':'+k)||{}).filter(x=>Number(x.l)>0).length);
+    cbxLS.keys('m:'+cb.id+':').filter(k=>k!==st.dt).forEach(k=>o[k]=(o[k]||0)+(cbxLS.get('m:'+cb.id+':'+k)||[]).filter(x=>Number(x.l)>0).length);
+    return Object.entries(o).map(([dt,n])=>({dt,n})).filter(x=>x.n).sort((a,b)=>a.dt.localeCompare(b.dt))};
+  /* MSE: linhas do rascunho desta data (ficam no aparelho como as da frota) */
+  let M=[],mDt='';const mk=()=>'m:'+cb.id+':'+st.dt,mLoad=()=>{if(mDt!==st.dt){M=cbxLS.get(mk())||[];mDt=st.dt}},
+    mTem=x=>['t','d','h','km','p','l','c'].some(k=>x[k]!=null&&String(x[k]).trim()!==''),msave=()=>{const a=M.filter(mTem);cbxLS.set(mk(),a.length?a:null)};
+  const chkM=x=>{const o={msg:[],ok:false,tem:Number(x.l)>0};if(!o.tem){if(mTem(x))o.msg.push(['info','Sem litros: a linha nao entra no lancamento.']);return o}
+    const tv=cbxTrava(cb.id,st.dt);if(tv){o.msg.push(['bad',`Periodo fechado ate ${fdate(tv)}.`]);return o}
+    if(!String(x.t||'').trim()){o.av=1;o.msg.push(['warn','Sem TAG.'])}if(!x.c){o.av=1;o.msg.push(['warn','Sem centro de custo.'])}
+    o.ok=true;return o};
   const base=()=>S.eqCtl.filter(e=>e.status!=='inativo');
   const lista=()=>{const q=nzCod(st.q),d=dr();let l=base();
     if(q)l=l.filter(e=>nzCod(e.codigo).includes(q)||(e.placa&&nzCod(e.placa).includes(q)));
@@ -1911,14 +1952,14 @@ async function cbxLote(dt0){
     if(!cbxNaObra(e)&&!x.r){o.pq=1;o.msg.push(['bad',`<b>Em ${esc(e.alocacao||'nenhum local')} nao recebe diesel da DM1.</b> Realocar para:`]);return o}
     if(x.h===''||x.h==null){o.msg.push(['bad','Informe o horimetro.']);return o}
     const r=calcAbast(e,st.dt,Number(x.h),Number(x.l),true);o.c=r;if(r.erro){o.hb=1;o.msg.push(['bad',esc(r.erro)+'.']);return o}
-    const cu=x.c||(x.r?x.r:cbxCustoPad(e,c));if(!cu){o.msg.push(['bad','Escolha o custo.']);return o}o.cu=cu;
+    const cu=x.c||cbxCustoR(e,c,x.r);if(!cu){o.msg.push(['bad','Escolha o custo.']);return o}o.cu=cu;
     if(x.r){const rn=cbxCuNome(x.r);o.msg.push(['info',`Sera realocado para ${esc(rn==='UG'?'Mina › UG':rn)} ao lancar.`])}
-    const pad=x.r||cbxCustoPad(e,c);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
+    const pad=cbxCustoR(e,c,x.r);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
     if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}
     const sj=hmSalto(e,r.h,st.dt);if(sj){o.av=1;o.msg.push(['warn',`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`])}
     o.ok=true;return o};
   const tag=e=>!cbxNaObra(e)?`<span class="cbx-tag pq">${esc(e.alocacao||'Sem local')}</span>`:`<span class="cbx-tag">${esc(e.area==='Mina'&&e.frente==='UG'?'UG':e.area||'DM1')}</span>`;
-  const linha=(e,x)=>{const o=chk(e,x),cu=x.c||(x.r||cbxCustoPad(e,c));const dis=!cbxNaObra(e)&&!x.r;
+  const linha=(e,x)=>{const o=chk(e,x),cu=x.c||cbxCustoR(e,c,x.r);const dis=!cbxNaObra(e)&&!x.r;
     return `<div class="cbx-r${o.msg.some(m=>m[0]==='bad')?' er':o.av?' av':''}" data-r="${esc(e.id)}"><div class="cbx-rh"><b>${esc(e.codigo)}</b>${tag(e)}<small>${e.horimetro!==''&&e.horimetro!=null?'ult '+nf(e.horimetro,1):'sem leitura'}</small></div>
       <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" aria-label="Horimetro ${esc(e.codigo)}" data-h value="${x.h??''}"${o.hb?' class="bad"':''}><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="next" aria-label="Litros ${esc(e.codigo)}" class="l" data-l value="${x.l??''}">
       <div class="cbx-cu" role="group" aria-label="Custo"${dis?' aria-disabled="true"':''} style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-cu="${esc(k.id)}" aria-pressed="${cu===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div></div>
@@ -1929,11 +1970,32 @@ async function cbxLote(dt0){
   body:`<div class="cbx-tools"><div class="cbx-row1"><label class="cbx-dt">${CBX_IC.cal}<input type="date" id="cbx-dt" value="${st.dt}" max="${today()}" aria-label="Data"></label>
       <label class="cbx-q">${CBX_IC.q}<input id="cbx-q" type="search" placeholder="Buscar TAG" autocomplete="off" value="${esc(st.q)}" aria-label="Buscar TAG"></label></div>
       <div id="cbx-flt">${flt()}</div><div id="cbx-ask"></div><div id="cbx-pd"></div></div>
-    <div class="cbx-colh"><span>Horimetro</span><span>Litros</span><span>Custo</span></div><div class="cbx-rows" id="cbx-rows"></div><div class="cbx-tot" id="cbx-tot"></div><div id="cbx-cf"></div>`,
+    <div class="cbx-colh"><span>Horimetro</span><span>Litros</span><span>Custo</span></div><div class="cbx-rows" id="cbx-rows"></div><div id="cbx-mw"></div><div class="cbx-tot" id="cbx-tot"></div><div id="cbx-cf"></div>`,
   foot:`<button type="button" class="btn pri" id="lt-go">Lancar</button>`,
-  mount:sh=>{const go=sh.querySelector('#lt-go'),rows=sh.querySelector('#cbx-rows');
+  mount:sh=>{const go=sh.querySelector('#lt-go'),rows=sh.querySelector('#cbx-rows'),mw=sh.querySelector('#cbx-mw');
+    const mCu=(x,i)=>`<div class="cbx-cu" role="group" aria-label="Custo" style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-mc="${esc(k.id)}" aria-pressed="${x.c===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div>`;
+    const mIn=(x,f,ph,num)=>`<input${num?' type="number" inputmode="decimal" step="0.1" min="0"':' autocomplete="off" autocapitalize="characters"'} enterkeyhint="next" data-mf="${f}" placeholder="${ph}" aria-label="${ph}"${f==='l'?' class="l"':''} value="${esc(x[f]??'')}">`;
+    const mrow=(x,i)=>{const o=chkM(x);return `<div class="cbx-mr${o.msg.some(m=>m[0]==='bad')?' er':o.av&&o.tem?' av':''}" data-m="${i}"><div class="cbx-g m2">${mIn(x,'t','TAG')}${mIn(x,'d','Dono')}<button type="button" class="cbx-mx" data-mx aria-label="Tirar linha">&times;</button></div>
+      <div class="cbx-g m3">${mIn(x,'h','Horimetro',1)}${mIn(x,'km','Km',1)}${mIn(x,'p','Placa')}</div><div class="cbx-g mc">${mIn(x,'l','Litros',1)}${mCu(x,i)}</div>${o.msg.map(([l,t])=>cbxMsg(l,t)).join('')}<div data-mdc></div></div>`};
+    const mAll=()=>{mLoad();const q=nzCod(st.q);if(q&&!'mse'.includes(q)&&!M.some(x=>nzCod(x.t).includes(q))){mw.innerHTML='';return}
+      mw.innerHTML=`<div class="cbx-mse"><div class="cbx-rh"><b>MSE</b><span class="cbx-tag">Terceiros</span><button type="button" class="cbx-madd" data-madd>${CBX_IC.plus}Adicionar</button></div>${M.map(mrow).join('')}</div>`;
+      mw.querySelector('[data-madd]').onclick=()=>{M.push({});mAll();const r=mw.querySelectorAll('.cbx-mr');const t=r[r.length-1].querySelector('[data-mf="t"]');t.focus();t.scrollIntoView({block:'center',behavior:'smooth'})};
+      mw.querySelectorAll('.cbx-mr').forEach(mBind)};
+    const mOne=i=>{const el=mw.querySelector(`[data-m="${i}"]`);if(!el||!M[i])return;const tmp=document.createElement('div');tmp.innerHTML=mrow(M[i],i);const nw=tmp.firstElementChild;
+      el.className=nw.className;el.querySelectorAll('.cbx-msg').forEach(x=>x.remove());const dc=el.querySelector('[data-mdc]');nw.querySelectorAll('.cbx-msg').forEach(x=>el.insertBefore(x,dc));
+      el.querySelector('.cbx-cu').replaceWith(nw.querySelector('.cbx-cu'));mCuB(el);tot()};
+    const mCuB=el=>{const i=Number(el.dataset.m);el.querySelectorAll('[data-mc]').forEach(b=>b.onclick=()=>{M[i].c=M[i].c===b.dataset.mc?'':b.dataset.mc;msave();mOne(i)})};
+    /* TAG ja usada: o app busca e preenche dono e placa (so os vazios) */
+    const mBusca=async i=>{const x=M[i];if(!x||!String(x.t||'').trim())return;const a=(await cbxMseDir())[nzCod(x.t)];if(!a)return;const el=mw.querySelector(`[data-m="${i}"]`);
+      [['d','dono'],['p','placa']].forEach(([f,k])=>{if(a[k]&&!String(x[f]||'').trim()){x[f]=a[k];const inp=el&&el.querySelector(`[data-mf="${f}"]`);if(inp)inp.value=a[k]}});msave();mOne(i)};
+    const mBind=el=>{const i=Number(el.dataset.m);mCuB(el);
+      el.querySelectorAll('[data-mf]').forEach(inp=>inp.addEventListener('input',()=>{M[i][inp.dataset.mf]=inp.value;msave();clearTimeout(el._t);el._t=setTimeout(()=>inp.dataset.mf==='t'?mBusca(i):mOne(i),inp.dataset.mf==='t'?450:350)}));
+      el.querySelector('[data-mx]').onclick=()=>{const tira=()=>{M.splice(i,1);msave();mAll();tot()};if(!mTem(M[i])){tira();return}
+        askDelete(el.querySelector('[data-mdc]'),`Tirar esta linha do MSE${M[i].t?' ('+esc(M[i].t)+')':''}? O que foi digitado nela se perde.`,tira)}};
+    mw.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;const ins=[...mw.querySelectorAll('input')],i=ins.indexOf(ev.target);if(i<0)return;ev.preventDefault();const n=ins[i+1];if(n){n.focus();n.select&&n.select()}else ev.target.blur()});
     cbxMore(sh,[{ic:CBX_IC.file,t:'Importar planilha',fn:()=>cbxImport()},{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxLote.st=null;cbxLote()})}]);
     const tot=()=>{const d=dr();let n=0,b=0,L=0;base().forEach(e=>{const x=d[e.id];if(!x||!(Number(x.l)>0))return;const o=chk(e,x);if(o.ok){n++;L+=Number(x.l)}else b++});
+      mLoad();M.forEach(x=>{if(!(Number(x.l)>0))return;if(chkM(x).ok){n++;L+=Number(x.l)}else b++});
       go.textContent=n?`Lancar ${n}`:'Lancar';go.disabled=!n;go.title=go.textContent;go.setAttribute('aria-label',n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada para lancar');
       sh.querySelector('#cbx-tot').innerHTML=n||b?`<span><b>${n}</b> pronto${n===1?'':'s'}</span>${b?`<span class="pb"><b>${b}</b> pendente${b===1?'':'s'}</span>`:''}<span class="r">${nf(L,1)} L</span>`:''};
     const pd=()=>{const l=pend();sh.querySelector('#cbx-pd').innerHTML=l.length?`<div class="cbx-pend">${CBX_IC.info}<span>${l.map(p=>`${p.n} nao lancado${p.n===1?'':'s'} de ${fdate(p.dt).slice(0,5)}`).join(' · ')}</span><button type="button" data-pv="${l[0].dt}">Ver</button></div>`:'';
@@ -1952,28 +2014,31 @@ async function cbxLote(dt0){
       rows.querySelectorAll('.cbx-r').forEach(el=>{bindRow(el);const id=el.dataset.r;
         el.querySelector('[data-h]').addEventListener('input',ev=>{upd(id,'h',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)});
         el.querySelector('[data-l]').addEventListener('input',ev=>{upd(id,'l',ev.target.value);clearTimeout(el._t);el._t=setTimeout(()=>one(id),350)})});
-      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();tot();pd()};
+      sh.querySelector('#cbx-flt').innerHTML=flt();bindF();mAll();tot();pd()};
     /* Enter do teclado pula: horimetro › litros › horimetro do proximo */
     rows.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;const ins=[...rows.querySelectorAll('input')],i=ins.indexOf(ev.target);if(i<0)return;ev.preventDefault();const n=ins[i+1];if(n){n.focus();n.select&&n.select()}else ev.target.blur()});
     const bindF=()=>{sh.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{st.f=b.dataset.f;st.sf='';all()});sh.querySelectorAll('[data-sf]').forEach(b=>b.onclick=()=>{st.sf=st.sf===b.dataset.sf?'':b.dataset.sf;all()})};
     let qT;sh.querySelector('#cbx-q').addEventListener('input',ev=>{clearTimeout(qT);qT=setTimeout(()=>{st.q=ev.target.value.trim();all()},200)});
     /* trocar a data com linhas preenchidas: lancar agora ou guardar nesta data */
-    const dI=sh.querySelector('#cbx-dt');dI.addEventListener('change',()=>{const nv=dI.value;if(!nv||nv===st.dt)return;const n=Object.values(dr()).filter(x=>Number(x.l)>0).length;
+    const dI=sh.querySelector('#cbx-dt');dI.addEventListener('change',()=>{const nv=dI.value;if(!nv||nv===st.dt)return;mLoad();const n=Object.values(dr()).filter(x=>Number(x.l)>0).length+M.filter(x=>Number(x.l)>0).length;
       if(!n){st.dt=nv;all();return}const old=st.dt;dI.value=old;const box=sh.querySelector('#cbx-ask');
       box.innerHTML=`<div class="eqv-ask"><b>${n} abastecimento${n===1?'':'s'} preenchido${n===1?'':'s'} em ${fdate(old)}</b><div class="eqv-f"><button type="button" class="btn" data-g>Guardar nesta data</button><button type="button" class="btn pri" data-n>Lancar agora</button></div></div>`;
       box.querySelector('[data-g]').onclick=()=>{box.innerHTML='';st.dt=nv;dI.value=nv;all()};box.querySelector('[data-n]').onclick=()=>{box.innerHTML='';go.click()}});
-    go.onclick=async()=>{const d=dr(),ok=[];base().forEach(e=>{const x=d[e.id];if(x&&Number(x.l)>0){const o=chk(e,x);if(o.ok)ok.push({e,x,o})}});if(!ok.length)return;
+    go.onclick=async()=>{const d=dr(),ok=[],okM=[];base().forEach(e=>{const x=d[e.id];if(x&&Number(x.l)>0){const o=chk(e,x);if(o.ok)ok.push({e,x,o})}});
+      mLoad();M.forEach(x=>{if(Number(x.l)>0){const o=chkM(x);if(o.ok)okM.push({x,o})}});if(!ok.length&&!okM.length)return;
       /* consumo fora da media: confere antes de gravar */
       const cf=sh.querySelector('#cbx-cf');if(!go._conf){const av=[];for(const r of ok){if(r.o.av)av.push(`${esc(r.e.codigo)}: ${r.o.msg.filter(m=>m[0]==='warn').map(m=>m[1]).join(' ')}`);
           if(r.o.c&&r.o.c.lh!=null){const md=await combMedia(r.e.id,st.dt);if(md&&(r.o.c.lh>md*1.5||r.o.c.lh<md*.5))av.push(`${esc(r.e.codigo)}: consumo ${nf(r.o.c.lh,1)} L/h, media ${nf(md,1)} L/h.`)}}
+        for(const r of okM)if(r.o.av)av.push(`MSE ${esc(r.x.t||'')} (${nf(Number(r.x.l),1)} L): ${r.o.msg.filter(m=>m[0]==='warn').map(m=>m[1]).join(' ')}`);
         if(av.length){cf.innerHTML=`<div class="eqv-ask"><b>${av.length} ${av.length===1?'atencao':'atencoes'}</b><p class="note" style="margin:0">${av.join('<br>')}</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-y>Lancar assim mesmo</button></div></div>`;
           cf.querySelector('[data-x]').onclick=()=>cf.innerHTML='';cf.querySelector('[data-y]').onclick=()=>{cf.innerHTML='';go._conf=1;go.click()};cf.scrollIntoView({block:'center',behavior:'smooth'});return}}
-      go._conf=0;go.disabled=true;let n=0,f=0;
-      for(const r of ok){go.textContent=`${n+f+1}/${ok.length}`;let e=eqById(r.e.id);
+      go._conf=0;go.disabled=true;let n=0,f=0;const T=ok.length+okM.length;
+      for(const r of ok){go.textContent=`${n+f+1}/${T}`;let e=eqById(r.e.id);
         try{if(r.x.r){const k=c.custos.find(z=>z.id===r.x.r),nm=k?k.nome:'';const up=nm==='UG'?{alocacao:'DM1',area:'Mina',frente:'UG'}:{alocacao:'DM1',area:nm,frente:'Geral'};
             await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up)}
           const cc=calcAbast(e,st.dt,Number(r.x.h),Number(r.x.l),true);if(cc.erro){f++;continue}
           await abastGravar(e,{...cc,custo:r.o.cu,cb:cb.id});n++;const dd=dr();delete dd[e.id];save(dd)}catch(er){console.error(er);f++}}
+      for(const r of okM){go.textContent=`${n+f+1}/${T}`;try{await cbxMseGravar(r.x,st.dt,cb.id);n++;const j=M.indexOf(r.x);if(j>=0)M.splice(j,1);msave()}catch(er){console.error(er);f++}}
       toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;all()};
     all();
   }});
@@ -2080,7 +2145,7 @@ async function cbxRel(m0){
   openSheet({title:'Relatorio',sub:'Combustivel',body:`<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div><div id="rl-b"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
   mount:sh=>{sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
     S.db.doc('comb/'+m).get().then(x=>{const b=sh.querySelector('#rl-b');if(!b||!b.isConnected)return;const d=x.exists?x.data():{},eq=d.eq||{};
-      const sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0);let ent=0;Object.values(d.cbEnt||{}).forEach(o=>Object.values(o).forEach(v=>ent+=Number(v)||0));
+      const ms=Object.values(d.mse||{}).sort((a,b)=>String(a.tag).localeCompare(String(b.tag),'pt',{numeric:true})),sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0)+ms.reduce((a,v)=>a+(Number(v.lt)||0),0);let ent=0;Object.values(d.cbEnt||{}).forEach(o=>Object.values(o).forEach(v=>ent+=Number(v)||0));
       const cu=d.cus||{},semC=Math.round((sai-Object.values(cu).reduce((a,v)=>a+(Number(v)||0),0))*10)/10;
       const tops=c.custos.filter(k=>!k.pai),pct=v=>sai?Math.max(0,Math.min(100,v/sai*100)):0;
       const cuH=tops.map(k=>{const filhos=c.custos.filter(z=>z.pai===k.id),tf=filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0),own=Number(cu[k.id])||0,tt=own+tf;
@@ -2089,8 +2154,9 @@ async function cbxRel(m0){
       const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.eqCtl.filter(e=>e.status!=='inativo'||eq[e.id]);
       const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
       b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas</small><b>${nf(ent,1)} L</b></div></div>
-        <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo <small>(antes do novo lancamento)</small></span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
-        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=v&&v.h>0?v.l/v.h:null;return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+' L/h':v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}</div>`;
+        <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo</span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
+        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=v&&v.h>0?v.l/v.h:null;return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+' L/h':v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}
+        ${ms.length?`<section class="tsec"><h3 class="tsec-h"><span>MSE</span><em>${ms.length}</em></h3><div class="tsec-l">${ms.map(v=>`<div class="tq"><span class="tq-c">${esc(v.tag)}</span><span class="tq-m"></span><span class="tq-d">${nf(v.lt,1)} L<small>${v.n} abast.</small></span></div>`).join('')}</div></section>`:''}</div>`;
       b.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe))}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
 }
 
@@ -2104,6 +2170,9 @@ async function cbxAjustes(){
   openSheet({title:'Combustivel',sub:'Ajustes do app',
   body:`<form id="cbx-af"><div class="lbl">Centros de custo</div><div class="cbx-ajl" id="aj-cu">${c.custos.map(cuRow).join('')}</div>
     <div class="cbx-add"><input id="aj-ncu" placeholder="Novo centro de custo" aria-label="Novo centro de custo"><button type="button" class="btn sm" id="aj-acu">${CBX_IC.plus}Adicionar</button></div>
+    <div class="lbl" style="margin-top:22px">Abastecem como UG</div><div class="cbx-ugl" id="aj-ug"></div>
+    <div class="cbx-add"><input id="aj-nug" placeholder="TAG" aria-label="TAG que abastece como UG" autocomplete="off"><button type="button" class="btn sm" id="aj-aug">${CBX_IC.plus}Adicionar</button></div>
+    <p class="note" style="margin:8px 2px 0">Os demais alocados na UG abastecem como Mina.</p>
     <div class="lbl" style="margin-top:22px">Comboios</div><div class="cbx-ajl" id="aj-cb">${c.comboios.map(cbRow).join('')}</div>
     <div class="cbx-add"><input id="aj-ncb" placeholder="Novo comboio" aria-label="Novo comboio"><button type="button" class="btn sm" id="aj-acb">${CBX_IC.plus}Adicionar</button></div>
     <p class="note" style="margin:14px 2px 0">Nada e apagado: o que ja foi usado so pode ser desativado. Mudar o nome nao altera o historico.</p></form>`,
@@ -2112,9 +2181,14 @@ async function cbxAjustes(){
       sh.querySelectorAll('[data-bn]').forEach(x=>c.comboios[x.dataset.bn].nome=x.value.trim()||c.comboios[x.dataset.bn].nome);
       sh.querySelectorAll('[data-bc]').forEach(x=>c.comboios[x.dataset.bc].cap=x.value===''?null:Number(x.value));
       sh.querySelectorAll('[data-bd]').forEach(x=>c.comboios[x.dataset.bd].corte=x.value===''?null:Math.max(1,Math.min(31,Number(x.value))))};
-    const draw=()=>{sh.querySelector('#aj-cu').innerHTML=c.custos.map(cuRow).join('');sh.querySelector('#aj-cb').innerHTML=c.comboios.map(cbRow).join('');bind()};
+    c.ugEq=Array.isArray(c.ugEq)?c.ugEq:CBX_DEF.ugEq.slice();
+    const ugH=()=>c.ugEq.slice().sort((a,b)=>String(a).localeCompare(String(b),'pt',{numeric:true})).map(t=>`<span class="cbx-ugc">${esc(t)}<button type="button" data-ux="${esc(t)}" aria-label="Tirar ${esc(t)}">&times;</button></span>`).join('')||'<span class="note">Nenhum: todos da UG abastecem como Mina.</span>';
+    const draw=()=>{sh.querySelector('#aj-cu').innerHTML=c.custos.map(cuRow).join('');sh.querySelector('#aj-cb').innerHTML=c.comboios.map(cbRow).join('');sh.querySelector('#aj-ug').innerHTML=ugH();bind()};
     const bind=()=>{sh.querySelectorAll('[data-co]').forEach(b=>b.onclick=()=>{ler();const k=c.custos[b.dataset.co];if(!k.off&&c.custos.filter(z=>!z.off).length<2){toast('Precisa ficar ao menos um centro de custo.');return}k.off=!k.off;draw()});
-      sh.querySelectorAll('[data-bo]').forEach(b=>b.onclick=()=>{ler();const k=c.comboios[b.dataset.bo];if(!k.off&&c.comboios.filter(z=>!z.off).length<2){toast('Precisa ficar ao menos um comboio.');return}k.off=!k.off;draw()})};bind();
+      sh.querySelectorAll('[data-bo]').forEach(b=>b.onclick=()=>{ler();const k=c.comboios[b.dataset.bo];if(!k.off&&c.comboios.filter(z=>!z.off).length<2){toast('Precisa ficar ao menos um comboio.');return}k.off=!k.off;draw()});
+      sh.querySelectorAll('[data-ux]').forEach(b=>b.onclick=()=>{ler();c.ugEq=c.ugEq.filter(t=>t!==b.dataset.ux);draw()})};sh.querySelector('#aj-ug').innerHTML=ugH();bind();
+    sh.querySelector('#aj-aug').onclick=()=>{ler();const i=sh.querySelector('#aj-nug'),v=i.value.trim();if(!v)return;const e=S.eqCtl.find(z=>nzCod(z.codigo)===nzCod(v));if(!e){toast('TAG nao encontrada na frota.');return}
+      if(c.ugEq.some(t=>nzCod(t)===nzCod(v))){toast('Ja esta na lista.');return}c.ugEq.push(e.codigo);i.value='';draw();if(!(e.area==='Mina'&&e.frente==='UG'))toast(`${e.codigo} nao esta alocado na UG: so vale quando estiver.`)};
     const nid=(p,l)=>{let i=l.length+1,id;do{id=p+String(i++).padStart(2,'0')}while(l.some(z=>z.id===id));return id};
     sh.querySelector('#aj-acu').onclick=()=>{ler();const i=sh.querySelector('#aj-ncu'),v=i.value.trim();if(!v)return;if(c.custos.some(z=>nzCod(z.nome)===nzCod(v))){toast('Ja existe.');return}c.custos.push({id:nid('cu',c.custos),nome:v});i.value='';draw()};
     sh.querySelector('#aj-acb').onclick=()=>{ler();const i=sh.querySelector('#aj-ncb'),v=i.value.trim();if(!v)return;c.comboios.push({id:nid('c',c.comboios),nome:v,cap:null,corte:null});i.value='';draw()};
@@ -2611,7 +2685,7 @@ function openMenu(mode){
       +mi('x:st',I.estoque,'Filtros e oleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')},
     comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o ultimo abastecimento de um equipamento')+mi('cbx-de',DEL,'Excluir entrada','Apaga uma entrada do periodo aberto')},
     aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:cats',ICON_TAG,'Categorias de itens','Filtro, oleo, graxa, correia e outros do estoque')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
-      +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo e comboios')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
+      +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo, UG e comboios')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
   /* tela limpa: Novo · Editar · Excluir */
   const X=(t,k,n)=>({title:t,sub:'O que voce quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
   T['x:eq']=X('Equipamentos','eq','equipamento');T['x:st']=X('Filtros e oleos','st','item do estoque');T['x:kit']=X('Kits','kit','kit');

@@ -254,6 +254,22 @@ body.focus .sidetabs{display:none!important}
 .cb-abr{font-size:14.5px;font-variant-numeric:tabular-nums;box-shadow:inset 0 1px 0 var(--line)}
 .cb-abr span:nth-child(n+2),.cb-abh span:nth-child(n+2){text-align:right}
 .cb-abr i{font-style:normal;font-size:12px;color:var(--muted);margin-left:3px}
+/* media do consumo: a linha do cartao abre um painel por cima, com a media acumulada a cada abastecimento */
+button.cb-c{width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left;cursor:pointer}
+button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
+.mp-ov{position:fixed;inset:var(--hdr,0px) 0 0 0;z-index:30;background:rgba(6,14,10,.35);display:flex;align-items:flex-end;justify-content:center}
+.mp{background:var(--surface);width:100%;max-width:640px;max-height:72dvh;border-radius:20px 20px 0 0;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0px);transition:transform .18s}
+.mp-g{width:40px;height:5px;border-radius:3px;background:var(--line-2);margin:8px auto 0}
+.mp-h{display:flex;align-items:center;gap:8px;padding:6px 8px 4px 16px;touch-action:none}
+.mp-h h3{flex:1;min-width:0;margin:0;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-x{width:44px;height:44px;border:0;background:none;color:var(--muted);font-size:26px;line-height:1;cursor:pointer}
+.mp-t{display:flex;justify-content:space-between;align-items:baseline;padding:4px 16px 12px;border-bottom:1px solid var(--line)}
+.mp-t span{font-size:13.5px;color:var(--muted)}.mp-t b{font-size:22px;font-variant-numeric:tabular-nums}
+.mp-l{overflow:auto;padding:0 0 10px}
+.mp-r{display:grid;grid-template-columns:1fr auto;column-gap:8px;padding:11px 16px;font-size:15px;font-variant-numeric:tabular-nums;box-shadow:inset 0 -1px 0 var(--line)}
+.mp-r span:last-child{text-align:right}.mp-r.hd{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding-bottom:7px}
+.mp-r i{font-style:normal;color:var(--muted)}.mp-r.av span:last-child::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--warn);margin-right:8px;vertical-align:1px}
+@media (min-width:700px){.mp-ov{align-items:center}.mp{border-radius:20px}}
 .cb-prev{background:var(--accent-soft);border-radius:12px;padding:11px 14px;font-size:14px}
 /* combustivel v2: comboio, lote, entrada, fechar mes, relatorio */
 .cbx-hub{display:flex;flex-direction:column;gap:10px}
@@ -1618,7 +1634,8 @@ function openCombEq(id){
   mount:sh=>{
     S.db.doc('comb/'+m).get().then(d=>{const v=((d.exists&&d.data().eq)||{})[id]||{lt:0,n:0,l:0,h:0},c=sh.querySelector('#cb-card');if(!c||!c.isConnected)return;
       const lh=v.h>0?v.l/v.h:null,vl=ehVL(e),cv=lhNum(e,lh);
-      c.innerHTML=row(vl?'Consumo':'Consumo por hora',cv!=null?nf(cv,1):'—',vl?'km/L':'L/h',cv==null?'Aparece a partir do 2º tanque cheio':'')+row('Consumo acumulado',nf(v.lt,1),'L')+row('Abastecimentos',nf(v.n),'')}).catch(()=>{});
+      c.innerHTML=row(vl?'Consumo':'Consumo por hora',cv!=null?nf(cv,1):'—',vl?'km/L':'L/h',cv==null?'Aparece a partir do 2º tanque cheio':'').replace(/^<div class="cb-c">(.*)<\/div>$/s,'<button type="button" class="cb-c" id="cb-md">$1</button>')+row('Consumo acumulado',nf(v.lt,1),'L')+row('Abastecimentos',nf(v.n),'');
+      c.querySelector('#cb-md').onclick=()=>combMediaPainel(e)}).catch(()=>{});
     let loaded=false;sh.querySelector('#cb-ab').addEventListener('click',()=>{if(loaded)return;loaded=true;
       S.db.collection('comb/'+m+'/abast').where('equipId','==',id).get().then(q=>{const b=sh.querySelector('#cb-abl');if(!b||!b.isConnected)return;
         const l=q.docs.map(d=>d.data()).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));
@@ -1626,6 +1643,35 @@ function openCombEq(id){
   }});
 }
 
+/* painel por cima da tela do equipamento: media acumulada a cada abastecimento (todos os meses, nenhum desconsiderado).
+   Media acumulada = litros medidos ÷ horas medidas, somados desde o primeiro abastecimento. Mais recentes primeiro.
+   Linha com marca: consumo daquele intervalo muito fora da media de ate entao (continua na conta). */
+async function combMediaPainel(e){
+  document.querySelectorAll('.mp-ov').forEach(x=>x.remove());
+  const host=$('#sheet');if(!host)return;const vl=ehVL(e),un=vl?'km/L':'L/h';
+  const ov=document.createElement('div');ov.className='mp-ov';
+  ov.innerHTML=`<div class="mp" role="dialog" aria-label="Media de consumo"><div class="mp-g"></div><div class="mp-h"><h3>${esc(e.codigo)} · Consumo</h3><button type="button" class="mp-x" aria-label="Fechar">×</button></div><div class="mp-b"><div class="card-wait" style="min-height:120px">Carregando…</div></div></div>`;
+  host.appendChild(ov);const pn=ov.querySelector('.mp'),fechar=()=>ov.remove();
+  ov.addEventListener('click',ev=>{if(ev.target===ov)fechar()});ov.querySelector('.mp-x').onclick=fechar;
+  /* arrastar para baixo fecha */
+  {const hd=ov.querySelector('.mp-h'),gb=ov.querySelector('.mp-g');let y0=null,dy=0;
+    const st=ev=>{y0=ev.touches[0].clientY;dy=0;pn.style.transition='none'},mv=ev=>{if(y0==null)return;dy=Math.max(0,ev.touches[0].clientY-y0);pn.style.transform=`translateY(${dy}px)`},
+      en=()=>{if(y0==null)return;y0=null;pn.style.transition='';if(dy>80)fechar();else pn.style.transform=''};
+    [hd,gb].forEach(x=>{x.addEventListener('touchstart',st,{passive:true});x.addEventListener('touchmove',mv,{passive:true});x.addEventListener('touchend',en)})}
+  const b=ov.querySelector('.mp-b');
+  try{
+    const ms=(await S.db.collection('comb').get()).docs.filter(d=>{const x=d.data();return x&&x.eq&&x.eq[e.id]}).map(d=>d.id).sort();
+    const l=[];for(const m of ms){const q=await S.db.collection('comb/'+m+'/abast').where('equipId','==',e.id).get();q.docs.forEach(d=>l.push(d.data()))}
+    if(!ov.isConnected)return;
+    l.sort((a,c)=>(a.data||'').localeCompare(c.data||'')||(a.ts||0)-(c.ts||0));
+    let sL=0,sH=0;const rs=l.map(f=>{const h=Number(f.horas)||0,L=Number(f.litrosMedidos)||0;
+      if(h>0&&L>0){const ant=sH>0?sL/sH:null;sL+=L;sH+=h;const lh=L/h;return {d:f.data,v:sL/sH,av:ant!=null&&(lh>ant*1.5||lh<ant*.5)}}
+      return {d:f.data,t:f.cheio===false?'parcial':'inicio'}}).reverse();
+    const tot=sH>0?lhNum(e,sL/sH):null;
+    b.innerHTML=`<div class="mp-t"><span>Media acumulada</span><b>${tot!=null?nf(tot,1)+' '+un:'—'}</b></div>
+      <div class="mp-l">${rs.length?`<div class="mp-r hd"><span>Data</span><span>Media</span></div>${rs.map(r=>`<div class="mp-r${r.av?' av':''}"${r.av?' title="Consumo do intervalo fora do normal"':''}><span>${fdate(r.d)}</span><span>${r.t?`<i>${r.t}</i>`:nf(lhNum(e,r.v),1)}</span></div>`).join('')}`:'<div class="empty">Nenhum abastecimento.</div>'}</div>`}
+  catch(er){console.error(er);if(ov.isConnected)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'}
+}
 /* ---------- + › Abastecimento ---------- */
 function formAbast(){
   nav('ab:new',()=>formAbast());

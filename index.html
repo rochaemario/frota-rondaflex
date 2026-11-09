@@ -1348,8 +1348,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=23b80336c7"></script>
-<script src="shim.js?v=23b80336c7"></script>
+<script src="config.js?v=e008d09762"></script>
+<script src="shim.js?v=e008d09762"></script>
 </head>
 <body>
 
@@ -1618,22 +1618,27 @@ const mesKey=d=>(d||today()).slice(0,7);
 const MESES=['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const mesNome=m=>{const[y,mm]=m.split('-');return `${MESES[Number(mm)-1]} ${y}`};
 const lhTxt=v=>v==null||!isFinite(v)?'—':nf(v,1)+' L/h';
+/* veiculo leve: fica "Somente cadastro", mas abastece; o campo do horimetro guarda o km. Relatorios mostram km e km/L */
+const eqComb=()=>S.equips.filter(e=>!soCad(e)||ehVL(e));
+const lhU=e=>ehVL(e)?'km':'h';
+const lhNum=(e,lh)=>lh==null||!isFinite(lh)||!(lh>0)?null:ehVL(e)?1/lh:lh;
+const consTxt=(e,lh)=>{const v=lhNum(e,lh);return v==null?'—':nf(v,1)+(ehVL(e)?' km/L':' L/h')};
 /* tela do equipamento: cartao do mes atual + linha "Abastecimentos" que so busca a lista ao abrir */
 function openCombEq(id){
   nav('cbq:'+id,()=>openCombEq(id));
   const e=eqById(id);if(!e){goBack();return}const m=mesKey();
   const row=(k,v,u,note)=>`<div class="cb-c"><span class="k">${k}</span><b>${v}</b><span class="u">${u||''}</span>${note?`<em>${note}</em>`:''}</div>`;
   openSheet({title:esc(e.codigo),sub:esc([e.tipo,alocTxt(e)].filter(Boolean).join(' · ')),
-  body:`<div class="cb-card"><div class="cb-mh">Combustivel · ${mesNome(m)}</div><div id="cb-card">${row('Consumo por hora','…','L/h')}${row('Consumo acumulado','…','L')}${row('Abastecimentos','…','')}</div></div>
+  body:`<div class="cb-card"><div class="cb-mh">Combustivel · ${mesNome(m)}</div><div id="cb-card">${row(ehVL(e)?'Consumo':'Consumo por hora','…',ehVL(e)?'km/L':'L/h')}${row('Consumo acumulado','…','L')}${row('Abastecimentos','…','')}</div></div>
     <div class="ilist" style="margin-top:12px"><div class="ia"><button type="button" class="ia-h" data-ia id="cb-ab" aria-expanded="false"><span class="ia-t">Abastecimentos</span>${I.chev}</button><div class="ia-b" hidden id="cb-abl"><div class="s">Carregando…</div></div></div></div>`,
   mount:sh=>{
     S.db.doc('comb/'+m).get().then(d=>{const v=((d.exists&&d.data().eq)||{})[id]||{lt:0,n:0,l:0,h:0},c=sh.querySelector('#cb-card');if(!c||!c.isConnected)return;
-      const lh=v.h>0?v.l/v.h:null;
-      c.innerHTML=row('Consumo por hora',lh!=null?nf(lh,1):'—','L/h',lh==null?'Aparece a partir do 2º tanque cheio':'')+row('Consumo acumulado',nf(v.lt,1),'L')+row('Abastecimentos',nf(v.n),'')}).catch(()=>{});
+      const lh=v.h>0?v.l/v.h:null,vl=ehVL(e),cv=lhNum(e,lh);
+      c.innerHTML=row(vl?'Consumo':'Consumo por hora',cv!=null?nf(cv,1):'—',vl?'km/L':'L/h',cv==null?'Aparece a partir do 2º tanque cheio':'')+row('Consumo acumulado',nf(v.lt,1),'L')+row('Abastecimentos',nf(v.n),'')}).catch(()=>{});
     let loaded=false;sh.querySelector('#cb-ab').addEventListener('click',()=>{if(loaded)return;loaded=true;
       S.db.collection('comb/'+m+'/abast').where('equipId','==',id).get().then(q=>{const b=sh.querySelector('#cb-abl');if(!b||!b.isConnected)return;
         const l=q.docs.map(d=>d.data()).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));
-        b.innerHTML=l.length?`<div class="cb-ab"><div class="cb-abh"><span>Data</span><span>Horimetro</span><span>Litros</span></div>${l.map(f=>`<div class="cb-abr"><span>${fdate(f.data)}</span><span>${nf(f.horimetro,2)}<i>h</i></span><span>${nf(f.litros,2)}<i>L</i></span></div>`).join('')}</div>`:'<div class="s">Nenhum abastecimento neste mes.</div>'}).catch(()=>{const b=sh.querySelector('#cb-abl');if(b)b.innerHTML='<div class="s">Nao foi possivel carregar.</div>'})});
+        b.innerHTML=l.length?`<div class="cb-ab"><div class="cb-abh"><span>Data</span><span>Horimetro</span><span>Litros</span></div>${l.map(f=>`<div class="cb-abr"><span>${fdate(f.data)}</span><span>${nf(f.horimetro,2)}<i>${lhU(e)}</i></span><span>${nf(f.litros,2)}<i>L</i></span></div>`).join('')}</div>`:'<div class="s">Nenhum abastecimento neste mes.</div>'}).catch(()=>{const b=sh.querySelector('#cb-abl');if(b)b.innerHTML='<div class="s">Nao foi possivel carregar.</div>'})});
   }});
 }
 
@@ -1740,12 +1745,12 @@ function openLoteItens(lista){
 }
 async function openLoteAbast(lista){
   nav('lote',()=>openLoteAbast(lista));
-  const achar=x=>{const c=nzCod(x.equip),pl=nzCod(x.placa);return S.eqCtl.find(e=>c&&nzCod(e.codigo)===c)||S.eqCtl.find(e=>pl&&e.placa&&nzCod(e.placa)===pl)};
+  const achar=x=>{const c=nzCod(x.equip),pl=nzCod(x.placa),L=eqComb();return L.find(e=>c&&nzCod(e.codigo)===c)||L.find(e=>pl&&e.placa&&nzCod(e.placa)===pl)};
   const fora=[],rows=[];lista.forEach(x=>{const e=achar(x);if(e)rows.push({x,e});else fora.push(x)});
   rows.sort((a,b)=>a.x.data.localeCompare(b.x.data)||a.e.codigo.localeCompare(b.e.codigo)||a.x.horimetro-b.x.horimetro);
   /* simula em sequencia: cada linha usa a base deixada pela anterior do mesmo equipamento */
   const sim={};for(const r of rows){const e0=sim[r.e.id]||{...r.e};const c=calcAbast(e0,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);r.c=c;
-    if(!c.erro){if(c.lh!=null){const md=await combMedia(r.e.id,r.x.data);if(md&&(c.lh>md*1.5||c.lh<md*0.5))r.aviso=`Consumo fora do normal (media ${nf(md,1)} L/h)`}
+    if(!c.erro){if(c.lh!=null){const md=await combMedia(r.e.id,r.x.data);if(md&&(c.lh>md*1.5||c.lh<md*0.5))r.aviso=`Consumo fora do normal (media ${consTxt(r.e,md)})`}
       const sj=hmSalto(e0,c.h,r.x.data);if(sj){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro ${nf(sj.dif)} h acima do esperado`;r.fora=true}
       if(hmAtras(e0,c.h,r.x.data)){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro maior que a leitura de ${fdate(e0.horimetroData)} (${nf(e0.horimetro,1)} h)`;r.fora=true}
       sim[r.e.id]={...e0,combBase:c.nb,combUltData:r.x.data,...(c.h>(Number(e0.horimetro)||0)?{horimetro:c.h,horimetroData:r.x.data}:{})}}}
@@ -1791,7 +1796,7 @@ async function openDelAbast(){
   if(NAV[NAV.length-1]?.key!=='dl:ab')return;
   openSheet({title:'Excluir abastecimento',sub:'So o ultimo de cada equipamento',
   body:l.length?`<div class="ilist">${l.map(f=>{const e=eqById(f.equipId);return `<div class="ia"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
-    <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} h</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Tanque</span><b>${f.cheio===false?'Parcial':'Cheio'}</b></div><div class="r"><span>Consumo</span><b>${lhTxt(f.lh)}</b></div><div class="r"><span>Responsavel</span><b>${esc(f.resp||'—')}</b></div></div>
+    <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} ${e?lhU(e):'h'}</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Tanque</span><b>${f.cheio===false?'Parcial':'Cheio'}</b></div><div class="r"><span>Consumo</span><b>${e?consTxt(e,f.lh):lhTxt(f.lh)}</b></div><div class="r"><span>Responsavel</span><b>${esc(f.resp||'—')}</b></div></div>
     <div class="pn-bt"><button type="button" class="btn sm danger" data-dab="${esc(f.mes+'/'+f.id)}">Excluir este abastecimento</button></div><div data-dabc="${esc(f.mes+'/'+f.id)}"></div></div></div>`}).join('')}</div>`:'<div class="empty">Nenhum abastecimento lancado.</div>',
   mount:sh=>sh.querySelectorAll('[data-dab]').forEach(b=>b.onclick=()=>{const k=b.dataset.dab,f=l.find(x=>x.mes+'/'+x.id===k),e=f&&eqById(f.equipId);if(!e)return;
     askDelete(sh.querySelector(`[data-dabc="${CSS.escape(k)}"]`),`Excluir o abastecimento de ${esc(e.codigo)} de ${fdate(f.data)}? A medicao volta ao lancamento anterior. Nao da para desfazer.`,async()=>{
@@ -1941,7 +1946,7 @@ async function cbxLote(dt0){
     const tv=cbxTrava(cb.id,st.dt);if(tv){o.msg.push(['bad',`Periodo fechado ate ${fdate(tv)}.`]);return o}
     if(!String(x.t||'').trim()){o.av=1;o.msg.push(['warn','Sem TAG.'])}if(!x.c){o.av=1;o.msg.push(['warn','Sem centro de custo.'])}
     o.ok=true;return o};
-  const base=()=>S.eqCtl.filter(e=>e.status!=='inativo');
+  const base=()=>eqComb();
   const lista=()=>{const q=nzCod(st.q),d=dr();let l=base();
     if(q)l=l.filter(e=>nzCod(e.codigo).includes(q)||(e.placa&&nzCod(e.placa).includes(q)));
     else{l=l.filter(e=>cbxNaObra(e)||d[e.id]);
@@ -2031,7 +2036,7 @@ async function cbxLote(dt0){
       mLoad();M.forEach(x=>{if(Number(x.l)>0){const o=chkM(x);if(o.ok)okM.push({x,o})}});if(!ok.length&&!okM.length)return;
       /* consumo fora da media: confere antes de gravar */
       const cf=sh.querySelector('#cbx-cf');if(!go._conf){const av=[];for(const r of ok){if(r.o.av)av.push(`${esc(r.e.codigo)}: ${r.o.msg.filter(m=>m[0]==='warn').map(m=>m[1]).join(' ')}`);
-          if(r.o.c&&r.o.c.lh!=null){const md=await combMedia(r.e.id,st.dt);if(md&&(r.o.c.lh>md*1.5||r.o.c.lh<md*.5))av.push(`${esc(r.e.codigo)}: consumo ${nf(r.o.c.lh,1)} L/h, media ${nf(md,1)} L/h.`)}}
+          if(r.o.c&&r.o.c.lh!=null){const md=await combMedia(r.e.id,st.dt);if(md&&(r.o.c.lh>md*1.5||r.o.c.lh<md*.5))av.push(`${esc(r.e.codigo)}: consumo ${consTxt(r.e,r.o.c.lh)}, media ${consTxt(r.e,md)}.`)}}
         for(const r of okM)if(r.o.av)av.push(`MSE ${esc(r.x.t||'')} (${nf(Number(r.x.l),1)} L): ${r.o.msg.filter(m=>m[0]==='warn').map(m=>m[1]).join(' ')}`);
         if(av.length){cf.innerHTML=`<div class="eqv-ask"><b>${av.length} ${av.length===1?'atencao':'atencoes'}</b><p class="note" style="margin:0">${av.join('<br>')}</p><div class="eqv-f"><button type="button" class="btn" data-x>Revisar</button><button type="button" class="btn pri" data-y>Lancar assim mesmo</button></div></div>`;
           cf.querySelector('[data-x]').onclick=()=>cf.innerHTML='';cf.querySelector('[data-y]').onclick=()=>{cf.innerHTML='';go._conf=1;go.click()};cf.scrollIntoView({block:'center',behavior:'smooth'});return}}
@@ -2069,7 +2074,7 @@ async function cbxImportAoa(aoa){const c=await cbxCfg(),cb=cbxCur(c);const N=v=>
   const num=v=>{if(typeof v==='number')return v;let s=String(v||'').trim().replace(/\s/g,'');if(!s)return NaN;if(/,\d{1,2}$/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');return Number(s)};
   const cus=cbxCustosAb(c),fora=[],by={};let n=0;
   aoa.slice(hi+1).forEach(r=>{const tg=String(r[ci.eq]||'').trim();const l=num(r[ci.l]);if(!tg||!(l>0))return;
-    const e=S.eqCtl.find(x=>N(x.codigo)===N(tg))||S.eqCtl.find(x=>x.placa&&N(x.placa)===N(tg));if(!e){if(!fora.includes(tg))fora.push(tg);return}
+    const EL=eqComb(),e=EL.find(x=>N(x.codigo)===N(tg))||EL.find(x=>x.placa&&N(x.placa)===N(tg));if(!e){if(!fora.includes(tg))fora.push(tg);return}
     const dt=ci.dt>=0?dtOf(r[ci.dt])||today():today(),h=ci.h>=0?num(r[ci.h]):NaN,cn=ci.c>=0?N(r[ci.c]):'',cu=cn?(cus.find(k=>N(k.nome)===cn||N(k.id)===cn)||{}).id||'':'';
     const k='r:'+cb.id+':'+dt;by[k]=by[k]||cbxLS.get(k)||{};by[k][e.id]={...(by[k][e.id]||{}),l:String(l),...(isFinite(h)?{h:String(h)}:{}),...(cu?{c:cu}:{})};n++});
   Object.entries(by).forEach(([k,v])=>cbxLS.set(k,v));const dts=Object.keys(by).map(k=>k.split(':').pop()).sort();
@@ -2154,11 +2159,11 @@ async function cbxRel(m0){
       const cuH=tops.map(k=>{const filhos=c.custos.filter(z=>z.pai===k.id),tf=filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0),own=Number(cu[k.id])||0,tt=own+tf;
         return `<div class="cbx-cr"><div class="h"><span>${esc(k.nome)}</span><b>${nf(tt,1)} L</b></div><div class="cbx-bar s"><i style="width:${pct(own)}%"></i>${filhos.length?`<i class="b" style="left:${pct(own)}%;width:${pct(tf)}%"></i>`:''}</div>
           ${filhos.length?`<div class="k"><span><u></u>${esc(k.nome.toLowerCase())} <b>${nf(own,1)} L</b></span>${filhos.map(z=>`<span><u class="b"></u>${esc(z.nome)} <b>${nf(cu[z.id]||0,1)} L</b></span>`).join('')}</div>`:''}</div>`}).join('');
-      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.eqCtl.filter(e=>e.status!=='inativo'||eq[e.id]);
+      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.equipsAll.filter(e=>(e.status!=='inativo'&&(!soCad(e)||ehVL(e)))||eq[e.id]);
       const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
       b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas</small><b>${nf(ent,1)} L</b></div></div>
         <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo</span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
-        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=v&&v.h>0?v.l/v.h:null;return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+' L/h':v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}
+        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id],lh=lhNum(e,v&&v.h>0?v.l/v.h:null);return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span>${v?`<span class="tq-d">${nf(v.lt,1)} L<small>${lh!=null?nf(lh,1)+(ehVL(e)?' km/L':' L/h'):v.n+' abast.'}</small></span>`:''}${I.chev}</button>`}).join('')}</div></section>`).join('')}
         ${ms.length?`<section class="tsec"><h3 class="tsec-h"><span>MSE</span><em>${ms.length}</em></h3><div class="tsec-l">${ms.map(v=>`<div class="tq"><span class="tq-c">${esc(v.tag)}</span><span class="tq-m"></span><span class="tq-d">${nf(v.lt,1)} L<small>${v.n} abast.</small></span></div>`).join('')}</div></section>`:''}</div>`;
       b.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe))}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
 }
@@ -3348,8 +3353,8 @@ const hmRecua=(e,h,dt)=>e.horimetro!==''&&e.horimetro!=null&&h<Number(e.horimetr
 const hmOrig=(eqId,v,dt)=>{const d=hmDeltaApos(eqId,dt);return {v:Math.round((Number(v)-d)*10)/10,d}};
 /* salto impossivel: mais de 24 h por dia desde a ultima leitura (provavel erro de digitacao) */
 /* data mais antiga que a leitura atual, mas horimetro maior: um dos dois numeros esta errado */
-const hmAtras=(e,h,dt)=>e.horimetro!==''&&e.horimetro!=null&&!!e.horimetroData&&(dt||'')<e.horimetroData&&h>Number(e.horimetro);
-function hmSalto(e,h,dt){if(e.horimetro===''||e.horimetro==null||!e.horimetroData)return null;const last=Number(e.horimetro);if(!(h>last))return null;
+const hmAtras=(e,h,dt)=>!!e&&e.horimetro!==''&&e.horimetro!=null&&!!e.horimetroData&&(dt||'')<e.horimetroData&&h>Number(e.horimetro);
+function hmSalto(e,h,dt){if(ehVL(e))return null;if(e.horimetro===''||e.horimetro==null||!e.horimetroData)return null;const last=Number(e.horimetro);if(!(h>last))return null;
   if((dt||'')<e.horimetroData)return null;const days=Math.max(1,Math.round((Date.parse(dt)-Date.parse(e.horimetroData))/864e5));const lim=24*days;
   return h-last>lim?{dif:Math.round((h-last)*10)/10,days,lim}:null}
 function hmGuard(box,e,h0,dt,st,again){

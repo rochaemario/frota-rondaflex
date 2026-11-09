@@ -401,6 +401,7 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-dif b{font-variant-numeric:tabular-nums}
 .cbx-reab{margin-top:18px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
 .cbx-de{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);box-shadow:inset 0 -1px 0 var(--line)}
+.ab-ed{margin:10px 0 4px;padding:12px;background:var(--surface);border-radius:12px;box-shadow:inset 0 0 0 1px var(--line)}.ab-ed .pn-bt{display:flex;gap:8px;justify-content:flex-end;margin-top:10px}.ab-bt{display:flex;gap:8px;flex-wrap:wrap}
 .cbx-de span{flex:1;min-width:0}.cbx-de b{display:block;font-variant-numeric:tabular-nums}.cbx-de small{color:var(--muted);font-size:12.5px}
 .cbx-mn{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
 .cbx-mn b{font-size:16px}
@@ -1702,8 +1703,9 @@ function formAbast(){
     sh.querySelector('#fab-f').onsubmit=async ev=>{ev.preventDefault();const e=eqById(sel.value);if(!e)return;
       const dt=dtI.value||today(),h0=Number(hm.value),l=Number(lt.value);if(!(l>0)){toast('Informe os litros.');return}
       const b=e.combBase||null;
-      if(e.combUltData&&dt<e.combUltData){toast(`Ha abastecimento mais recente de ${e.codigo} (${fdate(e.combUltData)}). Lance em ordem de data.`);return}
       const g=hmGuard(sh.querySelector('#ab-g'),e,h0,dt,hmSt,()=>sh.querySelector('#fab-f').onsubmit({preventDefault(){}}));if(!g)return;const h=g.h;
+      if(e.combUltData&&dt<e.combUltData){let rr;const ok=await safe(async()=>{rr=await abastOp(e,{tipo:'add',x:{data:dt,h0,litros:l,cheio,resp:sh.querySelector('#ab-r').value.trim(),obs:sh.querySelector('#ab-o').value.trim()}})});
+        if(rr&&rr.erro){sh.querySelector('#ab-g').innerHTML=cbxMsg('bad',esc(rr.erro)+'.');return}if(ok){toast('Abastecimento lancado · consumo recalculado');goBack()}return}
       let horas=null,lh=null,L=0,nb;
       if(cheio&&b&&b.h!=null){horas=Math.round((h-b.h)*10)/10;if(!(horas>0)){toast(`O horimetro precisa ser maior que o do ultimo tanque cheio (${nf(b.h,2)} h).`);return}L=Math.round((l+(b.pend||0))*10)/10;lh=Math.round(L/horas*100)/100;nb={h,data:dt,pend:0}}
       else if(cheio)nb={h,data:dt,pend:0};
@@ -1738,8 +1740,9 @@ async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs='',
 /* abastecimentos em lote (pacote preparado pelo Claude a partir das folhas):
    confere cada linha como o lancamento manual e so grava depois de confirmar */
 function calcAbast(e,dt,h0,l,cheio){const dl=hmDeltaApos(e.id,dt),h=Math.round((h0+dl)*10)/10,b=e.combBase||null;let horas=null,lh=null,L=0,nb,erro='';
-  if(e.combUltData&&dt<e.combUltData)erro=`Ha abastecimento mais recente (${fdate(e.combUltData)})`;
-  else if(hmRecua(e,h,dt))erro=`Horimetro menor que a ultima leitura (${nf(e.horimetro,2)} h)`;
+  /* data anterior ao ultimo abastecimento: lanca pelo abastOp, que confere os vizinhos e recalcula o consumo */
+  if(e.combUltData&&dt<e.combUltData)return {dt,h0,h,dl,l,cheio,horas,lh,L,nb:b,b,erro,retro:true};
+  if(hmRecua(e,h,dt))erro=`Horimetro menor que a ultima leitura (${nf(e.horimetro,2)} h)`;
   else if(cheio&&b&&b.h!=null){horas=Math.round((h-b.h)*10)/10;if(!(horas>0))erro=`Horimetro menor que o do ultimo tanque cheio (${nf(b.h,2)} h)`;else{L=Math.round((l+(b.pend||0))*10)/10;lh=Math.round(L/horas*100)/100;nb={h,data:dt,pend:0}}}
   else if(cheio)nb={h,data:dt,pend:0};
   else nb=b?{...b,pend:Math.round(((b.pend||0)+l)*10)/10}:null;
@@ -1782,6 +1785,7 @@ async function openLoteAbast(lista){
   rows.sort((a,b)=>a.x.data.localeCompare(b.x.data)||a.e.codigo.localeCompare(b.e.codigo)||a.x.horimetro-b.x.horimetro);
   /* simula em sequencia: cada linha usa a base deixada pela anterior do mesmo equipamento */
   const sim={};for(const r of rows){const e0=sim[r.e.id]||{...r.e};const c=calcAbast(e0,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);r.c=c;
+    if(c.retro){r.aviso='Anterior ao ultimo abastecimento: consumo recalculado ao lancar';continue}
     if(!c.erro){if(c.lh!=null){const md=await combMedia(r.e.id,r.x.data);if(md&&(c.lh>md*1.5||c.lh<md*0.5))r.aviso=`Consumo fora do normal (media ${consTxt(r.e,md)})`}
       const sj=hmSalto(e0,c.h,r.x.data);if(sj){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro ${nf(sj.dif)} h acima do esperado`;r.fora=true}
       if(hmAtras(e0,c.h,r.x.data)){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro maior que a leitura de ${fdate(e0.horimetroData)} (${nf(e0.horimetro,1)} h)`;r.fora=true}
@@ -1803,7 +1807,7 @@ async function openLoteAbast(lista){
       const rs=cb0?await cbxRun(c,cb0,Object.keys(aj).sort()[0],aj):null;if(rs&&rs.min<0){sh.querySelector('#lt-st').innerHTML=cbxMsg('bad',cbxSemSaldo(rs));return}}
     go.disabled=true;let n=0,f=0;
     for(const r of ok){go.textContent=`Lancando ${n+f+1} de ${ok.length}…`;const e=eqById(r.e.id);const c=calcAbast(e,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);
-      if(c.erro){f++;continue}try{await abastGravar(e,c);n++}catch(er){console.error(er);f++}}
+      if(c.erro){f++;continue}try{if(c.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.x.data,h0:Number(r.x.horimetro),litros:Number(r.x.litros),cheio:r.x.cheio!==false}});if(rr.erro){f++;continue}}else await abastGravar(e,c);n++}catch(er){console.error(er);f++}}
     toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimentos lancados`);goBack()}}});
 }
 /* + › Copia de seguranca: um arquivo JSON com todas as colecoes (fotos e documentos ficam so como referencia) */
@@ -1822,25 +1826,92 @@ async function backupAll(btn){if(backupAll.busy)return;
 async function combMedia(eqId,dt){const m=mesKey(dt),[y,mo]=m.split('-').map(Number),pm=mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`;
   let l=0,h=0;for(const k of [m,pm]){try{const d=await S.db.doc('comb/'+k).get();const x=d.exists&&d.data().eq&&d.data().eq[eqId];if(x){l+=Number(x.l)||0;h+=Number(x.h)||0}}catch(e){}}
   return h>=20&&l>0?l/h:null}
-/* + › Excluir › Abastecimento: so o ultimo de cada equipamento (os anteriores formam a base dos seguintes) */
+/* ---------- abastecimento fora de ordem: lancar retroativo, editar ou excluir ----------
+   cada tanque cheio mede o consumo desde o anterior: a corrente do equipamento e recalculada inteira */
+const abR1=v=>Math.round(v*10)/10;
+const abH=r=>Number(r.hmConv!=null?r.hmConv:r.horimetro);
+const abOrd=(a,b)=>(a.data||'').localeCompare(b.data||'')||abH(a)-abH(b)||(a.ts||0)-(b.ts||0);
+async function abastMeses(){let l=[];try{const q=await S.db.collection('comb').get();l=q.docs.map(d=>d.id).filter(k=>/^\d{4}-\d{2}$/.test(k))}catch(e){}const t=mesKey();if(!l.includes(t))l.push(t);return l.sort()}
+async function abastDoEq(eqId){const R=[];for(const m of await abastMeses()){try{const q=await S.db.collection('comb/'+m+'/abast').where('equipId','==',eqId).get();q.docs.forEach(d=>R.push({...d.data(),id:d.id,mes:m}))}catch(e){}}return R.sort(abOrd)}
+/* op: {tipo:'add',x:{data,h0,litros,cheio,custo,cb,resp,obs}} | {tipo:'ed',id,x:{data,h0,litros,custo},desfaz} | {tipo:'del',id}
+   devolve {erro} sem gravar nada, ou {ok} */
+async function abastOp(e,op){
+  const c=await cbxCfg();await cbxFechAll();
+  const R=await abastDoEq(e.id),base0=R.length?(R[0].antBase||null):(e.combBase||null);
+  const L=R.map(r=>({...r}));let alvo=null,velho=null;
+  if(op.tipo!=='add'){const i=L.findIndex(r=>r.id===op.id);if(i<0)return {erro:'Abastecimento nao encontrado'};velho=L[i];L.splice(i,1)}
+  if(op.tipo==='add'){const x=op.x,dl=hmDeltaApos(e.id,x.data),m=mesKey(x.data);
+    alvo={equipId:e.id,data:x.data,horimetro:x.h0,...(dl?{hmConv:abR1(x.h0+dl)}:{}),litros:abR1(x.litros),cheio:x.cheio!==false,tipo:e.tipo||'',alocacao:e.alocacao||'',area:e.area||'',frente:e.frente||'',
+      ...(x.custo?{custo:x.custo}:{}),...(x.cb?{comboio:x.cb}:{}),resp:x.resp||'',obs:x.obs||'',ts:Date.now(),id:S.db.collection('comb/'+m+'/abast').doc().id,mes:m,_novo:1}}
+  else if(op.tipo==='ed'){const x=op.x,dl=hmDeltaApos(e.id,x.data);alvo={...velho,data:x.data,horimetro:x.h0,litros:abR1(x.litros),mes:mesKey(x.data),_novo:velho.mes!==mesKey(x.data)?1:0};
+    delete alvo.hmConv;if(dl)alvo.hmConv=abR1(x.h0+dl);if(x.custo)alvo.custo=x.custo;else delete alvo.custo;
+    const h=velho.hist||[];alvo.hist=op.desfaz?h.slice(0,-1):[...h,{data:velho.data,horimetro:velho.horimetro,litros:velho.litros,custo:velho.custo||'',em:Date.now(),por:(EU()||{}).nome||''}];if(!alvo.hist.length)delete alvo.hist}
+  if(alvo){if(!(alvo.litros>0))return {erro:'Informe os litros'};if(!(alvo.horimetro>=0)||alvo.horimetro==null||isNaN(alvo.horimetro))return {erro:'Informe o horimetro'};if(alvo.data>today())return {erro:'Data no futuro'};L.push(alvo);L.sort(abOrd)}
+  /* periodo fechado */
+  const cbF=(alvo||velho).comboio||(c.comboios[0]&&c.comboios[0].id);
+  for(const r of [velho,alvo])if(r){const tv=cbxTrava(cbF,r.data);if(tv)return {erro:`Periodo fechado ate ${fdate(tv)}`}}
+  /* horimetro entre o anterior e o seguinte do mesmo equipamento */
+  if(alvo){const i=L.indexOf(alvo),a=L[i-1],p=L[i+1],h=abH(alvo),u=lhU(e);
+    if(a&&abH(a)>=h)return {erro:`O horimetro precisa ser maior que o de ${fdate(a.data)} (${nf(abH(a),1)} ${u})`};
+    if(p&&abH(p)<=h)return {erro:`O horimetro precisa ser menor que o de ${fdate(p.data)} (${nf(abH(p),1)} ${u})`}}
+  /* saldo do comboio */
+  if(cbF){const aj={};if(velho)aj[velho.data]=abR1((aj[velho.data]||0)+Number(velho.litros));if(alvo)aj[alvo.data]=abR1((aj[alvo.data]||0)-alvo.litros);
+    const from=Object.keys(aj).sort()[0],rs=from&&Object.values(aj).some(v=>v<0)?await cbxRun(c,cbF,from,aj):null;if(rs&&rs.min<0)return {erro:cbxSemSaldo(rs).replace(/<[^>]+>/g,'')}}
+  /* recalcula a corrente */
+  let b=base0,ant=null;const eqJ=v=>JSON.stringify(v==null?null:v);
+  for(const r of L){const h=abH(r),cheio=r.cheio!==false;let horas=null,lh=null,LM=null,nb;
+    if(cheio&&b&&b.h!=null){const hs=abR1(h-b.h);if(hs>0){horas=hs;LM=abR1(Number(r.litros)+(b.pend||0));lh=Math.round(LM/horas*100)/100}nb={h,data:r.data,pend:0}}
+    else if(cheio)nb={h,data:r.data,pend:0};else nb=b?{...b,pend:abR1((b.pend||0)+Number(r.litros))}:null;
+    const nv={horas,lh,litrosMedidos:horas?LM:null,antBase:b||null,antUlt:ant?{mes:ant.mes,id:ant.id,l:ant.litros}:null,antUltData:ant?ant.data:''};
+    r._mud=r===alvo||Object.keys(nv).some(k=>eqJ(r[k])!==eqJ(nv[k]));Object.assign(r,nv);b=nb;ant=r}
+  const meses=new Set(),limpo=r=>{const o={...r};['id','mes','_novo','_mud'].forEach(k=>delete o[k]);return o};
+  if(velho&&(op.tipo==='del'||alvo.mes!==velho.mes)){await S.db.doc(`comb/${velho.mes}/abast/${velho.id}`).delete();meses.add(velho.mes)}
+  for(const r of L)if(r._mud){await S.db.doc(`comb/${r.mes}/abast/${r.id}`).set(limpo(r));meses.add(r.mes)}
+  /* resumos do mes: totais do equipamento refeitos; litros por dia, comboio e custo pela diferenca */
+  for(const m of meses){const md=S.db.doc('comb/'+m),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}};
+    const eq={...(d.eq||{})},rs=L.filter(r=>r.mes===m),sm=k=>abR1(rs.reduce((a,r)=>a+(Number(r[k])||0),0));
+    if(rs.length)eq[e.id]={lt:sm('litros'),n:rs.length,l:sm('litrosMedidos'),h:sm('horas')};else delete eq[e.id];
+    const dia={...(d.dia||{})},cbd={...(d.cbDia||{})},cus={...(d.cus||{})};
+    const mov=(r,s)=>{if(!r||r.mes!==m)return;const dk=r.data.slice(8,10),v=s*Number(r.litros),ad=(o,k)=>{o[k]=abR1((Number(o[k])||0)+v);if(o[k]<=0)delete o[k]};
+      ad(dia,dk);if(r.comboio){const o={...(cbd[r.comboio]||{})};ad(o,dk);cbd[r.comboio]=o}if(r.custo)ad(cus,r.custo)};
+    mov(velho,-1);mov(alvo,1);await md.set({...d,eq,dia,cbDia:cbd,cus})}
+  /* equipamento: base de consumo e ultimo abastecimento; horimetro so com informacao mais atual */
+  const ul=L[L.length-1],up={combBase:b||null,combUlt:ul?{mes:ul.mes,id:ul.id,l:ul.litros}:null,combUltData:ul?ul.data:''};
+  if(alvo){const h=abH(alvo),fonte=velho&&Number(e.horimetro)===abH(velho)&&e.horimetroData===velho.data;
+    if((h>(Number(e.horimetro)||0)&&alvo.data>=(e.horimetroData||''))||(fonte&&ul===alvo)){up.horimetro=h;up.horimetroData=alvo.data;up.horimetroReg=today()}}
+  await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up);return {ok:1,alvo}}
+
+/* + › Combustivel › Abastecimentos: editar ou excluir (periodo aberto) */
 async function openDelAbast(){
   nav('dl:ab',()=>openDelAbast());
-  openSheet({title:'Excluir abastecimento',sub:'So o ultimo de cada equipamento',body:'<div class="card-wait" style="min-height:120px">Carregando…</div>'});
-  const ult=S.equips.filter(e=>e.combUlt&&e.combUlt.id);
-  const got=await Promise.all(ult.map(e=>S.db.doc(`comb/${e.combUlt.mes}/abast/${e.combUlt.id}`).get().then(d=>d.exists?{...d.data(),id:e.combUlt.id,mes:e.combUlt.mes}:null).catch(()=>null)));
-  const l=got.filter(Boolean).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  openSheet({title:'Abastecimentos',sub:'Editar ou excluir',body:'<div class="card-wait" style="min-height:120px">Carregando…</div>'});
+  const c=await cbxCfg();await cbxFechAll();const cb0=c.comboios[0]&&c.comboios[0].id,F=cb0&&cbxFechUlt(cb0),t=today();
+  const de=F?addDia(F.corte,1):(()=>{const[y,mo]=t.slice(0,7).split('-').map(Number);return (mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`)+'-01'})();
+  const l=[];for(let m=de.slice(0,7);m<=t.slice(0,7);m=mesSeg(m)){try{const q=await S.db.collection('comb/'+m+'/abast').get();q.docs.forEach(d=>{const x=d.data();if(x.data>=de&&!cbxTrava(x.comboio||cb0,x.data))l.push({...x,id:d.id,mes:m})})}catch(e){}}
+  l.sort((a,b)=>(b.data||'').localeCompare(a.data||'')||String((eqById(a.equipId)||{}).codigo||'').localeCompare(String((eqById(b.equipId)||{}).codigo||''),'pt',{numeric:true}));
   if(NAV[NAV.length-1]?.key!=='dl:ab')return;
-  openSheet({title:'Excluir abastecimento',sub:'So o ultimo de cada equipamento',
-  body:l.length?`<div class="ilist">${l.map(f=>{const e=eqById(f.equipId);return `<div class="ia"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
-    <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} ${e?lhU(e):'h'}</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Tanque</span><b>${f.cheio===false?'Parcial':'Cheio'}</b></div><div class="r"><span>Consumo</span><b>${e?consTxt(e,f.lh):lhTxt(f.lh)}</b></div><div class="r"><span>Responsavel</span><b>${esc(f.resp||'—')}</b></div></div>
-    <div class="pn-bt"><button type="button" class="btn sm danger" data-dab="${esc(f.mes+'/'+f.id)}">Excluir este abastecimento</button></div><div data-dabc="${esc(f.mes+'/'+f.id)}"></div></div></div>`}).join('')}</div>`:'<div class="empty">Nenhum abastecimento lancado.</div>',
-  mount:sh=>sh.querySelectorAll('[data-dab]').forEach(b=>b.onclick=()=>{const k=b.dataset.dab,f=l.find(x=>x.mes+'/'+x.id===k),e=f&&eqById(f.equipId);if(!e)return;
-    askDelete(sh.querySelector(`[data-dabc="${CSS.escape(k)}"]`),`Excluir o abastecimento de ${esc(e.codigo)} de ${fdate(f.data)}? A medicao volta ao lancamento anterior. Nao da para desfazer.`,async()=>{
-      const ok=await safe(async()=>{const md=S.db.doc('comb/'+f.mes),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},x=(d.eq||{})[e.id];
-        if(x){const nx={lt:Math.round((x.lt-f.litros)*10)/10,n:x.n-1,l:Math.round((x.l-(f.litrosMedidos||0))*10)/10,h:Math.round((x.h-(f.horas||0))*10)/10};const eq={...d.eq};if(nx.n>0)eq[e.id]=nx;else delete eq[e.id];const dk=(f.data||'').slice(8,10),dia={...(d.dia||{})};if(dia[dk]!=null){dia[dk]=Math.round((dia[dk]-f.litros)*10)/10;if(dia[dk]<=0)delete dia[dk]}const ex={};if(f.comboio&&d.cbDia&&d.cbDia[f.comboio]){const cd={...d.cbDia},o={...cd[f.comboio]};if(o[dk]!=null){o[dk]=Math.round((o[dk]-f.litros)*10)/10;if(o[dk]<=0)delete o[dk]}cd[f.comboio]=o;ex.cbDia=cd}if(f.custo&&d.cus&&d.cus[f.custo]!=null){const cu={...d.cus};cu[f.custo]=Math.round((cu[f.custo]-f.litros)*10)/10;if(cu[f.custo]<=0)delete cu[f.custo];ex.cus=cu}await md.set({...d,eq,dia,...ex})}
-        await S.db.doc('equipamentos/'+e.id).update({combBase:f.antBase||null,combUlt:f.antUlt||null,combUltData:f.antUltData||''});
-        await S.db.doc(`comb/${f.mes}/abast/${f.id}`).delete()},'Abastecimento excluido');
-      if(ok)goBack()})})});
+  const cus=cbxCustosAb(c),item=f=>{const e=eqById(f.equipId),k=esc(f.mes+'/'+f.id);return `<div class="ia" data-ab="${k}" data-tag="${esc(nzCod(e?e.codigo:''))}"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
+    <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} ${e?lhU(e):'h'}</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Centro de custo</span><b>${esc(f.custo?cbxCuNome(f.custo):'—')}</b></div><div class="r"><span>Consumo</span><b>${e?consTxt(e,f.lh):lhTxt(f.lh)}</b></div>${(f.hist||[]).length?`<div class="r"><span>Editado</span><b>${f.hist.length}x · ${esc(f.hist[f.hist.length-1].por||'')}</b></div>`:''}</div>
+    <div class="pn-bt ab-bt"><button type="button" class="btn sm" data-abe>Editar</button>${(f.hist||[]).length?'<button type="button" class="btn sm" data-abu>Desfazer edicao</button>':''}<button type="button" class="btn sm danger" data-abx>Excluir</button></div><div data-abf></div><div data-abc></div></div></div>`};
+  openSheet({title:'Abastecimentos',sub:'Editar ou excluir',
+  body:`<label class="cbx-q" style="margin-bottom:12px">${CBX_IC.q}<input id="ab-q" type="search" placeholder="Buscar TAG" autocomplete="off" aria-label="Buscar TAG"></label>${l.length?`<div class="ilist" id="ab-l">${l.map(item).join('')}</div><div class="empty" id="ab-0" hidden><b>Nenhuma TAG encontrada</b>Confira o codigo.</div>`:'<div class="empty">Nenhum abastecimento no periodo aberto.</div>'}`,
+  mount:sh=>{const q=sh.querySelector('#ab-q');q.addEventListener('input',()=>{const v=nzCod(q.value);let n=0;sh.querySelectorAll('[data-ab]').forEach(x=>{const ok=!v||x.dataset.tag.includes(v);x.hidden=!ok;if(ok)n++});const z=sh.querySelector('#ab-0');if(z)z.hidden=!!n||!l.length});
+    const fim=(ok,msg)=>{if(ok){toast(msg);NAV.pop();openDelAbast()}};
+    sh.querySelectorAll('[data-ab]').forEach(el=>{const f=l.find(x=>x.mes+'/'+x.id===el.dataset.ab),e=f&&eqById(f.equipId);if(!e)return;const box=el.querySelector('[data-abf]'),cx=el.querySelector('[data-abc]');
+      const run=async op=>{let r;const ok=await safe(async()=>{r=await abastOp(e,op)});if(r&&r.erro){cx.innerHTML=cbxMsg('bad',esc(r.erro)+'.');return false}return ok};
+      el.querySelector('[data-abx]').onclick=()=>askDelete(cx,`Excluir o abastecimento de ${esc(e.codigo)} de ${fdate(f.data)}? O consumo dos abastecimentos seguintes e recalculado.`,async()=>fim(await run({tipo:'del',id:f.id},'Abastecimento excluido'),'Abastecimento excluido'));
+      const u=el.querySelector('[data-abu]');if(u)u.onclick=()=>{const h=f.hist[f.hist.length-1];askConfirm(cx,'Desfazer',`Voltar para ${fdate(h.data)} · ${nf(h.horimetro,2)} ${lhU(e)} · ${nf(h.litros,2)} L${h.custo?' · '+esc(cbxCuNome(h.custo)):''}?`,async()=>fim(await run({tipo:'ed',id:f.id,x:{data:h.data,h0:Number(h.horimetro),litros:Number(h.litros),custo:h.custo||''},desfaz:1},'Edicao desfeita'),'Edicao desfeita'))};
+      el.querySelector('[data-abe]').onclick=()=>{if(box.innerHTML){box.innerHTML='';return}cx.innerHTML='';let cu=f.custo||'';
+        box.innerHTML=`<div class="fset ab-ed"><div class="grid"><label class="f">Data<input type="date" data-ed="d" value="${esc(f.data)}" max="${today()}"></label><label class="f">${ehVL(e)?'Km':'Horimetro'}<input type="number" inputmode="decimal" step="0.1" data-ed="h" value="${esc(f.horimetro)}"></label></div>
+          <label class="f">Litros<input type="number" inputmode="decimal" step="0.1" min="0" data-ed="l" value="${esc(f.litros)}"></label>
+          <div class="f">Centro de custo<div class="seg" role="group" aria-label="Centro de custo" style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-edc="${esc(k.id)}" aria-pressed="${cu===k.id}">${esc(k.nome)}</button>`).join('')}</div></div>
+          <div class="pn-bt"><button type="button" class="btn sm" data-edx>Cancelar</button><button type="button" class="btn sm pri" data-eds>Salvar</button></div></div>`;
+        box.querySelectorAll('[data-edc]').forEach(b=>b.onclick=()=>{cu=b.dataset.edc;box.querySelectorAll('[data-edc]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+        box.querySelector('[data-edx]').onclick=()=>{box.innerHTML='';cx.innerHTML=''};
+        box.querySelector('[data-eds]').onclick=async ev=>{const g=k=>box.querySelector(`[data-ed="${k}"]`).value,d=g('d'),h=g('h'),lt=g('l');
+          if(!d||h===''||lt===''){cx.innerHTML=cbxMsg('bad','Preencha data, horimetro e litros.');return}
+          if(d===f.data&&Number(h)===Number(f.horimetro)&&Number(lt)===Number(f.litros)&&cu===(f.custo||'')){box.innerHTML='';return}
+          ev.target.disabled=true;const ok=await run({tipo:'ed',id:f.id,x:{data:d,h0:Number(h),litros:Number(lt),custo:cu}},'Abastecimento editado');ev.target.disabled=false;fim(ok,'Abastecimento editado')}}})}});
 }
 
 /* =====================================================================
@@ -1970,7 +2041,7 @@ async function cbxComboio(){
     <div class="cbx-tkh"><h3>Tanque <span>· ${mes}</span></h3><button type="button" class="cbx-fm" id="cbx-fm">${CBX_IC.lock}Fechar mes</button></div>
     <div class="cbx-tk" id="cbx-tk"><div class="card-wait" style="min-height:120px">Carregando…</div></div>`,
   mount:sh=>{sh.querySelector('#cbx-ab').onclick=()=>cbxLote();sh.querySelector('#cbx-en').onclick=()=>cbxEntrada();sh.querySelector('#cbx-fm').onclick=()=>cbxFechar();
-    cbxMore(sh,[{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxComboio()})},{ic:CBX_IC.bad,t:'Excluir entrada',fn:()=>cbxDelEnt()}]);
+    cbxMore(sh,[{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxComboio()})},{ic:CBX_IC.bad,t:'Editar ou excluir entrada',fn:()=>cbxDelEnt()}]);
     cbxTanque(c,cb).then(t=>{const box=sh.querySelector('#cbx-tk');if(!box||!box.isConnected)return;const cap=Number(cb.cap)||0;
       const pct=cap&&t.saldo!=null?Math.max(0,Math.min(100,Math.round(t.saldo/cap*100))):null;
       box.innerHTML=`<div class="cbx-sal"><div><small>Saldo</small><b>${t.saldo!=null?nf(t.saldo,1):'—'}<i>L</i></b></div>${pct!=null?`<em>${pct}%</em>`:''}</div>
@@ -2027,6 +2098,7 @@ async function cbxLote(dt0){
     if(!cbxNaObra(e)&&!x.r){o.pq=1;o.msg.push(['bad',`<b>Em ${esc(e.alocacao||'nenhum local')} nao recebe diesel da DM1.</b> Realocar para:`]);return o}
     if(x.h===''||x.h==null){o.msg.push(['bad','Informe o horimetro.']);return o}
     const r=calcAbast(e,st.dt,Number(x.h),Number(x.l),true);o.c=r;if(r.erro){o.hb=1;o.msg.push(['bad',esc(r.erro)+'.']);return o}
+    if(r.retro)o.msg.push(['info',`Anterior ao ultimo abastecimento (${fdate(e.combUltData).slice(0,5)}): o consumo e recalculado ao lancar.`]);
     const cu=x.c||cbxCustoR(e,c,x.r);if(!cu){o.msg.push(['bad','Escolha o custo.']);return o}o.cu=cu;
     if(x.r){const rn=cbxCuNome(x.r);o.msg.push(['info',`Sera realocado para ${esc(rn==='UG'?'Mina › UG':rn)} ao lancar.`])}
     const pad=cbxCustoR(e,c,x.r);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
@@ -2114,14 +2186,15 @@ async function cbxLote(dt0){
       /* sem saldo no comboio: nao lanca (confere de novo com os dados mais novos) */
       const LT=Math.round((ok.reduce((a,r)=>a+Number(r.x.l),0)+okM.reduce((a,r)=>a+Number(r.x.l),0))*10)/10,rs=await cbxRun(c,cb.id,st.dt,{[st.dt]:-LT});
       if(rs&&rs.min<0){disp={min:Math.round((rs.min+LT)*10)/10};dispDt=st.dt;tot();cf.innerHTML=cbxMsg('bad',cbxSemSaldo(rs,LT));cf.scrollIntoView({block:'center',behavior:'smooth'});return}
-      go._conf=0;go.disabled=true;let n=0,f=0;const T=ok.length+okM.length;
+      go._conf=0;go.disabled=true;let n=0,f=0;const T=ok.length+okM.length,fe=[];
       for(const r of ok){go.textContent=`${n+f+1}/${T}`;let e=eqById(r.e.id);
         try{if(r.x.r){const k=c.custos.find(z=>z.id===r.x.r),nm=k?k.nome:'';const up=nm==='UG'?{alocacao:'DM1',area:'Mina',frente:'UG'}:{alocacao:'DM1',area:nm,frente:'Geral'};
             await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up)}
           const cc=calcAbast(e,st.dt,Number(r.x.h),Number(r.x.l),true);if(cc.erro){f++;continue}
-          await abastGravar(e,{...cc,custo:r.o.cu,cb:cb.id});n++;const dd=dr();delete dd[e.id];save(dd)}catch(er){console.error(er);f++}}
+          if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:st.dt,h0:Number(r.x.h),litros:Number(r.x.l),cheio:true,custo:r.o.cu,cb:cb.id}});if(rr.erro){f++;fe.push(`${esc(e.codigo)}: ${esc(rr.erro)}.`);continue}}
+          else await abastGravar(e,{...cc,custo:r.o.cu,cb:cb.id});n++;const dd=dr();delete dd[e.id];save(dd)}catch(er){console.error(er);f++}}
       for(const r of okM){go.textContent=`${n+f+1}/${T}`;try{await cbxMseGravar(r.x,st.dt,cb.id);n++;const j=M.indexOf(r.x);if(j>=0)M.splice(j,1);msave()}catch(er){console.error(er);f++}}
-      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;disp=null;dispDt='';all()};
+      toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimento${n===1?' lancado':'s lancados'}`);go.disabled=false;disp=null;dispDt='';all();if(fe.length)cf.innerHTML=cbxMsg('bad',`<b>Nao lancados:</b><br>${fe.join('<br>')}`)};
     all();
   }});
 }
@@ -2177,22 +2250,41 @@ async function cbxEntrada(){
         const ue={...(d.cusEnt||{})};ue[cu]=Math.round(((Number(ue[cu])||0)+l)*10)/10;await md.set({...d,cbEnt:ce,cusEnt:ue})},`Entrada de ${nf(l,1)} L lancada`);
       if(ok)goBack()}}});
 }
-/* excluir uma entrada do periodo aberto (desfazer) */
+/* entradas do periodo aberto: editar ou excluir */
 async function cbxDelEnt(){nav('cbx:de',()=>cbxDelEnt());const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),F=cbxFechUlt(cb.id),de=F?addDia(F.corte,1):today().slice(0,7)+'-01';
-  openSheet({title:'Excluir entrada',sub:'Periodo aberto',body:'<div class="card-wait" style="min-height:120px">Carregando…</div>'});
+  openSheet({title:'Entradas de diesel',sub:'Editar ou excluir',body:'<div class="card-wait" style="min-height:120px">Carregando…</div>'});
   const l=[];for(let m=de.slice(0,7);m<=today().slice(0,7);m=mesSeg(m)){try{const q=await S.db.collection('comb/'+m+'/ent').get();q.docs.forEach(d=>{const x=d.data();if(x.comboio===cb.id&&x.data>=de)l.push({...x,id:d.id,mes:m})})}catch(e){}}
   l.sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));if(NAV[NAV.length-1]?.key!=='cbx:de')return;
-  openSheet({title:'Excluir entrada',sub:'Periodo aberto',
-  body:l.length?`<div class="list">${l.map(x=>`<div class="cbx-de"><span><b>${nf(x.litros,1)} L</b><small>${fdate(x.data)}${x.hora?' · '+esc(x.hora):''} · ${esc(cbxCuNome(x.custo))}</small></span><button type="button" class="btn sm danger" data-dx="${esc(x.mes+'/'+x.id)}">Excluir</button></div><div data-dxc="${esc(x.mes+'/'+x.id)}"></div>`).join('')}</div>`:'<div class="empty">Nenhuma entrada no periodo aberto.</div>',
-  mount:sh=>sh.querySelectorAll('[data-dx]').forEach(b=>b.onclick=()=>{const k=b.dataset.dx,x=l.find(z=>z.mes+'/'+z.id===k);if(!x)return;
-    askDelete(sh.querySelector(`[data-dxc="${CSS.escape(k)}"]`),`Excluir a entrada de ${nf(x.litros,1)} L de ${fdate(x.data)}?`,async()=>{
-      /* sem esta entrada, saidas ja lancadas ficariam sem saldo: nao exclui */
-      const rs=await cbxRun(c,x.comboio,x.data,{[x.data]:-Number(x.litros)});
-      if(rs&&rs.min<0){const sd=rs.neg.filter(d=>rs.D[d]&&rs.D[d].s>0).map(d=>`${fdate(d).slice(0,5)} (${nf(rs.D[d].s,1)} L)`);
-        sh.querySelector(`[data-dxc="${CSS.escape(k)}"]`).innerHTML=cbxMsg('bad',`<b>Nao da para excluir.</b> Sem esta entrada ficariam sem saldo as saidas de ${sd.join(', ')||fdate(rs.neg[0]).slice(0,5)}.`);return}
-      const ok=await safe(async()=>{const md=S.db.doc('comb/'+x.mes),cur=await md.get(),d=(cur.exists&&cur.data())||{},dk=x.data.slice(8,10);const ce={...(d.cbEnt||{})},o={...(ce[x.comboio]||{})};
-        if(o[dk]!=null){o[dk]=Math.round((o[dk]-x.litros)*10)/10;if(o[dk]<=0)delete o[dk]}ce[x.comboio]=o;const ue={...(d.cusEnt||{})};if(ue[x.custo]!=null){ue[x.custo]=Math.round((ue[x.custo]-x.litros)*10)/10;if(ue[x.custo]<=0)delete ue[x.custo]}
-        await md.set({...d,cbEnt:ce,cusEnt:ue});await S.db.doc(`comb/${x.mes}/ent/${x.id}`).delete()},'Entrada excluida');if(ok){NAV.pop();cbxDelEnt()}})})});
+  const cus=cbxCustosEnt(c),r1=v=>Math.round(v*10)/10;
+  /* soma (s=+1) ou tira (s=-1) a entrada dos totais do mes */
+  const mov=async(x,s)=>{const md=S.db.doc('comb/'+x.mes),cur=await md.get(),d=(cur.exists&&cur.data())||{eq:{}},dk=x.data.slice(8,10),v=s*Number(x.litros),ad=(o,k)=>{o[k]=r1((Number(o[k])||0)+v);if(o[k]<=0)delete o[k]};
+    const ce={...(d.cbEnt||{})},o={...(ce[x.comboio]||{})};ad(o,dk);ce[x.comboio]=o;const ue={...(d.cusEnt||{})};if(x.custo)ad(ue,x.custo);await md.set({...d,cbEnt:ce,cusEnt:ue})};
+  /* sem a entrada (ou com ela mudada) saidas ja lancadas ficariam sem saldo? */
+  const semSaldo=async aj=>{const from=Object.keys(aj).sort()[0],rs=await cbxRun(c,cb.id,from,aj);if(!rs||rs.min>=0)return '';
+    const sd=rs.neg.filter(d=>rs.D[d]&&rs.D[d].s>0).map(d=>`${fdate(d).slice(0,5)} (${nf(rs.D[d].s,1)} L)`);return `ficariam sem saldo as saidas de ${sd.join(', ')||fdate(rs.neg[0]).slice(0,5)}.`};
+  openSheet({title:'Entradas de diesel',sub:'Editar ou excluir',
+  body:l.length?`<div class="list">${l.map(x=>{const k=esc(x.mes+'/'+x.id);return `<div class="cbx-de" data-en="${k}"><span><b>${nf(x.litros,1)} L</b><small>${fdate(x.data)}${x.hora?' · '+esc(x.hora):''} · ${esc(cbxCuNome(x.custo))}${(x.hist||[]).length?' · editada':''}</small></span><button type="button" class="btn sm" data-ee>Editar</button><button type="button" class="btn sm danger" data-dx>Excluir</button></div><div data-ef="${k}"></div><div data-dxc="${k}"></div>`}).join('')}</div>`:'<div class="empty">Nenhuma entrada no periodo aberto.</div>',
+  mount:sh=>sh.querySelectorAll('[data-en]').forEach(row=>{const k=row.dataset.en,x=l.find(z=>z.mes+'/'+z.id===k);if(!x)return;const cx=sh.querySelector(`[data-dxc="${CSS.escape(k)}"]`),box=sh.querySelector(`[data-ef="${CSS.escape(k)}"]`);
+    row.querySelector('[data-dx]').onclick=()=>askDelete(cx,`Excluir a entrada de ${nf(x.litros,1)} L de ${fdate(x.data)}?`,async()=>{
+      const ss=await semSaldo({[x.data]:-Number(x.litros)});if(ss){cx.innerHTML=cbxMsg('bad',`<b>Nao da para excluir.</b> Sem esta entrada ${ss}`);return}
+      const ok=await safe(async()=>{await mov(x,-1);await S.db.doc(`comb/${x.mes}/ent/${x.id}`).delete()},'Entrada excluida');if(ok){NAV.pop();cbxDelEnt()}});
+    row.querySelector('[data-ee]').onclick=()=>{if(box.innerHTML){box.innerHTML='';return}cx.innerHTML='';let cu=x.custo||'';
+      box.innerHTML=`<div class="fset ab-ed"><label class="f">Litros<input type="number" inputmode="decimal" step="0.1" min="0" data-ed="l" value="${esc(x.litros)}"></label>
+        <div class="grid"><label class="f">Data<input type="date" data-ed="d" value="${esc(x.data)}" max="${today()}"></label><label class="f">Hora (opcional)<input type="time" data-ed="h" value="${esc(x.hora||'')}"></label></div>
+        <div class="f">Centro de custo<div class="seg" role="group" aria-label="Centro de custo" style="grid-template-columns:repeat(${cus.length||1},1fr)">${cus.map(z=>`<button type="button" data-edc="${esc(z.id)}" aria-pressed="${cu===z.id}">${esc(z.nome)}</button>`).join('')}</div></div>
+        <div class="pn-bt"><button type="button" class="btn sm" data-edx>Cancelar</button><button type="button" class="btn sm pri" data-eds>Salvar</button></div></div>`;
+      box.querySelectorAll('[data-edc]').forEach(b=>b.onclick=()=>{cu=b.dataset.edc;box.querySelectorAll('[data-edc]').forEach(z=>z.setAttribute('aria-pressed',z===b))});
+      box.querySelector('[data-edx]').onclick=()=>{box.innerHTML='';cx.innerHTML=''};
+      box.querySelector('[data-eds]').onclick=async ev=>{const g=q=>box.querySelector(`[data-ed="${q}"]`).value,lt=r1(Number(g('l'))),dt=g('d'),hr=g('h')||'';
+        if(!(lt>0)||!dt){cx.innerHTML=cbxMsg('bad','Informe litros e data.');return}if(!cu){cx.innerHTML=cbxMsg('bad','Escolha o centro de custo.');return}
+        if(lt===Number(x.litros)&&dt===x.data&&hr===(x.hora||'')&&cu===x.custo){box.innerHTML='';return}
+        const tv=cbxTrava(cb.id,dt);if(tv){cx.innerHTML=cbxMsg('bad',`Periodo fechado ate ${fdate(tv)}. Escolha outra data.`);return}
+        const cap=Number(cb.cap)||0;if(cap&&lt>cap){cx.innerHTML=cbxMsg('bad',`Mais que a capacidade do comboio (${nf(cap)} L). Confira.`);return}
+        const aj={[x.data]:-Number(x.litros)};aj[dt]=r1((aj[dt]||0)+lt);const ss=await semSaldo(aj);if(ss){cx.innerHTML=cbxMsg('bad',`<b>Nao da para salvar.</b> Com esta mudanca ${ss}`);return}
+        ev.target.disabled=true;const nm=mesKey(dt),hist=[...(x.hist||[]),{litros:x.litros,data:x.data,hora:x.hora||'',custo:x.custo,em:Date.now(),por:(EU()||{}).nome||''}];
+        const nx={comboio:x.comboio,data:dt,hora:hr,litros:lt,custo:cu,ts:x.ts||Date.now(),hist,mes:nm};
+        const ok=await safe(async()=>{await mov(x,-1);if(nm!==x.mes)await S.db.doc(`comb/${x.mes}/ent/${x.id}`).delete();const o={...nx};delete o.mes;await S.db.doc(`comb/${nm}/ent/${x.id}`).set(o);await mov(nx,1)},'Entrada editada');
+        ev.target.disabled=false;if(ok){NAV.pop();cbxDelEnt()}}}})});
 }
 
 /* ---------- Fechar mes: confere o saldo na data de corte e abre o proximo ---------- */
@@ -2769,7 +2861,7 @@ function openMenu(mode){
       +g('Correcoes')+mi('thm-x',I.back,'Desfazer troca de horimetro','Volta a contagem do relogio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saida do estoque','Retirada avulsa, fora das preventivas')
       +mi('x:st',I.estoque,'Filtros e oleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')},
-    comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Excluir abastecimento','Apaga o ultimo abastecimento de um equipamento')+mi('cbx-de',DEL,'Excluir entrada','Apaga uma entrada do periodo aberto')},
+    comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Abastecimentos','Editar ou excluir um abastecimento')+mi('cbx-de',DEL,'Entradas de diesel','Editar ou excluir uma entrada')},
     aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:cats',ICON_TAG,'Categorias de itens','Filtro, oleo, graxa, correia e outros do estoque')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
       +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo, UG e comboios')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
   /* tela limpa: Novo · Editar · Excluir */

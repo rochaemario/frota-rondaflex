@@ -433,6 +433,105 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-cr .k span{display:inline-flex;align-items:center;gap:6px}
 .cbx-cr .k b{color:var(--fg);font-variant-numeric:tabular-nums}
 .cbx-cr .k u{width:8px;height:8px;border-radius:2px;background:var(--accent)}.cbx-cr .k u.b{background:var(--ink)}
+/* relatorio de combustivel (tabela) e informe PDF */
+.rl-top2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.rl-top2 .rl-seg{margin:0}
+.rl-top2 .cbx-mn,.rl-box{margin:0;height:48px;box-sizing:border-box;border:1px solid var(--line-2);border-radius:12px;background:var(--surface);padding:0 2px}
+.rl-top2 .cbx-mn b,.rl-box b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl-tot{display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 0}
+.rl-tot>i{background:var(--line)}
+.rl-tot>div{padding:0 15px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.rl-tot small{font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl-tot small em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:500}
+.rl-tot b{font-family:var(--display);font-size:30px;line-height:1;font-weight:700;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.rl-tot .in b{color:var(--ok)}
+.rl-cc,.rl-eq{margin-top:12px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.rl-g{display:grid;grid-template-columns:minmax(0,1fr) 48px 96px;column-gap:10px;align-items:center}
+.rl-g>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl-g>span+span,.rl-g4>span+span{text-align:right;font-variant-numeric:tabular-nums}
+.rl-hd{padding:9px 16px;background:var(--sunk);border-bottom:1px solid var(--line);font-size:11.5px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.rl-ccg{padding:13px 16px;display:flex;flex-direction:column;gap:8px}
+.rl-ccg+.rl-ccg{border-top:1px solid var(--line)}
+.rl-g.t{font-size:16px}.rl-g.t span:first-child{font-weight:600}.rl-g.t span:nth-child(2){font-size:14.5px;font-weight:600;color:var(--muted)}.rl-g.t span:last-child{font-weight:700}
+.rl-bar{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}
+.rl-bar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+.rl-bar i.c1{background:var(--ink)}.rl-bar i.c2{background:var(--c2)}.rl-bar i.c3{background:var(--c3)}
+.rl-subs{display:flex;flex-direction:column;gap:6px;margin-top:2px}
+.rl-g.s{font-size:14.5px;color:var(--muted)}
+.rl-g.s span:first-child{display:flex;align-items:center;gap:8px;color:var(--fg)}
+.rl-g.s u{flex:none;width:10px;height:1.5px;margin-left:4px;background:var(--faint)}
+.rl-g.s span:last-child{color:var(--fg);font-weight:600}
+.rl-fil{margin-top:16px}
+.rl-g4{display:grid;grid-template-columns:minmax(0,1fr) 36px 88px 16px;column-gap:10px;align-items:center}
+.rl-eqh{display:flex;align-items:center;gap:10px;min-height:48px;padding:0 16px;border-bottom:1px solid var(--line)}
+.rl-eqh::before{content:"";width:4px;height:18px;border-radius:2px;background:var(--brand-red)}
+.rl-eqh span{flex:1;font-family:var(--display);font-weight:700;font-size:19px;letter-spacing:.04em;text-transform:uppercase}
+.rl-eqh em{font-style:normal;font-size:13.5px;color:var(--muted);white-space:nowrap}
+.rl-er{width:100%;min-height:58px;padding:0 16px;border:0;background:none;font:inherit;color:var(--fg);text-align:left;cursor:pointer}
+.rl-er+.rl-er{box-shadow:inset 0 1px 0 var(--line)}
+.rl-er:active{background:var(--sunk)}
+.rl-er .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rl-er .t b{font-family:var(--mono);font-size:15px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl-er .t small{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl-er>span:nth-child(2){font-size:14px;color:var(--muted)}
+.rl-er>span:nth-child(3){font-size:15.5px;font-weight:700;white-space:nowrap}
+.rl-er>svg{width:16px;height:16px;color:var(--faint)}
+.rl-pdf{height:40px;flex:none;margin-left:auto;display:flex;align-items:center;gap:6px;padding:0 12px;border:1px solid var(--line-2);border-radius:12px;background:var(--surface);color:var(--muted);font:600 13px var(--body);cursor:pointer}
+.rl-pdf svg{width:18px;height:18px}
+.rl-pf{margin-top:10px}
+.rl-cks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px}
+.rl-ckb{display:flex;align-items:center;gap:10px;min-height:46px;padding:0 12px;border:1px solid var(--line-2);border-radius:12px;background:var(--surface);font-weight:600;font-size:15px}
+.rl-ckb input,.rl-ck input{-webkit-appearance:checkbox;appearance:auto;width:22px;height:22px;min-height:0;padding:0;margin:0;border-radius:4px;flex:none;accent-color:var(--accent);box-shadow:none}
+.rl-cl{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.rl-ck{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;min-height:48px;padding:0 14px;font-size:15px}
+.rl-ck+.rl-ck{box-shadow:inset 0 1px 0 var(--line)}
+.rl-ck span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl-ok{display:flex;flex-direction:column;gap:12px}
+.rl-okc{display:grid;grid-template-columns:28px minmax(0,1fr);gap:12px;align-items:start;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
+.rl-okc>svg{width:28px;height:28px;color:var(--accent-tx)}
+.rl-okc div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.rl-okc b{font-family:var(--display);font-size:20px;font-weight:700;line-height:1.1}
+.rl-okc span{font-size:15px;font-weight:600}
+.rl-okc small{font-size:13px;color:var(--muted);line-height:1.35}
+.rl-okn{margin:0 2px;word-break:break-word}
+.rl-okb{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px}
+.rl-okb .btn{min-height:52px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px}
+.rl-okb .btn svg{width:18px;height:18px}
+#prt{display:none}
+@media print{
+  @page{size:A4;margin:12mm 12mm 14mm}
+  html,body{background:#fff!important;overflow:visible!important}
+  body.prt-on>*:not(#prt){display:none!important}
+  body.prt-on #prt{display:block;color:#121a2c;font:10pt Arial,Helvetica,sans-serif}
+  #prt .p-hd{display:flex;align-items:center;gap:8px;padding-bottom:6pt;border-bottom:1.5pt solid #0b2470}
+  #prt .p-hd i{width:3pt;height:13pt;background:#e30613}
+  #prt .p-hd b{flex:1;color:#0b2470;font-size:10pt;letter-spacing:.5pt}
+  #prt .p-hd span{font-size:8pt;color:#4f5a70}
+  #prt h1{margin:14pt 0 2pt;font-size:20pt}
+  #prt .p-per{font-size:11pt;color:#4f5a70}
+  #prt .p-fl{display:grid;grid-template-columns:auto 1fr;gap:3pt 12pt;margin-top:10pt;padding:7pt 10pt;background:#f2f4f8;font-size:8.5pt}
+  #prt .p-fl b{color:#4f5a70}
+  #prt,#prt *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #prt .p-k{display:grid;gap:8pt;margin-top:12pt}
+  #prt .p-k div{border:.8pt solid #c9cfda;padding:7pt 9pt;min-width:0;overflow:hidden;box-sizing:border-box}
+  body.prt-on #prt{box-sizing:border-box;width:100%;max-width:100%}
+  #prt .p-k small{display:block;font-size:7.5pt;font-weight:700;color:#4f5a70;text-transform:uppercase}
+  #prt .p-k b{display:block;font-size:15pt;margin-top:3pt;white-space:nowrap}
+  #prt h2{font-size:13pt;margin:16pt 0 5pt}
+  #prt table{width:100%;border-collapse:collapse;table-layout:fixed}
+  #prt thead{display:table-header-group}
+  #prt tr{break-inside:avoid}
+  #prt th{font-size:7.5pt;text-align:left;padding:4pt 5pt;background:#f2f4f8;border-bottom:1pt solid #121a2c;white-space:nowrap;overflow:hidden}
+  #prt td{font-size:9pt;padding:3.5pt 5pt;border-bottom:.5pt solid #c9cfda;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #prt .r{text-align:right}#prt .b{font-weight:700}
+  #prt tr.g td{background:#e8edf7;color:#0b2470;font-weight:700;font-size:8.5pt}
+  #prt tr.s td{color:#4f5a70}#prt tr.s td:first-child{padding-left:16pt}
+  #prt tr.t td{font-weight:700;border-top:1pt solid #121a2c;border-bottom:0}
+  #prt .p-nt{font-size:8pt;color:#4f5a70;margin:4pt 0 0}
+  #prt .p-as{display:grid;grid-template-columns:1fr 1fr;gap:30pt;margin-top:40pt;font-size:8.5pt;color:#4f5a70}
+  #prt .p-as span{border-top:.8pt solid #121a2c;padding-top:4pt}
+  #prt .p-ft{margin-top:16pt;font-size:7.5pt;color:#4f5a70}
+}
 .cbx-ajl{display:flex;flex-direction:column;gap:8px}
 .cbx-aj{display:flex;align-items:center;gap:8px}
 .cbx-aj input{flex:1;min-width:0;height:44px;border:1px solid var(--line-2);border-radius:10px;padding:0 12px;font:600 15px var(--body);background:var(--surface);color:var(--fg)}
@@ -1371,8 +1470,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=c7e5799c67"></script>
-<script src="shim.js?v=c7e5799c67"></script>
+<script src="config.js?v=86d7e9bfd6"></script>
+<script src="shim.js?v=86d7e9bfd6"></script>
 </head>
 <body>
 
@@ -2371,26 +2470,45 @@ async function cbxRel(m0){
   if(cbxRel.v==='dia'){cbxRelDia();return}
   const m=m0||cbxRel.m||mesKey();cbxRel.m=m;nav('cbx:rel',()=>cbxRel());
   const c=await cbxCfg();await cbxFechAll();
-  openSheet({title:'Relatorio',sub:'Combustivel',body:`${rlSeg('mes')}<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div><div id="rl-b" class="rl"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
-  mount:sh=>{rlSegBind(sh);sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
+  openSheet({title:'Relatorio',sub:'Combustivel',body:`<div class="rl-top2">${rlSeg('mes')}<div class="cbx-mn"><button type="button" class="btn icon ghost" data-mv="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(m).slice(0,3)} ${m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-mv="1" aria-label="Proximo mes"${m>=mesKey()?' disabled':''}>${I.back}</button></div></div><div id="rl-b" class="rl"><div class="card-wait" style="min-height:160px">Carregando…</div></div>`,
+  mount:sh=>{rlSegBind(sh);rlPdfBtn(sh,()=>({v:'mes',m}));sh.querySelectorAll('[data-mv]').forEach(b=>b.onclick=()=>{const[y,mo]=m.split('-').map(Number);const n=b.dataset.mv==='1'?mesSeg(m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);NAV.pop();cbxRel(n)});
     S.db.doc('comb/'+m).get().then(x=>{const b=sh.querySelector('#rl-b');if(!b||!b.isConnected)return;const d=x.exists?x.data():{},eq=d.eq||{};
       const ms=Object.values(d.mse||{}),sai=Object.values(eq).reduce((a,v)=>a+(Number(v.lt)||0),0)+ms.reduce((a,v)=>a+(Number(v.lt)||0),0);const EM=cbxEntMes(c,d,m),ent=EM.ent;
       const cu=d.cus||{},semC=Math.round((sai-Object.values(cu).reduce((a,v)=>a+(Number(v)||0),0))*10)/10;
       const tops=c.custos.filter(k=>!k.pai),pct=v=>sai?Math.max(0,Math.min(100,v/sai*100)):0;
-      const cuH=tops.map(k=>{const filhos=c.custos.filter(z=>z.pai===k.id),tf=filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0),own=Number(cu[k.id])||0,tt=own+tf;
-        return `<div class="cbx-cr"><div class="h"><span>${esc(k.nome)}</span><b>${nf(tt,1)} L</b></div><div class="cbx-bar s"><i style="width:${pct(own)}%"></i>${filhos.length?`<i class="b" style="left:${pct(own)}%;width:${pct(tf)}%"></i>`:''}</div>
-          ${filhos.length?`<div class="k"><span><u></u>${esc(k.nome.toLowerCase())} <b>${nf(own,1)} L</b></span>${filhos.map(z=>`<span><u class="b"></u>${esc(z.nome)} <b>${nf(cu[z.id]||0,1)} L</b></span>`).join('')}</div>`:''}</div>`}).join('');
+      /* centro de custo: nome | % | litros; uma barra inteira por centro (tamanho = % do total); as partes (mina, UG) so com numeros */
+      const pcx=v=>{const x=pct(v);return x>0&&x<.5?'<1%':Math.round(x)+'%'};
+      const cuH=tops.map((k,ix)=>{const filhos=c.custos.filter(z=>z.pai===k.id),own=Number(cu[k.id])||0,tt=own+filhos.reduce((a,z)=>a+(Number(cu[z.id])||0),0);
+        return `<div class="rl-ccg"><div class="rl-g t"><span>${esc(k.nome)}</span><span>${pcx(tt)}</span><span>${nf(tt,1)} L</span></div><div class="rl-bar"><i class="c${ix%4}" style="width:${pct(tt)}%"></i></div>
+          ${filhos.length?`<div class="rl-subs">${[[k.nome.toLowerCase(),own],...filhos.map(z=>[z.nome,Number(cu[z.id])||0])].map(([n,v])=>`<div class="rl-g s"><span><u></u>${esc(n)}</span><span>${pcx(v)}</span><span>${nf(v,1)} L</span></div>`).join('')}</div>`:''}</div>`}).join('');
       const abs=v=>v&&(Number(v.n)>0||Number(v.lt)>0);
-      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);const eqs=S.equipsAll.filter(e=>abs(eq[e.id]));
-      const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
-      b.innerHTML=`<div class="cbx-io big"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><div class="in"><small>Entradas${EM.est?' (estimada)':''}</small><b>${nf(ent,1)} L</b></div></div>
-        <div class="cbx-cs"><div class="lbl" style="margin:0">Saidas por centro de custo</div>${cuH}${semC>0?`<div class="cbx-cr"><div class="h"><span>Sem custo</span><b>${nf(semC,1)} L</b></div></div>`:''}</div>
-        <div class="tsec-wrap" style="margin-top:14px">${G.map(([n,l])=>`<section class="tsec"><h3 class="tsec-h"><span>${n}</span><em>${l.length}</em></h3><div class="tsec-l">${l.sort(ord).map(e=>{const v=eq[e.id];return `<button class="tq" data-cbe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo||'')}</span><span class="tq-d">${nf(v.lt,1)} L<small>${v.n} abast.</small></span>${I.chev}</button>`}).join('')}</div></section>`).join('')}
-        <div id="rl-mse"></div>${!G.length&&!ms.length?'<div class="empty">Nenhum abastecimento neste mes.</div>':''}</div>`;
-      b.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe,m));
-      if(ms.length)S.db.collection('comb/'+m+'/mse').get().then(q=>{const w=b.querySelector('#rl-mse');if(!w||!w.isConnected)return;const g=mseEquips(q.docs.map(z=>({...z.data(),id:z.id})));if(!g.length)return;
-        w.innerHTML=`<section class="tsec"><h3 class="tsec-h"><span>MSE</span><em>${g.length}</em></h3><div class="tsec-l">${g.map((x,i)=>`<button class="tq" data-cbm="${i}"><span class="tq-c">${esc(x.nome)}</span><span class="tq-m">${esc(x.sub)}</span><span class="tq-d">${nf(x.lt,1)} L<small>${x.l.length} abast.</small></span>${I.chev}</button>`).join('')}</div></section>`;
-        w.querySelectorAll('[data-cbm]').forEach(z=>z.onclick=()=>cbxMseEq(g[Number(z.dataset.cbm)],m))}).catch(()=>{})}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
+      const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b),U=n=>`${n} ${n===1?'equipamento':'equipamentos'}`;
+      const sec=(t,n,rows)=>`<section class="rl-eq"><div class="rl-eqh"><span>${t}</span><em>${U(n)}</em></div><div class="rl-g4 rl-hd"><span>Equipamento</span><span>Ab.</span><span>Litros</span><span></span></div>${rows}</section>`;
+      const fk0=tops.some(k=>k.id===cbxRel.f)?cbxRel.f:'';
+      b.innerHTML=`<div class="rl-tot"><div><small>Saidas</small><b>${nf(sai,1)} L</b></div><i></i><div class="in"><small>Entradas${EM.est?' <em>(estimada)</em>':''}</small><b>${nf(ent,1)} L</b></div></div>
+        <div class="rl-cc"><div class="rl-g rl-hd"><span>Centro de custo</span><span>%</span><span>Litros</span></div>${cuH}${semC>0?`<div class="rl-ccg"><div class="rl-g t"><span>Sem custo</span><span>${pcx(semC)}</span><span>${nf(semC,1)} L</span></div></div>`:''}</div>
+        ${tops.length>1?`<div class="seg rl-fil" role="group" aria-label="Filtrar" style="grid-template-columns:repeat(${tops.length+1},1fr)"><button type="button" data-rf="" aria-pressed="${!fk0}">Todos</button>${tops.map(k=>`<button type="button" data-rf="${esc(k.id)}" aria-pressed="${fk0===k.id}">${esc(k.nome)}</button>`).join('')}</div>`:''}
+        <div id="rl-eqs"></div>`;
+      /* lista: sem Filtrar usa o resumo do mes; com Filtrar soma os abastecimentos do centro escolhido (inclui as partes) */
+      let AB=null,MS=null,fk=fk0;
+      const drawL=async()=>{const w=b.querySelector('#rl-eqs'),k0=fk;if(!w)return;let V=eq,ML=[];
+        try{if(k0){if(!AB){w.innerHTML='<div class="card-wait" style="min-height:120px">Carregando…</div>';const q=await S.db.collection('comb/'+m+'/abast').get();AB=q.docs.map(z=>z.data())}
+            const ids=[k0,...c.custos.filter(z=>z.pai===k0).map(z=>z.id)];V={};
+            AB.filter(x=>ids.includes(x.custo)).forEach(x=>{const o=V[x.equipId]=V[x.equipId]||{lt:0,n:0};o.lt=Math.round((o.lt+(Number(x.litros)||0))*10)/10;o.n++})}
+          if(ms.length&&!MS){const q=await S.db.collection('comb/'+m+'/mse').get();MS=q.docs.map(z=>({...z.data(),id:z.id}))}
+          ML=(MS||[]).filter(x=>!k0||[k0,...c.custos.filter(z=>z.pai===k0).map(z=>z.id)].includes(x.custo))}
+        catch(e){if(w.isConnected&&fk===k0)w.innerHTML='<div class="empty" style="margin-top:12px">Nao foi possivel carregar.</div>';return}
+        if(!w.isConnected||fk!==k0)return;
+        const eqs=S.equipsAll.filter(e=>abs(V[e.id]));
+        const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
+        const g=mseEquips(ML);
+        w.innerHTML=G.map(([n,l])=>sec(n,l.length,l.sort(ord).map(e=>{const v=V[e.id];return `<button type="button" class="rl-g4 rl-er" data-cbe="${esc(e.id)}"><span class="t"><b>${esc(e.codigo)}</b><small>${esc(e.tipo||'')}</small></span><span>${nf(v.n)}</span><span>${nf(v.lt,1)} L</span>${I.chev}</button>`}).join(''))).join('')
+          +(g.length?sec('MSE',g.length,g.map((x,i)=>`<button type="button" class="rl-g4 rl-er" data-cbm="${i}"><span class="t"><b>${esc(x.nome)}</b><small>${esc(x.sub||'Terceiro')}</small></span><span>${x.l.length}</span><span>${nf(x.lt,1)} L</span>${I.chev}</button>`).join('')):'')
+          +(!G.length&&!g.length?`<div class="empty" style="margin-top:12px">${k0?'Nenhum abastecimento neste centro de custo.':'Nenhum abastecimento neste mes.'}</div>`:'');
+        w.querySelectorAll('[data-cbe]').forEach(x=>x.onclick=()=>openCombEq(x.dataset.cbe,m));
+        w.querySelectorAll('[data-cbm]').forEach(z=>z.onclick=()=>cbxMseEq(g[Number(z.dataset.cbm)],m))};
+      b.querySelectorAll('[data-rf]').forEach(x=>x.onclick=()=>{fk=cbxRel.f=x.dataset.rf;b.querySelectorAll('[data-rf]').forEach(z=>z.setAttribute('aria-pressed',String(z===x)));drawL()});
+      drawL()}).catch(()=>{const b=sh.querySelector('#rl-b');if(b)b.innerHTML='<div class="empty">Nao foi possivel carregar.</div>'})}});
 }
 /* MSE: TAG em texto livre pode repetir ou faltar. Separa os equipamentos pela TAG e pela sequencia do horimetro, do km e da placa:
    leitura que volta ou que avanca demais para os dias passados vira outro equipamento */
@@ -2421,7 +2539,7 @@ async function cbxRelDia(){
   const t=today();let dt=cbxRel.d&&cbxRel.d<=t?cbxRel.d:t;cbxRel.d=dt;nav('cbx:rel',()=>cbxRel());
   await cbxCfg();
   openSheet({title:'Relatorio',sub:'Combustivel',body:`${rlSeg('dia')}<div class="lr-top" id="rl-ds"></div><div id="rl-b" class="rl"></div>`,
-  mount:sh=>{rlSegBind(sh);let on=new Set();const top=sh.querySelector('#rl-ds');
+  mount:sh=>{rlSegBind(sh);rlPdfBtn(sh,()=>({v:'dia',d:dt}));let on=new Set();const top=sh.querySelector('#rl-ds');
     const strip=()=>{top.innerHTML=dayStrip(dt,{lbl:'Data do abastecimento',on,id:'rl-dt'});top.querySelectorAll('[data-dd]').forEach(b=>b.onclick=()=>go(b.dataset.dd));
       top.querySelector('#rl-dt').onchange=ev=>go(ev.target.value);const st=top.querySelector('.dstrip'),sel=st.querySelector('[aria-pressed="true"]');st.scrollLeft=st.scrollWidth;if(sel&&sel.offsetLeft<st.scrollLeft)st.scrollLeft=sel.offsetLeft-4};
     /* bolinha nos dias com abastecimento (resumo de cada mes da faixa) */
@@ -2448,6 +2566,190 @@ async function cbxRelDia(){
     strip();load();dots()}});
 }
 
+/* ---------- Informe PDF do combustivel ----------
+   botao PDF discreto no Relatorio -> Filtrar (periodo, centro de custo, equipamentos, conteudo) -> relatorio novo, feito para impressao.
+   Nao e a imagem da tela. Compartilhar envia o arquivo PDF; Imprimir abre a impressao do celular (de la tambem da para salvar em PDF). */
+const rlPdfBtn=(sh,o)=>{const hd=sh.querySelector('.sh-head');if(!hd)return;const b=document.createElement('button');b.type='button';b.className='rl-pdf';b.setAttribute('aria-label','Informe em PDF');b.innerHTML=`${CBX_IC.file}<span>PDF</span>`;b.onclick=()=>cbxPdf(o());hd.appendChild(b)};
+const PRT_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M6 14h12v7H6z"/></svg>';
+async function cbxPdf(o){
+  const c=await cbxCfg(),t=today();
+  if(o){const m=o.m||mesKey(o.d||t);cbxPdf.st={v:o.v||'mes',m,d:o.d||t,de:m+'-01',ate:fimMes(m)<t?fimMes(m):t,cu:'',sub:[],eqT:'todos',eqs:[],mse:true,cc:true,eq:true,cons:true,ab:o.v==='dia'}}
+  const P=cbxPdf.st;if(!P){goBack();return}
+  nav('cbx:pdf',()=>cbxPdf());
+  const tops=c.custos.filter(k=>!k.pai),filhos=id=>c.custos.filter(z=>z.pai===id);
+  openSheet({title:'Informe PDF',sub:'Combustivel',body:`<form id="pdf-f" novalidate><div id="pf-b"></div></form>`,foot:`<button class="btn pri" form="pdf-f">Gerar PDF</button>`,
+  mount:sh=>{const B=sh.querySelector('#pf-b');
+    const seg=(k,l)=>`<div class="seg" role="group" style="grid-template-columns:repeat(${l.length},1fr)">${l.map(([v,n])=>`<button type="button" data-${k}="${esc(v)}" aria-pressed="${String(P[k==='pv'?'v':k==='pc'?'cu':'eqT']===v)}">${esc(n)}</button>`).join('')}</div>`;
+    const ck=(k,txt,on)=>`<label class="rl-ck"><span>${txt}</span><input type="checkbox" data-po="${k}"${on?' checked':''}></label>`;
+    const ler=()=>{const g=id=>B.querySelector(id);if(g('#pf-d'))P.d=g('#pf-d').value||P.d;if(g('#pf-de'))P.de=g('#pf-de').value||P.de;if(g('#pf-ate'))P.ate=g('#pf-ate').value||P.ate;
+      B.querySelectorAll('[data-po]').forEach(x=>P[x.dataset.po]=x.checked);const s=[...B.querySelectorAll('[data-ps]')];if(s.length)P.sub=s.filter(x=>x.checked).map(x=>x.dataset.ps)};
+    const draw=()=>{const k=tops.find(z=>z.id===P.cu),fs=k?filhos(k.id):[];
+      const per=P.v==='mes'?`<div class="cbx-mn rl-box"><button type="button" class="btn icon ghost" data-pm="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(P.m)} ${P.m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-pm="1" aria-label="Proximo mes"${P.m>=mesKey()?' disabled':''}>${I.back}</button></div>`
+        :P.v==='dia'?`<label class="f">Data<input type="date" id="pf-d" value="${P.d}" max="${t}"></label>`
+        :`<div class="grid"><label class="f">De<input type="date" id="pf-de" value="${P.de}" max="${t}"></label><label class="f">Ate<input type="date" id="pf-ate" value="${P.ate}" max="${t}"></label></div>`;
+      const chips=P.eqs.map(id=>{const e=eqById(id)||S.equipsAll.find(z=>z.id===id);return e?`<span class="cbx-ugc">${esc(e.codigo)}<button type="button" data-px="${esc(id)}" aria-label="Tirar ${esc(e.codigo)}">&times;</button></span>`:''}).join('');
+      B.innerHTML=`<div class="lbl">Periodo</div>${seg('pv',[['mes','Mes'],['dia','Dia'],['int','Intervalo']])}<div class="rl-pf">${per}</div>
+        <div class="lbl" style="margin-top:20px">Centro de custo</div>${seg('pc',[['','Todos'],...tops.map(z=>[z.id,z.nome])])}
+        ${fs.length?`<div class="rl-cks">${[k,...fs].map(z=>`<label class="rl-ckb"><input type="checkbox" data-ps="${esc(z.id)}"${P.sub.includes(z.id)?' checked':''}><span>${esc(z.id===k.id?z.nome.toLowerCase():z.nome)}</span></label>`).join('')}</div>`:''}
+        <div class="lbl" style="margin-top:20px">Equipamentos</div>${seg('pe',[['todos','Todos'],['esc','Escolher']])}
+        ${P.eqT==='esc'?`<div class="cbx-add"><input id="pf-q" placeholder="TAG" aria-label="TAG do equipamento" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm" id="pf-qa">${CBX_IC.plus}Adicionar</button></div><div class="cbx-ugl" style="margin-top:8px">${chips||'<span class="note">Nenhum escolhido.</span>'}</div>`:''}
+        <div class="rl-cl" style="margin-top:10px">${ck('mse','Incluir MSE (terceiros)',P.mse)}</div>
+        <div class="lbl" style="margin-top:20px">Conteudo</div>
+        <div class="rl-cl">${ck('cc','Resumo por centro de custo',P.cc)}${ck('eq','Total por equipamento',P.eq)}${ck('cons','Consumo (L/h ou km/L)',P.cons)}${ck('ab','Cada abastecimento',P.ab)}</div>`;
+      B.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{ler();P.v=b.dataset.pv;draw()});
+      B.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{ler();P.cu=b.dataset.pc;const k2=tops.find(z=>z.id===P.cu);P.sub=k2?[k2.id,...filhos(k2.id).map(z=>z.id)]:[];draw()});
+      B.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>{ler();P.eqT=b.dataset.pe;draw();const q=B.querySelector('#pf-q');q&&q.focus()});
+      B.querySelectorAll('[data-pm]').forEach(b=>b.onclick=()=>{ler();const[y,mo]=P.m.split('-').map(Number);P.m=b.dataset.pm==='1'?mesSeg(P.m):(mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`);draw()});
+      B.querySelectorAll('[data-px]').forEach(b=>b.onclick=()=>{ler();P.eqs=P.eqs.filter(x=>x!==b.dataset.px);draw()});
+      const qa=B.querySelector('#pf-qa');if(qa){const q=B.querySelector('#pf-q');const add=()=>{ler();const v=q.value.trim();if(!v)return;const e=S.equipsAll.find(z=>nzCod(z.codigo)===nzCod(v));
+        if(!e){toast('TAG nao encontrada.');return}if(P.eqs.includes(e.id)){toast('Ja esta na lista.');return}P.eqs.push(e.id);draw();const q2=B.querySelector('#pf-q');q2&&q2.focus()};
+        qa.onclick=add;q.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();add()}})}};
+    draw();
+    sh.querySelector('#pdf-f').onsubmit=async ev=>{ev.preventDefault();ler();
+      if(P.v==='int'&&(!P.de||!P.ate)){toast('Informe as duas datas.');return}
+      if(P.cu&&filhos(P.cu).length&&!P.sub.length){toast('Marque ao menos um item do centro de custo.');return}
+      if(P.eqT==='esc'&&!P.eqs.length){toast('Escolha ao menos um equipamento.');return}
+      if(!P.cc&&!P.eq&&!P.ab){toast('Marque ao menos um conteudo.');return}
+      const bt=sh.querySelector('.hd-pri');if(bt){bt.disabled=true}
+      try{const R=await cbxPdfDados(P,c);cbxPdfOk(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o informe.')}finally{if(bt&&bt.isConnected)bt.disabled=false}}}});
+}
+/* junta os dados do periodo, ja filtrados, no formato do informe */
+async function cbxPdfDados(P,c){
+  const t=today();let de,ate;if(P.v==='mes'){de=P.m+'-01';ate=fimMes(P.m)}else if(P.v==='dia'){de=ate=P.d}else{de=P.de;ate=P.ate;if(de>ate)[de,ate]=[ate,de]}
+  const hasF=P.cu&&c.custos.some(z=>z.pai===P.cu),cuSet=P.cu?(hasF?P.sub.slice():[P.cu]):null,eqSet=P.eqT==='esc'?new Set(P.eqs):null;
+  const A=[],M=[];let ent=null,est=false;
+  for(let m=de.slice(0,7);m<=ate.slice(0,7);m=mesSeg(m)){
+    const [qa,qm,dm]=await Promise.all([S.db.collection('comb/'+m+'/abast').get(),S.db.collection('comb/'+m+'/mse').get(),P.v==='mes'?S.db.doc('comb/'+m).get():Promise.resolve(null)]);
+    qa.docs.forEach(z=>{const x=z.data();if(x.data>=de&&x.data<=ate)A.push(x)});qm.docs.forEach(z=>{const x=z.data();if(x.data>=de&&x.data<=ate)M.push({...x,id:z.id})});
+    if(dm){await cbxFechAll();const E=cbxEntMes(c,dm.exists?dm.data():{},m);ent=E.ent;est=E.est}}
+  const okC=x=>!cuSet||cuSet.includes(x.custo);
+  const A2=A.filter(x=>okC(x)&&(!eqSet||eqSet.has(x.equipId))),M2=P.mse?M.filter(okC):[];
+  const r1=v=>Math.round(v*10)/10,L=x=>Number(x.litros)||0,sai=r1(A2.reduce((s,x)=>s+L(x),0)+M2.reduce((s,x)=>s+L(x),0));
+  const pc=v=>sai?nf(v/sai*100,1):'0';
+  /* centros de custo */
+  const CU={};[...A2,...M2].forEach(x=>{const k=x.custo||'';CU[k]=r1((CU[k]||0)+L(x))});
+  const cc=[];c.custos.filter(k=>!k.pai).forEach(k=>{const fs=c.custos.filter(z=>z.pai===k.id),own=CU[k.id]||0,tt=r1(own+fs.reduce((s,z)=>s+(CU[z.id]||0),0));if(!(tt>0))return;
+    cc.push({c:[k.nome,nf(tt,1),pc(tt)],b:[0,1]});if(fs.length)[[k.nome.toLowerCase(),own],...fs.map(z=>[z.nome,CU[z.id]||0])].forEach(([n,v])=>cc.push({c:[n,nf(v,1),pc(v)],k:'s'}))});
+  const semC=r1(Object.entries(CU).filter(([k])=>!c.custos.some(z=>z.id===k)).reduce((s,[,v])=>s+v,0));if(semC>0)cc.push({c:['Sem custo',nf(semC,1),pc(semC)],b:[0,1]});
+  const cuTx=ids=>[...ids].filter(Boolean).map(id=>cbxCuNome(id)).join(' / ')||'—';
+  /* equipamentos da frota */
+  const Q={};A2.forEach(x=>{const o=Q[x.equipId]=Q[x.equipId]||{lt:0,n:0,h0:null,h1:null,lm:0,hr:0,cu:new Set()};o.lt=r1(o.lt+L(x));o.n++;const h=Number(x.horimetro);
+    if(x.horimetro!==''&&x.horimetro!=null&&isFinite(h)){o.h0=o.h0==null?h:Math.min(o.h0,h);o.h1=o.h1==null?h:Math.max(o.h1,h)}
+    if(Number(x.horas)>0&&Number(x.litrosMedidos)>0){o.hr+=Number(x.horas);o.lm+=Number(x.litrosMedidos)}o.cu.add(x.custo)});
+  const eqOf=id=>eqById(id)||S.equipsAll.find(z=>z.id===id)||{id,codigo:id,tipo:''};
+  const eqs=Object.keys(Q).map(eqOf),ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b);
+  const hTx=(e,a,b)=>a==null?'—':(a===b?nf(a,0):`${nf(a,0)} - ${nf(b,0)}`)+' '+lhU(e);
+  const G=[['DM1',eqs.filter(e=>e.alocacao==='DM1')],['PQ',eqs.filter(e=>e.alocacao==='PQ')],['Sem local',eqs.filter(e=>e.alocacao!=='PQ'&&e.alocacao!=='DM1')]].filter(g=>g[1].length);
+  const eqR=[];G.forEach(([n,l])=>{eqR.push({k:'g',c:[`${n} · ${l.length} ${l.length===1?'equipamento':'equipamentos'}`]});
+    l.sort(ord).forEach(e=>{const o=Q[e.id];eqR.push({c:[e.codigo,e.tipo||'',cuTx(o.cu),nf(o.n),hTx(e,o.h0,o.h1),nf(o.lt,1),o.hr>0?consTxt(e,o.lm/o.hr):'—'],b:[0,5]})})});
+  /* MSE */
+  const mg=mseEquips(M2);if(mg.length){eqR.push({k:'g',c:[`MSE - terceiros · ${mg.length}`]});
+    mg.forEach(g=>{const hs=g.l.map(x=>Number(x.horimetro)).filter(v=>isFinite(v)&&v>0),ks=g.l.map(x=>Number(x.km)).filter(v=>isFinite(v)&&v>0);
+      const hor=hs.length?hTx({},Math.min(...hs),Math.max(...hs)):ks.length?(Math.min(...ks)===Math.max(...ks)?nf(ks[0],0):`${nf(Math.min(...ks),0)} - ${nf(Math.max(...ks),0)}`)+' km':'—';
+      eqR.push({c:[g.nome,[g.dono,g.placa].filter(Boolean).join(' · ')||'Terceiro',cuTx(new Set(g.l.map(x=>x.custo))),nf(g.l.length),hor,nf(g.lt,1),'—'],b:[0,5]})})}
+  /* cada abastecimento */
+  const ab=[...A2.map(x=>{const e=eqOf(x.equipId);return {d:x.data,ts:x.ts||0,c:[fdate(x.data),e.codigo,e.tipo||'',cuTx([x.custo]),x.horimetro!=null&&x.horimetro!==''?nf(x.horimetro,1)+' '+lhU(e):'—',nf(L(x),1)]}}),
+    ...M2.map(x=>({d:x.data,ts:x.ts||0,c:[fdate(x.data),x.tag?String(x.tag).toUpperCase():'Sem TAG','MSE'+(x.dono?' · '+x.dono:''),cuTx([x.custo]),x.horimetro!=null&&x.horimetro!==''?nf(x.horimetro,1)+' h':x.km!=null&&x.km!==''?nf(x.km,0)+' km':'—',nf(L(x),1)]}))]
+    .sort((a,b)=>a.d.localeCompare(b.d)||String(a.c[1]).localeCompare(String(b.c[1]),'pt',{numeric:true})||a.ts-b.ts).map(x=>({c:x.c,b:[1,5]}));
+  const perL=P.v==='mes'?`${cbxMesNome(P.m)} ${P.m.slice(0,4)} (${fdate(de).slice(0,5)} a ${fdate(ate).slice(0,5)})`:P.v==='dia'?fdate(de):`${fdate(de)} a ${fdate(ate)}`;
+  const tags=eqSet?[...eqSet].map(id=>eqOf(id).codigo):[];
+  const filt=[`Centro de custo: ${cuSet?cuSet.map(cbxCuNome).join(', '):'Todos'}`,`Equipamentos: ${eqSet?(tags.length>8?tags.slice(0,8).join(', ')+` +${tags.length-8}`:tags.join(', ')):'Todos'}`,`MSE: ${P.mse?'incluido':'fora'}`].join(' · ');
+  const cont=[P.cc&&'Resumo por centro de custo',P.eq&&'Total por equipamento',P.eq&&P.cons&&'Consumo',P.ab&&'Cada abastecimento'].filter(Boolean).join(' · ');
+  const fper=P.v==='mes'?P.m:P.v==='dia'?de:`${de} a ${ate}`;
+  return {tit:'Relatorio de combustivel',perL,filt,cont,gerado:'Gerado em '+agoraTx(),fl:{cc:P.cc,eq:P.eq,cons:P.eq&&P.cons,ab:P.ab},
+    sai,ent:P.v==='mes'&&!cuSet&&!eqSet?ent:null,est,nEq:eqs.length,nMse:mg.length,nAb:A2.length+M2.length,cc,eqR,ab,
+    fname:`Combustivel ${fper}${cuSet?' '+cuSet.map(cbxCuNome).join('-'):''}.pdf`}
+}
+/* PDF simples, feito no aparelho (sem internet): Helvetica, A4, tabelas com cabecalho repetido em cada pagina */
+const PDF_WN=[278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584];
+const PDF_WB=[278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584];
+const pdfTx=s=>String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[–—]/g,'-').replace(/…/g,'...').replace(/[^\x20-\x7e·]/g,'?');
+const pdfW=(s,sz,b)=>{let w=0;const T=b?PDF_WB:PDF_WN;for(const ch of s){const k=ch.charCodeAt(0);w+=k===183?278:(T[k-32]||556)}return w*sz/1000};
+const pdfEsc=s=>{let o='';for(const ch of s){if(ch==='·')o+='\\267';else if(ch==='('||ch===')'||ch==='\\')o+='\\'+ch;else o+=ch}return o};
+function pdfDoc(){const PW=595.28,PH=841.89,pages=[];let cur=null;const f=v=>Number(v).toFixed(2);
+  const rgb=h=>{const n=parseInt(h.slice(1),16);return [(n>>16)&255,(n>>8)&255,n&255].map(v=>(v/255).toFixed(3)).join(' ')};
+  const D={PW,PH,pages,page(){cur=[];pages.push(cur)},on(i){cur=pages[i]},
+    rect(x,y,w,h,c){cur.push(`${rgb(c)} rg ${f(x)} ${f(PH-y-h)} ${f(w)} ${f(h)} re f`)},
+    line(x1,y1,x2,y2,w,c){cur.push(`${rgb(c)} RG ${w} w ${f(x1)} ${f(PH-y1)} m ${f(x2)} ${f(PH-y2)} l S`)},
+    text(x,y,s,sz,b,c,al){s=pdfTx(s);const w=pdfW(s,sz,b);if(al==='r')x-=w;else if(al==='c')x-=w/2;cur.push(`BT /${b?'F2':'F1'} ${sz} Tf ${rgb(c||'#121a2c')} rg ${f(x)} ${f(PH-y)} Td (${pdfEsc(s)}) Tj ET`)},
+    fit(s,sz,b,mw){s=pdfTx(s);if(pdfW(s,sz,b)<=mw)return s;while(s.length>1&&pdfW(s+'...',sz,b)>mw)s=s.slice(0,-1);return s+'...'},
+    blob(){const enc=new TextEncoder(),parts=[],offs=[];let len=0;const put=s=>{const u=typeof s==='string'?enc.encode(s):s;parts.push(u);len+=u.length};
+      const obj=(n,s)=>{offs[n]=len;put(`${n} 0 obj\n${s}\nendobj\n`)};const N=4+pages.length*2;
+      put('%PDF-1.4\n');obj(1,'<< /Type /Catalog /Pages 2 0 R >>');obj(2,`<< /Type /Pages /Kids [${pages.map((_,i)=>`${5+i*2} 0 R`).join(' ')}] /Count ${pages.length} >>`);
+      obj(3,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');obj(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
+      pages.forEach((p,i)=>{const s=p.join('\n');obj(5+i*2,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6+i*2} 0 R >>`);
+        obj(6+i*2,`<< /Length ${enc.encode(s).length} >>\nstream\n${s}\nendstream`)});
+      const xr=len;put(`xref\n0 ${N+1}\n0000000000 65535 f \n`);for(let n=1;n<=N;n++)put(`${String(offs[n]).padStart(10,'0')} 00000 n \n`);
+      put(`trailer\n<< /Size ${N+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);return new Blob(parts,{type:'application/pdf'})}};
+  return D}
+/* colunas do informe (mesmas no PDF e na impressao) */
+const cbxPdfCols=R=>({
+  cc:[{t:'CENTRO DE CUSTO',w:0},{t:'LITROS',w:92,al:'r'},{t:'%',w:60,al:'r'}],
+  eq:[{t:'TAG',w:62},{t:'EQUIPAMENTO',w:0},{t:'C. CUSTO',w:64},{t:'AB.',w:34,al:'r'},{t:'HORIM. / KM',w:104,al:'r'},{t:'LITROS',w:60,al:'r'},...(R.fl.cons?[{t:'CONSUMO',w:66,al:'r'}]:[])],
+  ab:[{t:'DATA',w:62},{t:'TAG',w:62},{t:'EQUIPAMENTO',w:0},{t:'C. CUSTO',w:64},{t:'HORIM. / KM',w:92,al:'r'},{t:'LITROS',w:60,al:'r'}]});
+const cbxPdfRows=R=>({cc:R.cc.length?[...R.cc,{k:'t',c:['Total',nf(R.sai,1),'100']}]:[],
+  eq:R.eqR.length?[...R.eqR.map(r=>r.k==='g'?r:{...r,c:R.fl.cons?r.c:r.c.slice(0,6)}),{k:'t',c:['Total','','',nf(R.nAb),'',nf(R.sai,1),...(R.fl.cons?['']:[])]}]:[],
+  ab:R.ab.length?[...R.ab,{k:'t',c:['Total',`${R.ab.length} abast.`,'','','',nf(R.sai,1)]}]:[]});
+function cbxPdfBlob(R){
+  const D=pdfDoc(),M=40,W=D.PW-2*M,BOT=D.PH-50,NAVY='#0b2470',RED='#e30613',INK='#121a2c',MUT='#4f5a70',LN='#c9cfda',SUNK='#f2f4f8';let y=0;
+  const head=first=>{D.page();D.rect(M,M-4,4,18,RED);D.text(M+11,M+9.5,'RONDAFLEX · CONTROLE DE FROTA',10,1,NAVY);D.text(M+W,M+9.5,R.gerado,8,0,MUT,'r');D.line(M,M+20,M+W,M+20,1.5,NAVY);y=M+38;
+    if(!first){D.text(M,y,D.fit(`${R.tit} · ${R.perL}`,9,1,W),9,1,MUT);y+=14}};
+  const need=(h,re)=>{if(y+h>BOT){head(false);re&&re()}};
+  const box=(x,yy,w,h)=>{D.line(x,yy,x+w,yy,.8,LN);D.line(x,yy+h,x+w,yy+h,.8,LN);D.line(x,yy,x,yy+h,.8,LN);D.line(x+w,yy,x+w,yy+h,.8,LN)};
+  head(true);D.text(M,y+10,R.tit,21,1,INK);y+=28;D.text(M,y,R.perL,11,0,MUT);y+=14;
+  D.rect(M,y,W,36,SUNK);D.text(M+10,y+14,'Filtrar',8.5,1,MUT);D.text(M+68,y+14,D.fit(R.filt,8.5,0,W-78),8.5,0,INK);D.text(M+10,y+27,'Conteudo',8.5,1,MUT);D.text(M+68,y+27,D.fit(R.cont,8.5,0,W-78),8.5,0,INK);y+=50;
+  const K=[['SAIDAS',nf(R.sai,1)+' L',NAVY],...(R.ent!=null?[[R.est?'ENTRADAS (ESTIMADA)':'ENTRADAS',nf(R.ent,1)+' L',INK]]:[]),['EQUIPAMENTOS',nf(R.nEq)+(R.nMse?` + ${R.nMse} MSE`:''),INK],['ABASTECIMENTOS',nf(R.nAb),INK]];
+  const kw=(W-(K.length-1)*10)/K.length;K.forEach(([l,v,cl],i)=>{const x=M+i*(kw+10);box(x,y,kw,46);D.text(x+10,y+15,l,7.5,1,MUT);D.text(x+10,y+36,D.fit(v,16,1,kw-20),16,1,cl)});y+=62;
+  const table=(title,cols,rows)=>{if(!rows.length)return;const fx=cols.reduce((s,c)=>s+c.w,0),ws=cols.map(c=>c.w||W-fx);
+    const hdr=()=>{D.rect(M,y,W,18,SUNK);let x=M;cols.forEach((c,i)=>{D.text(c.al==='r'?x+ws[i]-5:x+5,y+12.3,c.t,7.5,1,'#33405a',c.al);x+=ws[i]});D.line(M,y+18,M+W,y+18,1,INK);y+=18};
+    need(30+18+17*Math.min(3,rows.length));y+=4;D.text(M,y+12,title,13,1,INK);y+=22;hdr();
+    rows.forEach(r=>{const h=r.k==='g'?19:17;need(h,()=>{D.text(M,y+10,title+' (continuacao)',9,1,MUT);y+=16;hdr()});
+      if(r.k==='g'){D.rect(M,y,W,h,'#e8edf7');D.text(M+5,y+12.8,D.fit(r.c[0],8.5,1,W-10),8.5,1,NAVY);D.line(M,y+h,M+W,y+h,.6,LN);y+=h;return}
+      if(r.k==='t')D.line(M,y,M+W,y,1,INK);let x=M;
+      cols.forEach((c,i)=>{const bold=r.k==='t'||(r.b||[]).includes(i),pl=i===0&&r.k==='s'?16:5,v=D.fit(r.c[i]==null?'':r.c[i],9,bold,ws[i]-pl-5);
+        D.text(c.al==='r'?x+ws[i]-5:x+pl,y+11.8,v,9,bold,r.k==='s'?MUT:INK,c.al);x+=ws[i]});
+      if(r.k!=='t')D.line(M,y+h,M+W,y+h,.5,LN);y+=h});y+=14};
+  const C=cbxPdfCols(R),RW=cbxPdfRows(R);
+  if(!R.nAb){D.text(M,y+14,'Nenhum abastecimento no periodo e filtro escolhidos.',11,0,MUT);y+=30}
+  if(R.fl.cc)table('Por centro de custo',C.cc,RW.cc);
+  if(R.fl.eq)table('Por equipamento',C.eq,RW.eq);
+  if(R.fl.ab)table('Abastecimentos',C.ab,RW.ab);
+  const nt=[R.fl.cons&&R.nAb?'Consumo em L/h; veiculo leve em km/L. Calculado com tanque cheio no periodo.':'',R.ent!=null&&R.est?'Entradas estimadas iguais as saidas ate o saldo do comboio ser informado.':''].filter(Boolean);
+  nt.forEach(s=>{need(12);D.text(M,y+4,s,8,0,MUT);y+=12});
+  need(70);y+=46;const sw=(W-40)/2;[0,1].forEach(i=>{const x=M+i*(sw+40);D.line(x,y,x+sw,y,.8,INK);D.text(x,y+12,i?'Conferido por':'Responsavel',8.5,0,MUT)});
+  const n=D.pages.length;D.pages.forEach((_,i)=>{D.on(i);D.line(M,D.PH-34,M+W,D.PH-34,.6,LN);D.text(M,D.PH-22,'Gerado pelo Controle de Frota · Rondaflex',7.5,0,MUT);D.text(M+W,D.PH-22,`Pagina ${i+1} de ${n}`,7.5,0,MUT,'r')});
+  return {blob:D.blob(),pages:n}}
+/* impressao: o mesmo informe em HTML, so na hora de imprimir (o resto da tela some) */
+function cbxPrtHtml(R){const C=cbxPdfCols(R),RW=cbxPdfRows(R);
+  const tb=(t,cols,rows)=>rows.length?`<h2>${esc(t)}</h2><table><thead><tr>${cols.map(c=>`<th class="${c.al==='r'?'r':''}"${c.w?` style="width:${c.w}pt"`:''}>${esc(c.t)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>r.k==='g'?`<tr class="g"><td colspan="${cols.length}">${esc(r.c[0])}</td></tr>`
+    :`<tr class="${r.k||''}">${cols.map((c,i)=>`<td class="${c.al==='r'?'r':''}${(r.b||[]).includes(i)?' b':''}">${esc(r.c[i]==null?'':r.c[i])}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'';
+  const K=[['Saidas',nf(R.sai,1)+' L'],...(R.ent!=null?[[R.est?'Entradas (estimada)':'Entradas',nf(R.ent,1)+' L']]:[]),['Equipamentos',nf(R.nEq)+(R.nMse?` + ${R.nMse} MSE`:'')],['Abastecimentos',nf(R.nAb)]];
+  return `<div class="p-hd"><i></i><b>RONDAFLEX · CONTROLE DE FROTA</b><span>${esc(R.gerado)}</span></div><h1>${esc(R.tit)}</h1><div class="p-per">${esc(R.perL)}</div>
+    <div class="p-fl"><b>Filtrar</b><span>${esc(R.filt)}</span><b>Conteudo</b><span>${esc(R.cont)}</span></div>
+    <div class="p-k" style="grid-template-columns:repeat(${K.length},minmax(0,1fr))">${K.map(([l,v])=>`<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>
+    ${R.nAb?'':'<p class="p-nt">Nenhum abastecimento no periodo e filtro escolhidos.</p>'}
+    ${R.fl.cc?tb('Por centro de custo',C.cc,RW.cc):''}${R.fl.eq?tb('Por equipamento',C.eq,RW.eq):''}${R.fl.ab?tb('Abastecimentos',C.ab,RW.ab):''}
+    ${R.fl.cons&&R.nAb?'<p class="p-nt">Consumo em L/h; veiculo leve em km/L. Calculado com tanque cheio no periodo.</p>':''}${R.ent!=null&&R.est?'<p class="p-nt">Entradas estimadas iguais as saidas ate o saldo do comboio ser informado.</p>':''}
+    <div class="p-as"><span>Responsavel</span><span>Conferido por</span></div><div class="p-ft">Gerado pelo Controle de Frota · Rondaflex</div>`}
+function cbxImprimir(R){document.querySelectorAll('#prt').forEach(x=>x.remove());const d=document.createElement('div');d.id='prt';d.innerHTML=cbxPrtHtml(R);document.body.appendChild(d);document.body.classList.add('prt-on');
+  const fim=()=>{window.removeEventListener('afterprint',fim);document.body.classList.remove('prt-on');d.remove()};window.addEventListener('afterprint',fim);
+  setTimeout(()=>{try{window.print()}catch(e){fim();toast('Imprimir nao esta disponivel aqui.')}},60)}
+/* informe pronto: Compartilhar (arquivo PDF) ou Imprimir */
+function cbxPdfOk(R){
+  nav('cbx:pdfok',()=>cbxPdfOk(R));let F=null;try{F=cbxPdfBlob(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o PDF.');return}
+  openSheet({title:'Informe pronto',sub:'Combustivel',
+  body:`<div class="rl-ok"><div class="rl-okc">${CBX_IC.file}<div><b>${esc(R.tit)}</b><span>${esc(R.perL)}</span><small>${esc(R.filt)}</small></div></div>
+    <div class="rl-tot"><div><small>Saidas</small><b>${nf(R.sai,1)} L</b></div><i></i><div><small>Abastecimentos</small><b>${nf(R.nAb)}</b></div></div>
+    <p class="note rl-okn">${esc(R.fname)} · ${F.pages} ${F.pages===1?'pagina':'paginas'}</p>
+    <div class="rl-okb"><button type="button" class="btn pri" id="pk-sh">${I.share}Compartilhar</button><button type="button" class="btn" id="pk-pr">${PRT_IC}Imprimir</button></div></div>`,
+  mount:sh=>{sh.querySelector('#pk-pr').onclick=()=>cbxImprimir(R);
+    const b=sh.querySelector('#pk-sh');b.onclick=async()=>{b.disabled=true;try{const f=new File([F.blob],R.fname,{type:'application/pdf'});
+      try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:R.tit});return}}catch(e){if(e&&e.name==='AbortError')return}
+      const dl=window.claude&&await claude.use('downloads').catch(()=>null);
+      if(dl){try{await dl.save({filename:R.fname,data:F.blob});toast('PDF salvo');return}catch(e){if(e&&e.code==='declined')return}}
+      const u=URL.createObjectURL(F.blob),a=document.createElement('a');a.href=u;a.download=R.fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('PDF salvo')}
+      catch(e){toast('Nao foi possivel compartilhar o PDF.')}finally{b.disabled=false}}}});
+}
 /* ---------- + › Ajustes do app › Combustivel: centros de custo e comboios ---------- */
 async function cbxAjustes(){
   nav('cbx:aj',()=>cbxAjustes());

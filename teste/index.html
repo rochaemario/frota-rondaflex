@@ -1526,8 +1526,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=c6eada7748"></script>
-<script src="shim.js?v=c6eada7748"></script>
+<script src="config.js?v=ab8e732a0d"></script>
+<script src="shim.js?v=ab8e732a0d"></script>
 </head>
 <body>
 
@@ -2982,15 +2982,27 @@ function esRelTela(){
 function esFilTela(){
   nav('esfr',()=>esFilTela());
   const r=esFilRes();
-  openSheet({title:'Estoque filtrado',body:`<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`,
-  mount:sh=>{esPrtBtn(sh,()=>({its:esFilList().filter(x=>!isKit(x)),filt:esTags().map(t=>t[2]).join(' · ')||'Todas as categorias'}));
+  const km=esKitM();
+  openSheet({title:km?'Kits filtrado':'Estoque filtrado',body:`<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`,
+  mount:sh=>{esPrtBtn(sh,()=>km?{kits:esFilList(),modo:km,filt:esTags().map(t=>t[2]).join(' · ')}:({its:esFilList().filter(x=>!isKit(x)),filt:esTags().map(t=>t[2]).join(' · ')||'Todas as categorias'}));
     sh.querySelectorAll('[data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));
     const ef=sh.querySelector('#es-fil');ef.addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();esFilTela();return}
       const x=ev.target.closest('[data-tgx]');if(!x)return;const [k,v]=x.dataset.tgx.split(':'),E=S.esSel;
-      if(k==='tag')E.tag='';else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}esFilTela()})}});
+      if(k==='tag')E.tag='';else if(k==='kit'){E.kit=[];E.ksit=[]}else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}esFilTela()})}});
 }
 /* impressora: abre direto a pre-visualizacao do que esta na tela; Estoque ou Conferencia e local de guarda */
+function kitRelDados(src){const it=src.modo==='it',l=src.kits||[],rows=[];
+  l.forEach(k=>{const eq=kitEqs(k).map(e=>e.codigo).join(', ');
+    if(!it){rows.push({c:[stCod(k),k.desc||'',eq,KSIT_L[kSit(k)]],b:kSit(k)==='falta'?[3]:[]});return}
+    rows.push({c:[`${k.desc||''} · ${KSIT_L[kSit(k)]}${eq?' · '+eq:''}`],k:'g'});
+    kitComps(k).forEach(({c,s})=>rows.push({c:[stCod(s),s.desc||'',`${nf(c.qtd,2)} ${s.un||'un'}`,`${nf(s.qtd,2)} ${s.un||'un'}`],b:(Number(s.qtd)||0)>=(Number(c.qtd)||0)?[]:[3]}))});
+  const cols=it?[{t:'CODIGO',w:84},{t:'ITEM',w:0},{t:'NO KIT',w:62,al:'r'},{t:'SALDO',w:70,al:'r'}]:[{t:'CODIGO',w:84},{t:'KIT',w:0},{t:'EQUIPAMENTOS',w:120},{t:'SITUACAO',w:80,al:'r'}];
+  return {tit:'Relatorio de kits',sub:'Estoque',perL:fdate(today()),filt:src.filt||'',cont:'',gerado:rgGerado(),
+    K:[['Kits',nf(l.length)],['Da para montar',nf(l.filter(k=>kitDisp(k)>0).length)],['Falta item',nf(l.filter(k=>kSit(k)==='falta').length)]],
+    blocks:[{t:it?'Kits com itens':'Kits',cols,rows,vazio:'Nenhum kit no filtro escolhido.'}],assin1:'Responsavel',assin2:'Conferido por',fname:`Kits ${today()}.pdf`}}
 function estPronto(src){
+  if(src&&src.kits){nav('es:kpdf',()=>estPronto(src));const R=kitRelDados(src);let F=null;try{F=rgPdfBlob(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o relatorio.');return}
+    openSheet({title:'Relatorio',sub:'Kits',body:`${RG_BTNS}<p class="note rl-okn">${esc(R.fname)} · ${F.pages} ${F.pages===1?'pagina':'paginas'}</p><div class="rg-pv" id="rg-pv"></div>`,mount:sh=>rgPreview(sh,rgHtml(R),F,R.fname,R.tit)});return}
   nav('es:pdf',()=>estPronto(src));
   const P=estPronto.st=estPronto.st||{modo:'rel',loc:false};
   const R=estRelDados({modo:P.modo,loc:P.loc,cats:[],baixo:false},src.its,src.filt);let F=null;try{F=rgPdfBlob(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o relatorio.');return}
@@ -3380,7 +3392,11 @@ const _esIx={};function esEqIx(){if(_esIx.a===S.estoque&&_esIx.b===S.eqCtl)retur
 const esNorm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 const ES_CAT={filtro:'filtro filtros',oleo:'oleo oleos lubrificante',kit:'kit kits',outro:'outro outros'};
 /* Estoque > Filtrar: selecao por criterios (categoria, saldo, encaixe, marca, local, movimento, cadastro, situacao) */
-const esSelDef=()=>({cat:[],sal:[],tag:'',etp:[],mar:[],loc:[],mov:[],inc:[],sit:['at'],ord:'az'});
+const esSelDef=()=>({cat:[],sal:[],tag:'',etp:[],mar:[],loc:[],mov:[],inc:[],sit:['at'],ord:'az',kit:[],ksit:[]});
+/* Kits no Filtrar: kit = ['so'] somente kits | ['it'] com itens; ksit = falta item, da para montar, montados */
+const esKitM=()=>{const E=S.esSel||{};return (E.kit||[])[0]||''};
+const kSit=k=>stQtd(k)<=0?'falta':kitMont(k)>0?'mont':'monta';
+const KSIT_L={falta:'Falta item',monta:'Da para montar',mont:'Montados'};
 async function esMovLoad(){try{const q=await S.db.collection('movs').where('tipo','==','saida').get();const m={},d30=iso(new Date(Date.now()-30*864e5));
   q.docs.map(d=>d.data()).forEach(x=>{if(!x.estoqueId)return;const r=m[x.estoqueId]=m[x.estoqueId]||{last:'',n30:0};if((x.data||'')>r.last)r.last=x.data||'';if((x.data||'')>=d30)r.n30+=Number(x.qtd)||0});S.esMov=m}catch(e){S.esMov=null}}
 const esSal=s=>{const q=stQtd(s),m=Number(s.minimo)||0;return q<=0?'zero':m>0&&q<=m?'baixo':m>0?'ok':'semmin'};
@@ -3391,43 +3407,52 @@ function esOpts(){const all=S.estoqueAll,dist=f=>[...new Set(all.map(f).filter(B
   return {cat:cats,sal:[['zero','Zerado'],['baixo','Abaixo do minimo'],['ok','Em dia'],['semmin','Sem minimo definido']],
     etp:[...new Set(S.eqCtl.filter(e=>cs.has(e.codigo)).map(e=>e.tipo).filter(Boolean))].sort(_an).map(v=>[v,v]),mar:dist(s=>s.marca),loc:dist(s=>s.local),
     mov:[['par','Parados (sem saida ha 90 dias)'],['uso','Mais usados (saidas em 30 dias)']],inc:[['foto','Sem foto'],['enc','Sem encaixe'],['min','Sem minimo']],
+    kit:[['so','Somente kits'],['it','Com itens']],ksit:[['falta','Falta item'],['monta','Da para montar'],['mont','Montados']],
     sit:[['at','Ativos'],['in','Inativos']],ord:[['az','A–Z'],['menor','Menor saldo'],['maior','Maior saldo'],['uso','Mais usados']]}}
 const ES_ROWS=[['cat','Categoria','Todas'],['sal','Saldo','Todos'],['eq','Equipamento','Todos'],['mar','Marca','Todas'],['loc','Local','Todos'],['mov','Movimento','Todos'],['inc','Cadastro incompleto','—'],['sit','Situacao','Todos'],['ord','Ordenar','']];
 /* escolhas ativas, para as etiquetas com X na tela do estoque */
 function esTags(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts(),lb=(k,v)=>((O[k]||[]).find(x=>x[0]===v)||[v,v])[1],t=[];
   ['cat','sal'].forEach(k=>E[k].forEach(v=>t.push([k,v,lb(k,v)])));if(E.tag)t.push(['tag','',E.tag.toUpperCase()]);E.etp.forEach(v=>t.push(['etp',v,v]));
   ['mar','loc'].forEach(k=>E[k].forEach(v=>t.push([k,v,v])));E.mov.forEach(v=>t.push(['mov',v,v==='par'?'Parados':'Mais usados']));E.inc.forEach(v=>t.push(['inc',v,lb('inc',v)]));
+  if(!E.kit)E.kit=[];if(!E.ksit)E.ksit=[];E.kit.forEach(v=>t.push(['kit',v,v==='so'?'Somente kits':'Kits com itens']));E.ksit.forEach(v=>t.push(['ksit',v,KSIT_L[v]]));
   if(E.sit.join()!=='at')t.push(['sit','',E.sit.length===1?lb('sit',E.sit[0]):'Ativos e inativos']);if(E.ord!=='az')t.push(['ord','','Ordem: '+lb('ord',E.ord)]);return t}
 function esRowVal(k){const E=S.esSel,O=esOpts(),lb=(kk,v)=>((O[kk]||[]).find(x=>x[0]===v)||[v,v])[1];
   if(k==='eq'){const l=[E.tag?E.tag.toUpperCase():'',...E.etp].filter(Boolean);return l.join(', ')}
+  if(k==='kit')return [...(E.kit||[]).map(v=>lb('kit',v)),...(E.ksit||[]).map(v=>KSIT_L[v])].join(', ');
   if(k==='ord')return lb('ord',E.ord);if(k==='sit')return E.sit.length===1?lb('sit',E.sit[0]):'';if(k==='mov')return E.mov.map(v=>v==='par'?'Parados':'Mais usados').join(', ');
   return E[k].map(v=>lb(k,v)).join(', ')}
-function esFilSheet(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts();
+function esFilSheet(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts();if(!E.kit)E.kit=[];if(!E.ksit)E.ksit=[];
   nav('esf',()=>esFilSheet());
   const c=(k,v,t)=>`<button type="button" class="ef-c" data-ef="${k}:${esc(v)}" aria-pressed="${k==='ord'?E.ord===v:E[k].includes(v)}">${esc(t)}</button>`;
-  const opts=k=>k==='eq'?`<div class="search ef-q">${I.search}<input id="ef-tag" type="search" value="${esc(E.tag)}" placeholder="TAG do equipamento" autocomplete="off" aria-label="TAG do equipamento"></div>${O.etp.length?`<div class="ef-cs">${O.etp.map(([v,t])=>c('etp',v,t)).join('')}</div>`:''}`
+  const opts=k=>k==='kit'?`<div class="lbl" style="margin:2px 2px 6px">Mostrar</div><div class="ef-cs">${O.kit.map(([v,t])=>c('kit',v,t)).join('')}</div><div class="lbl" style="margin:10px 2px 6px">Situacao do kit</div><div class="ef-cs">${O.ksit.map(([v,t])=>c('ksit',v,t)).join('')}</div>`:k==='eq'?`<div class="search ef-q">${I.search}<input id="ef-tag" type="search" value="${esc(E.tag)}" placeholder="TAG do equipamento" autocomplete="off" aria-label="TAG do equipamento"></div>${O.etp.length?`<div class="ef-cs">${O.etp.map(([v,t])=>c('etp',v,t)).join('')}</div>`:''}`
     :`<div class="ef-cs">${O[k].map(([v,t])=>c(k,v,t)).join('')}</div>`;
   const val=(k,d)=>{const v=esRowVal(k);return `<span class="${v&&!(k==='ord'&&E.ord==='az')&&!(k==='sit'&&E.sit.join()==='at')?'on':''}">${esc(v||d)}</span>`};
-  const ver=()=>{const n=esFilList().length;return `Ver ${n} ${n===1?'item':'itens'}`};
+  const ver=()=>{const n=esFilList().length;return esKitM()?`Ver ${n} ${n===1?'kit':'kits'}`:`Ver ${n} ${n===1?'item':'itens'}`};
   openSheet({title:'Filtrar estoque',sub:'Toque num criterio para escolher',
-  body:`<div class="xf-top"><button type="button" class="btn sm" id="xf-clr">Limpar</button></div><div class="xb"><div class="xf-i"><button type="button" class="xr" id="xf-kits"><b>Kits</b><span class="xv"><span>${S.estoque.filter(isKit).length}</span></span><span style="display:inline-flex;transform:rotate(180deg)">${I.back}</span></button></div>${ES_ROWS.filter(([k])=>k==='eq'||k==='ord'||O[k].length).map(([k,t,d])=>`<div class="xf-i"><button type="button" class="xr" data-xr="${k}" aria-expanded="false"><b>${t}</b><span class="xv" data-xv="${k}">${val(k,d)}</span>${I.chev}</button><div class="xo" hidden>${opts(k)}</div></div>`).join('')}</div>`,
+  body:`<div class="xf-top"><button type="button" class="btn sm" id="xf-clr">Limpar</button></div><div class="xb">${[['kit','Kits','Nao mostrar'],...ES_ROWS].filter(([k])=>k==='eq'||k==='ord'||k==='kit'||O[k].length).map(([k,t,d])=>`<div class="xf-i"><button type="button" class="xr" data-xr="${k}" aria-expanded="false"><b>${t}</b><span class="xv" data-xv="${k}">${val(k,d)}</span>${I.chev}</button><div class="xo" hidden>${opts(k)}</div></div>`).join('')}</div>`,
   foot:`<button class="btn pri" id="xf-ver">${ver()}</button>`,
-  mount:sh=>{const upd=k=>{const r=ES_ROWS.find(x=>x[0]===k||(k==='etp'&&x[0]==='eq')||(k==='tag'&&x[0]==='eq'));if(r)sh.querySelector(`[data-xv="${r[0]}"]`).innerHTML=val(r[0],r[2]);sh.querySelector('#xf-ver').textContent=ver()};
+  mount:sh=>{const upd=k=>{if(k==='ksit')k='kit';const r=k==='kit'?['kit','Kits','Nao mostrar']:ES_ROWS.find(x=>x[0]===k||(k==='etp'&&x[0]==='eq')||(k==='tag'&&x[0]==='eq'));if(r)sh.querySelector(`[data-xv="${r[0]}"]`).innerHTML=val(r[0],r[2]);sh.querySelector('#xf-ver').textContent=ver()};
     sh.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const it=b.closest('.xf-i'),ab=b.getAttribute('aria-expanded')!=='true';
       sh.querySelectorAll('.xf-i').forEach(x=>{x.querySelector('[data-xr]').setAttribute('aria-expanded','false');x.querySelector('.xo').hidden=true});
       if(ab){b.setAttribute('aria-expanded','true');it.querySelector('.xo').hidden=false}});
     sh.querySelectorAll('[data-ef]').forEach(cc=>cc.onclick=()=>{const [k,v]=cc.dataset.ef.split(':');
       if(k==='ord'){E.ord=v;sh.querySelectorAll('[data-ef^="ord:"]').forEach(x=>x.setAttribute('aria-pressed',x===cc))}
+      else if(k==='kit'){E.kit=E.kit[0]===v?[]:[v];sh.querySelectorAll('[data-ef^="kit:"]').forEach(x=>x.setAttribute('aria-pressed',E.kit[0]===x.dataset.ef.slice(4)))}
       else{const a=E[k],i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);cc.setAttribute('aria-pressed',i<0)}upd(k)});
     const tg=sh.querySelector('#ef-tag');if(tg)tg.oninput=()=>{E.tag=tg.value.trim();upd('tag')};
     sh.querySelector('#xf-clr').onclick=()=>{S.esSel=esSelDef();NAV.pop();esFilSheet()};
-    sh.querySelector('#xf-ver').onclick=()=>esFilTela();sh.querySelector('#xf-kits').onclick=()=>openKits();
+    sh.querySelector('#xf-ver').onclick=()=>esFilTela();
     if(!S.esMov)esMovLoad().then(()=>{const v=sh.querySelector('#xf-ver');if(v&&v.isConnected)v.textContent=ver()})}});
 }
 function esFilList(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[\s.\-\/]/g,'');
   const d90=iso(new Date(Date.now()-90*864e5)),mv=s=>(M&&M[s.id])||{last:'',n30:0};
   const tpCods=E.etp.length?new Set(S.eqCtl.filter(e=>E.etp.includes(e.tipo)).map(e=>e.codigo)):null,tag=nz(E.tag);
   const cods=s=>[...(ix[s.id]||[]),...(s.encaixe||[]).map(id=>{const e=eqById(id);return e&&e.codigo}).filter(Boolean)];
+  if(!E.kit)E.kit=[];if(!E.ksit)E.ksit=[];
+  if(E.kit.length)return S.estoqueAll.filter(k=>{if(!isKit(k))return false;if(E.sit.length===1&&(E.sit[0]==='at')===!!k.inativo)return false;
+    if(E.ksit.length&&!E.ksit.includes(kSit(k)))return false;
+    if(tag||tpCods){const cs=[...cods(k),...kitEqs(k).map(e=>e.codigo)];if(tag&&!cs.some(x=>nz(x).includes(tag)))return false;if(tpCods&&!cs.some(x=>tpCods.has(x)))return false}
+    return true}).sort((a,b)=>_an(a.desc||'',b.desc||'')||byCode(a,b));
   let l=S.estoqueAll.filter(s=>{
     if(E.sit.length===1&&(E.sit[0]==='at')===!!s.inativo)return false;
     if(E.cat.length&&!E.cat.includes(catGrp(s)))return false;
@@ -3443,7 +3468,16 @@ function esFilList(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,n
 /* 3 cartoes do estoque: cada item conta 1 (oleo tambem) */
 function esCards(l){const tem=l.filter(s=>stQtd(s)>0).length,baixo=l.filter(s=>stockCls(s)!=='ok').length;
   return `<div class="ef-sum"><div><b class="num">${l.length}</b><span>Total de itens</span></div><div><b class="num">${tem}</b><span>Em estoque</span></div><div class="${baixo?'w':''}"><b class="num">${baixo}</b><span>Abaixo do minimo</span></div></div>`}
-function esFilRes(){const l=esFilList(),E=S.esSel,ix=esEqIx(),tags=esTags();
+function esKitCards(l){const f=l.filter(k=>kSit(k)==='falta').length,m=l.filter(k=>kitDisp(k)>0).length;
+  return `<div class="ef-sum"><div><b class="num">${l.length}</b><span>Kits</span></div><div><b class="num">${m}</b><span>Da para montar</span></div><div class="${f?'w':''}"><b class="num">${f}</b><span>Falta item</span></div></div>`}
+function esKitRes(l){const it=esKitM()==='it';
+  if(!l.length)return '<div class="empty">Nenhum kit com essa selecao.</div>';
+  if(!it)return `<div class="es-blk es-res"><div class="es-l">${l.map(k=>esRow(k,{attr:`data-mov="${esc(k.id)}"`,sub:`${esc(stCod(k))} · ${esc(KSIT_L[kSit(k)])}${kitEqs(k).length?' · '+esc(kitEqs(k).map(e=>e.codigo).join(', ')):''}`})).join('')}</div></div>`;
+  return l.map(k=>{const cs=kitComps(k);return `<div class="es-blk"><div class="es-g"><span>${esc(k.desc)}</span><em>${esc(KSIT_L[kSit(k)])}</em></div><div class="es-l">${esRow(k,{attr:`data-mov="${esc(k.id)}"`,sub:`${esc(stCod(k))}${kitEqs(k).length?' · '+esc(kitEqs(k).map(e=>e.codigo).join(', ')):''}`})}${cs.map(({c,s})=>esRow(s,{attr:`data-mov="${esc(s.id)}"`,cls:(Number(s.qtd)||0)>=(Number(c.qtd)||0)?'ok':'bad',sub:`${esc(stCod(s))} · no kit ${nf(c.qtd,2)} ${esc(s.un||'un')}`})).join('')}</div></div>`}).join('')}
+function esFilRes(){const l=esFilList(),E=S.esSel,ix=esEqIx(),tags=esTags(),km=esKitM();
+  if(km)return [`${esKitCards(l)}
+  ${tags.length?`<div class="ef-tg">${tags.map(([k,v,t])=>`<button type="button" data-tgx="${k}:${esc(v)}" aria-label="Tirar ${esc(t)}">${esc(t)}<i>✕</i></button>`).join('')}</div>`:''}
+  <div class="ef-n"><span id="es-n">${l.length} ${l.length===1?'kit encontrado':'kits encontrados'}</span>${tags.length?'<button type="button" class="btn sm" id="ef-clr">Limpar</button>':''}</div>`,esKitRes(l)];
   return [`${esCards(l)}
   ${tags.length?`<div class="ef-tg">${tags.map(([k,v,t])=>`<button type="button" data-tgx="${k}:${esc(v)}" aria-label="Tirar ${esc(t)}">${esc(t)}<i>✕</i></button>`).join('')}</div>`:''}
   <div class="ef-n"><span id="es-n">${l.length} ${l.length===1?'item encontrado':'itens encontrados'}</span>${tags.length?'<button type="button" class="btn sm" id="ef-clr">Limpar</button>':''}</div>
@@ -3510,7 +3544,7 @@ function bindView(){
     esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});app.querySelectorAll('[data-estab]').forEach(b=>b.onclick=()=>{NAV.length=0;if(b.dataset.estab==='rel')esRelTela();else esFilSheet()});
     const ef=app.querySelector('#es-fil');if(ef){ef.addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();render();return}
       const x=ev.target.closest('[data-tgx]');if(!x)return;const [k,v]=x.dataset.tgx.split(':'),E=S.esSel;
-      if(k==='tag')E.tag='';else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}render()})}esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
+      if(k==='tag')E.tag='';else if(k==='kit'){E.kit=[];E.ksit=[]}else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}render()})}esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
     esq.onfocus=()=>{S.esFoc=true};esq.onblur=()=>setTimeout(()=>{if(esq.isConnected)S.esFoc=false},0);
     if(S.esQ){esq.value=S.esQ;run()}
     if(S.esFoc){esq.focus({preventScroll:true});const n=esq.value.length;try{esq.setSelectionRange(n,n)}catch(e){}}}

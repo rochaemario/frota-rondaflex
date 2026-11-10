@@ -194,6 +194,10 @@ body.focus .sidetabs{display:none!important}
 .stab.lite .dot{width:9px;height:9px;border-radius:50%;background:var(--line-2)}
 /* modo ajuste ligado: amarelo bem visivel, igual nos dois temas */
 .stab.lite.on{background:#ffc21a;border-color:#e0a400;color:#2b1c00;box-shadow:-3px 4px 14px rgba(255,194,26,.45)}
+/* modo ajuste ligado: cabecalho e barra de status no mesmo amarelo do botao Ajustes */
+body.aj-on header{--ink:#ffc21a;--ink-fg:#2b1c00;--ink-muted:#5a4200;--ink-acc:#7a5600}
+body.aj-on::before{background:#ffc21a}
+body.aj-on .sync.on::before{background:#1d7440;box-shadow:0 0 0 3px rgba(29,116,64,.2)}
 .stab.lite.on .dot{background:#2b1c00;box-shadow:0 0 0 3px rgba(43,28,0,.2)}
 .aj-b{margin-bottom:12px;border:1.5px solid #e0a400;background:#fff4cc;color:#2b1c00}
 .aj-b b{color:#2b1c00}
@@ -1527,8 +1531,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=6242cd956f"></script>
-<script src="shim.js?v=6242cd956f"></script>
+<script src="config.js?v=0d8cc8c888"></script>
+<script src="shim.js?v=0d8cc8c888"></script>
 </head>
 <body>
 
@@ -3809,7 +3813,7 @@ function formLista(k,mode='editar'){
 }
 $('#sidehm').onclick=()=>{NAV.length=0;formLeituras()};
 const AJ_BANNER='<div class="banner aj-b"><div>Ajuste ligado: este lancamento nao altera o estoque.</div></div>';
-function paintAj(){const b=$('#sideaj');b.classList.toggle('on',!!S.ajuste);b.setAttribute('aria-pressed',!!S.ajuste);b.setAttribute('aria-label',S.ajuste?'Ajustes: ligado, lancamentos nao alteram o estoque':'Ajustes: desligado')}
+function paintAj(){const b=$('#sideaj');b.classList.toggle('on',!!S.ajuste);document.body.classList.toggle('aj-on',!!S.ajuste);{const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',S.ajuste?'#ffc21a':'#0b2470')}b.setAttribute('aria-pressed',!!S.ajuste);b.setAttribute('aria-label',S.ajuste?'Ajustes: ligado, lancamentos nao alteram o estoque':'Ajustes: desligado')}
 function setAjuste(v){S.ajuste=v;paintAj();toast(S.ajuste?'Registra sem dar baixa no <span style="white-space:nowrap">estoque'+AJS+'</span>':'Lancamentos voltam a alterar o estoque','aj',S.ajuste?'Modo ajuste ligado':'Modo ajuste desligado',true)}
 $('#sideaj').onclick=()=>{S.ajuste=!S.ajuste;paintAj();
   toast(S.ajuste?'Registra sem dar baixa no <span style="white-space:nowrap">estoque'+AJS+'</span>':'Lancamentos voltam a alterar o estoque','aj',S.ajuste?'Modo ajuste ligado':'Modo ajuste desligado',true);

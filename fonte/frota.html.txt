@@ -1489,7 +1489,7 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .rg-pg .p-ft{margin-top:16px;font-size:7.5px;color:#4f5a70}
 /* estoque: botoes de impressao no Relatorio */
 .rg-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
-.es-pr{display:flex;justify-content:flex-end;margin:2px -6px -6px 0}.es-prb{width:38px;height:34px;border:0;background:none;color:var(--muted);display:grid;place-items:center;border-radius:10px;cursor:pointer;opacity:.8}.es-prb:active{background:rgba(11,36,112,.06)}.es-prb svg{width:19px;height:19px}
+.es-tabs.es-tabs2{grid-template-columns:1fr 1fr}.es-prh{color:var(--accent)}.es-prh svg{width:21px;height:21px}.est-op{margin:0 0 12px}.est-op .rl-cl{margin-top:10px}
 .rg-bar .btn{min-height:44px;gap:8px;font-size:14.5px}
 .rg-bar .btn svg{width:17px;height:17px}
 /* conferencia de estoque */
@@ -2939,8 +2939,8 @@ function estRel(modo){
       B.querySelectorAll('[data-rgo]').forEach(b=>b.onclick=()=>{ler();P.modo=b.dataset.rgo;draw();const t=$('#sheet .sh-title');if(t)t.textContent=P.modo==='conf'?'Folha de conferencia':'Relatorio do estoque'})},
     gerar:async B=>{rgPerLer(B,P);P.cats=[...B.querySelectorAll('[data-rgc]')].filter(x=>x.checked).map(x=>x.dataset.rgc);return estRelDados(P)}});
 }
-function estRelDados(P){const CF=P.modo==='conf';
-  const its=S.estoque.filter(x=>!isKit(x)&&(!P.cats.length||P.cats.includes(catGrp(x)))&&(CF||!P.baixo||stockCls(x)!=='ok'));
+function estRelDados(P,lista,filtTx){const CF=P.modo==='conf';
+  const its=(lista||S.estoque).filter(x=>!isKit(x)&&(!P.cats.length||P.cats.includes(catGrp(x)))&&(CF||!P.baixo||stockCls(x)!=='ok'));
   const G=CATS.map(c=>[catKey(c),catPl(c)]);const rows=[];
   G.forEach(([k,l])=>{const g=its.filter(x=>catGrp(x)===k).sort(byCode);if(!g.length)return;rows.push({c:[`${l} · ${g.length}`],k:'g'});
     g.forEach(x=>rows.push(CF?{c:[stCod(x),x.desc||'',...(P.loc?[x.local||'']:[]),x.un||'un',nf(x.qtd,2),'',''],h:22,cx:true}
@@ -2948,10 +2948,42 @@ function estRelDados(P){const CF=P.modo==='conf';
   const cols=CF?[{t:'CODIGO',w:84},{t:'ITEM',w:0},...(P.loc?[{t:'LOCAL',w:70}]:[]),{t:'UN',w:30},{t:'NO APP',w:54,al:'r'},{t:'CONTADO',w:66},{t:'OBS',w:84}]
     :[{t:'CODIGO',w:84},{t:'ITEM',w:0},...(P.loc?[{t:'LOCAL',w:70}]:[]),{t:'MIN.',w:46,al:'r'},{t:'SALDO',w:70,al:'r'},{t:'SITUACAO',w:62,al:'r'}];
   const catTx=P.cats.length?G.filter(([k])=>P.cats.includes(k)).map(x=>x[1]).join(', '):'Todas as categorias';
-  return {tit:CF?'Folha de conferencia do estoque':'Relatorio do estoque',sub:'Estoque',perL:fdate(today()),filt:[catTx,!CF&&P.baixo?'so abaixo do minimo':''].filter(Boolean).join(' · '),cont:'',gerado:rgGerado(),
+  return {tit:CF?'Folha de conferencia do estoque':'Relatorio do estoque',sub:'Estoque',perL:fdate(today()),filt:filtTx||[catTx,!CF&&P.baixo?'so abaixo do minimo':''].filter(Boolean).join(' · '),cont:'',gerado:rgGerado(),
     K:CF?[['Itens',nf(its.length)]]:[['Itens',nf(its.length)],['Abaixo do minimo',nf(its.filter(x=>stockCls(x)==='warn').length)],['Sem saldo',nf(its.filter(x=>stockCls(x)==='bad').length)]],
     blocks:[{t:CF?'Contagem':'Itens',cols,rows,vazio:'Nenhum item no filtro escolhido.'}],assin1:CF?'Contado por':'Responsavel',assin2:CF?'Conferido por':'Conferido por',
     fname:`${CF?'Conferencia estoque':'Estoque'} ${today()}.pdf`}}
+
+/* ---------- Estoque: Relatorio e resultado do Filtrar abrem em tela propria, com impressora no cabecalho ---------- */
+function esPrtBtn(sh,src){const hd=sh.querySelector('.sh-head');if(!hd)return;const b=document.createElement('button');b.type='button';b.className='cbx-mb es-prh';b.setAttribute('aria-label','Imprimir');b.title='Imprimir';b.innerHTML=PRT_IC;
+  b.onclick=()=>estPronto(src());hd.appendChild(b)}
+function esRelTela(){
+  nav('esrel',()=>esRelTela());
+  const l=S.estoque.filter(x=>!isKit(x)).sort(byCode),G=CATS.map(c=>[catKey(c),catPl(c)]);
+  const body=esCards(l)+(l.length?G.map(([k,lab])=>{const g=l.filter(s=>catGrp(s)===k);return g.length?`<div class="es-blk"><div class="es-g"><span>${lab}</span><em>${g.length}</em></div><div class="es-l">${g.map(s=>esRow(s,{attr:`data-mov="${esc(s.id)}"`})).join('')}</div></div>`:''}).join(''):'<div class="empty">Nenhum item cadastrado.</div>');
+  openSheet({title:'Relatorio do estoque',body,mount:sh=>{esPrtBtn(sh,()=>({its:S.estoque.filter(x=>!isKit(x)),filt:'Todas as categorias'}));
+    sh.querySelectorAll('[data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov))}});
+}
+function esFilTela(){
+  nav('esfr',()=>esFilTela());
+  const r=esFilRes();
+  openSheet({title:'Estoque filtrado',body:`<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`,
+  mount:sh=>{esPrtBtn(sh,()=>({its:esFilList().filter(x=>!isKit(x)),filt:esTags().map(t=>t[2]).join(' · ')||'Todas as categorias'}));
+    sh.querySelectorAll('[data-mov]').forEach(b=>b.onclick=()=>formMov(b.dataset.mov));
+    const ef=sh.querySelector('#es-fil');ef.addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();esFilTela();return}
+      const x=ev.target.closest('[data-tgx]');if(!x)return;const [k,v]=x.dataset.tgx.split(':'),E=S.esSel;
+      if(k==='tag')E.tag='';else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}esFilTela()})}});
+}
+/* impressora: abre direto a pre-visualizacao do que esta na tela; Estoque ou Conferencia e local de guarda */
+function estPronto(src){
+  nav('es:pdf',()=>estPronto(src));
+  const P=estPronto.st=estPronto.st||{modo:'rel',loc:false};
+  const R=estRelDados({modo:P.modo,loc:P.loc,cats:[],baixo:false},src.its,src.filt);let F=null;try{F=rgPdfBlob(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o relatorio.');return}
+  openSheet({title:'Relatorio',sub:'Estoque',
+  body:`<div class="est-op">${rgSeg('rgo',[['rel','Estoque'],['conf','Conferencia']],P.modo)}<div class="rl-cl">${rgCk('loc','Mostrar local de guarda',P.loc)}</div></div>${RG_BTNS}<p class="note rl-okn">${esc(R.fname)} · ${F.pages} ${F.pages===1?'pagina':'paginas'}</p><div class="rg-pv" id="rg-pv"></div>`,
+  mount:sh=>{rgPreview(sh,rgHtml(R),F,R.fname,R.tit);
+    sh.querySelectorAll('[data-rgo]').forEach(b=>b.onclick=()=>{if(P.modo===b.dataset.rgo)return;P.modo=b.dataset.rgo;estPronto(src)});
+    const ck=sh.querySelector('[data-rck="loc"]');if(ck)ck.onchange=()=>{P.loc=ck.checked;estPronto(src)}}});
+}
 
 /* ---------- + › Estoque › Conferencia de estoque: digita o que foi contado; ao salvar, o saldo fica igual ao contado ---------- */
 function confEst(){
@@ -3362,7 +3394,7 @@ function esFilSheet(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts();
   const val=(k,d)=>{const v=esRowVal(k);return `<span class="${v&&!(k==='ord'&&E.ord==='az')&&!(k==='sit'&&E.sit.join()==='at')?'on':''}">${esc(v||d)}</span>`};
   const ver=()=>{const n=esFilList().length;return `Ver ${n} ${n===1?'item':'itens'}`};
   openSheet({title:'Filtrar estoque',sub:'Toque num criterio para escolher',
-  body:`<div class="xf-top"><button type="button" class="btn sm" id="xf-clr">Limpar</button></div><div class="xb">${ES_ROWS.filter(([k])=>k==='eq'||k==='ord'||O[k].length).map(([k,t,d])=>`<div class="xf-i"><button type="button" class="xr" data-xr="${k}" aria-expanded="false"><b>${t}</b><span class="xv" data-xv="${k}">${val(k,d)}</span>${I.chev}</button><div class="xo" hidden>${opts(k)}</div></div>`).join('')}</div>`,
+  body:`<div class="xf-top"><button type="button" class="btn sm" id="xf-clr">Limpar</button></div><div class="xb"><div class="xf-i"><button type="button" class="xr" id="xf-kits"><b>Kits</b><span class="xv"><span>${S.estoque.filter(isKit).length}</span></span><span style="display:inline-flex;transform:rotate(180deg)">${I.back}</span></button></div>${ES_ROWS.filter(([k])=>k==='eq'||k==='ord'||O[k].length).map(([k,t,d])=>`<div class="xf-i"><button type="button" class="xr" data-xr="${k}" aria-expanded="false"><b>${t}</b><span class="xv" data-xv="${k}">${val(k,d)}</span>${I.chev}</button><div class="xo" hidden>${opts(k)}</div></div>`).join('')}</div>`,
   foot:`<button class="btn pri" id="xf-ver">${ver()}</button>`,
   mount:sh=>{const upd=k=>{const r=ES_ROWS.find(x=>x[0]===k||(k==='etp'&&x[0]==='eq')||(k==='tag'&&x[0]==='eq'));if(r)sh.querySelector(`[data-xv="${r[0]}"]`).innerHTML=val(r[0],r[2]);sh.querySelector('#xf-ver').textContent=ver()};
     sh.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const it=b.closest('.xf-i'),ab=b.getAttribute('aria-expanded')!=='true';
@@ -3373,7 +3405,7 @@ function esFilSheet(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts();
       else{const a=E[k],i=a.indexOf(v);i<0?a.push(v):a.splice(i,1);cc.setAttribute('aria-pressed',i<0)}upd(k)});
     const tg=sh.querySelector('#ef-tag');if(tg)tg.oninput=()=>{E.tag=tg.value.trim();upd('tag')};
     sh.querySelector('#xf-clr').onclick=()=>{S.esSel=esSelDef();NAV.pop();esFilSheet()};
-    sh.querySelector('#xf-ver').onclick=()=>closeSheet();
+    sh.querySelector('#xf-ver').onclick=()=>esFilTela();sh.querySelector('#xf-kits').onclick=()=>openKits();
     if(!S.esMov)esMovLoad().then(()=>{const v=sh.querySelector('#xf-ver');if(v&&v.isConnected)v.textContent=ver()})}});
 }
 function esFilList(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[\s.\-\/]/g,'');
@@ -3401,7 +3433,7 @@ function esFilRes(){const l=esFilList(),E=S.esSel,ix=esEqIx(),tags=esTags();
   <div class="ef-n"><span id="es-n">${l.length} ${l.length===1?'item encontrado':'itens encontrados'}</span>${tags.length?'<button type="button" class="btn sm" id="ef-clr">Limpar</button>':''}</div>
   ${E.mov.length&&!S.esMov?'<p class="note">Movimento indisponivel agora (sem conexao); criterio ignorado.</p>':''}`,
   l.length?`<div class="es-blk es-res"><div class="es-l">${l.map(s=>esRow(s,{attr:`data-mov="${esc(s.id)}" data-q="${esc(esNorm([s.desc,s.codigo,s.ref,s.marca,s.aplic,s.local,isKit(s)?'kit':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' ')))}"`})).join('')}</div></div>`:'<div class="empty">Nenhum item com essa selecao.</div>']}
-function vEstoque(){
+function vEstoque(){S.esAll=false;S.esFil=false;
   const ord={bad:0,warn:1,ok:2};
   const list=S.estoque.slice().sort(byCode);
   const G=[];CATS.forEach(c=>{G.push([catKey(c),catPl(c)]);if(c==='Filtro')G.push(['kit','Kits'])});if(!G.some(x=>x[0]==='kit'))G.unshift(['kit','Kits']);
@@ -3410,7 +3442,7 @@ function vEstoque(){
   const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],isKit(s)?'':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' '));
   const row=s=>esRow(s,{attr:`data-mov="${esc(s.id)}"${busca?` data-q="${esc(qOf(s))}"`:''}`});
   return toolbar('Filtros, oleos e kits da oficina')+
-  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button><button type="button" class="btn es-tab" data-eskits>${KIT_IC}Kits</button></div></div>${S.esAll?esCards(S.estoque)+`<div class="es-pr"><button type="button" class="es-prb" data-rgest="" aria-label="Relatorio ou folha de conferencia em PDF">${PRT_IC}</button></div>`:''}${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
+  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs es-tabs2"><button type="button" class="btn es-tab" data-estab="rel" ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button></div></div>`:'')+
   (list.length?G.map(([k,lab])=>{const l=list.filter(s=>grp(s)===k);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>${lab}</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''}).join('')+(()=>{const l=S.estoqueAll.filter(x=>x.inativo).sort(byCode);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>Inativos</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''})()+(busca?'<div class="empty es-0" id="esq-0" hidden>Nenhum item encontrado.</div>':'')
   :'<div class="empty"><b>Estoque vazio</b>Toque no botao + para cadastrar filtros e oleos. Ligados ao plano da maquina, eles baixam sozinhos a cada troca.</div>');
 }
@@ -3459,9 +3491,8 @@ function bindView(){
         blk.hidden=!n;const em=blk.querySelector('.es-g em');if(em)em.textContent=n;tot+=n});
       const z=$('#esq-0');if(z)z.hidden=!!tot||(fil&&!blks.length);const en=$('#es-n');if(en&&fil)en.textContent=`${tot} ${tot===1?'item encontrado':'itens encontrados'}`};
     {const ek=app.querySelector('[data-eskits]');if(ek)ek.onclick=()=>openKits()}
-    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});app.querySelectorAll('[data-estab]').forEach(b=>b.onclick=()=>{if(b.dataset.estab==='rel'){S.esAll=!S.esAll;S.esFil=false;render();return}
-      if(!S.esFil){S.esFil=true;S.esAll=false;render()}NAV.length=0;esFilSheet()});
-    const ef=$('#es-fil');if(ef){ef.addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();render();return}
+    esq.oninput=run;const ec=$('#es-cam');if(ec)ec.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item){NAV.length=0;formMov(v.item.id)}else if(v.text){esq.value=v.text;run()}}});app.querySelectorAll('[data-estab]').forEach(b=>b.onclick=()=>{NAV.length=0;if(b.dataset.estab==='rel')esRelTela();else esFilSheet()});
+    const ef=app.querySelector('#es-fil');if(ef){ef.addEventListener('click',ev=>{if(ev.target.closest('#ef-clr')){S.esSel=esSelDef();render();return}
       const x=ev.target.closest('[data-tgx]');if(!x)return;const [k,v]=x.dataset.tgx.split(':'),E=S.esSel;
       if(k==='tag')E.tag='';else if(k==='sit')E.sit=['at'];else if(k==='ord')E.ord='az';else{const i=E[k].indexOf(v);if(i>=0)E[k].splice(i,1)}render()})}esq.onkeydown=ev=>{if(ev.key==='Enter')esq.blur()};
     esq.onfocus=()=>{S.esFoc=true};esq.onblur=()=>setTimeout(()=>{if(esq.isConnected)S.esFoc=false},0);
@@ -6035,7 +6066,6 @@ function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,mi
 function vOSCard(){const L=osLista(),ab=L.filter(v=>v.sit==='aberta').length,par=new Set(L.filter(v=>osParado(v.eq)).map(v=>v.eq)).size,cf=L.filter(v=>osPendPecas(v).length).length;
   return `<div class="os-home"><button type="button" data-osh="ab"><b>${ab}</b><span>Abertas</span></button><button type="button" data-osh="par" class="r"><b>${par}</b><span>${par===1?'Parado':'Parados'}</span></button>${osAdm()?`<button type="button" data-osh="cf" class="a"><b>${cf}</b><span>Conferir</span></button>`:''}</div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('.os-rr[data-osv]');if(b)openOS(b.dataset.osv)});
-document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-rgest]');if(!b)return;NAV.length=0;estRel.st=null;estRel(b.dataset.rgest)});
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-eqos]');if(!b)return;const e=eqById(b.dataset.eqos);openOSLista({tab:'abertas',q:e?e.codigo:''});if(!osDoEq(b.dataset.eqos).some(v=>v.sit==='aberta')){S.osF.tab='fechadas';openOSLista()}});
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-osh]');if(!b)return;const k=b.dataset.osh;openOSLista(k==='par'?{par:true}:k==='cf'?{conf:true}:{})});
 

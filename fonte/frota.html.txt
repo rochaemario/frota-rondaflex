@@ -1457,6 +1457,61 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-rx{width:30px;height:30px;border-radius:50%;border:0;background:#f1f3f7;color:#5b6577;font-size:19px;line-height:1;cursor:pointer;flex:none}
 .os-ra{display:flex;align-items:center;gap:9px;border:0;border-top:1px solid var(--line);background:none;color:var(--accent);font:600 14px var(--body);padding:8px 10px;min-height:44px;cursor:pointer;text-align:left}.os-ra span{width:28px;height:28px;border-radius:50%;border:1.5px dashed #9fb0cf;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
 .os-rr.pk{cursor:pointer;padding-right:12px}.os-rc{width:24px;height:24px;border-radius:50%;border:1.8px solid #c3cbd8;display:flex;align-items:center;justify-content:center;color:transparent;flex:none}.os-rr.pk.on .os-rc{background:var(--accent);border-color:var(--accent);color:#fff}.os-rr.pk.on{background:#f4f7fd}
+
+/* relatorios: pre-visualizacao da folha (mesmo desenho da impressao) */
+.rg-okb{margin:0 0 8px}
+.rg-pv{position:relative;overflow:hidden;background:#dfe3ea;border-radius:12px;padding:0;margin-top:10px;min-height:120px}
+.rg-pg{width:595px;box-sizing:border-box;background:#fff;padding:30px 32px 34px;transform-origin:0 0;color:#121a2c;font:10px Arial,Helvetica,sans-serif;box-shadow:0 1px 4px rgba(10,21,16,.18)}
+.rg-pg .p-hd{display:flex;align-items:center;gap:7px;padding-bottom:5px;border-bottom:1.5px solid #0b2470}
+.rg-pg .p-hd i{width:3px;height:13px;background:#e30613}
+.rg-pg .p-hd b{flex:1;color:#0b2470;font-size:10px;letter-spacing:.5px}
+.rg-pg .p-hd span{font-size:8px;color:#4f5a70}
+.rg-pg h1{margin:14px 0 2px;font:700 20px Arial,Helvetica,sans-serif;color:#121a2c}
+.rg-pg .p-per{font-size:11px;color:#4f5a70}
+.rg-pg .p-fl{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;margin-top:10px;padding:7px 10px;background:#f2f4f8;font-size:8.5px}
+.rg-pg .p-fl b{color:#4f5a70}
+.rg-pg .p-k{display:grid;gap:8px;margin-top:12px}
+.rg-pg .p-k div{border:.8px solid #c9cfda;padding:7px 9px;min-width:0;overflow:hidden}
+.rg-pg .p-k small{display:block;font-size:7.5px;font-weight:700;color:#4f5a70;text-transform:uppercase}
+.rg-pg .p-k b{display:block;font-size:15px;margin-top:3px;white-space:nowrap}
+.rg-pg h2{font:700 13px Arial,Helvetica,sans-serif;margin:16px 0 5px;color:#121a2c}
+.rg-pg table{width:100%;border-collapse:collapse;table-layout:fixed}
+.rg-pg th{font-size:7.5px;text-align:left;padding:4px 5px;background:#f2f4f8;border-bottom:1px solid #121a2c;white-space:nowrap;overflow:hidden;color:#33405a}
+.rg-pg td{font-size:9px;padding:3.5px 5px;border-bottom:.5px solid #c9cfda;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rg-pg .r{text-align:right}.rg-pg .b{font-weight:700}
+.rg-pg tr.g td{background:#e8edf7;color:#0b2470;font-weight:700;font-size:8.5px}
+.rg-pg tr.s td{color:#4f5a70}.rg-pg tr.s td:first-child{padding-left:16px}
+.rg-pg tr.t td{font-weight:700;border-top:1px solid #121a2c;border-bottom:0}
+.rg-pg tr.cx td+td{border-left:.5px solid #c9cfda}
+.rg-pg .p-nt{font-size:8px;color:#4f5a70;margin:4px 0 0}
+.rg-pg .p-as{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:40px;font-size:8.5px;color:#4f5a70}
+.rg-pg .p-as span{border-top:.8px solid #121a2c;padding-top:4px}
+.rg-pg .p-ft{margin-top:16px;font-size:7.5px;color:#4f5a70}
+/* estoque: botoes de impressao no Relatorio */
+.rg-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rg-bar .btn{min-height:44px;gap:8px;font-size:14.5px}
+.rg-bar .btn svg{width:17px;height:17px}
+/* conferencia de estoque */
+.cfe-top{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.cfe-top .note{margin:0}
+.cfe-cats{grid-template-columns:repeat(auto-fit,minmax(84px,1fr))!important}
+.cfe-n{font-size:13px;font-weight:600;color:var(--accent-tx);min-height:0}
+.cfe-n:empty{display:none}
+.cfe-g{margin-top:12px}
+.cfe-r{display:grid;grid-template-columns:minmax(0,1fr) 52px 84px 50px;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px solid var(--line)}
+.cfe-r.dif{background:var(--sunk)}
+.cfe-t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.cfe-t b{font-size:14.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfe-t small{font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfe-s,.cfe-in{display:flex;flex-direction:column;gap:2px;text-align:right}
+.cfe-s small,.cfe-in small{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.cfe-s b{font-size:15px}
+.cfe-in input{height:40px;width:100%;box-sizing:border-box;border:1px solid var(--line-2);border-radius:10px;padding:0 8px;font:600 16px var(--body);text-align:right;background:var(--surface);color:var(--fg)}
+.cfe-d{text-align:right;font-size:14px}
+.list .cfe-r{grid-template-columns:minmax(0,1fr) 52px 52px 50px}
+/* comboio: botao do relatorio */
+.cbx-rcb{width:100%;margin-top:14px;min-height:46px;gap:8px}
+.cbx-rcb svg{width:17px;height:17px}
 </style>
 
 <div id="scroller">
@@ -2152,8 +2207,8 @@ async function cbxComboio(){
   openSheet({title:'Comboio',sub:cbxAtivos(c).length>1?esc(cb.nome):'',
   body:`<div class="cbx-acts"><button type="button" class="btn pri" id="cbx-ab">${I.comb}Abastecer frota</button><button type="button" class="btn" id="cbx-en"><span class="cbx-gr">${CBX_IC.plus}</span>Entrada de diesel</button></div>
     <div class="cbx-tkh"><h3>Tanque <span>· ${mes}</span></h3><button type="button" class="cbx-fm" id="cbx-fm">${CBX_IC.lock}Fechar mes</button></div>
-    <div class="cbx-tk" id="cbx-tk"><div class="card-wait" style="min-height:120px">Carregando…</div></div>`,
-  mount:sh=>{sh.querySelector('#cbx-ab').onclick=()=>cbxLote();sh.querySelector('#cbx-en').onclick=()=>cbxEntrada();sh.querySelector('#cbx-fm').onclick=()=>cbxFechar();
+    <div class="cbx-tk" id="cbx-tk"><div class="card-wait" style="min-height:120px">Carregando…</div></div><button type="button" class="btn cbx-rcb" id="cbx-rcb">${CBX_IC.rel}Relatorio do comboio</button>`,
+  mount:sh=>{sh.querySelector('#cbx-rcb').onclick=()=>{cbxRelCb.st=null;cbxRelCb()};sh.querySelector('#cbx-ab').onclick=()=>cbxLote();sh.querySelector('#cbx-en').onclick=()=>cbxEntrada();sh.querySelector('#cbx-fm').onclick=()=>cbxFechar();
     cbxMore(sh,[{ic:CBX_IC.swap,t:'Trocar comboio',fn:()=>cbxTrocar(()=>{NAV.pop();cbxComboio()})},{ic:CBX_IC.bad,t:'Editar ou excluir entrada',fn:()=>cbxDelEnt()}]);
     cbxTanque(c,cb).then(t=>{const box=sh.querySelector('#cbx-tk');if(!box||!box.isConnected)return;const cap=Number(cb.cap)||0;
       const pct=cap&&t.saldo!=null?Math.max(0,Math.min(100,Math.round(t.saldo/cap*100))):null;
@@ -2722,18 +2777,290 @@ function cbxImprimir(R){document.querySelectorAll('#prt').forEach(x=>x.remove())
 function cbxPdfOk(R){
   nav('cbx:pdfok',()=>cbxPdfOk(R));let F=null;try{F=cbxPdfBlob(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o PDF.');return}
   openSheet({title:'Informe pronto',sub:'Combustivel',
-  body:`<div class="rl-ok"><div class="rl-okc">${CBX_IC.file}<div><b>${esc(R.tit)}</b><span>${esc(R.perL)}</span><small>${esc(R.filt)}</small></div></div>
-    <div class="rl-tot"><div><small>Saidas</small><b>${nf(R.sai,1)} L</b></div><i></i><div><small>Abastecimentos</small><b>${nf(R.nAb)}</b></div></div>
-    <p class="note rl-okn">${esc(R.fname)} · ${F.pages} ${F.pages===1?'pagina':'paginas'}</p>
-    <div class="rl-okb"><button type="button" class="btn pri" id="pk-sh">${I.share}Compartilhar</button><button type="button" class="btn" id="pk-pr">${PRT_IC}Imprimir</button></div></div>`,
-  mount:sh=>{sh.querySelector('#pk-pr').onclick=()=>cbxImprimir(R);
-    const b=sh.querySelector('#pk-sh');b.onclick=async()=>{b.disabled=true;try{const f=new File([F.blob],R.fname,{type:'application/pdf'});
-      try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:R.tit});return}}catch(e){if(e&&e.name==='AbortError')return}
-      const dl=window.claude&&await claude.use('downloads').catch(()=>null);
-      if(dl){try{await dl.save({filename:R.fname,data:F.blob});toast('PDF salvo');return}catch(e){if(e&&e.code==='declined')return}}
-      const u=URL.createObjectURL(F.blob),a=document.createElement('a');a.href=u;a.download=R.fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('PDF salvo')}
-      catch(e){toast('Nao foi possivel compartilhar o PDF.')}finally{b.disabled=false}}}});
+  body:`${RG_BTNS}<p class="note rl-okn">${esc(R.fname)} · ${F.pages} ${F.pages===1?'pagina':'paginas'}</p><div class="rg-pv" id="rg-pv"></div>`,
+  mount:sh=>rgPreview(sh,cbxPrtHtml(R),F,R.fname,R.tit)});
 }
+/* =====================================================================
+   RELATORIOS: modelo unico para todo o app.
+   Filtrar -> Gerar -> pre-visualizacao na tela, com Compartilhar (PDF) e Imprimir.
+   R={tit,sub,perL,filt,cont,gerado,fname,K:[[rotulo,valor]],blocks:[{t,cols:[{t,w,al}],rows:[{c,k,b,h}],vazio}],notas:[],assin}
+   ===================================================================== */
+const RG_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>';
+const rgGerado=()=>'Gerado em '+agoraTx();
+function rgPdfBlob(R){
+  const D=pdfDoc(),M=40,W=D.PW-2*M,BOT=D.PH-50,NAVY='#0b2470',RED='#e30613',INK='#121a2c',MUT='#4f5a70',LN='#c9cfda',SUNK='#f2f4f8';let y=0;
+  const head=first=>{D.page();D.rect(M,M-4,4,18,RED);D.text(M+11,M+9.5,'RONDAFLEX · CONTROLE DE FROTA',10,1,NAVY);D.text(M+W,M+9.5,R.gerado,8,0,MUT,'r');D.line(M,M+20,M+W,M+20,1.5,NAVY);y=M+38;
+    if(!first){D.text(M,y,D.fit(`${R.tit}${R.perL?' · '+R.perL:''}`,9,1,W),9,1,MUT);y+=14}};
+  const need=(h,re)=>{if(y+h>BOT){head(false);re&&re()}};
+  const box=(x,yy,w,h)=>{D.line(x,yy,x+w,yy,.8,LN);D.line(x,yy+h,x+w,yy+h,.8,LN);D.line(x,yy,x,yy+h,.8,LN);D.line(x+w,yy,x+w,yy+h,.8,LN)};
+  head(true);D.text(M,y+10,R.tit,21,1,INK);y+=28;if(R.perL){D.text(M,y,R.perL,11,0,MUT);y+=14}
+  const fl=[['Filtrar',R.filt],['Conteudo',R.cont]].filter(x=>x[1]);
+  if(fl.length){const h=10+fl.length*13;D.rect(M,y,W,h,SUNK);fl.forEach(([l,v],i)=>{D.text(M+10,y+14+i*13,l,8.5,1,MUT);D.text(M+68,y+14+i*13,D.fit(v,8.5,0,W-78),8.5,0,INK)});y+=h+14}
+  const K=R.K||[];if(K.length){const kw=(W-(K.length-1)*10)/K.length;K.forEach(([l,v],i)=>{const x=M+i*(kw+10);box(x,y,kw,46);D.text(x+10,y+15,D.fit(String(l).toUpperCase(),7.5,1,kw-20),7.5,1,MUT);D.text(x+10,y+36,D.fit(v,16,1,kw-20),16,1,i===0?NAVY:INK)});y+=62}
+  const table=(title,cols,rows)=>{const fx=cols.reduce((s,c)=>s+(c.w||0),0),nz=cols.filter(c=>!c.w).length||1,ws=cols.map(c=>c.w||(W-fx)/nz);
+    const hdr=()=>{D.rect(M,y,W,18,SUNK);let x=M;cols.forEach((c,i)=>{D.text(c.al==='r'?x+ws[i]-5:x+5,y+12.3,D.fit(c.t,7.5,1,ws[i]-8),7.5,1,'#33405a',c.al);x+=ws[i]});D.line(M,y+18,M+W,y+18,1,INK);y+=18};
+    need(30+18+17*Math.min(3,rows.length));y+=4;D.text(M,y+12,title,13,1,INK);y+=22;hdr();
+    rows.forEach(r=>{const h=r.h||(r.k==='g'?19:17);need(h,()=>{D.text(M,y+10,title+' (continuacao)',9,1,MUT);y+=16;hdr()});
+      if(r.k==='g'){D.rect(M,y,W,h,'#e8edf7');D.text(M+5,y+12.8,D.fit(r.c[0],8.5,1,W-10),8.5,1,NAVY);D.line(M,y+h,M+W,y+h,.6,LN);y+=h;return}
+      if(r.sp){D.text(M+16,y+11.8,D.fit(r.c[0],9,0,W-21),9,0,MUT);D.line(M,y+h,M+W,y+h,.5,LN);y+=h;return}
+      if(r.k==='t')D.line(M,y,M+W,y,1,INK);let x=M;
+      cols.forEach((c,i)=>{const bold=r.k==='t'||(r.b||[]).includes(i),pl=i===0&&r.k==='s'?16:5,v=D.fit(r.c[i]==null?'':r.c[i],9,bold,ws[i]-pl-5);
+        D.text(c.al==='r'?x+ws[i]-5:x+pl,y+Math.min(h-5.2,11.8+(h-17)/2),v,9,bold,r.k==='s'?MUT:INK,c.al);x+=ws[i]});
+      if(r.k!=='t')D.line(M,y+h,M+W,y+h,.5,LN);if(r.cx){let xx=M;ws.forEach((w,i)=>{if(i)D.line(xx,y,xx,y+h,.4,LN);xx+=w})}y+=h});y+=14};
+  (R.blocks||[]).forEach(b=>{if(b.rows.length)table(b.t,b.cols,b.rows);else if(b.vazio){need(30);D.text(M,y+14,b.t+': '+b.vazio,10,0,MUT);y+=28}});
+  (R.notas||[]).forEach(n=>{need(14);D.text(M,y+8,D.fit(n,8,0,W),8,0,MUT);y+=12});
+  if(R.assin!==false){need(70);y+=40;const aw=(W-30)/2;[R.assin1||'Responsavel',R.assin2||'Conferido por'].forEach((t,i)=>{const x=M+i*(aw+30);D.line(x,y,x+aw,y,.8,INK);D.text(x,y+12,t,8.5,0,MUT)});y+=24}
+  D.pages.forEach((_,i)=>{D.on(i);D.text(M,D.PH-28,'Gerado pelo Controle de Frota · Rondaflex',7.5,0,MUT);D.text(M+W,D.PH-28,`Pagina ${i+1} de ${D.pages.length}`,7.5,0,MUT,'r')});
+  return {blob:D.blob(),pages:D.pages.length}}
+function rgHtml(R){
+  const tb=b=>b.rows.length?`<h2>${esc(b.t)}</h2><table><thead><tr>${b.cols.map(c=>`<th class="${c.al==='r'?'r':''}"${c.w?` style="width:${c.w}pt"`:''}>${esc(c.t)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>r.k==='g'||r.sp?`<tr class="${r.sp?'s':'g'}"><td colspan="${b.cols.length}">${esc(r.c[0])}</td></tr>`
+    :`<tr class="${r.k||''}${r.cx?' cx':''}"${r.h?` style="height:${r.h}pt"`:''}>${b.cols.map((c,i)=>`<td class="${c.al==='r'?'r':''}${(r.b||[]).includes(i)?' b':''}">${esc(r.c[i]==null?'':r.c[i])}</td>`).join('')}</tr>`).join('')}</tbody></table>`:b.vazio?`<h2>${esc(b.t)}</h2><p class="p-nt">${esc(b.vazio)}</p>`:'';
+  const K=R.K||[];
+  return `<div class="p-hd"><i></i><b>RONDAFLEX · CONTROLE DE FROTA</b><span>${esc(R.gerado)}</span></div><h1>${esc(R.tit)}</h1>${R.perL?`<div class="p-per">${esc(R.perL)}</div>`:''}
+    ${R.filt||R.cont?`<div class="p-fl">${R.filt?`<b>Filtrar</b><span>${esc(R.filt)}</span>`:''}${R.cont?`<b>Conteudo</b><span>${esc(R.cont)}</span>`:''}</div>`:''}
+    ${K.length?`<div class="p-k" style="grid-template-columns:repeat(${K.length},minmax(0,1fr))">${K.map(([l,v])=>`<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>`:''}
+    ${(R.blocks||[]).map(tb).join('')}${(R.notas||[]).map(n=>`<p class="p-nt">${esc(n)}</p>`).join('')}
+    ${R.assin!==false?`<div class="p-as"><span>${esc(R.assin1||'Responsavel')}</span><span>${esc(R.assin2||'Conferido por')}</span></div>`:''}<div class="p-ft">Gerado pelo Controle de Frota · Rondaflex</div>`}
+function rgImprimir(html){document.querySelectorAll('#prt').forEach(x=>x.remove());const d=document.createElement('div');d.id='prt';d.innerHTML=html;document.body.appendChild(d);document.body.classList.add('prt-on');
+  const fim=()=>{window.removeEventListener('afterprint',fim);document.body.classList.remove('prt-on');d.remove()};window.addEventListener('afterprint',fim);
+  setTimeout(()=>{try{window.print()}catch(e){fim();toast('Imprimir nao esta disponivel aqui.')}},60)}
+async function rgShare(blob,fname,tit){const f=new File([blob],fname,{type:'application/pdf'});
+  try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:tit});return}}catch(e){if(e&&e.name==='AbortError')return}
+  const dl=window.claude&&await claude.use('downloads').catch(()=>null);
+  if(dl){try{await dl.save({filename:fname,data:blob});toast('PDF salvo');return}catch(e){if(e&&e.code==='declined')return}}
+  const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('PDF salvo')}
+/* pre-visualizacao: a folha como vai sair, com Compartilhar (PDF) e Imprimir */
+function rgPreview(sh,html,F,fname,tit,printHtml){
+  const box=sh.querySelector('#rg-pv');if(box){box.innerHTML=`<div class="rg-pg">${html.replace(/width:(\d+(?:\.\d+)?)pt/g,'width:$1px')}</div>`;const fit=()=>{const pg=box.firstChild;if(!pg||!box.isConnected)return;const s=Math.min(1,box.clientWidth/pg.offsetWidth);pg.style.transform=`scale(${s})`;box.style.height=Math.ceil(pg.offsetHeight*s)+'px'};requestAnimationFrame(fit);setTimeout(fit,120)}
+  sh.querySelector('#rg-pr').onclick=()=>rgImprimir(printHtml||html);
+  const b=sh.querySelector('#rg-sh');b.onclick=async()=>{b.disabled=true;try{await rgShare(F.blob,fname,tit)}catch(e){toast('Nao foi possivel compartilhar o PDF.')}finally{b.disabled=false}}}
+const RG_BTNS=`<div class="rl-okb rg-okb"><button type="button" class="btn pri" id="rg-sh">${I.share}Compartilhar</button><button type="button" class="btn" id="rg-pr">${PRT_IC}Imprimir</button></div>`;
+function rgPronto(R){
+  nav('rg:ok',()=>rgPronto(R));let F=null;try{F=rgPdfBlob(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o relatorio.');return}
+  openSheet({title:'Relatorio pronto',sub:esc(R.sub||''),
+  body:`${RG_BTNS}<p class="note rl-okn">${esc(R.fname)} · ${F.pages} ${F.pages===1?'pagina':'paginas'}</p><div class="rg-pv" id="rg-pv"></div>`,
+  mount:sh=>rgPreview(sh,rgHtml(R),F,R.fname,R.tit)});
+}
+/* blocos comuns do Filtrar */
+const rgSeg=(k,l,cur)=>`<div class="seg" role="group" style="grid-template-columns:repeat(${l.length},1fr)">${l.map(([v,n])=>`<button type="button" data-${k}="${esc(v)}" aria-pressed="${String(cur===v)}">${esc(n)}</button>`).join('')}</div>`;
+const rgCk=(k,txt,on)=>`<label class="rl-ck"><span>${txt}</span><input type="checkbox" data-rck="${k}"${on?' checked':''}></label>`;
+function rgPer(P,t){return P.v==='mes'?`<div class="cbx-mn rl-box"><button type="button" class="btn icon ghost" data-rgm="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(P.m)} ${P.m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-rgm="1" aria-label="Proximo mes"${P.m>=mesKey()?' disabled':''}>${I.back}</button></div>`
+  :P.v==='dia'?`<label class="f">Data<input type="date" id="rg-d" value="${P.d}" max="${t}"></label>`
+  :`<div class="grid"><label class="f">De<input type="date" id="rg-de" value="${P.de}" max="${t}"></label><label class="f">Ate<input type="date" id="rg-ate" value="${P.ate}" max="${t}"></label></div>`}
+const rgMesAnt=m=>{const[y,mo]=m.split('-').map(Number);return mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`};
+function rgPerLer(B,P){const g=id=>B.querySelector(id);if(g('#rg-d'))P.d=g('#rg-d').value||P.d;if(g('#rg-de'))P.de=g('#rg-de').value||P.de;if(g('#rg-ate'))P.ate=g('#rg-ate').value||P.ate;B.querySelectorAll('[data-rck]').forEach(x=>P[x.dataset.rck]=x.checked)}
+function rgPerBind(B,P,ler,draw){B.querySelectorAll('[data-rgv]').forEach(b=>b.onclick=()=>{ler();P.v=b.dataset.rgv;draw()});
+  B.querySelectorAll('[data-rgm]').forEach(b=>b.onclick=()=>{ler();P.m=b.dataset.rgm==='1'?mesSeg(P.m):rgMesAnt(P.m);draw()})}
+function rgPerDe(P){let de,ate;if(P.v==='mes'){de=P.m+'-01';ate=fimMes(P.m)}else if(P.v==='dia'){de=ate=P.d}else{de=P.de;ate=P.ate;if(de>ate)[de,ate]=[ate,de]}
+  const perL=P.v==='mes'?`${cbxMesNome(P.m)} de ${P.m.slice(0,4)}`:P.v==='dia'?fdate(de):`${fdate(de)} a ${fdate(ate)}`,fper=P.v==='mes'?P.m:P.v==='dia'?de:`${de} a ${ate}`;return {de,ate,perL,fper}}
+const rgNovoPer=(t=today())=>{const m=mesKey(t);return {v:'mes',m,d:t,de:m+'-01',ate:t}};
+/* escolher equipamentos (TAG) */
+function rgEqChips(P){return P.eqs.map(id=>{const e=eqById(id)||S.equipsAll.find(z=>z.id===id);return e?`<span class="cbx-ugc">${esc(e.codigo)}<button type="button" data-rgx="${esc(id)}" aria-label="Tirar ${esc(e.codigo)}">&times;</button></span>`:''}).join('')}
+function rgEqBind(B,P,ler,draw){B.querySelectorAll('[data-rge]').forEach(b=>b.onclick=()=>{ler();P.eqT=b.dataset.rge;draw();const q=B.querySelector('#rg-q');q&&q.focus()});
+  B.querySelectorAll('[data-rgx]').forEach(b=>b.onclick=()=>{ler();P.eqs=P.eqs.filter(x=>x!==b.dataset.rgx);draw()});
+  const qa=B.querySelector('#rg-qa');if(qa){const q=B.querySelector('#rg-q');const add=()=>{ler();const v=q.value.trim();if(!v)return;const e=S.equipsAll.find(z=>nzCod(z.codigo)===nzCod(v));
+    if(!e){toast('TAG nao encontrada.');return}if(P.eqs.includes(e.id)){toast('Ja esta na lista.');return}P.eqs.push(e.id);draw();const q2=B.querySelector('#rg-q');q2&&q2.focus()};
+    qa.onclick=add;q.addEventListener('keydown',ev=>{if(ev.key==='Enter'){ev.preventDefault();add()}})}}
+const rgEqHtml=P=>`${rgSeg('rge',[['todos','Todos'],['esc','Escolher']],P.eqT)}${P.eqT==='esc'?`<div class="cbx-add"><input id="rg-q" placeholder="TAG" aria-label="TAG do equipamento" autocomplete="off" enterkeyhint="done"><button type="button" class="btn sm" id="rg-qa">${CBX_IC.plus}Adicionar</button></div><div class="cbx-ugl" style="margin-top:8px">${rgEqChips(P)||'<span class="note">Nenhum escolhido.</span>'}</div>`:''}`;
+function rgFiltrar({key,title,sub,body,gerar}){
+  nav(key,()=>rgFiltrar({key,title,sub,body,gerar}));
+  openSheet({title,sub,body:`<form id="rg-f" novalidate><div id="rg-b"></div></form>`,foot:`<button class="btn pri" form="rg-f">Gerar</button>`,
+  mount:sh=>{const B=sh.querySelector('#rg-b');const draw=()=>body(B,draw);draw();
+    sh.querySelector('#rg-f').onsubmit=async ev=>{ev.preventDefault();const bt=sh.querySelector('.hd-pri');if(bt)bt.disabled=true;
+      try{const R=await gerar(B);if(R)rgPronto(R)}catch(e){console.error(e);toast('Nao foi possivel gerar o relatorio.')}finally{if(bt&&bt.isConnected)bt.disabled=false}}}});
+}
+
+/* ---------- relatorio de preventivas: Historico (padrao), Materiais e Cronograma ---------- */
+const PVR_TIPOS=t=>t.tipo!=='reprog'&&t.tipo!=='hmtroca';
+function pvRel(){
+  if(!pvRel.st)pvRel.st={...rgNovoPer(),eqT:'todos',eqs:[],hist:true,mat:false,cron:false,itens:false,iv:false,matGrp:'eq',cronSo:false};
+  const P=pvRel.st,t=today();
+  rgFiltrar({key:'pvr',title:'Relatorio de preventivas',sub:'Filtrar',
+    body:(B,draw)=>{const ler=()=>rgPerLer(B,P);
+      B.innerHTML=`<div class="lbl">Conteudo</div><div class="rl-cl">${rgCk('hist','Historico: preventivas feitas',P.hist)}${rgCk('mat','Materiais: itens de cada equipamento',P.mat)}${rgCk('cron','Cronograma: proximas preventivas',P.cron)}</div>
+        ${P.hist?`<div class="lbl" style="margin-top:20px">Periodo do historico</div>${rgSeg('rgv',[['mes','Mes'],['dia','Dia'],['int','Intervalo']],P.v)}<div class="rl-pf">${rgPer(P,t)}</div>`:''}
+        <div class="lbl" style="margin-top:20px">Equipamentos</div>${rgEqHtml(P)}
+        ${P.mat?`<div class="lbl" style="margin-top:20px">Materiais agrupados por</div>${rgSeg('rmg',[['eq','Equipamento'],['mod','Modelo']],P.matGrp)}`:''}
+        <div class="lbl" style="margin-top:20px">Detalhes</div><div class="rl-cl">${rgCk('itens','Itens de cada preventiva',P.itens)}${rgCk('iv','Intervalos',P.iv)}${P.cron?rgCk('cronSo','Cronograma: so vencidas e proximas de vencer',P.cronSo):''}</div>
+        <p class="note" style="margin-top:12px">Sempre saem TAG, horimetro e datas.</p>`;
+      B.querySelectorAll('[data-rck]').forEach(x=>{if(['hist','mat','cron'].includes(x.dataset.rck))x.onchange=()=>{ler();draw()}});
+      B.querySelectorAll('[data-rmg]').forEach(b=>b.onclick=()=>{ler();P.matGrp=b.dataset.rmg;draw()});
+      rgPerBind(B,P,ler,draw);rgEqBind(B,P,ler,draw)},
+    gerar:async B=>{rgPerLer(B,P);
+      if(!P.hist&&!P.mat&&!P.cron){toast('Marque ao menos um conteudo.');return null}
+      if(P.hist&&P.v==='int'&&(!P.de||!P.ate)){toast('Informe as duas datas.');return null}
+      if(P.eqT==='esc'&&!P.eqs.length){toast('Escolha ao menos um equipamento.');return null}
+      return pvRelDados(P)}});
+}
+function pvRelDados(P){
+  const eqSet=P.eqT==='esc'?new Set(P.eqs):null,okE=e=>e&&(!eqSet||eqSet.has(e.id));
+  const ord=(a,b)=>tipoOrd(a.tipo,b.tipo)||byCode(a,b),nm=e=>[e.desc||e.tipo,[e.marca,e.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
+  const blocks=[],K=[],cont=[];const pr=rgPerDe(P);
+  if(P.hist){cont.push('Historico');
+    const L=S.trocas.filter(t=>PVR_TIPOS(t)&&(t.data||'')>=pr.de&&(t.data||'')<=pr.ate&&okE(eqById(t.equipId))).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||byCode(eqById(a.equipId),eqById(b.equipId)));
+    const tipoTx=t=>t.tipo==='filtro_ar'?'Filtro de ar':t.tipo==='informada'?'Informada':'Preventiva';
+    const rows=[];L.forEach(t=>{const e=eqById(t.equipId)||{},dd=cartaoDados(t);
+      rows.push({c:[fdate(t.data),e.codigo||'—',nm(e),tipoTx(t),nf(t.horimetro,1),...(P.iv?[dd.iv?nf(dd.iv,1)+' h':'—']:[]),dd.prox!=null?nf(dd.prox,1):'—'],b:[1]});
+      if(P.itens)itensInforme(t).forEach(i=>rows.push({c:[`${nf(i.qtd,2)} ${i.un||''} · ${i.desc||itNome(i)||'Item'}${i.espec?' · '+i.espec:''}`],k:'s',sp:true}))});
+    blocks.push({t:'Historico de preventivas',cols:[{t:'DATA',w:56},{t:'TAG',w:56},{t:'EQUIPAMENTO',w:0},{t:'TIPO',w:62},{t:'HORIMETRO',w:62,al:'r'},...(P.iv?[{t:'INTERVALO',w:56,al:'r'}]:[]),{t:'PROXIMA',w:56,al:'r'}],rows,vazio:'Nenhuma preventiva no periodo e filtro escolhidos.'});
+    K.push(['Preventivas',nf(L.length)],['Equipamentos',nf(new Set(L.map(t=>t.equipId)).size)])}
+  const eqs=S.eqCtl.filter(e=>e.status!=='inativo'&&okE(e)).sort(ord);
+  if(P.mat){cont.push('Materiais');
+    const itR=(e,it)=>{const s=stOfIt(it);return {c:[it.virt?'Preventiva':(s?s.desc:it.desc||'Item'),it.virt?'':itCod(it)||'—',it.qtd?`${nf(it.qtd,2)} ${it.un||(s&&s.un)||''}`:'—',...(P.iv?[it.ivSel==='aval'?'Sob avaliacao':itIv(e,it)?nf(itIv(e,it),1)+' h':'—']:[])]}};
+    const cols=[{t:'ITEM',w:0},{t:'CODIGO / REF.',w:130},{t:'QTD',w:62,al:'r'},...(P.iv?[{t:'INTERVALO',w:76,al:'r'}]:[])];const rows=[];
+    if(P.matGrp==='mod'){const G=new Map();eqs.forEach(e=>{const k=eqMod(e)||'#'+e.id;if(!G.has(k))G.set(k,[]);G.get(k).push(e)});
+      [...G.values()].forEach(l=>{const e0=l[0],mm=[e0.marca,e0.modelo].filter(Boolean).join(' ')||e0.tipo||'Sem modelo';rows.push({c:[`${mm.toUpperCase()} · ${l.map(e=>e.codigo).join(', ')}`],k:'g'});
+        const seen=new Set();l.forEach(e=>eqItens(e).forEach(it=>{const k=(it.estoqueId||'')+'|'+itCod(it)+'|'+(it.virt?'v':itNome(it))+'|'+(P.iv?itIv(e,it):'');if(seen.has(k))return;seen.add(k);rows.push(itR(e,it))}));
+        if(!l.some(e=>eqItens(e).length))rows.push({c:['Sem itens no plano','','',...(P.iv?['']:[])],k:'s'})})}
+    else eqs.forEach(e=>{rows.push({c:[`${e.codigo} · ${nm(e)} · ${nf(e.horimetro,1)} h`],k:'g'});const l=eqItens(e);l.forEach(it=>rows.push(itR(e,it)));if(!l.length)rows.push({c:['Sem itens no plano','','',...(P.iv?['']:[])],k:'s'})});
+    blocks.push({t:'Materiais da preventiva',cols,rows,vazio:'Nenhum equipamento no filtro escolhido.'})}
+  if(P.cron){cont.push('Cronograma');
+    const L=allItems().filter(x=>okE(x.eq)&&x.st.cls!=='mut'&&(!P.cronSo||x.st.cls!=='ok'));
+    const rows=L.map(x=>({c:[x.eq.codigo,x.it.virt?x.it.desc:itNome(x.it)||'Item',...(P.iv?[itIv(x.eq,x.it)?nf(itIv(x.eq,x.it),1)+' h':'—']:[]),nf(x.eq.horimetro,1),x.st.prox!=null?nf(x.st.prox,1):'—',x.st.prev?fdate(x.st.prev):'—',x.st.rest<=0?`Vencida ${nf(-x.st.rest)} h`:`Faltam ${nf(x.st.rest)} h`],b:x.st.cls==='bad'?[0,P.iv?6:5]:[0]}));
+    blocks.push({t:'Cronograma',cols:[{t:'TAG',w:52},{t:'ITEM',w:0},...(P.iv?[{t:'INTERV.',w:50,al:'r'}]:[]),{t:'HORIM. ATUAL',w:66,al:'r'},{t:'PROXIMA',w:56,al:'r'},{t:'PREVISTA',w:56,al:'r'},{t:'SITUACAO',w:84,al:'r'}],rows,vazio:'Nenhuma preventiva prevista no filtro escolhido.'});
+    K.push(['Vencidas',nf(L.filter(x=>x.st.cls==='bad').length)])}
+  const det=[P.itens&&'itens',P.iv&&'intervalos'].filter(Boolean);
+  const filt=[P.eqT==='esc'?P.eqs.map(id=>(eqById(id)||S.equipsAll.find(z=>z.id===id)||{}).codigo).filter(Boolean).join(', '):'Todos os equipamentos',P.mat&&P.matGrp==='mod'?'materiais por modelo':'',P.cron&&P.cronSo?'cronograma so vencidas e proximas':''].filter(Boolean).join(' · ');
+  return {tit:'Relatorio de preventivas',sub:'Preventivas',perL:P.hist?pr.perL:fdate(today()),filt,cont:cont.join(', ')+(det.length?' · com '+det.join(' e '):''),gerado:rgGerado(),K:K.slice(0,4),blocks,
+    fname:`Preventivas ${P.hist?pr.fper:today()}.pdf`}
+}
+
+/* ---------- estoque: relatorio para imprimir e folha de conferencia ---------- */
+function estRel(modo){
+  if(!estRel.st)estRel.st={modo:'rel',cats:[],baixo:false,loc:false};const P=estRel.st;if(modo)P.modo=modo;
+  const cats=CATS.map(c=>[catKey(c),catPl(c)]).filter(([k])=>S.estoque.some(x=>!isKit(x)&&catGrp(x)===k));
+  rgFiltrar({key:'estr',title:P.modo==='conf'?'Folha de conferencia':'Relatorio do estoque',sub:'Filtrar',
+    body:(B,draw)=>{const ler=()=>{rgPerLer(B,P);const s=[...B.querySelectorAll('[data-rgc]')];P.cats=s.filter(x=>x.checked).map(x=>x.dataset.rgc)};
+      B.innerHTML=`<div class="lbl">O que gerar</div>${rgSeg('rgo',[['rel','Relatorio de estoque'],['conf','Folha de conferencia']],P.modo)}
+        <div class="lbl" style="margin-top:20px">Categorias <span class="hint">nenhuma marcada = todas</span></div><div class="rl-cks">${cats.map(([k,l])=>`<label class="rl-ckb"><input type="checkbox" data-rgc="${esc(k)}"${P.cats.includes(k)?' checked':''}><span>${esc(l)}</span></label>`).join('')}</div>
+        <div class="lbl" style="margin-top:20px">Opcoes</div><div class="rl-cl">${P.modo==='rel'?rgCk('baixo','So itens abaixo do minimo',P.baixo):''}${rgCk('loc','Mostrar local de guarda',P.loc)}</div>
+        ${P.modo==='conf'?'<p class="note" style="margin-top:12px">Sai com o saldo do app e uma coluna em branco para anotar a contagem. Depois, lance em + › Estoque › Conferencia de estoque.</p>':''}`;
+      B.querySelectorAll('[data-rgo]').forEach(b=>b.onclick=()=>{ler();P.modo=b.dataset.rgo;draw();const t=$('#sheet .sh-title');if(t)t.textContent=P.modo==='conf'?'Folha de conferencia':'Relatorio do estoque'})},
+    gerar:async B=>{rgPerLer(B,P);P.cats=[...B.querySelectorAll('[data-rgc]')].filter(x=>x.checked).map(x=>x.dataset.rgc);return estRelDados(P)}});
+}
+function estRelDados(P){const CF=P.modo==='conf';
+  const its=S.estoque.filter(x=>!isKit(x)&&(!P.cats.length||P.cats.includes(catGrp(x)))&&(CF||!P.baixo||stockCls(x)!=='ok'));
+  const G=CATS.map(c=>[catKey(c),catPl(c)]);const rows=[];
+  G.forEach(([k,l])=>{const g=its.filter(x=>catGrp(x)===k).sort(byCode);if(!g.length)return;rows.push({c:[`${l} · ${g.length}`],k:'g'});
+    g.forEach(x=>rows.push(CF?{c:[stCod(x),x.desc||'',...(P.loc?[x.local||'']:[]),x.un||'un',nf(x.qtd,2),'',''],h:22,cx:true}
+      :{c:[stCod(x),x.desc||'',...(P.loc?[x.local||'']:[]),nf(x.minimo,2),`${nf(x.qtd,2)} ${x.un||''}`,stockCls(x)==='bad'?'Sem saldo':stockCls(x)==='warn'?'Abaixo':'OK'],b:stockCls(x)==='ok'?[]:[CF?0:(P.loc?5:4)]}))});
+  const cols=CF?[{t:'CODIGO',w:84},{t:'ITEM',w:0},...(P.loc?[{t:'LOCAL',w:70}]:[]),{t:'UN',w:30},{t:'NO APP',w:54,al:'r'},{t:'CONTADO',w:66},{t:'OBS',w:84}]
+    :[{t:'CODIGO',w:84},{t:'ITEM',w:0},...(P.loc?[{t:'LOCAL',w:70}]:[]),{t:'MIN.',w:46,al:'r'},{t:'SALDO',w:70,al:'r'},{t:'SITUACAO',w:62,al:'r'}];
+  const catTx=P.cats.length?G.filter(([k])=>P.cats.includes(k)).map(x=>x[1]).join(', '):'Todas as categorias';
+  return {tit:CF?'Folha de conferencia do estoque':'Relatorio do estoque',sub:'Estoque',perL:fdate(today()),filt:[catTx,!CF&&P.baixo?'so abaixo do minimo':''].filter(Boolean).join(' · '),cont:'',gerado:rgGerado(),
+    K:CF?[['Itens',nf(its.length)]]:[['Itens',nf(its.length)],['Abaixo do minimo',nf(its.filter(x=>stockCls(x)==='warn').length)],['Sem saldo',nf(its.filter(x=>stockCls(x)==='bad').length)]],
+    blocks:[{t:CF?'Contagem':'Itens',cols,rows,vazio:'Nenhum item no filtro escolhido.'}],assin1:CF?'Contado por':'Responsavel',assin2:CF?'Conferido por':'Conferido por',
+    fname:`${CF?'Conferencia estoque':'Estoque'} ${today()}.pdf`}}
+
+/* ---------- + › Estoque › Conferencia de estoque: digita o que foi contado; ao salvar, o saldo fica igual ao contado ---------- */
+function confEst(){
+  nav('cfe',()=>confEst());
+  const D=confEst.d=confEst.d||{v:{},cat:'',q:''};
+  const its=S.estoque.filter(x=>!isKit(x)).sort(byCode),G=CATS.map(c=>[catKey(c),catPl(c)]).filter(([k])=>its.some(x=>catGrp(x)===k));
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const row=x=>{const v=D.v[x.id],dif=v!==undefined&&v!==''?Math.round((Number(v)-(Number(x.qtd)||0))*100)/100:null;
+    return `<div class="cfe-r${dif?' dif':''}" data-cq="${esc(norm([x.desc,x.codigo,x.ref,x.marca,x.local].join(' ')))}" data-cg="${esc(catGrp(x))}"><span class="cfe-t"><b>${esc(x.desc)}</b><small class="num">${esc(stCod(x))}${x.local?' · '+esc(x.local):''}</small></span>
+      <span class="cfe-s"><small>No app</small><b class="num">${nf(x.qtd,2)}</b></span><label class="cfe-in"><small>Contado</small><input type="number" inputmode="decimal" step="any" min="0" data-cv="${esc(x.id)}" value="${v!==undefined?esc(v):''}" aria-label="Contado de ${esc(x.desc)}"></label>
+      <span class="cfe-d">${dif?`<b class="${dif>0?'mv-in':'mv-out'}">${dif>0?'+':'−'}${nf(Math.abs(dif),2)}</b>`:''}</span></div>`};
+  openSheet({title:'Conferencia de estoque',sub:'Digite o que foi contado',
+  body:`<form id="cfe-f" novalidate><div class="cfe-top"><div class="search">${I.search}<input id="cfe-q" type="search" placeholder="Codigo, referencia ou nome" autocomplete="off" value="${esc(D.q)}" aria-label="Buscar item"></div>
+    ${rgSeg('cfc',[['','Todas'],...G.map(([k,l])=>[k,l])],D.cat).replace('class="seg"','class="seg cfe-cats"')}
+    <p class="note">So mudam os itens com contagem digitada. Item em branco continua como esta.</p><div id="cfe-n" class="cfe-n"></div></div>
+    <div id="cfe-l">${G.map(([k,l])=>`<div class="es-g cfe-g" data-cgh="${esc(k)}"><span>${esc(l)}</span></div>${its.filter(x=>catGrp(x)===k).map(row).join('')}`).join('')||'<div class="empty">Nenhum item cadastrado.</div>'}</div><div id="cfe-cf"></div></form>`,
+  foot:`<button class="btn pri" form="cfe-f">Salvar</button>`,
+  mount:sh=>{const L=sh.querySelector('#cfe-l'),q=sh.querySelector('#cfe-q'),N=sh.querySelector('#cfe-n');
+    const muda=()=>its.filter(x=>D.v[x.id]!==undefined&&D.v[x.id]!==''&&Math.abs(Number(D.v[x.id])-(Number(x.qtd)||0))>1e-9);
+    const cont=()=>{const n=Object.values(D.v).filter(v=>v!==''&&v!==undefined).length,m=muda().length;N.textContent=n?`${n} ${n===1?'item contado':'itens contados'} · ${m} ${m===1?'diferenca':'diferencas'}`:''};
+    const filt=()=>{const t=norm(q.value.trim());D.q=q.value;L.querySelectorAll('.cfe-r').forEach(r=>r.hidden=!((!t||r.dataset.cq.includes(t))&&(!D.cat||r.dataset.cg===D.cat)));
+      L.querySelectorAll('[data-cgh]').forEach(h=>{let n=h.nextElementSibling,any=false;while(n&&n.classList.contains('cfe-r')){if(!n.hidden)any=true;n=n.nextElementSibling}h.hidden=!any})};
+    q.oninput=filt;sh.querySelectorAll('[data-cfc]').forEach(b=>b.onclick=()=>{D.cat=b.dataset.cfc;sh.querySelectorAll('[data-cfc]').forEach(x=>x.setAttribute('aria-pressed',x===b));filt()});
+    L.addEventListener('input',ev=>{const i=ev.target.closest('[data-cv]');if(!i)return;D.v[i.dataset.cv]=i.value;const x=stById(i.dataset.cv),r=i.closest('.cfe-r'),d=r.querySelector('.cfe-d');
+      const dif=i.value!==''?Math.round((Number(i.value)-(Number(x.qtd)||0))*100)/100:null;r.classList.toggle('dif',!!dif);d.innerHTML=dif?`<b class="${dif>0?'mv-in':'mv-out'}">${dif>0?'+':'−'}${nf(Math.abs(dif),2)}</b>`:'';cont()});
+    filt();cont();
+    sh.querySelector('#cfe-f').onsubmit=ev=>{ev.preventDefault();const l=muda();if(S.ajuste){toast('Desative o Ajuste para lancar.','aj');return}
+      if(!l.length){toast(Object.values(D.v).some(v=>v!=='')?'Contagem igual ao app: nada a ajustar.':'Digite ao menos uma contagem.');return}
+      if(l.some(x=>Number(D.v[x.id])<0)){toast('Contagem nao pode ser negativa.');return}
+      askConfirm(sh.querySelector('#cfe-cf'),'Salvar',`Ajustar ${l.length} ${l.length===1?'item':'itens'} para a quantidade contada? Cada ajuste fica nas movimentacoes do item como Conferencia.`,()=>confEstSalvar(l))}}});
+}
+async function confEstSalvar(l){const D=confEst.d,dt=today(),lote='cf'+Date.now(),feitos=[];
+  const ok=await safe(async()=>{for(const x of l){const antes=Number(x.qtd)||0,novo=Math.round(Number(D.v[x.id])*100)/100,dif=Math.round((novo-antes)*100)/100;
+    await S.db.doc('estoque/'+x.id).update({qtd:novo});
+    const m=await S.db.collection('movs').add({estoqueId:x.id,tipo:dif>0?'entrada':'saida',qtd:Math.abs(dif),data:dt,obs:`Conferencia: no app ${nf(antes,2)}, contado ${nf(novo,2)}`,equipId:'',origem:'conferencia',lote,saldo:novo,ts:Date.now()});
+    feitos.push({id:x.id,antes,novo,dif,mov:m&&m.id})}},`${l.length} ${l.length===1?'item ajustado':'itens ajustados'}`);
+  if(!feitos.length)return;confEst.d=null;confEst.ult={lote,dt,feitos};NAV.pop();confEstFeito()}
+function confEstFeito(){const U=confEst.ult;if(!U){goBack();return}nav('cfe:ok',()=>confEstFeito());
+  openSheet({title:'Conferencia salva',sub:fdate(U.dt),body:`<div class="list">${U.feitos.map(f=>{const x=stById(f.id)||{};return `<div class="cfe-r"><span class="cfe-t"><b>${esc(x.desc||'Item')}</b><small class="num">${esc(stCod(x))}</small></span><span class="cfe-s"><small>Antes</small><b class="num">${nf(f.antes,2)}</b></span><span class="cfe-s"><small>Agora</small><b class="num">${nf(f.novo,2)}</b></span><span class="cfe-d"><b class="${f.dif>0?'mv-in':'mv-out'}">${f.dif>0?'+':'−'}${nf(Math.abs(f.dif),2)}</b></span></div>`}).join('')}</div>
+    <div id="cfe-ux"></div><button type="button" class="btn ghost" id="cfe-un" style="width:100%;margin-top:14px">${I.back}Desfazer esta conferencia</button>`,
+  mount:sh=>{sh.querySelector('#cfe-un').onclick=()=>askConfirm(sh.querySelector('#cfe-ux'),'Desfazer','Voltar os itens para o saldo de antes da conferencia? Saidas e entradas feitas depois continuam valendo.',async()=>{
+    if(await safe(async()=>{for(const f of U.feitos){const x=stById(f.id);if(!x)continue;await S.db.doc('estoque/'+f.id).update({qtd:Math.round(((Number(x.qtd)||0)-f.dif)*100)/100});if(f.mov)await S.db.doc('movs/'+f.mov).delete()}},'Conferencia desfeita')){confEst.ult=null;closeSheet()}})}});
+}
+
+/* ---------- relatorio do comboio: entradas e saidas por periodo, dia e centro de custo (padrao: mes) ---------- */
+async function cbxRelCb(){
+  const c=await cbxCfg();await cbxFechAll();
+  if(!cbxRelCb.st)cbxRelCb.st={...rgNovoPer(),cu:'',entL:true,entD:false,entC:true,saiT:true,saiC:true,saiD:false};
+  const P=cbxRelCb.st,t=today(),tops=c.custos.filter(k=>!k.pai);
+  rgFiltrar({key:'cbx:rcb',title:'Relatorio do comboio',sub:esc(cbxCur(c).nome),
+    body:(B,draw)=>{const ler=()=>rgPerLer(B,P);
+      B.innerHTML=`<div class="lbl">Periodo</div>${rgSeg('rgv',[['mes','Mes'],['dia','Dia'],['int','Intervalo']],P.v)}<div class="rl-pf">${rgPer(P,t)}</div>
+        <div class="lbl" style="margin-top:20px">Centro de custo</div>${rgSeg('rcu',[['','Todos'],...tops.map(z=>[z.id,z.nome])],P.cu)}
+        <div class="lbl" style="margin-top:20px">Entradas</div><div class="rl-cl">${rgCk('entL','Cada entrada',P.entL)}${rgCk('entD','Por dia',P.entD)}${rgCk('entC','Por centro de custo',P.entC)}</div>
+        <div class="lbl" style="margin-top:20px">Saidas</div><div class="rl-cl">${rgCk('saiT','Total do periodo',P.saiT)}${rgCk('saiC','Por centro de custo',P.saiC)}${rgCk('saiD','Por dia',P.saiD)}</div>`;
+      B.querySelectorAll('[data-rcu]').forEach(b=>b.onclick=()=>{ler();P.cu=b.dataset.rcu;draw()});rgPerBind(B,P,ler,draw)},
+    gerar:async B=>{rgPerLer(B,P);if(P.v==='int'&&(!P.de||!P.ate)){toast('Informe as duas datas.');return null}
+      if(!P.entL&&!P.entD&&!P.entC&&!P.saiT&&!P.saiC&&!P.saiD){toast('Marque ao menos um conteudo.');return null}
+      return cbxRelCbDados(P,c)}});
+}
+async function cbxRelCbDados(P,c){const cb=cbxCur(c),first=c.comboios[0]&&c.comboios[0].id===cb.id,pr=rgPerDe(P),{de,ate}=pr;
+  const cuIds=P.cu?[P.cu,...c.custos.filter(z=>z.pai===P.cu).map(z=>z.id)]:null,okC=id=>!cuIds||cuIds.includes(id);
+  const E=[],A=[];
+  for(let m=de.slice(0,7);m<=ate.slice(0,7);m=mesSeg(m)){
+    const [qe,qa,qm]=await Promise.all([S.db.collection('comb/'+m+'/ent').get(),S.db.collection('comb/'+m+'/abast').get(),S.db.collection('comb/'+m+'/mse').get()]);
+    qe.docs.forEach(z=>{const x=z.data();if(x.data>=de&&x.data<=ate&&(x.comboio||'')===cb.id&&okC(x.custo))E.push(x)});
+    const inCb=x=>(x.comboio||(first?cb.id:''))===cb.id;
+    [...qa.docs,...qm.docs].forEach(z=>{const x=z.data();if(x.data>=de&&x.data<=ate&&inCb(x)&&okC(x.custo))A.push(x)})}
+  const r1=v=>Math.round(v*10)/10,L=x=>Number(x.litros)||0,ent=r1(E.reduce((s,x)=>s+L(x),0)),sai=r1(A.reduce((s,x)=>s+L(x),0));
+  const porC=l=>{const o={};l.forEach(x=>{o[x.custo||'']=r1((o[x.custo||'']||0)+L(x))});const tt=l.reduce((s,x)=>s+L(x),0),pc=v=>tt?nf(v/tt*100,1):'0';const rows=[];
+    c.custos.filter(k=>!k.pai).forEach(k=>{const fs=c.custos.filter(z=>z.pai===k.id),own=o[k.id]||0,t=r1(own+fs.reduce((s,z)=>s+(o[z.id]||0),0));if(!(t>0))return;rows.push({c:[k.nome,nf(t,1),pc(t)],b:[0,1]});
+      if(fs.length)[[k.nome.toLowerCase(),own],...fs.map(z=>[z.nome,o[z.id]||0])].forEach(([n,v])=>rows.push({c:[n,nf(v,1),pc(v)],k:'s'}))});
+    const semC=r1(Object.entries(o).filter(([k])=>!c.custos.some(z=>z.id===k)).reduce((s,[,v])=>s+v,0));if(semC>0)rows.push({c:['Sem custo',nf(semC,1),pc(semC)],b:[0,1]});
+    if(rows.length)rows.push({c:['Total',nf(tt,1),'100'],k:'t'});return rows};
+  const porD=l=>{const o={};l.forEach(x=>{o[x.data]=r1((o[x.data]||0)+L(x))});const k=Object.keys(o).sort();const rows=k.map(d=>({c:[fdate(d),nf(l.filter(x=>x.data===d).length),nf(o[d],1)]}));if(rows.length)rows.push({c:['Total',nf(l.length),nf(l.reduce((s,x)=>s+L(x),0),1)],k:'t'});return rows};
+  const ccC=[{t:'CENTRO DE CUSTO',w:0},{t:'LITROS',w:92,al:'r'},{t:'%',w:60,al:'r'}],dC=t=>[{t:'DATA',w:0},{t,w:110,al:'r'},{t:'LITROS',w:92,al:'r'}];
+  const blocks=[];
+  if(P.entL){E.sort((a,b)=>(a.data||'').localeCompare(b.data||'')||(a.hora||'').localeCompare(b.hora||''));const rows=E.map(x=>({c:[fdate(x.data),x.hora||'',cbxCuNome(x.custo),nf(L(x),1)]}));if(rows.length)rows.push({c:['Total','','',nf(ent,1)],k:'t'});
+    blocks.push({t:'Entradas de diesel',cols:[{t:'DATA',w:70},{t:'HORA',w:56},{t:'CENTRO DE CUSTO',w:0},{t:'LITROS',w:92,al:'r'}],rows,vazio:'Nenhuma entrada no periodo.'})}
+  if(P.entD)blocks.push({t:'Entradas por dia',cols:dC('ENTRADAS'),rows:porD(E),vazio:'Nenhuma entrada no periodo.'});
+  if(P.entC)blocks.push({t:'Entradas por centro de custo',cols:ccC,rows:porC(E),vazio:'Nenhuma entrada no periodo.'});
+  if(P.saiT)blocks.push({t:'Saidas do periodo',cols:[{t:'PERIODO',w:0},{t:'ABASTECIMENTOS',w:110,al:'r'},{t:'LITROS',w:92,al:'r'}],rows:A.length?[{c:[pr.perL,nf(A.length),nf(sai,1)],k:'t'}]:[],vazio:'Nenhuma saida no periodo.'});
+  if(P.saiC)blocks.push({t:'Saidas por centro de custo',cols:ccC,rows:porC(A),vazio:'Nenhuma saida no periodo.'});
+  if(P.saiD)blocks.push({t:'Saidas por dia',cols:dC('ABASTECIMENTOS'),rows:porD(A),vazio:'Nenhuma saida no periodo.'});
+  const ct=[[P.entL&&'cada entrada',P.entD&&'por dia',P.entC&&'por centro de custo'].filter(Boolean),[P.saiT&&'total',P.saiC&&'por centro de custo',P.saiD&&'por dia'].filter(Boolean)];
+  return {tit:'Relatorio do comboio',sub:'Combustivel',perL:pr.perL,filt:[cb.nome,P.cu?cbxCuNome(P.cu):'Todos os centros de custo'].join(' · '),
+    cont:[ct[0].length?'Entradas: '+ct[0].join(', '):'',ct[1].length?'Saidas: '+ct[1].join(', '):''].filter(Boolean).join(' · '),gerado:rgGerado(),
+    K:[['Entradas',nf(ent,1)+' L'],['Saidas',nf(sai,1)+' L'],['Diferenca',(ent-sai>=0?'+':'')+nf(r1(ent-sai),1)+' L']],blocks,
+    notas:P.cu?[]:['Diferenca = entradas menos saidas no periodo; nao e o saldo do tanque.'],fname:`Comboio ${pr.fper}${P.cu?' '+cbxCuNome(P.cu):''}.pdf`}}
+
+/* ---------- + › Ordens de servico (equipe): Nova OS, editar, adendo, conferir pecas e cancelar.
+   No cartao Ordens de Servico a equipe so ve a OS e gera o informe. ---------- */
+function osMenuPick(kind){
+  nav('osmp:'+kind,()=>osMenuPick(kind));
+  const T={ed:['Editar OS','OS concluidas'],ad:['Adendo','OS concluidas'],cf:['Conferir pecas','OS com pecas a conferir'],cx:['Cancelar OS','OS abertas ou concluidas'],ab:['Concluir OS','OS abertas em que voce e responsavel']}[kind];
+  const ok=v=>kind==='cf'?osPendPecas(v).length>0:kind==='cx'?osPodeCx(v):kind==='ab'?v.sit==='aberta'&&v.resp.includes(osEu().uid):v.sit==='fechada';
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
+  const all=osLista().filter(ok).sort((a,b)=>(b.num||0)-(a.num||0));
+  const row=v=>{const e=eqById(v.eq)||{};return `<button type="button" class="tq" data-omp="${esc(v.id)}"><span class="tq-c">${esc(osNum(v).replace('OS ',''))}</span><span class="tq-m">${esc(e.codigo||v.eq)} · ${esc(v.aconteceu||'')}</span><span class="tq-d">${sdate(v.data)}</span>${I.chev}</button>`};
+  const draw=l=>l.length?`<div class="tsec-l">${l.map(row).join('')}</div>`:'<div class="empty">Nenhuma OS.</div>';
+  openSheet({title:T[0],sub:T[1],body:`<div class="search">${I.search}<input id="omp-q" type="search" placeholder="Numero ou TAG" autocomplete="off" aria-label="Buscar OS"></div><div id="omp-l" style="margin-top:10px">${draw(all)}</div>`,
+  mount:sh=>{const l=sh.querySelector('#omp-l'),q=sh.querySelector('#omp-q');const bind=()=>l.querySelectorAll('[data-omp]').forEach(b=>b.onclick=()=>osMenuAcao(kind,b.dataset.omp));
+    q.oninput=()=>{const t=norm(q.value);l.innerHTML=draw(all.filter(v=>!t||norm(osNum(v)+' '+((eqById(v.eq)||{}).codigo||'')+' '+String(v.num||'')).includes(t)));bind()};bind()}});
+}
+function osMenuAcao(kind,id){const v=osById(id);if(!v)return;
+  if(kind==='ed'){if(!osAdm()){toast('So o administrador edita OS concluida.');return}S.osEd=null;formOSEdit(id);return}
+  if(kind==='ad'){if(v.resp.includes(osEu().uid)){toast('Voce e responsavel por esta OS: use Reabrir.');openOS(id,true);return}S.osDraft={modo:'adendo',osId:v.id,obs:'',corr:[],pecas:[],fotos:[]};formOSAdendo();return}
+  if(kind==='cx'){osCancelar(id);return}
+  openOS(id,true)}
+
 /* ---------- + › Ajustes do app › Combustivel: centros de custo e comboios ---------- */
 async function cbxAjustes(){
   nav('cbx:aj',()=>cbxAjustes());
@@ -2983,7 +3310,7 @@ function vManut(){
   const hRow=t=>{const e=eqById(t.equipId);
     return `<button class="tq" data-hist="${esc(t.equipId)}"><span class="tq-c">${esc(e.codigo)}</span>${t.tipo==='filtro_ar'?ARB(t):''}<span class="tq-m"></span><span class="hz-l">Ultima com <b class="num">${nf(t.horimetro,2)} h</b></span>${I.chev}</button>`};
   const head=(t,n)=>`<h3 class="tsec-h"><span>${t}</span><em>${n}</em></h3>`;
-  return `<div class="tb" style="justify-content:center"><button class="btn dark sm" data-a="new-tr">${I.manut}<span>Registrar preventiva</span></button></div>`+
+  return `<div class="tb" style="justify-content:center"><button class="btn dark sm" data-a="new-tr">${I.manut}<span>Registrar preventiva</span></button><button class="btn sm" data-a="rel-pv">${RG_IC}<span>Relatorio</span></button></div>`+
   (S.equips.length?`<div class="finder"><div class="search">${I.search}<input id="pq" type="search" placeholder="Buscar equipamento: TAG, tipo ou modelo" autocomplete="off" aria-label="Buscar equipamento"></div><div class="fres" id="pq-r" hidden></div></div>`:'')+
   `<section class="tsec pvs">${head('Cronograma',grp.length)}<p class="pv-note">Proxima preventiva de cada equipamento, comecando pelo que falta menos.</p>${grp.length?`<div class="tsec-l">${grp.map(cRow).join('')}</div>`:'<div class="empty"><b>Sem cronograma</b>Cadastre oleos e filtros nos equipamentos.</div>'}</section>`+
   /* sem intervalo na ficha o equipamento nao tem como vencer: fica listado para nao passar despercebido */
@@ -3082,7 +3409,7 @@ function vEstoque(){
   const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],isKit(s)?'':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' '));
   const row=s=>esRow(s,{attr:`data-mov="${esc(s.id)}"${busca?` data-q="${esc(qOf(s))}"`:''}`});
   return toolbar('Filtros, oleos e kits da oficina')+
-  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button><button type="button" class="btn es-tab" data-eskits>${KIT_IC}Kits</button></div></div>${S.esAll?esCards(S.estoque):''}${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
+  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button><button type="button" class="btn es-tab" data-eskits>${KIT_IC}Kits</button></div></div>${S.esAll?esCards(S.estoque)+`<div class="rg-bar"><button type="button" class="btn" data-rgest="rel">${PRT_IC}Imprimir</button><button type="button" class="btn" data-rgest="conf">${RG_IC}Conferencia</button></div>`:''}${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
   (list.length?G.map(([k,lab])=>{const l=list.filter(s=>grp(s)===k);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>${lab}</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''}).join('')+(()=>{const l=S.estoqueAll.filter(x=>x.inativo).sort(byCode);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>Inativos</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''})()+(busca?'<div class="empty es-0" id="esq-0" hidden>Nenhum item encontrado.</div>':'')
   :'<div class="empty"><b>Estoque vazio</b>Toque no botao + para cadastrar filtros e oleos. Ligados ao plano da maquina, eles baixam sozinhos a cada troca.</div>');
 }
@@ -3149,7 +3476,7 @@ function bindView(){
   app.querySelectorAll('[data-fr]').forEach(b=>b.onclick=()=>abreCard(b.dataset.fr));
   app.querySelectorAll('[data-a="home"]').forEach(b=>b.onclick=()=>{S.focus='';S.esQ='';S.esFoc=false;S.esAll=false;S.esFil=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};try{localStorage.setItem('frota.focus','')}catch(e){}render();SCR().scrollTo(0,0)});
   const on=(k,fn)=>app.querySelectorAll(`[data-a="${k}"]`).forEach(b=>b.onclick=fn);
-  on('new-tr',()=>{NAV.length=0;formRegistrar(S.mf.equip)});
+  on('new-tr',()=>{NAV.length=0;formRegistrar(S.mf.equip)});on('rel-pv',()=>{NAV.length=0;pvRel.st=null;pvRel()});
   on('clear-ex',clearExamples);
   on('more-sched',()=>{S.showAllSched=!S.showAllSched;render()});on('more-hist',()=>{S.showAllHist=!S.showAllHist;render()});
   const pq=$('#pq');if(pq){const box=$('#pq-r');
@@ -3252,11 +3579,12 @@ function openMenu(mode){
   const g=t=>`<div class="mgrp">${t}</div>`;
   /* + abre por area: Frota · Estoque · Combustivel · Ajustes do app (sugestao A) */
   const T={
-    '':{title:'Menu',sub:'Escolha a area',body:mi('frota',I.equip,'Frota','Preventivas, equipamentos e horimetro')+mi('est',I.estoque,'Estoque','Entrada, saida, filtros, oleos, kits e compras')+mi('comb',I.comb,'Combustivel','Abastecimentos')+mi('aj',DB_IC,'Ajustes do app','Listas do app e copia de seguranca')},
+    '':{title:'Menu',sub:'Escolha a area',body:mi('frota',I.equip,'Frota','Preventivas, equipamentos e horimetro')+mi('est',I.estoque,'Estoque','Entrada, saida, filtros, oleos, kits e compras')+mi('comb',I.comb,'Combustivel','Abastecimentos')+(OS_ON&&!ehMec()?mi('os',I.os,'Ordens de servico','Nova OS, editar, adendo e conferir pecas'):'')+mi('aj',DB_IC,'Ajustes do app','Listas do app e copia de seguranca')},
+    os:{title:'Ordens de servico',sub:'Nova OS, correcoes e conferencia',body:(podeEscrever()?mi('os-nova',I.plus,'Nova OS','Abrir uma ordem de servico'):'')+mi('os-ab',I.os,'Concluir OS','OS abertas em que voce e responsavel')+g('Correcoes')+(osAdm()?mi('os-ed',EDI,'Editar OS','Corrige uma OS concluida'):'')+mi('os-ad',EDI,'Adendo','Acrescenta ou corrige uma OS concluida')+(osAdm()?mi('os-cf',MV_OUT,'Conferir pecas','Baixa no estoque das pecas das OS'):'')+mi('os-cx',DEL,'Cancelar OS','O numero nao e reutilizado')},
     frota:{title:'Frota',sub:'Preventivas, equipamentos e horimetro',body:mi('x:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('reg',I.manut,'Preventiva','Troca de oleos e filtros, ou filtros de ar')+mi('thm',I.manut,'Troca de horimetro','O relogio de horas foi substituido')
       +g('Correcoes')+mi('thm-x',I.back,'Desfazer troca de horimetro','Volta a contagem do relogio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saida do estoque','Retirada avulsa, fora das preventivas')
-      +mi('x:st',I.estoque,'Filtros e oleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')},
+      +mi('x:st',I.estoque,'Filtros e oleos','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')+g('Conferencia')+mi('cfe',I.estoque,'Conferencia de estoque','Ajusta o saldo pelo que foi contado')},
     comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Abastecimentos','Editar ou excluir um abastecimento')+mi('cbx-de',DEL,'Entradas de diesel','Editar ou excluir uma entrada')},
     aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('l:cats',ICON_TAG,'Categorias de itens','Filtro, oleo, graxa, correia e outros do estoque')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
       +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo, UG e comboios')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
@@ -3270,7 +3598,7 @@ function openMenu(mode){
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
-      const A={backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar('',true),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
+      const A={'os-nova':()=>osNova(),'os-ed':()=>osMenuPick('ed'),'os-ad':()=>osMenuPick('ad'),'os-cf':()=>osMenuPick('cf'),'os-cx':()=>osMenuPick('cx'),'os-ab':()=>osMenuPick('ab'),cfe:()=>{confEst.d=null;confEst()},backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,'dl-ab':openDelAbast,reg:()=>formRegistrar('',true),eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
         'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }
@@ -4918,7 +5246,7 @@ function formStock(id,preset,onSaved){
           for(const [eid,v] of Object.entries(encIv)){if(v===''||!enc.includes(eid))continue;const eq=eqById(eid);if(eq)await S.db.doc('equipamentos/'+eid).update({ivEnc:{...(eq.ivEnc||{}),[ref.id]:ivVal(v)}})}},onSaved?(onSaved.msg||'Item cadastrado e entrada lancada'):'Item salvo')){commitPhotos(fotoOrig,fotoNow);id||onSaved?goBack():closeSheet()}}}});
 }
 function movLine(m,un){const e=m.equipId&&eqById(m.equipId);const ent=m.tipo==='entrada';
-  return `<div class="r"><span>${sdate(m.data)} · ${ent?(m.origem==='estorno'?'Devolucao':'Entrada'):m.origem==='preventiva'?'Preventiva':'Saida'}${e?' · '+esc(e.codigo):''}${m.ajuste?AJS:''}${m.obs?`<small class="mv-o">${esc(m.obs)}</small>`:''}</span><b class="num ${ent?'mv-in':'mv-out'}">${ent?'+':'−'}${nf(m.qtd,2)} ${esc(un)}</b></div>`}
+  return `<div class="r"><span>${sdate(m.data)} · ${m.origem==='conferencia'?'Conferencia':ent?(m.origem==='estorno'?'Devolucao':'Entrada'):m.origem==='preventiva'?'Preventiva':'Saida'}${e?' · '+esc(e.codigo):''}${m.ajuste?AJS:''}${m.obs?`<small class="mv-o">${esc(m.obs)}</small>`:''}</span><b class="num ${ent?'mv-in':'mv-out'}">${ent?'+':'−'}${nf(m.qtd,2)} ${esc(un)}</b></div>`}
 function formMov(id){
   nav('mv:'+id,()=>formMov(id));
   const s=stById(id);if(!s)return;if(isKit(s))return kitView(s);const c=stockCls(s);
@@ -5700,18 +6028,19 @@ document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.clos
 /* tela da equipe */
 function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,min:false,conf:false,cx:false,q:'',show:false},pre);
   nav('osl',()=>openOSLista());
-  openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`<div id="osl">${osListaHTML()}</div>`,foot:podeEscrever()&&!ehMec()?`<button class="btn pri" id="os-nova" style="flex:1">+ Nova OS</button>`:'',
+  openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`<div id="osl">${osListaHTML()}</div>`,
     mount:sh=>{const box=sh.querySelector('#osl'),rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd);const n=sh.querySelector('#os-nova');if(n)n.onclick=()=>osNova()}})}
 /* cartao na tela principal (equipe) */
 function vOSCard(){const L=osLista(),ab=L.filter(v=>v.sit==='aberta').length,par=new Set(L.filter(v=>osParado(v.eq)).map(v=>v.eq)).size,cf=L.filter(v=>osPendPecas(v).length).length;
   return `<div class="os-home"><button type="button" data-osh="ab"><b>${ab}</b><span>Abertas</span></button><button type="button" data-osh="par" class="r"><b>${par}</b><span>${par===1?'Parado':'Parados'}</span></button>${osAdm()?`<button type="button" data-osh="cf" class="a"><b>${cf}</b><span>Conferir</span></button>`:''}</div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('.os-rr[data-osv]');if(b)openOS(b.dataset.osv)});
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-rgest]');if(!b)return;NAV.length=0;estRel.st=null;estRel(b.dataset.rgest)});
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-eqos]');if(!b)return;const e=eqById(b.dataset.eqos);openOSLista({tab:'abertas',q:e?e.codigo:''});if(!osDoEq(b.dataset.eqos).some(v=>v.sit==='aberta')){S.osF.tab='fechadas';openOSLista()}});
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-osh]');if(!b)return;const k=b.dataset.osh;openOSLista(k==='par'?{par:true}:k==='cf'?{conf:true}:{})});
 
 /* cartao da tela principal (equipe): aberto, mostra os totais, Nova OS e a lista */
 I.os='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.3-.4-.4-2.3z"/></svg>';
-function vOSFocus(){return `<div class="os-foc">${vOSCard()}${podeEscrever()?'<button type="button" class="os-big" data-osnova>+ Nova OS</button>':''}<div id="osl">${osListaHTML()}</div></div>`}
+function vOSFocus(){return `<div class="os-foc">${vOSCard()}<div id="osl">${osListaHTML()}</div></div>`}
 function bindOSFocus(){bindMec()}
 /* ---------- tela do mecanico (substitui o painel) ---------- */
 function vMec(){const u=osEu(),pend=S.os.filter(o=>!o.num).length,pn=(u.nome||'').split(/\s+/)[0];
@@ -5880,12 +6209,12 @@ function formOS(){const d=S.osDraft;if(!d){closeSheet();return}if(d.__ini===unde
 function osVolta(){if(ehMec()){closeSheet();return}const i=NAV.findIndex(n=>n.key==='osl');if(i>=0){NAV.length=i;openOSLista()}else closeSheet()}
 
 /* ---------- a OS registrada ---------- */
-function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast('OS nao encontrada');goBack();return}
-  const u=osEu(),cx=v.sit==='cancelada',resp=!cx&&v.resp.includes(u.uid),dono=!cx&&v.por===u.uid,adm=osAdm(),e=eqById(v.eq)||{},fech=v.sit!=='aberta',podeCx=osPodeCx(v);
+function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:')+id,()=>openOS(id,acao));const v=osById(id);if(!v){toast('OS nao encontrada');goBack();return}
+  const u=osEu(),cx=v.sit==='cancelada',resp=AC&&!cx&&v.resp.includes(u.uid),dono=AC&&!cx&&v.por===u.uid,adm=osAdm(),admA=adm&&AC,e=eqById(v.eq)||{},fech=v.sit!=='aberta',podeCx=AC&&osPodeCx(v);
   const marca=c=>{const m=v.marc[c];return !m?'':m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:` <em class="os-cor">· editado por ${esc(m.nome)} em ${osHora(m.ts)} · antes: ${esc(osVal(c,m.de))||'vazio'}</em>`};
   const mm=[e.marca,e.modelo].filter(Boolean).join(' · ');
   const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):cx?'<span class="os-sx">liberada</span>':`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
-  const pcRow=p=>`<button type="button" class="os-pr${adm&&!cx&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${adm&&!cx&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
+  const pcRow=p=>`<button type="button" class="os-pr${admA&&!cx&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${admA&&!cx&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
   const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
   const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes</button>`;
   const pai=v.vinc&&osById(v.vinc);
@@ -5904,7 +6233,7 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
      ${fotos?`<div class="os-ws"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
      <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
      ${resp?`<div class="os-cta"><button type="button" class="os-ad pri w" data-a="concluir">Concluir OS</button><button type="button" class="os-ad" data-a="editar">Editar</button><button type="button" class="os-ad" data-a="informe">Informe</button></div>`
-      :`<div class="os-cta"><button type="button" class="os-ad w" data-a="informe">Informe</button></div><p class="os-mut" style="margin-top:8px">Voce nao e responsavel por esta OS. Quando ela for fechada, voce pode fazer um adendo.</p>`}
+      :`<div class="os-cta"><button type="button" class="os-ad w" data-a="informe">Informe</button></div>${AC?'<p class="os-mut" style="margin-top:8px">Voce nao e responsavel por esta OS. Quando ela for fechada, voce pode fazer um adendo.</p>':''}`}
      <div id="os-cf"></div>${ext?`<div class="os-x">${ext}</div>`:''}${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
   else{const conc=cx?v.cancTs:(v.concTs||v.ts),par=v.estado==='parado'&&!cx;
     body=`<div class="os-d"><div class="os-dh"><div><small>ORDEM DE SERVICO</small><b>${v.num?'Nº '+String(v.num).padStart(4,'0'):'Nova'}</b></div><div class="os-stp${cx?' cx':''}">${cx?'CANCELADA':'CONCLUIDA'}<em>${fdate(iso(new Date(conc)))} ${pad(new Date(conc).getHours())}:${pad(new Date(conc).getMinutes())}</em></div></div>
@@ -5917,7 +6246,7 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
      ${fotos?`<div class="os-ds"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
      <div class="os-ds"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}</div></div></div>
      ${ext?`<div class="os-x">${ext}</div>`:''}
-     <div class="os-cta">${cx?'':`${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}`}<button type="button" class="os-ad pri${cx?' w':''}" data-a="informe">Informe</button></div>
+     <div class="os-cta">${cx||!AC?'':`${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}`}<button type="button" class="os-ad pri${cx||!AC?' w':''}" data-a="informe">Informe</button></div>
      <div id="os-cf"></div>${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
   openSheet({title:osNum(v),sub:esc(e.codigo||v.eq)+' · '+(cx?'Cancelada em '+fdate(iso(new Date(v.cancTs))):fech?'Concluida em '+fdate(iso(new Date(v.concTs||v.ts))):'Em andamento'),body,
   mount:sh=>{const a=k=>sh.querySelector(`[data-a="${k}"]`);
@@ -5926,12 +6255,12 @@ function openOS(id){nav('os:'+id,()=>openOS(id));const v=osById(id);if(!v){toast
     if(a('reabrir'))a('reabrir').onclick=()=>askConfirm(sh.querySelector('#os-cf'),'Reabrir',`Reabrir a ${osNum(v)}? Ela volta para Abertas. O que ja foi lancado continua registrado.`,async()=>{if(await safe(()=>osEvento(v.id,'reabrir',{}),osNum(v)+' reaberta'))osRe(v.id)});
     if(a('adendo'))a('adendo').onclick=()=>{S.osDraft={modo:'adendo',osId:v.id,obs:'',corr:[],pecas:[],fotos:[]};formOSAdendo()};
     if(a('cancelar'))a('cancelar').onclick=()=>osCancelar(v.id);
-    sh.querySelectorAll('[data-osv]').forEach(b=>b.onclick=()=>openOS(b.dataset.osv));
+    sh.querySelectorAll('[data-osv]').forEach(b=>b.onclick=()=>openOS(b.dataset.osv,acao));
     a('informe').onclick=()=>osInforme(v.id);
     if(a('detalhes'))a('detalhes').onclick=()=>openOSDet(v.id);
     if(a('editar'))a('editar').onclick=()=>{S.osEd=null;formOSEdit(v.id)};
     const rb=sh.querySelector('[data-resp]');if(rb)rb.onclick=()=>osResp(v.id);
-    if(adm)sh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const p=v.pecas.find(x=>x.pk===b.dataset.pk);if(p&&!v.conf[p.pk])osConf(v,p)})}})}
+    if(admA)sh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const p=v.pecas.find(x=>x.pk===b.dataset.pk);if(p&&!v.conf[p.pk])osConf(v,p)})}})}
 /* cancelar: o numero fica inutilizado, nada e apagado */
 function osCancelar(id){const v=osById(id);if(!v||!osPodeCx(v))return;const u=osEu();
   osModal(`<h2>Cancelar a ${osNum(v)}?</h2><p class="os-mut">O numero ${osNum(v).replace('OS ','')} nao sera reutilizado. Tudo o que foi registrado continua guardado${osPendPecas(v).length?' e as pecas reservadas voltam a ficar livres no estoque':''}. Depois de cancelada, a OS nao pode mais ser mudada.</p>
@@ -5941,7 +6270,7 @@ function osCancelar(id){const v=osById(id);if(!v||!osPodeCx(v))return;const u=os
     o.querySelector('#cx-ok').onclick=async()=>{const t=m.value.trim();if(!t){m.classList.add('bad');toast('Escreva o motivo');return}close();
       if(await safe(()=>osEvento(id,'cancelar',{motivo:t,...(osEhEnc(u.uid)?{enc:true}:{})}),osNum(v)+' cancelada'))osRe(id)}})}
 /* redesenha a OS quando o evento chega */
-function osRe(id){let i=0;const n0=S.ose.length;const t=setInterval(()=>{if(++i>20||S.ose.length>n0){clearInterval(t);const top=NAV[NAV.length-1];if(top&&top.key==='os:'+id)openOS(id)}},150)}
+function osRe(id){let i=0;const n0=S.ose.length;const t=setInterval(()=>{if(++i>20||S.ose.length>n0){clearInterval(t);const top=NAV[NAV.length-1];if(top&&top.key==='os:'+id)openOS(id);else if(top&&top.key==='osx:'+id)openOS(id,true)}},150)}
 
 /* ---------- responsaveis (so o criador) ---------- */
 function osResp(id){const v=osById(id),sel=new Set(v.resp);const L=(S.mecs||[]).filter(m=>m.ativo!==false);
@@ -6212,7 +6541,7 @@ const EST_K='frota.estado',EST_MAX=30*60000;
 const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:p[2]),alq:p=>openAlocEq(p[0]),ar:p=>p[0]==='esc'?formFiltroAr():formFiltroAr(undefined,p.join(':')),
   av:p=>openAviso(p.join(':')),avs:p=>openAvisos(p[0]||'r'),card:p=>openCartao(p.join(':')),cart:()=>openCart(),cbq:p=>openCombEq(p[0]),cr:p=>openPend(p[0],true),pd:p=>openPend(p[0]),
   del:p=>openDelete(p[0],p.slice(1).join(':')),dl:()=>openDelAbast(),edtr:p=>formEditTroca(p[0]),eq:p=>openEq(p[0]),eqv:p=>openEquiv(p[0]||undefined),esf:()=>esFilSheet(),
-  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),mecs:()=>openMecs(),mecf:p=>openMecFicha(p[0]),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
+  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),osx:p=>openOS(p[0],true),mecs:()=>openMecs(),mecf:p=>openMecFicha(p[0]),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
   hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
   mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
   rp:p=>formReprog(p[0],p[1]),ulp:p=>formUltPrev(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};

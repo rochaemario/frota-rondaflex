@@ -1500,6 +1500,7 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .rg-pg .p-ft{margin-top:16px;font-size:7.5px;color:#4f5a70}
 /* estoque: botoes de impressao no Relatorio */
 .rg-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.es-pr{display:flex;justify-content:flex-end;margin:2px -6px -6px 0}.es-prb{width:38px;height:34px;border:0;background:none;color:var(--muted);display:grid;place-items:center;border-radius:10px;cursor:pointer;opacity:.8}.es-prb:active{background:rgba(11,36,112,.06)}.es-prb svg{width:19px;height:19px}
 .rg-bar .btn{min-height:44px;gap:8px;font-size:14.5px}
 .rg-bar .btn svg{width:17px;height:17px}
 /* conferencia de estoque */
@@ -1525,8 +1526,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=4390f904b1"></script>
-<script src="shim.js?v=4390f904b1"></script>
+<script src="config.js?v=250a85aa77"></script>
+<script src="shim.js?v=250a85aa77"></script>
 </head>
 <body>
 
@@ -3425,7 +3426,7 @@ function vEstoque(){
   const qOf=s=>esNorm([s.desc,s.codigo,s.ref,s.marca,s.descFab,s.aplic,s.tipo,s.local,ES_CAT[grp(s)],isKit(s)?'':catNm(s.tipo),...(ix[s.id]||[])].filter(Boolean).join(' '));
   const row=s=>esRow(s,{attr:`data-mov="${esc(s.id)}"${busca?` data-q="${esc(qOf(s))}"`:''}`});
   return toolbar('Filtros, oleos e kits da oficina')+
-  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button><button type="button" class="btn es-tab" data-eskits>${KIT_IC}Kits</button></div></div>${S.esAll?esCards(S.estoque)+`<div class="rg-bar"><button type="button" class="btn" data-rgest="rel">${PRT_IC}Imprimir</button><button type="button" class="btn" data-rgest="conf">${RG_IC}Conferencia</button></div>`:''}${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
+  (busca?`<div class="esf"><div class="search">${I.search}<input id="esq" type="search" placeholder="TAG, codigo, referencia ou tipo" autocomplete="off" enterkeyhint="search" aria-label="Buscar no estoque"></div>${rdBtn('es-cam')}<div class="es-tabs"><button type="button" class="btn es-tab" data-estab="rel" aria-pressed="${!!S.esAll}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Relatorio</button><button type="button" class="btn es-tab" data-estab="fil" aria-pressed="${!!S.esFil}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>Filtrar</button><button type="button" class="btn es-tab" data-eskits>${KIT_IC}Kits</button></div></div>${S.esAll?esCards(S.estoque)+`<div class="es-pr"><button type="button" class="es-prb" data-rgest="" aria-label="Relatorio ou folha de conferencia em PDF">${PRT_IC}</button></div>`:''}${S.esFil?(()=>{const r=esFilRes();return `<div id="es-fil"><div id="ef-top">${r[0]}</div><div id="ef-res">${r[1]}</div></div>`})():''}`:'')+
   (list.length?G.map(([k,lab])=>{const l=list.filter(s=>grp(s)===k);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>${lab}</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''}).join('')+(()=>{const l=S.estoqueAll.filter(x=>x.inativo).sort(byCode);return l.length?`<div class="es-blk"${busca&&!S.esAll?' hidden':''}><div class="es-g"><span>Inativos</span><em>${l.length}</em></div><div class="es-l">${l.map(row).join('')}</div></div>`:''})()+(busca?'<div class="empty es-0" id="esq-0" hidden>Nenhum item encontrado.</div>':'')
   :'<div class="empty"><b>Estoque vazio</b>Toque no botao + para cadastrar filtros e oleos. Ligados ao plano da maquina, eles baixam sozinhos a cada troca.</div>');
 }

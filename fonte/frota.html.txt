@@ -1302,8 +1302,8 @@ body.kb .sh-foot{display:none}
 .os-sec{padding:0;overflow:hidden}.os-hh{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;background:none;padding:14px 16px 6px;font:inherit;color:inherit;cursor:pointer}.os-hh h2{margin:0;font:700 20px var(--display);color:var(--ink)}.os-hh span{font-size:13px;color:var(--accent);font-weight:600}
 .os-foc{display:flex;flex-direction:column;gap:12px}.os-foc .os-home{padding:0}
 .os-home{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;padding:6px 12px 14px}
-.os-home button{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit;cursor:pointer}
-.os-home b{font:700 28px var(--display);color:var(--accent);line-height:1}.os-home .r b{color:var(--bad,#a3271c)}.os-home .a b{color:#8a4b00}.os-home span{font-size:12.5px;color:var(--muted)}
+.os-home>div{border:1px solid var(--line);background:var(--surface);border-radius:14px;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
+.os-home b{font:700 28px var(--display);color:var(--accent);line-height:1}.os-home .g b{color:var(--ok)}.os-home .a b{color:#8a4b00}.os-home span{font-size:12.5px;color:var(--muted)}
 body.mec #fab,body.mec .brandmark,body.mec .stab{display:none!important}
 .os-hdr{background:var(--ink);color:#fff;padding:18px 16px 20px;position:relative;border-radius:16px;overflow:hidden;margin-bottom:12px}
 .os-hdr:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:#c8202f}
@@ -6175,11 +6175,10 @@ function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,mi
   openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`<div id="osl">${osListaHTML()}</div>`,
     mount:sh=>{const box=sh.querySelector('#osl'),rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd);const n=sh.querySelector('#os-nova');if(n)n.onclick=()=>osNova()}})}
 /* cartao na tela principal (equipe) */
-function vOSCard(){const L=osLista(),ab=L.filter(v=>v.sit==='aberta').length,par=new Set(L.filter(v=>osParado(v.eq)).map(v=>v.eq)).size,cf=L.filter(v=>osPendPecas(v).length).length;
-  return `<div class="os-home"><button type="button" data-osh="ab"><b>${ab}</b><span>Abertas</span></button><button type="button" data-osh="par" class="r"><b>${par}</b><span>${par===1?'Parado':'Parados'}</span></button>${osAdm()?`<button type="button" data-osh="cf" class="a"><b>${cf}</b><span>Conferir</span></button>`:''}</div>`}
+function vOSCard(){const L=osLista().filter(v=>v.sit!=='cancelada'),fe=L.filter(v=>v.sit==='fechada').length,ab=L.filter(v=>v.sit==='aberta').length;
+  return `<div class="os-home"><div><b>${L.length}</b><span>Total</span></div><div class="g"><b>${fe}</b><span>Finalizadas</span></div><div class="a"><b>${ab}</b><span>Abertas</span></div></div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('.os-rr[data-osv]');if(b)openOS(b.dataset.osv)});
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-eqos]');if(!b)return;const e=eqById(b.dataset.eqos);openOSLista({tab:'abertas',q:e?e.codigo:''});if(!osDoEq(b.dataset.eqos).some(v=>v.sit==='aberta')){S.osF.tab='fechadas';openOSLista()}});
-document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-osh]');if(!b)return;const k=b.dataset.osh;openOSLista(k==='par'?{par:true}:k==='cf'?{conf:true}:{})});
 
 /* cartao da tela principal (equipe): aberto, mostra os totais, Nova OS e a lista */
 I.os='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L4 16.8V20h3.2l5.3-5.3a4 4 0 0 0 5.2-5.4l-2.5 2.5-2.3-.4-.4-2.3z"/></svg>';

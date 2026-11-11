@@ -3934,7 +3934,7 @@ function openEq(id){
   ${OS_ON?osFichaHTML(e):''}
   ${fotoEqHTML(e)}`,
   foot:avisarFoot('eq',id),
-  mount:sh=>{hdEdit(sh,()=>formEq(e.id));bindFotoEq(sh);bindDocs(sh,e);novoBind(sh,e);
+  mount:sh=>{bindFotoEq(sh);bindDocs(sh,e);novoBind(sh,e);
     sh.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>openTroca(b.dataset.tr));sh.querySelectorAll('[data-encst]').forEach(b=>b.onclick=()=>formMov(b.dataset.encst))}});
 }
 /* ---------- fotos ---------- */
@@ -5438,7 +5438,7 @@ function formMov(id){
   <div class="lbl">Movimentacoes</div><div id="mv-box"><div class="note" style="padding:6px 2px">Carregando…</div></div>
   ${fotoStHTML(s)}`,
   foot:avisarFoot('item',id),
-  mount:sh=>{hdEdit(sh,()=>formStock(id));bindFotoSt(sh);
+  mount:sh=>{bindFotoSt(sh);
     S.db.collection('movs').where('estoqueId','==',id).get().then(q=>{const b=sh.querySelector('#mv-box');if(!b||!b.isConnected)return;
       const l=q.docs.map(d=>d.data()).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0)).slice(0,6);
       b.innerHTML=l.length?`<div class="spec">${l.map(m=>movLine(m,s.un)).join('')}</div>`:'<div class="empty">Nenhuma movimentacao registrada.</div>'}).catch(()=>{const b=sh.querySelector('#mv-box');if(b)b.innerHTML='<div class="note">Nao foi possivel carregar.</div>'})}});
@@ -5890,9 +5890,9 @@ function kitView(k){
   ${podeEscrever()?`<div class="kb-mt"><label class="f">Quantidade<input id="km-q" type="number" min="1" step="1" inputmode="numeric" value="1"></label><button type="button" class="btn pri" id="km-m">Montar</button><button type="button" class="btn" id="km-d"${mt?'':' disabled'}>Desmontar</button></div><div id="km-cf"></div>
   <p class="note" style="margin:6px 2px 0">Montar da baixa nos itens e soma kits prontos. Na preventiva, havendo kit montado, a baixa sai do kit.</p>`:''}
   <div class="lbl">Equipamentos</div><div class="spec"><div class="r"><span>${k.kModelo?'Do modelo':'Kit proprio'}</span><b>${esc(eqs.join(', ')||'Nenhum')}</b></div><div class="r"><span>Minimo</span><b>${nf(k.minimo,2)} ${k.minimo==1?'kit':'kits'}</b></div></div>
-  ${podeEscrever()?`<div class="kb-ac"><button type="button" class="btn" id="km-e">Editar</button><button type="button" class="btn" id="km-c">Duplicar</button><button type="button" class="btn" id="km-l">Comprar</button></div>`:''}
+  ${podeEscrever()?`<div class="kb-ac"><button type="button" class="btn" id="km-c">Duplicar</button><button type="button" class="btn" id="km-l">Comprar</button></div>`:''}
   ${fotoStHTML(k)}`,
-  mount:sh=>{hdEdit(sh,()=>formKit(id));bindFotoSt(sh);if(!sh.querySelector('#km-m'))return;
+  mount:sh=>{bindFotoSt(sh);if(!sh.querySelector('#km-m'))return;
     const cf=sh.querySelector('#km-cf'),qn=()=>Math.max(1,Math.floor(Number(sh.querySelector('#km-q').value)||1));
     const mexe=async(n,monta)=>{const k1=stById(id);if(!k1)return;const dt=today(),nm=k1.desc;
       const ok=await safe(async()=>{for(const {c:x,s:st} of kitComps(k1)){const q=Math.round(n*(Number(x.qtd)||0)*10)/10;if(!q)continue;const saldo=Math.round(((Number(st.qtd)||0)+(monta?-q:q))*10)/10;
@@ -5904,7 +5904,7 @@ function kitView(k){
       askConfirm(cf,'Montar',`Montar <b>${n}</b> ${n===1?'kit':'kits'}? Os itens saem do estoque e ${n===1?'o kit fica pronto':'os kits ficam prontos'}.`,()=>{cf.innerHTML='';mexe(n,true)})};
     sh.querySelector('#km-d').onclick=()=>{const n=qn();if(n>kitMont(stById(id)||k)){toast(`So ha ${nf(kitMont(stById(id)||k))} montado`);return}
       askConfirm(cf,'Desmontar',`Desmontar <b>${n}</b> ${n===1?'kit':'kits'}? Os itens voltam ao estoque.`,()=>{cf.innerHTML='';mexe(n,false)})};
-    sh.querySelector('#km-e').onclick=()=>formKit(id);
+    
     sh.querySelector('#km-c').onclick=()=>formKit(null,{comps:(k.comps||[]).map(x=>({...x})),minimo:k.minimo,kIv:k.kIv});
     sh.querySelector('#km-l').onclick=()=>{const f=kitComps(stById(id)||k).filter(({c:x,s:st})=>(Number(st.qtd)||0)<Number(x.qtd)).map(({c:x,s:st})=>({id:st.id,qtd:Math.round(((Number(x.qtd)||0)-(Number(st.qtd)||0))*10)/10}));
       if(!f.length){toast('Nada falta para montar 1 kit.');return}addCart(f)}}});

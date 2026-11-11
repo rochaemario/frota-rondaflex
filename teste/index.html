@@ -1323,6 +1323,9 @@ body.mec #fab,body.mec .brandmark,body.mec .stab{display:none!important}
 .os-sync{display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:600;padding:5px 10px;border-radius:12px;background:rgba(255,255,255,.14)}.os-sync i{width:8px;height:8px;border-radius:4px;background:#5bd08a}
 .os-bd{display:flex;flex-direction:column;gap:12px}
 .mc-h{display:flex;flex-direction:column;gap:12px;margin:4px 0 14px}.mc-t{padding:0 2px}.mc-t{min-width:0}.mc-t small{font-size:13px;color:var(--muted)}.mc-t h1{margin:2px 0 0;font:700 28px var(--display);color:var(--ink);line-height:1.05;white-space:nowrap}.mc-p{display:block;margin-top:4px;font-size:12px;color:#8a4b00}
+.os-rsc{display:flex;align-items:center;gap:8px;margin:0 0 12px;padding:8px 8px 8px 14px;border-radius:14px;background:var(--accent-soft);color:var(--accent-tx)}
+.os-rsc .t{flex:1;display:flex;flex-direction:column;min-width:0;font-size:14px}.os-rsc .t small{font-size:12.5px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.os-rsc .os-ad{width:auto;min-height:40px;padding:0 12px;font-size:14px}
 .mc-bt{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}.mc-bt button{justify-content:center}.mc-es{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 13px;border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 14px var(--body);cursor:pointer}
 .me-l{background:var(--surface);border-radius:14px;overflow:hidden;border:1px solid var(--line)}.me-r{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:10px 14px;text-align:left;font:inherit;color:inherit;cursor:pointer}.me-r+.me-r{border-top:1px solid var(--line)}.me-t{flex:1;min-width:0;display:flex;flex-direction:column}.me-t b{font:500 14px var(--body);color:#121a2c;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.me-t small{font:500 11.5px 'IBM Plex Mono',monospace;color:var(--faint)}
 .me-q{font:600 15px 'IBM Plex Mono',monospace;color:#1b6638;text-align:right;white-space:nowrap}.me-q small{font:500 11px var(--body);margin-left:3px;color:var(--faint)}.me-q.warn{color:#8a4b00}.me-q.bad{color:#a3271c}
@@ -1531,8 +1534,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=80ae74d169"></script>
-<script src="shim.js?v=80ae74d169"></script>
+<script src="config.js?v=90d3fe58b7"></script>
+<script src="shim.js?v=90d3fe58b7"></script>
 </head>
 <body>
 
@@ -6188,8 +6191,8 @@ document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.clos
 /* tela da equipe */
 function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,min:false,conf:false,cx:false,q:'',show:false},pre);
   nav('osl',()=>openOSLista());
-  openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`<div id="osl">${osListaHTML()}</div>`,
-    mount:sh=>{const box=sh.querySelector('#osl'),rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd);const n=sh.querySelector('#os-nova');if(n)n.onclick=()=>osNova()}})}
+  openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`${osrFaixaHTML()}<div id="osl">${osListaHTML()}</div>`,
+    mount:sh=>{osrBind(sh);const box=sh.querySelector('#osl'),rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd);const n=sh.querySelector('#os-nova');if(n)n.onclick=()=>osNova()}})}
 /* cartao na tela principal (equipe) */
 function vOSCard(){const L=osLista().filter(v=>v.sit!=='cancelada'),fe=L.filter(v=>v.sit==='fechada').length,ab=L.filter(v=>v.sit==='aberta').length;
   return `<div class="os-home"><div><b>${L.length}</b><span>Total</span></div><div class="g"><b>${fe}</b><span>Finalizadas</span></div><div class="a"><b>${ab}</b><span>Abertas</span></div></div>`}
@@ -6203,8 +6206,8 @@ function bindOSFocus(){bindMec()}
 /* ---------- tela do mecanico (substitui o painel) ---------- */
 function vMec(){const u=osEu(),pend=S.os.filter(o=>!o.num).length,pn=(u.nome||'').split(/\s+/)[0];
   return `<div class="mc-h"><div class="mc-t"><small>Ola, ${esc(pn||'mecanico')}</small><h1>Ordens de Servico</h1>${pend?`<span class="mc-p">${pend} OS ${pend===1?'aguardando':'aguardando'} numero · envia quando tiver sinal</span>`:''}</div><span class="mc-bt"><button type="button" class="mc-es" data-mest aria-label="Consultar estoque"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg>Estoque</button><button type="button" class="mc-nv" data-osnova><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>Nova OS</button></span></div>
-  <div id="osl">${osListaHTML()}</div>`}
-function bindMec(){const app=$('#app'),nb=app.querySelector('[data-osnova]');if(nb)nb.onclick=()=>osNova();const eb=app.querySelector('[data-mest]');if(eb)eb.onclick=()=>openMecEst();const box=app.querySelector('#osl');if(box){const rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd)}}
+  ${osrFaixaHTML()}<div id="osl">${osListaHTML()}</div>`}
+function bindMec(){const app=$('#app');osrBind(app);const nb=app.querySelector('[data-osnova]');if(nb)nb.onclick=()=>osNova();const eb=app.querySelector('[data-mest]');if(eb)eb.onclick=()=>openMecEst();const box=app.querySelector('#osl');if(box){const rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd)}}
 
 /* ---------- estoque para o mecanico: so consulta, sem mexer em saldo ---------- */
 function mecEstLista(q){const k=nzM(q||''),L=S.estoque.filter(s=>!isKit(s)&&!s.inativo&&(!k||nzM([s.desc,s.codigo,s.ref,s.marca,s.local].join(' ')).includes(k))).sort((a,b)=>_an(a.desc,b.desc)).slice(0,80);
@@ -6304,10 +6307,65 @@ function osSujo(){const t=NAV[NAV.length-1],k=t&&t.key||'',sh=$('#sheet');if(!sh
     const cur=JSON.stringify([h!=null?h:(d.hor||''),a!=null?a:(d.aconteceu||''),f!=null?f:(d.feito||''),d.pecas.length,d.fotos.length]);return d.__ini!==undefined&&cur!==d.__ini}
   if(k==='osa'){const d=S.osDraft;return !!(d&&(val('#oa-obs')||(d.obs||'').trim()||d.pecas.length||d.fotos.length||(d.corr||[]).length))}
   if(k.startsWith('ose:')){const ed=S.osEd;if(ed&&(ed.pecas.length||ed.fotos.length||ed.rmPk.length||ed.rmFt.length))return true;
+    const v=ed&&osById(ed.id);if(v&&(['data','hor','aconteceu','feito'].some(c=>{const e=sh.querySelector('#ed-'+c),x=e?e.value:ed[c];return x!=null&&String(x).trim()!==String(v[c]||'')})||(ed.estado&&ed.estado!==v.estado)))return true;
     return [...sh.querySelectorAll('#oed input,#oed textarea')].some(e=>e.type!=='checkbox'&&e.value!==e.defaultValue)}
   return false}
 function osSairSem(segue){osModal(`<h2>Sair sem salvar?</h2><p class="os-mut">O que foi digitado sera perdido.</p><div class="os-g2"><button type="button" class="os-op" data-x>Continuar editando</button><button type="button" class="os-op onr" id="ss-ok">Sair</button></div>`,(o,close)=>{
   o.querySelector('[data-x]').onclick=close;o.querySelector('#ss-ok').onclick=()=>{close();const t=NAV[NAV.length-1],k=t&&t.key||'';if(k==='osf'||k==='osa')S.osDraft=null;if(k.startsWith('ose:'))S.osEd=null;segue()}},{topo:false})}
+/* OS em digitacao: fica guardada no celular a cada alteracao, sem prazo, ate salvar ou descartar.
+   Ao reabrir o app volta direto nela; se estiver em outra tela, aparece a faixa "OS em digitacao" para retomar ou descartar. */
+const OSR_K=()=>'frota.osRasc.'+(window.__frotaNS||'')+(osEu().uid||'');
+let osrPronto=false,osrTem=false;
+const osrTela=()=>{const t=NAV[NAV.length-1],k=t&&t.key||'';return sheetOpen&&(k==='osf'||k==='osa'||k.startsWith('ose:'))?k:''};
+function osrLe(){try{return JSON.parse(localStorage.getItem(OSR_K())||'null')}catch(e){return null}}
+function osrLimpa(){try{localStorage.removeItem(OSR_K())}catch(e){}}
+const osrDe=tipo=>tipo.startsWith('ose:')?S.osEd:S.osDraft;
+const osrCombina=(tipo,d)=>!!d&&(tipo.startsWith('ose:')?d.id===tipo.slice(4):tipo==='osa'?d.modo==='adendo':d.modo==='novo'||d.modo==='concluir');
+/* le o que esta digitado na tela para dentro do rascunho */
+function osrLeTela(tipo,d){const sh=$('#sheet');if(!sh)return;const g=id=>{const e=sh.querySelector(id);return e?e.value:null};
+  const m=tipo==='osf'?{hor:'#of-hor',aconteceu:'#of-aco',feito:'#of-fei',outra:'#of-out'}:tipo==='osa'?{obs:'#oa-obs'}:{data:'#ed-data',hor:'#ed-hor',aconteceu:'#ed-aconteceu',feito:'#ed-feito'};
+  Object.entries(m).forEach(([c,id])=>{const x=g(id);if(x!=null)d[c]=x})}
+function osrGuarda(){if(!osrPronto||!S.db||window.__frotaSemEstado)return;try{
+  const k=osrTela(),ant=osrLe();let tipo=k,aberto=!!k;
+  if(!k){if(!ant)return osrFaixa();tipo=ant.tipo}
+  const d=osrDe(tipo);
+  if(!osrCombina(tipo,d)){if(k||!d)osrLimpa();return osrFaixa()}
+  if(k){if(!osSujo()){osrLimpa();return osrFaixa()}osrLeTela(tipo,d)}
+  localStorage.setItem(OSR_K(),JSON.stringify({t:Date.now(),tipo,aberto,d}))}catch(e){console.error(e)}osrFaixa()}
+let osrT=0;const osrLogo=()=>{clearTimeout(osrT);osrT=setTimeout(osrGuarda,250)};
+document.addEventListener('input',osrLogo,true);document.addEventListener('change',osrLogo,true);document.addEventListener('click',osrLogo,true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)osrGuarda()});addEventListener('pagehide',osrGuarda);setInterval(osrGuarda,3000);
+/* tem rascunho guardado e a tela dele nao esta aberta */
+function osrPend(){if(osrTela())return null;const r=osrLe();return r&&osrCombina(r.tipo,osrDe(r.tipo))?r:null}
+function osrNome(r){const d=osrDe(r.tipo);if(r.tipo.startsWith('ose:')){const v=osById(d.id);return 'Editar '+(v?osNum(v):'OS')}
+  if(d.modo==='adendo'){const v=osById(d.osId);return 'Adendo '+(v?osNum(v):'')}if(d.modo==='concluir'){const v=osById(d.osId);return 'Concluir '+(v?osNum(v):'')}
+  const e=eqById(d.eq)||{};return 'Nova OS · '+(e.codigo||d.eq||'')}
+function osrFaixaHTML(){const r=osrPend();return r?`<div class="os-rsc"><span class="t"><b>OS em digitacao</b><small>${esc(osrNome(r))}</small></span><button type="button" class="os-ad" data-osr="d">Descartar</button><button type="button" class="os-ad pri" data-osr="r">Retomar</button></div>`:''}
+function osrBind(root){const r=root.querySelector('[data-osr="r"]'),x=root.querySelector('[data-osr="d"]');
+  if(r)r.onclick=()=>osrAbre(osrLe());
+  if(x)x.onclick=()=>osModal(`<h2>Descartar a OS em digitacao?</h2><p class="os-mut">O que foi digitado sera perdido.</p><div class="os-g2"><button type="button" class="os-op" data-x>Voltar</button><button type="button" class="os-op onr" id="osr-ok">Descartar</button></div>`,(o,close)=>{
+    o.querySelector('[data-x]').onclick=close;o.querySelector('#osr-ok').onclick=()=>{close();const q=osrLe();if(q){if(q.tipo.startsWith('ose:'))S.osEd=null;else S.osDraft=null}osrLimpa();osrFaixa(true)}},{topo:false})}
+/* redesenha a tela de baixo quando a faixa aparece ou some */
+function osrFaixa(forca){const tem=!!osrPend();if(tem===osrTem&&!forca)return;osrTem=tem;if(!sheetOpen)render();else{const t=NAV[NAV.length-1];if(t&&t.key==='osl'&&!document.querySelector('#sheet form'))t.fn()}}
+function osrAbre(r){if(!r)return false;const tipo=r.tipo;
+  if(sheetOpen){NAV.length=0;closeSheet()}
+  if(tipo.startsWith('ose:')){S.osEd=r.d;formOSEdit(tipo.slice(4))}
+  else{S.osDraft=r.d;if(tipo==='osa')formOSAdendo();else formOS()}
+  return true}
+/* ao abrir o app: devolve o rascunho guardado (espera as OS carregarem quando ele depende de uma OS) */
+function osrRestaura(){const r=osrLe();if(!r||!r.d||!r.tipo){osrPronto=true;return false}
+  const precisaOS=r.tipo!=='osf'||r.d.modo==='concluir';
+  const valida=()=>{const d=r.d;if(r.tipo.startsWith('ose:')){const v=osById(d.id),u=osEu();return v&&((v.sit==='aberta'&&v.resp.includes(u.uid))||(v.sit==='fechada'&&osAdm()))}
+    if(r.tipo==='osa'){const v=osById(d.osId);return v&&v.sit==='fechada'}
+    if(d.modo==='concluir'){const v=osById(d.osId);return v&&v.sit==='aberta'}
+    return !!eqById(d.eq)};
+  const segue=()=>{if(!valida()){osrLimpa();osrPronto=true;toast('A OS em digitacao foi descartada: a OS mudou enquanto o app estava fechado');return}
+    if(r.tipo.startsWith('ose:'))S.osEd=r.d;else S.osDraft=r.d;
+    if(r.aberto){try{localStorage.removeItem(EST_K)}catch(e){}osrAbre(r)}
+    osrPronto=true;osrFaixa(true)};
+  if(!precisaOS){segue();return !!r.aberto}
+  const t0=Date.now(),ti=setInterval(()=>{if((S.osL1&&S.osL2)||Date.now()-t0>10000){clearInterval(ti);if(S.osL1&&S.osL2)segue();else osrPronto=true}},150);
+  return !!r.aberto}
 function osPickEst(cb){const lst=q=>{const k=nzM(q||''),L=S.estoque.filter(s=>!isKit(s)&&(!k||nzM([s.desc,s.codigo,s.ref,s.marca].join(' ')).includes(k))).sort(byCode).slice(0,60);
     return L.length?L.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small></span></button>`).join(''):'<div class="os-vz">Nenhum item com esse nome. Use "Sem cadastro".</div>'};
   osModal(`<h2>Peca do estoque</h2><input class="os-in os-busca" id="pe-q" type="search" placeholder="Digite o nome ou codigo" autocomplete="off"><div class="os-ls" id="pe-l">${lst('')}</div><button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
@@ -6683,8 +6741,8 @@ document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.clos
   db.doc('config/listas').onSnapshot(d=>{applyCfg(d.exists?d.data():null);S.loaded.c=1;if(!sheetOpen)render();else refreshSheet()},err=>{S.loaded.c=1;console.error(err)});
   $('#fab').hidden=ehMec();
   if(OS_ON){const osRd=()=>{_osC.os=null;if(!sheetOpen)render();else{const k=(NAV[NAV.length-1]||{}).key||'';if(/^(osl|os:)/.test(k)&&!document.querySelector('#sheet form')){const t=NAV[NAV.length-1];const b=$('#sheet .sh-body'),y=b?b.scrollTop:0;t.fn();const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y}}};
-    db.collection('os').onSnapshot(sn=>{S.os=sn.docs.map(d=>({id:d.id,...d.data()}));osRd()},err=>console.error(err));
-    db.collection('ose').onSnapshot(sn=>{S.ose=sn.docs.map(d=>({id:d.id,...d.data()}));osRd()},err=>console.error(err));
+    db.collection('os').onSnapshot(sn=>{S.os=sn.docs.map(d=>({id:d.id,...d.data()}));S.osL1=1;osRd()},err=>console.error(err));
+    db.collection('ose').onSnapshot(sn=>{S.ose=sn.docs.map(d=>({id:d.id,...d.data()}));S.osL2=1;osRd()},err=>console.error(err));
     db.doc('config/mecanicos').onSnapshot(d=>{S.mecs=(d.exists&&d.data().lista)||[];if(!sheetOpen)render()},err=>console.error(err))}
   sub('equipamentos','equips','e');sub('trocas','trocas','t');sub('estoque','estoque','s');sub('listas','listas','l');
   if(window.__frotaEu){$('#bell').hidden=false;fitTop();
@@ -6726,7 +6784,7 @@ function abrirLink(k){if(!k)return;try{const p=String(k).split(':'),f=NAV_RE[p[0
 if(navigator.serviceWorker)navigator.serviceWorker.addEventListener('message',ev=>{if(ev.data&&'abrir' in ev.data&&S.db)abrirLink(ev.data.abrir)});
 {const t0=Date.now(),ti=setInterval(()=>{if(S.db&&S.loaded.e&&S.loaded.t&&S.loaded.s&&S.loaded.c){clearInterval(ti);
   let ab='';try{ab=new URLSearchParams(location.search).get('abrir')||'';if(ab)history.replaceState(null,'',location.pathname)}catch(e){}
-  setTimeout(()=>{if(ab){try{localStorage.removeItem(EST_K)}catch(e){}abrirLink(ab)}else estRestaura()},60)}else if(Date.now()-t0>20000)clearInterval(ti)},100)}
+  setTimeout(()=>{if(ab){try{localStorage.removeItem(EST_K)}catch(e){}osrRestaura();abrirLink(ab)}else if(!osrRestaura())estRestaura()},60)}else if(Date.now()-t0>20000)clearInterval(ti)},100)}
 })();
 
 /* AJUSTE AUTOMATICO DE CAIXAS (vale para todo o app): numero ou texto que nao cabe na caixa de tamanho fixo

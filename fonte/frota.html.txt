@@ -1768,14 +1768,25 @@ function eqCompat(e){const plan=(e.itens||[]).map(stOfIt).filter(Boolean),enc=en
 const isAr=s=>/\bar\b/i.test([s.desc,s.aplic].join(' '));
 const isCabine=s=>/cabine|condicionad|recircula/i.test([s.desc,s.aplic].join(' '));
 const kitComps=k=>(k.comps||[]).map(c=>({c,s:stById(c.id)})).filter(x=>x.s&&!x.s.kit);
-/* kit por modelo (marca + modelo do equipamento) e intervalo; kit proprio = ligado a TAG (excecao) */
+/* kit por tipo + modelo do equipamento; nome sugerido KIT-<SIGLA>-<MODELO>-<INTERVALO>H, editavel pelo +.
+   O intervalo do kit e so rotulo do nome: a troca segue o intervalo de cada item. Kit proprio = ligado a TAG (excecao).
+   Kit antigo (sem tipo) segue valendo pelo modelo ate ser convertido em Kits > Conversao */
 const nzM=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z0-9]/g,'');
 const modKey=(ma,mo)=>mo?nzM(ma)+'|'+nzM(mo):'';
 const eqMod=e=>modKey(e.marca,e.modelo),kitMod=k=>modKey(k.kMarca,k.kModelo);
 const kitMont=k=>Math.max(0,Number(k&&k.qtd)||0);
-const KIT_IV=[500,1000,2000];
-const kitNome=k=>('KIT '+(k.kModelo?[k.kMarca,k.kModelo].filter(Boolean).join(' '):(k.encaixe||[]).map(i=>(eqById(i)||{}).codigo).filter(Boolean).join(' / '))+(Number(k.kIv)?' - '+nf(k.kIv,2)+'H':'')).toUpperCase().replace(/\s+/g,' ').trim();
-const kitsDoEq=e=>S.estoque.filter(k=>isKit(k)&&((k.encaixe||[]).includes(e.id)||(!e.kitProprio&&kitMod(k)&&kitMod(k)===eqMod(e)))).sort((a,b)=>(Number(a.kIv)||0)-(Number(b.kIv)||0)||byCode(a,b));
+const KIT_TAB=[{s:'RE',n:'Retroescavadeira',r:/retro/},{s:'TE',n:'Trator de esteira',r:/esteira/},{s:'MN',n:'Motoniveladora',r:/motonivel/},{s:'RC',n:'Rolo compactador',r:/rolo/},{s:'EH',n:'Escavadeira hidraulica',r:/escavadeira/},{s:'PC',n:'Pa carregadeira',r:/carregadeira/},{s:'MT',n:'Manipuladora telescopica',r:/manipulador/},{s:'CB',n:'Caminhao basculante',r:/basculante/},{s:'CP',n:'Caminhao pipa',r:/pipa/},{s:'CL',n:'Comboio lubrificante',r:/comboio|lubrific/}];
+const KIT_ROT=['250H','350H','500H','1000H','2000H'];
+const eqSig=e=>{const t=String(e&&e.tipo||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();if(!t)return '';const x=KIT_TAB.find(k=>k.r.test(t));return x?x.s:''};
+const kitTipoN=s=>(KIT_TAB.find(k=>k.s===s)||{}).n||s||'';
+/* modelo no nome: sem espacos e simbolos, sem a tracao (6X4, K6X4) */
+const kitModCod=mo=>String(mo||'').split(/\s+/).map(nzM).filter(t=>t&&!/^[A-Z]?\d+X\d+$/.test(t)).join('');
+const kitSugNome=(s,mo,r)=>['KIT',s,kitModCod(mo),r].filter(Boolean).join('-');
+const kitProp=k=>!!k&&!k.kTipo&&!k.kModelo&&(k.encaixe||[]).length>0;
+const kitVelho=k=>isKit(k)&&!k.kTipo&&!!(k.kModelo||Number(k.kIv));
+const kitServe=(k,e)=>(k.encaixe||[]).includes(e.id)||(!e.kitProprio&&!!kitMod(k)&&kitMod(k)===eqMod(e)&&(!k.kTipo||k.kTipo===eqSig(e)));
+const byKit=(a,b)=>String(a.codigo||a.desc||'').localeCompare(String(b.codigo||b.desc||''),'pt',{numeric:true});
+const kitsDoEq=e=>S.estoque.filter(k=>isKit(k)&&kitServe(k,e)).sort(byKit);
 function kitDisp(k){const cs=kitComps(k).filter(x=>Number(x.c.qtd)>0);if(!cs.length)return 0;return Math.max(0,Math.min(...cs.map(x=>Math.floor((Number(x.s.qtd)||0)/Number(x.c.qtd)+1e-9))))}
 const stQtd=s=>isKit(s)?kitMont(s)+kitDisp(s):(Number(s.qtd)||0);
 const stUn=s=>isKit(s)?(stQtd(s)===1?'kit':'kits'):(s.un||'');
@@ -3917,7 +3928,7 @@ function openEq(id){
   const f=(k,v)=>`<div class="r"><span>${k}</span><b>${v||'<span style="color:var(--faint)">—</span>'}</b></div>`;
   openSheet({title:`<span class="code" style="font-size:16px">${esc(e.codigo)}</span><span class="tt-x">${esc(e.tipo)}</span>`,sub:esc([e.marca,e.modelo,e.ano].filter(Boolean).join(' · ')),
   body:`${ehInativo('eq',e)?`<div class="nv-b on" style="margin:0 0 12px"><div><b>Equipamento inativo</b><span>Fora das listas, buscas e do cronograma. Para reativar: + › Editar.</span></div></div>`:''}<div class="lbl">Ficha do equipamento</div>
-  <div class="spec">${f('TAG',`<span class="num">${esc(e.codigo)}</span>`)}${f('Tipo',esc(e.tipo))}${f('Marca',esc(e.marca))}${f('Modelo',esc(e.modelo))}${(()=>{const n=kitsDoEq(e).length,key=eqMod(e);return key||n?f('Kits',`<button type="button" class="btn sm" data-ekits="${esc(e.kitProprio||!key?'':key)}" data-ekit1="${esc(e.id)}">${n?`${n} ${n===1?'kit':'kits'}${e.kitProprio?' (proprio)':' do modelo'}`:'Sem kit · ver'}</button>`):''})()}${f('Ano',esc(e.ano))}
+  <div class="spec">${f('TAG',`<span class="num">${esc(e.codigo)}</span>`)}${f('Tipo',esc(e.tipo))}${f('Marca',esc(e.marca))}${f('Modelo',esc(e.modelo))}${(()=>{const n=kitsDoEq(e).length,key=eqSig(e)&&eqMod(e)?eqSig(e)+'|'+eqMod(e):'';return key||n?f('Kits',`<button type="button" class="btn sm" data-ekits="${esc(e.kitProprio||!key?'':key)}" data-ekit1="${esc(e.id)}">${n?`${n} ${n===1?'kit':'kits'}${e.kitProprio?' (proprio)':' do modelo'}`:'Sem kit · ver'}</button>`):''})()}${f('Ano',esc(e.ano))}
     ${f('Nº de serie / chassi',e.serie?`<button type="button" class="cp num" data-copy="${esc(e.serie)}" aria-label="Copiar numero de serie">${esc(e.serie)}</button>`:'')}${f('Nº do motor',e.motor?`<button type="button" class="cp num" data-copy="${esc(e.motor)}" aria-label="Copiar numero do motor">${esc(e.motor)}</button>`:'')}${f('Motorista',esc(e.motorista||''))}${f('Placa',e.placa?`<button type="button" class="cp num" data-copy="${esc(e.placa)}" aria-label="Copiar placa">${esc(e.placa)}</button>`:'')}
     ${novoBox(e)?`<div class="r" style="display:block">${novoBox(e)}</div>`:''}
     ${f('Proprietario',esc(e.locador))}${f('Posse','Rondaflex Ltda')}${f('Alocado em',esc(e.alocacao))}${e.alocacao==='DM1'?f('Area',e.area===RES?'Reserva (compartilhada no DM1)':esc(e.area))+(e.area===RES?'':f('Frente',esc(e.frente))):''}
@@ -4511,7 +4522,7 @@ function formHm(id){
 }
 function stockOpts(sel){const o=s=>`<option value="${esc(s.id)}"${sel===s.id?' selected':''}>${esc(stCod(s))} · ${esc(s.desc)}</option>`,its=S.estoque.filter(s=>!isKit(s)).sort(byCode),kits=S.estoque.filter(isKit).sort(byCode);
   return `<option value="">Nao ligar ao estoque</option>`+(kits.length?`<optgroup label="Itens">${its.map(o).join('')}</optgroup><optgroup label="Kits">${kits.map(o).join('')}</optgroup>`:its.map(o).join(''))}
-document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-ekits]');if(!b)return;if(b.dataset.ekits)openKitMod(b.dataset.ekits);else{const e=eqById(b.dataset.ekit1),l=e?kitsDoEq(e):[];l.length===1?formMov(l[0].id):openKits()}});
+document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-ekits]');if(!b)return;if(b.dataset.ekits)openKitGrupo(b.dataset.ekits);else{const e=eqById(b.dataset.ekit1),l=e?kitsDoEq(e):[];l.length===1?formMov(l[0].id):openKits()}});
 document.addEventListener('change',ev=>{const t=ev.target;if(!t.matches||!t.matches('.pe2 [data-p="tipo"]'))return;const w=t.closest('.pe2').querySelector('.pe-sub');if(w)w.hidden=t.value!=='Aditivo'});
 /* item do plano no Editar equipamento: linha fechada (nome, codigo, quantidade); tocar abre os campos e o Remover */
 function planRow(it,aberto,eqIv){const P=esc(it.pid||uid());const cod=it.espec||(it.estoqueId&&stById(it.estoqueId)?stCod(stById(it.estoqueId)):'');
@@ -4589,7 +4600,11 @@ function formEq(id,mais){
     bind();
     /* adicionar: pela busca do estoque (ou camera); o item ja vem com descricao, codigo e unidade */
     const addRow=(it,focar)=>{plan.insertAdjacentHTML('beforeend',planRow(it,focar,e.intervaloPrev));bind();const l=plan.lastElementChild;l.scrollIntoView({block:'center',behavior:'smooth'});if(focar)l.querySelector('[data-p="desc"]').focus({preventScroll:true});return l};
-    const addSt=st=>{if(!st)return;const ja=[...plan.querySelectorAll('.pe2')].find(r=>r.querySelector('[data-p="estoqueId"]').value===st.id);
+    const addSt=st=>{if(!st)return;
+      if(isKit(st)){const l=kitComps(st);if(!l.length){toast('Kit sem itens');return}let n=0;const tem=id=>[...plan.querySelectorAll('.pe2')].some(r=>r.querySelector('[data-p="estoqueId"]').value===id);
+        l.forEach(({c,s:x})=>{if(tem(x.id))return;addRow({desc:x.desc,espec:stCod(x),un:x.un||'un',tipo:x.tipo||'filtro',qtd:Number(c.qtd)||1,estoqueId:x.id});n++});
+        toast(n?`${n} ${n===1?'item do kit adicionado':'itens do kit adicionados'}`:'Os itens do kit ja estao no plano');return}
+      const ja=[...plan.querySelectorAll('.pe2')].find(r=>r.querySelector('[data-p="estoqueId"]').value===st.id);
       if(ja){ja.scrollIntoView({block:'center',behavior:'smooth'});toast(`${st.desc} ja esta no plano`);return}
       addRow({desc:st.desc,espec:stCod(st),un:isKit(st)?'kit':st.un||'un',tipo:isKit(st)?'kit':st.tipo||'filtro',qtd:1,estoqueId:st.id});toast(`${st.desc} adicionado`)};
     const pq=sh.querySelector('#p-q'),pqh=sh.querySelector('#p-qh');
@@ -4768,9 +4783,7 @@ function formTroca(eqId){
       extras.length=0;drawX();
       /* kits que servem neste equipamento */
       const kb=sh.querySelector('#t-kits'),ks=eqCompat(e).kits.slice();kb.hidden=!ks.length;
-      {const ps=(e.itens||[]).map(i=>itemStatus(e,i).prox).filter(v=>v!=null&&isFinite(v)),H=ps.length?Math.min(...ps):null;
-        const bate=k=>{const iv=Number(k.kIv);if(!H||!iv)return 0;const r=H/iv;return Math.abs(r-Math.round(r))<0.05&&Math.round(r)>=1?iv:0};
-        ks.sort((a,b)=>bate(b)-bate(a)||(Number(a.kIv)||0)-(Number(b.kIv)||0))}
+      ks.sort(byKit);
       kb.innerHTML=ks.length?`<div class="ti-g">Kits compativeis</div><div class="list">${ks.map(k=>`<button type="button" class="kt-r" data-kit="${esc(k.id)}"><span class="kt-n"><b>${esc(k.desc)}</b><small class="num">${esc(stCod(k))} · ${kitComps(k).length} itens${kitMont(k)?` · ${nf(kitMont(k),2)} ${kitMont(k)===1?'montado':'montados'}`:''} · disponivel ${nf(stQtd(k),2)}</small></span><span class="kt-a">Adicionar kit</span></button>`).join('')}</div>`:'';
       kb.querySelectorAll('[data-kit]').forEach(b=>b.onclick=()=>{if(!b.classList.contains('on'))addKit(stById(b.dataset.kit))});
       drawPlan();
@@ -5883,8 +5896,8 @@ function kitView(k){
   const limOk=x=>Number(x.c.qtd)>0&&Math.floor((Number(x.s.qtd)||0)/Number(x.c.qtd)+1e-9)===d,lim=cs.filter(limOk);
   const ord=[...lim,...cs.filter(x=>!lim.includes(x))];
   const eqs=kitEqs(k).map(e=>e.codigo);
-  const ap=k.kModelo?`${esc([k.kMarca,k.kModelo].filter(Boolean).join(' '))}`:'Kit proprio';
-  openSheet({title:esc(k.desc),sub:`<span class="num">${esc(stCod(k))}</span> · ${ap}${Number(k.kIv)?` · ${nf(k.kIv,2)} h`:''}`,
+  const ap=k.kModelo?`${k.kTipo?esc(k.kTipo)+' · ':''}${esc([k.kMarca,k.kModelo].filter(Boolean).join(' '))}`:'Kit proprio';
+  openSheet({title:esc(k.desc),sub:`${stCod(k)!==k.desc?`<span class="num">${esc(stCod(k))}</span> · `:''}${ap}${kitVelho(k)?' · padrao antigo':''}`,
   body:`<div class="kb3"><div class="on"><b>${nf(mt,2)}</b><span>${mt===1?'Montado':'Montados'}</span></div><div><b>${nf(d)}</b><span>Da para montar</span></div><div><b>${cs.length}</b><span>Itens</span></div></div>
   <div class="lbl">Itens do kit</div><div class="es-l">${ord.map(({c:x,s})=>{const falta=(Number(s.qtd)||0)<Number(x.qtd);return esRow(s,{tag:'div',cls:falta?'bad':undefined,sub:`${esc(stCod(s))} · ${nf(x.qtd,2)} ${esc(s.un||'')} por kit`})}).join('')||'<div class="empty">Nenhum item no kit.</div>'}</div>
   ${podeEscrever()?`<div class="kb-mt"><label class="f">Quantidade<input id="km-q" type="number" min="1" step="1" inputmode="numeric" value="1"></label><button type="button" class="btn pri" id="km-m">Montar</button><button type="button" class="btn" id="km-d"${mt?'':' disabled'}>Desmontar</button></div><div id="km-cf"></div>
@@ -5905,48 +5918,127 @@ function kitView(k){
     sh.querySelector('#km-d').onclick=()=>{const n=qn();if(n>kitMont(stById(id)||k)){toast(`So ha ${nf(kitMont(stById(id)||k))} montado`);return}
       askConfirm(cf,'Desmontar',`Desmontar <b>${n}</b> ${n===1?'kit':'kits'}? Os itens voltam ao estoque.`,()=>{cf.innerHTML='';mexe(n,false)})};
     
-    sh.querySelector('#km-c').onclick=()=>formKit(null,{comps:(k.comps||[]).map(x=>({...x})),minimo:k.minimo,kIv:k.kIv});
+    sh.querySelector('#km-c').onclick=()=>formKit(null,{comps:(k.comps||[]).map(x=>({...x})),minimo:k.minimo,kTipo:k.kTipo||'',kMarca:k.kMarca||'',kModelo:k.kModelo||''});
     sh.querySelector('#km-l').onclick=()=>{const f=kitComps(stById(id)||k).filter(({c:x,s:st})=>(Number(st.qtd)||0)<Number(x.qtd)).map(({c:x,s:st})=>({id:st.id,qtd:Math.round(((Number(x.qtd)||0)-(Number(st.qtd)||0))*10)/10}));
       if(!f.length){toast('Nada falta para montar 1 kit.');return}addCart(f)}}});
 }
-/* equipamentos que usam o kit: os do modelo (menos os de kit proprio) e os ligados pela TAG */
-const kitEqs=k=>S.eqCtl.filter(e=>(k.encaixe||[]).includes(e.id)||(!e.kitProprio&&kitMod(k)&&kitMod(k)===eqMod(e))).sort(byCode);
-/* Estoque › Kits: modelos e os kits de cada um */
-function kitModelos(){const m=new Map();S.eqCtl.filter(e=>e.status!=='inativo').forEach(e=>{const key=eqMod(e)||'—';if(!m.has(key))m.set(key,{key,marca:e.marca||'',modelo:e.modelo||'',eqs:[]});m.get(key).eqs.push(e)});
-  const ks=S.estoque.filter(isKit);m.forEach(g=>{g.kits=g.key==='—'?[]:ks.filter(k=>kitMod(k)===g.key).sort((a,b)=>(Number(a.kIv)||0)-(Number(b.kIv)||0))});
-  return [...m.values()].sort((a,b)=>(a.key==='—')-(b.key==='—')||[a.marca,a.modelo].join(' ').localeCompare([b.marca,b.modelo].join(' '),'pt',{numeric:true}))}
+/* equipamentos que usam o kit: os do tipo + modelo (menos os de kit proprio) e os ligados pela TAG */
+const kitEqs=k=>S.eqCtl.filter(e=>kitServe(k,e)).sort(byCode);
+const kitSnap=k=>({codigo:k.codigo||'',desc:k.desc||'',kTipo:k.kTipo||'',kRot:k.kRot||'',kMarca:k.kMarca||'',kModelo:k.kModelo||'',kIv:k.kIv??'',encaixe:[...(k.encaixe||[])],comps:(k.comps||[]).map(c=>({...c})),inativo:!!k.inativo});
+/* Estoque > Kits: grupos tipo + modelo e os kits de cada um */
+function kitGrupos(){const m=new Map();
+  S.eqCtl.filter(e=>e.status!=='inativo'&&eqSig(e)&&eqMod(e)).forEach(e=>{const key=eqSig(e)+'|'+eqMod(e);if(!m.has(key))m.set(key,{key,s:eqSig(e),marca:e.marca||'',modelo:e.modelo||'',eqs:[]});m.get(key).eqs.push(e)});
+  const ks=S.estoque.filter(k=>isKit(k)&&k.kTipo);
+  ks.forEach(k=>{const key=k.kTipo+'|'+kitMod(k);if(!m.has(key))m.set(key,{key,s:k.kTipo,marca:k.kMarca||'',modelo:k.kModelo||'',eqs:[]})});
+  m.forEach(g=>{g.eqs.sort(byCode);g.kits=ks.filter(k=>k.kTipo+'|'+kitMod(k)===g.key).sort(byKit)});
+  return [...m.values()].sort((a,b)=>kitTipoN(a.s).localeCompare(kitTipoN(b.s),'pt')||[a.marca,a.modelo].join(' ').localeCompare([b.marca,b.modelo].join(' '),'pt',{numeric:true}))}
 function openKits(){
   nav('kits',()=>openKits());
-  const L=kitModelos(),com=L.filter(g=>g.kits.length),sem=L.filter(g=>!g.kits.length&&g.key!=='—'),semM=L.find(g=>g.key==='—');
-  const prop=S.estoque.filter(k=>isKit(k)&&!k.kModelo).sort(byCode);
+  const L=kitGrupos(),com=L.filter(g=>g.kits.length),sem=L.filter(g=>!g.kits.length);
+  const prop=S.estoque.filter(k=>isKit(k)&&kitProp(k)&&!kitVelho(k)).sort(byKit);
+  const nV=S.estoque.filter(kitVelho).length,nC=S.estoqueAll.filter(k=>isKit(k)&&k.kConv&&k.kConv.ant).length;
+  const fora=new Map();S.eqCtl.filter(e=>e.status!=='inativo'&&!ehVL(e)&&(!eqSig(e)||!eqMod(e))).sort(byCode).forEach(e=>{const t=!eqSig(e)?(e.tipo||'Sem tipo')+' · sem sigla de kit':'Sem modelo no cadastro';if(!fora.has(t))fora.set(t,[]);fora.get(t).push(e.codigo)});
   const nm=g=>esc([g.marca,g.modelo].filter(Boolean).join(' '));
   const st=g=>{const f=g.kits.some(k=>stockCls(k)==='bad'&&!kitMont(k)),m=g.kits.reduce((a,k)=>a+kitMont(k),0);return f?'<span class="pill bad">falta item</span>':m?`<span class="pill ok">${nf(m)} ${m===1?'montado':'montados'}</span>`:'<span class="pill ok">ok</span>'};
-  const card=g=>`<button type="button" class="km-c" data-km="${esc(g.key)}" data-q="${esc(nzM([g.marca,g.modelo,...g.eqs.map(e=>e.codigo),...g.kits.map(k=>k.desc+' '+k.codigo)].join(' ')))}"><span class="km-t"><b>${nm(g)}</b><small>${g.eqs.length} ${g.eqs.length===1?'equipamento':'equipamentos'}</small>${g.kits.length?`<span class="km-iv">${[...new Set([...KIT_IV,...g.kits.map(k=>Number(k.kIv)).filter(Boolean)])].sort((a,b)=>a-b).map(v=>`<em${g.kits.some(k=>Number(k.kIv)===v)?' class="on"':''}>${nf(v)} h</em>`).join('')}</span>`:''}</span>${g.kits.length?st(g):'<span class="pill warn">sem kit</span>'}</button>`;
-  openSheet({title:'Kits',sub:'Por modelo e intervalo',
-  body:`<div class="search">${I.search}<input id="km-q" type="search" placeholder="Buscar modelo, TAG ou kit" autocomplete="off" aria-label="Buscar kit"></div>
+  const card=g=>`<button type="button" class="km-c" data-km="${esc(g.key)}" data-q="${esc(nzM([kitTipoN(g.s),g.s,g.marca,g.modelo,...g.eqs.map(e=>e.codigo),...g.kits.map(k=>k.desc+' '+k.codigo)].join(' ')))}"><span class="km-t"><b>${esc(g.s)} · ${nm(g)}</b><small>${esc(kitTipoN(g.s))} · ${g.eqs.length} ${g.eqs.length===1?'equipamento':'equipamentos'}</small>${g.kits.length?`<span class="km-iv">${KIT_ROT.map(r=>`<em${g.kits.some(k=>k.kRot===r)?' class="on"':''}>${r.replace('H',' h')}</em>`).join('')}</span>`:''}</span>${g.kits.length?st(g):'<span class="pill warn">sem kit</span>'}</button>`;
+  openSheet({title:'Kits',sub:'Por tipo e modelo',
+  body:`<div class="search">${I.search}<input id="km-q" type="search" placeholder="Buscar tipo, modelo, TAG ou kit" autocomplete="off" aria-label="Buscar kit"></div>
+  ${nV||nC?`<div class="km-l"><button type="button" class="km-c" id="km-cv" data-q="CONVERSAOKITSANTIGOS"><span class="km-t"><b>Conversao de kits</b><small>${nV?`${nV} no padrao antigo`:'Todos convertidos'}${nC?` · ${nC} ${nC===1?'convertido':'convertidos'}`:''}</small></span>${nV?`<span class="pill warn">${nV}</span>`:''}</button></div>`:''}
   ${com.length?`<div class="lbl">Com kit</div><div class="km-l">${com.map(card).join('')}</div>`:''}
   ${prop.length?`<div class="lbl">Kit proprio</div><div class="km-l">${prop.map(k=>`<button type="button" class="km-c" data-kk="${esc(k.id)}" data-q="${esc(nzM(k.desc+' '+k.codigo+' '+kitEqs(k).map(e=>e.codigo).join(' ')))}"><span class="km-t"><b>${esc(k.desc)}</b><small>${esc(kitEqs(k).map(e=>e.codigo).join(', ')||'Sem equipamento')}</small></span><span class="pill ${stockCls(k)}">${nf(stQtd(k))} ${stUn(k)}</span></button>`).join('')}</div>`:''}
   ${sem.length?`<div class="lbl">Sem kit</div><div class="km-l">${sem.map(card).join('')}</div>`:''}
-  ${semM?`<div class="lbl">Sem modelo no cadastro</div><div class="spec"><div class="r"><span>${semM.eqs.length} ${semM.eqs.length===1?'equipamento':'equipamentos'}</span><b>${esc(semM.eqs.sort(byCode).map(e=>e.codigo).join(', '))}</b></div></div>`:''}`,
+  ${fora.size?`<div class="lbl">Fora dos kits</div><div class="spec">${[...fora].sort((a,b)=>a[0].localeCompare(b[0],'pt')).map(([t,l])=>`<div class="r"><span>${esc(t)}</span><b>${esc(l.join(', '))}</b></div>`).join('')}</div>`:''}`,
   foot:podeEscrever()?`<button class="btn pri" id="km-novo">Novo kit</button>`:'',
-  mount:sh=>{sh.querySelectorAll('[data-km]').forEach(b=>b.onclick=()=>openKitMod(b.dataset.km));sh.querySelectorAll('[data-kk]').forEach(b=>b.onclick=()=>formMov(b.dataset.kk));
+  mount:sh=>{sh.querySelectorAll('[data-km]').forEach(b=>b.onclick=()=>openKitGrupo(b.dataset.km));sh.querySelectorAll('[data-kk]').forEach(b=>b.onclick=()=>formMov(b.dataset.kk));
+    const cv=sh.querySelector('#km-cv');if(cv)cv.onclick=()=>openKitConv();
     const nv=sh.querySelector('#km-novo');if(nv)nv.onclick=()=>formKit();
     const q=sh.querySelector('#km-q');q.oninput=()=>{const v=nzM(q.value);sh.querySelectorAll('.km-c').forEach(c=>c.hidden=!!v&&!c.dataset.q.includes(v));sh.querySelectorAll('.km-l').forEach(l=>{l.hidden=![...l.children].some(c=>!c.hidden);const h=l.previousElementSibling;if(h&&h.classList.contains('lbl'))h.hidden=l.hidden})}}});
 }
-function openKitMod(key){
-  nav('kmod:'+key,()=>openKitMod(key));
-  const g=kitModelos().find(x=>x.key===key);if(!g){toast('Modelo nao encontrado');return}
-  const ivs=[...new Set([...KIT_IV,...g.kits.map(k=>Number(k.kIv)).filter(Boolean)])].sort((a,b)=>a-b),semIv=g.kits.filter(k=>!Number(k.kIv));
-  const prop=g.eqs.filter(e=>e.kitProprio).map(e=>e.codigo);
-  const kc=k=>`<button type="button" class="km-k" data-kk="${esc(k.id)}"><span class="km-v">${Number(k.kIv)?nf(k.kIv)+' h':'—'}</span><span class="km-t"><b>${esc(k.desc)}</b><small>${kitComps(k).length} itens · ${kitDisp(k)?`da para montar ${nf(kitDisp(k))}`:(()=>{const f=kitComps(k).filter(({c,s})=>(Number(s.qtd)||0)<Number(c.qtd));return f.length===1?'falta '+esc(f[0].s.desc):f.length?`faltam ${f.length} itens`:'sem itens'})()}</small></span>${kitMont(k)?`<span class="pill ok">${nf(kitMont(k))} ${kitMont(k)===1?'montado':'montados'}</span>`:''}</button>`;
-  openSheet({title:esc([g.marca,g.modelo].filter(Boolean).join(' ')),sub:`${g.eqs.length} ${g.eqs.length===1?'equipamento':'equipamentos'}`,
-  body:`<p class="km-eq num">${esc(g.eqs.sort(byCode).map(e=>e.codigo).join(' · '))}</p>${prop.length?`<p class="note" style="margin:-4px 2px 10px">Kit proprio (nao usa os kits do modelo): ${esc(prop.join(', '))}</p>`:''}
-  <div class="km-l">${ivs.map(v=>{const l=g.kits.filter(k=>Number(k.kIv)===v);return l.length?l.map(kc).join(''):`<button type="button" class="km-k vz" data-kn="${v}"${podeEscrever()?'':' disabled'}><span class="km-v">${nf(v)} h</span><span class="km-t"><small>Sem kit${podeEscrever()?' · toque para montar':''}</small></span></button>`}).join('')}${semIv.map(kc).join('')}</div>`,
+function openKitGrupo(key){
+  nav('kmod:'+key,()=>openKitGrupo(key));
+  const g=kitGrupos().find(x=>x.key===key);if(!g){toast('Modelo nao encontrado');return}
+  const prop=g.eqs.filter(e=>e.kitProprio).map(e=>e.codigo),outros=g.kits.filter(k=>!KIT_ROT.includes(k.kRot));
+  const kc=k=>`<button type="button" class="km-k" data-kk="${esc(k.id)}"><span class="km-v">${k.kRot?esc(k.kRot.replace('H',' h')):'—'}</span><span class="km-t"><b>${esc(k.desc)}</b><small>${kitComps(k).length} itens · ${kitDisp(k)?`da para montar ${nf(kitDisp(k))}`:(()=>{const f=kitComps(k).filter(({c,s})=>(Number(s.qtd)||0)<Number(c.qtd));return f.length===1?'falta '+esc(f[0].s.desc):f.length?`faltam ${f.length} itens`:'sem itens'})()}</small></span>${kitMont(k)?`<span class="pill ok">${nf(kitMont(k))} ${kitMont(k)===1?'montado':'montados'}</span>`:''}</button>`;
+  openSheet({title:`${esc(g.s)} · ${esc([g.marca,g.modelo].filter(Boolean).join(' '))}`,sub:`${esc(kitTipoN(g.s))} · ${g.eqs.length} ${g.eqs.length===1?'equipamento':'equipamentos'}`,
+  body:`<p class="km-eq num">${esc(g.eqs.map(e=>e.codigo).join(' · ')||'Nenhum equipamento ativo')}</p>${prop.length?`<p class="note" style="margin:-4px 2px 10px">Kit proprio (nao usa os kits do modelo): ${esc(prop.join(', '))}</p>`:''}
+  <div class="km-l">${KIT_ROT.map(r=>{const l=g.kits.filter(k=>k.kRot===r);return l.length?l.map(kc).join(''):`<button type="button" class="km-k vz" data-kn="${r}"${podeEscrever()?'':' disabled'}><span class="km-v">${r.replace('H',' h')}</span><span class="km-t"><small>Sem kit${podeEscrever()?' · toque para montar':''}</small></span></button>`}).join('')}${outros.map(kc).join('')}</div>`,
   foot:podeEscrever()?`<button class="btn pri" id="km-novo">Novo kit deste modelo</button>`:'',
-  mount:sh=>{const pre=v=>({kMarca:g.marca,kModelo:g.modelo,kIv:v||''});
+  mount:sh=>{const pre=r=>({kTipo:g.s,kMarca:g.marca,kModelo:g.modelo,kRot:r||''});
     sh.querySelectorAll('[data-kk]').forEach(b=>b.onclick=()=>formMov(b.dataset.kk));
-    sh.querySelectorAll('[data-kn]').forEach(b=>b.onclick=()=>formKit(null,pre(Number(b.dataset.kn))));
+    sh.querySelectorAll('[data-kn]').forEach(b=>b.onclick=()=>formKit(null,pre(b.dataset.kn)));
     const nv=sh.querySelector('#km-novo');if(nv)nv.onclick=()=>formKit(null,pre(''))}});
+}
+/* kit antigo: tipo mais comum entre os equipamentos do modelo, intervalo antigo como rotulo */
+function kitConvSug(k){const eqs=S.eqCtl.filter(e=>(k.encaixe||[]).includes(e.id)||(!!kitMod(k)&&kitMod(k)===eqMod(e))).sort(byCode);
+  const c={};eqs.forEach(e=>{const x=eqSig(e);if(x)c[x]=(c[x]||0)+1});const ss=Object.keys(c).sort((a,b)=>c[b]-c[a]||a.localeCompare(b));
+  const r=Number(k.kIv)?String(Number(k.kIv))+'H':'';
+  return {s:kitProp(k)?'P':(ss[0]||''),ss,r:KIT_ROT.includes(r)?r:'',eqs}}
+const kitSugConv=(k,t,r,eqs)=>t==='P'?['KIT',eqs.map(e=>nzM(e.codigo)).join('-'),r].filter(Boolean).join('-'):kitSugNome(t,k.kModelo,r);
+const kitCmp=(a,b)=>{const ids=[...new Set([...(a.comps||[]),...(b.comps||[])].map(c=>c.id))];const q=(k,i)=>{const c=(k.comps||[]).find(x=>x.id===i);return c?nf(c.qtd,2):'—'};
+  return `<div class="spec" style="margin-top:8px"><div class="r"><span><b>Item</b></span><b>Este · ${esc(b.codigo)}</b></div>${ids.map(i=>{const x=stById(i);return `<div class="r"><span>${esc(x?x.desc:'Item removido')} <small class="num">${esc(x?stCod(x):'')}</small></span><b class="num">${q(a,i)} · ${q(b,i)}</b></div>`}).join('')}</div>`};
+/* Kits > Conversao: cada kit antigo vira tipo + modelo (ou kit proprio), caso a caso; tudo com desfazer */
+function openKitConv(){
+  nav('kconv',()=>openKitConv());
+  const V=S.estoque.filter(kitVelho).sort((a,b)=>String(a.desc).localeCompare(String(b.desc),'pt',{numeric:true})),C=S.estoqueAll.filter(k=>isKit(k)&&k.kConv&&k.kConv.ant).sort(byKit),W=podeEscrever();
+  const ST=openKitConv.st||(openKitConv.st={});
+  V.forEach(k=>{if(!ST[k.id]){const g=kitConvSug(k);ST[k.id]={t:g.s,r:g.r,auto:true,nome:''};if(ST[k.id].t&&ST[k.id].r)ST[k.id].nome=kitSugConv(k,g.s,g.r,g.eqs)}});
+  const tipoOpts=(k,sel,g)=>`<option value="">Escolha…</option>${KIT_TAB.slice().sort((a,b)=>(g.ss.includes(b.s)-g.ss.includes(a.s))||a.n.localeCompare(b.n,'pt')).map(t=>`<option value="${t.s}"${t.s===sel?' selected':''}>${t.s} · ${esc(t.n)}</option>`).join('')}<option value="P"${sel==='P'?' selected':''}>Kit proprio (${esc(g.eqs.map(e=>e.codigo).join(', ')||'sem equipamento')})</option>`;
+  const row=k=>{const g=kitConvSug(k),x=ST[k.id];return `<div class="fset" data-kcv="${esc(k.id)}" style="margin-bottom:12px"><h3>${esc(k.desc)}</h3><p class="note" style="margin:0 0 8px">${esc(g.eqs.map(e=>e.codigo).join(', ')||'Sem equipamento')} · ${kitComps(k).length} itens${kitMont(k)?` · ${nf(kitMont(k))} ${kitMont(k)===1?'montado':'montados'}`:''}</p>
+    <div class="grid"><label class="f">Tipo<select data-kt${W?'':' disabled'}>${tipoOpts(k,x.t,g)}</select></label><label class="f">Intervalo<select data-kr${W?'':' disabled'}><option value="">Escolha…</option>${KIT_ROT.map(r=>`<option value="${r}"${r===x.r?' selected':''}>${r.replace('H',' h')}</option>`).join('')}</select></label>
+    <label class="f w">Nome<input data-kn value="${esc(x.nome)}" autocapitalize="characters" autocomplete="off"${W?'':' disabled'}></label></div>
+    <p class="note" data-kst style="margin:8px 2px 0"></p><div data-kcmp></div>${W?'<div class="kb-ac" data-kac></div><div data-kcf></div>':''}</div>`};
+  const urow=k=>{const cv=k.kConv,t=cv.junto&&stById(cv.junto);return `<div class="r"><span>${esc(k.desc)}<small style="display:block;color:var(--muted,#667)">antes ${esc(cv.ant.desc||cv.ant.codigo)}${t?' · juntado em '+esc(t.codigo):''}</small></span>${W?`<button type="button" class="btn sm" data-kun="${esc(k.id)}">Desfazer</button>`:''}</div>`};
+  openSheet({title:'Conversao de kits',sub:V.length?`${V.length} no padrao antigo`:'Nenhum no padrao antigo',
+  body:`${V.length&&W?'<button type="button" class="btn pri" id="kc-all" style="width:100%;margin-bottom:6px"></button><div id="kc-allcf" style="margin-bottom:10px"></div>':''}${V.map(row).join('')||'<div class="empty">Todos os kits ja estao no padrao novo.</div>'}
+  ${C.length?`<div class="lbl">Convertidos</div><div class="spec">${C.map(urow).join('')}</div><div id="kc-ucf"></div>`:''}`,
+  mount:sh=>{
+    const reKc=()=>setTimeout(()=>{const t=NAV[NAV.length-1];if(sheetOpen&&t&&t.key==='kconv'){const b=$('#sheet .sh-body'),y=b?b.scrollTop:0;openKitConv();const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y}},450);
+    const ativo=id=>{const k=stById(id);return k&&!k.inativo&&kitVelho(k)?k:null};
+    const stat=id=>{const k=stById(id),x=ST[id],g=kitConvSug(k),nm=String(x.nome||'').trim().toUpperCase();
+      if(!x.t||!x.r)return {c:'esc',tx:'Escolha o tipo e o intervalo.'};
+      if(!nm)return {c:'esc',tx:'Informe o nome do kit.'};
+      if(x.t==='P'&&!g.eqs.length)return {c:'esc',tx:'Kit sem equipamento: escolha um tipo.'};
+      const semK=x.t!=='P'?g.eqs.filter(e=>eqSig(e)!==x.t).map(e=>e.codigo):[],nota=semK.length?` Ficam sem kit: ${semK.join(', ')}.`:'';
+      const h=S.estoque.find(y=>y.id!==id&&nzM(y.codigo)===nzM(nm));
+      if(h){if(isKit(h)&&x.t!=='P'&&h.kTipo===x.t&&kitMod(h)===kitMod(k))return {c:'junta',h,tx:`Ja existe o ${h.codigo} (mesmo tipo e modelo). Junte os itens ou mude o nome.`+nota};
+        return {c:'usado',tx:`Nome ja usado por ${h.desc||h.codigo}: mude o nome.`}}
+      const o=V.filter(y=>y.id!==id&&ST[y.id]&&nzM(String(ST[y.id].nome||''))===nzM(nm));
+      if(o.length)return {c:'dois',o,tx:`Mesmo nome de ${o.map(y=>y.desc).join(', ')}: escolha qual fica com este nome.`+nota};
+      return {c:'ok',tx:(x.t==='P'?'Fica como kit proprio.':'')+nota}};
+    const conv=async(id,quiet)=>{const k=ativo(id);if(!k)return false;const x=ST[id],g=kitConvSug(k),nm=String(x.nome).trim().toUpperCase().replace(/\s+/g,' ');
+      const up=x.t==='P'?{codigo:nm,desc:nm,kTipo:'',kMarca:'',kModelo:'',kIv:'',kRot:x.r,encaixe:g.eqs.map(e=>e.id)}:{codigo:nm,desc:nm,kTipo:x.t,kIv:'',kRot:x.r,encaixe:[]};
+      up.kConv={ant:kitSnap(k),ts:Date.now()};
+      const ok=await safe(()=>S.db.doc('estoque/'+id).update(up),quiet?'':'Kit convertido');if(ok)delete ST[id];return ok};
+    const junta=async(id,h)=>{const k=ativo(id);if(!k||!h)return;
+      if(kitMont(k)){toast('Desmonte antes os kits montados deste kit antigo.');return}
+      const m=new Map((h.comps||[]).map(c=>[c.id,{...c}]));(k.comps||[]).forEach(c=>{const y=m.get(c.id);if(y)y.qtd=Math.max(Number(y.qtd)||0,Number(c.qtd)||0);else m.set(c.id,{...c})});
+      const ok=await safe(async()=>{await S.db.doc('estoque/'+h.id).update({comps:[...m.values()],kJunt:[...(h.kJunt||[]),{de:id,comps:(h.comps||[]).map(c=>({...c})),ts:Date.now()}]});
+        await S.db.doc('estoque/'+id).update({inativo:true,kConv:{ant:kitSnap(k),junto:h.id,ts:Date.now()}})},'Itens juntados');
+      if(ok){delete ST[id];reKc()}};
+    const rows=[...sh.querySelectorAll('[data-kcv]')];
+    const paint=()=>{let nOk=0;rows.forEach(el=>{const id=el.dataset.kcv,r=stat(id);if(r.c==='ok')nOk++;
+      el.querySelector('[data-kst]').textContent=r.tx;el.querySelector('[data-kst]').style.color=r.c==='ok'?'':'var(--warn,#b45309)';
+      const k=stById(id);el.querySelector('[data-kcmp]').innerHTML=r.c==='junta'?kitCmp(k,r.h):r.c==='dois'?r.o.map(o=>kitCmp(k,o)).join(''):'';
+      const ac=el.querySelector('[data-kac]'),cf=el.querySelector('[data-kcf]');if(!ac)return;
+      ac.innerHTML=r.c==='ok'?'<button type="button" class="btn" data-ka="c">Converter</button>':r.c==='dois'?'<button type="button" class="btn" data-ka="c">Fica este</button>':r.c==='junta'?`<button type="button" class="btn" data-ka="j">Juntar ao ${esc(r.h.codigo)}</button>`:'';
+      const b=ac.querySelector('[data-ka]');if(!b)return;
+      b.onclick=()=>b.dataset.ka==='j'
+        ?askConfirm(cf,'Juntar',`Juntar os itens de <b>${esc(k.desc)}</b> ao <b>${esc(r.h.codigo)}</b>? Item repetido fica com a maior quantidade. O kit antigo sai da lista (da para desfazer).`,()=>{cf.innerHTML='';junta(id,r.h)})
+        :askConfirm(cf,'Converter',`<b>${esc(k.desc)}</b> passa a se chamar <b>${esc(String(ST[id].nome).toUpperCase())}</b>.${r.c==='dois'?' O outro kit antigo continua aqui para decidir.':''}`,async()=>{cf.innerHTML='';if(await conv(id))reKc()})});
+      const all=sh.querySelector('#kc-all');if(all){all.textContent=nOk?`Converter ${nOk===1?'o kit pronto':`os ${nOk} kits prontos`}`:'Nenhum kit pronto para converter';all.disabled=!nOk}};
+    rows.forEach(el=>{const id=el.dataset.kcv,x=ST[id],k=stById(id),tS=el.querySelector('[data-kt]'),rS=el.querySelector('[data-kr]'),nI=el.querySelector('[data-kn]');
+      const sug=()=>{if(x.auto&&x.t&&x.r){x.nome=kitSugConv(k,x.t,x.r,kitConvSug(k).eqs);nI.value=x.nome}};
+      tS.onchange=()=>{x.t=tS.value;sug();paint()};rS.onchange=()=>{x.r=rS.value;sug();paint()};
+      nI.oninput=()=>{x.nome=nI.value;x.auto=!nI.value.trim();paint()}});
+    const all=sh.querySelector('#kc-all');if(all)all.onclick=()=>{const ids=rows.map(el=>el.dataset.kcv).filter(id=>stat(id).c==='ok');if(!ids.length)return;const cf=sh.querySelector('#kc-allcf');
+      askConfirm(cf,'Converter',`Converter <b>${ids.length}</b> ${ids.length===1?'kit':'kits'} sem conflito? Os demais ficam para decidir caso a caso.`,async()=>{cf.innerHTML='';let n=0;for(const id of ids)if(await conv(id,true))n++;toast(`${n} ${n===1?'kit convertido':'kits convertidos'}`);reKc()})};
+    sh.querySelectorAll('[data-kun]').forEach(b=>b.onclick=()=>{const k=stById(b.dataset.kun);if(!k||!k.kConv)return;const cv=k.kConv,cf=sh.querySelector('#kc-ucf');
+      if((k.kJunt||[]).length){toast('Desfaca antes as juncoes feitas neste kit.');return}
+      const t=cv.junto&&stById(cv.junto),jl=(t&&t.kJunt)||[],last=jl[jl.length-1];
+      if(t&&(!last||last.de!==k.id)){toast(`Desfaca antes as juncoes mais recentes no ${t.codigo}.`);return}
+      askConfirm(cf,'Desfazer',`<b>${esc(k.desc)}</b> volta a ser <b>${esc(cv.ant.desc||cv.ant.codigo)}</b>, como estava antes da conversao${t?`, e o ${esc(t.codigo)} volta aos itens de antes da juncao`:''}.`,async()=>{cf.innerHTML='';
+        if(await safe(async()=>{if(t)await S.db.doc('estoque/'+t.id).update({comps:last.comps,kJunt:jl.slice(0,-1)});await S.db.doc('estoque/'+k.id).update({...cv.ant,kConv:null})},'Desfeito')){delete ST[k.id];reKc()}})});
+    paint()}});
 }
 function formKit(id,pre){
   nav('fk:'+(id||'novo'),()=>formKit(id,pre));
@@ -5956,16 +6048,17 @@ function formKit(id,pre){
   /* itens do kit: busca por codigo ou referencia (ou camera); rascunho guardado ao sair para cadastrar um item novo */
   const dr=formKit.draft&&formKit.draft.key===(id||'novo')?formKit.draft:null;formKit.draft=null;
   const C=(dr?dr.comps:(k.comps||[])).map(c=>({id:c.id,qtd:c.qtd??1}));
-  openSheet({title:id?'Editar kit':'Novo kit',sub:id?esc(k.codigo):'Junte varios itens do estoque em um so',
+  const velho=kitVelho(k),sg=velho?kitConvSug(k):null;
+  const t0=k.kTipo||(sg&&sg.s!=='P'?sg.s:''),r0=k.kRot||(sg?sg.r:''),ap0=kitProp(k)||(sg&&sg.s==='P')?'eq':'mod';
+  openSheet({title:id?'Editar kit':'Novo kit',sub:id?esc(k.codigo)+(velho?' · padrao antigo':''):'Junte varios itens do estoque em um so',
   body:`<form id="fk"><div class="fset"><div class="grid">
-    <label class="f">Codigo do kit<input id="k-codigo" required value="${esc(k.codigo||'')}" placeholder="Ex.: KIT-250" autocapitalize="characters"></label>
-    <label class="f">Minimo de kits<input id="k-min" type="number" step="1" min="0" inputmode="numeric" value="${esc(k.minimo??1)}"></label>
-    <label class="f w">Aplica em<select id="k-ap"><option value="mod"${k.kModelo||!(k.encaixe||[]).length?' selected':''}>Modelo de equipamento</option><option value="eq"${!k.kModelo&&(k.encaixe||[]).length?' selected':''}>Equipamento (kit proprio)</option></select></label>
-    <label class="f w" id="k-modw">Modelo<select id="k-mod"><option value="">Escolha…</option>${kitModelos().filter(g=>g.key!=='—').map(g=>`<option value="${esc(g.key)}"${g.key===kitMod(k)?' selected':''}>${esc([g.marca,g.modelo].filter(Boolean).join(' '))} (${g.eqs.length})</option>`).join('')}${k.kModelo&&!kitModelos().some(g=>g.key===kitMod(k))?`<option value="${esc(kitMod(k))}" selected>${esc([k.kMarca,k.kModelo].join(' '))}</option>`:''}</select></label>
-    <div class="f w">Intervalo<input type="hidden" id="k-iv" value="${esc(k.kIv??'')}"><div class="seg iv-seg" role="group" aria-label="Intervalo do kit">${KIT_IV.map(v=>`<button type="button" class="btn" data-kiv="${v}" aria-pressed="${Number(k.kIv)===v}">${nf(v)} h</button>`).join('')}<button type="button" class="btn" data-kiv="o" aria-pressed="${!!(Number(k.kIv)&&!KIT_IV.includes(Number(k.kIv)))}">Outro</button></div>
-      <input id="k-ivo" type="number" step="1" min="1" inputmode="numeric" placeholder="Intervalo em horas" value="${Number(k.kIv)&&!KIT_IV.includes(Number(k.kIv))?esc(k.kIv):''}"${Number(k.kIv)&&!KIT_IV.includes(Number(k.kIv))?'':' hidden'} style="margin-top:6px"></div>
-    <div class="f w">Nome<div class="k-nome" id="k-nm"></div><input type="hidden" id="k-desc" value="${esc(k.desc||'')}"></div></div></div>
-    <div class="fset" style="margin-top:12px" id="k-encw"><h3>Equipamento do kit proprio</h3><p class="note" style="margin:0">Use so para a excecao: o equipamento passa a usar este kit em vez dos kits do modelo.</p>
+    <label class="f w">Aplica em<select id="k-ap"><option value="mod"${ap0==='mod'?' selected':''}>Tipo e modelo de equipamento</option><option value="eq"${ap0==='eq'?' selected':''}>Equipamento (kit proprio)</option></select></label>
+    <label class="f" id="k-tpw">Tipo<select id="k-tp"><option value="">Escolha…</option>${KIT_TAB.slice().sort((a,b)=>a.n.localeCompare(b.n,'pt')).map(t=>`<option value="${t.s}"${t.s===t0?' selected':''}>${t.s} · ${esc(t.n)}</option>`).join('')}</select></label>
+    <label class="f" id="k-modw">Modelo<select id="k-mod"></select></label>
+    <div class="f w">Intervalo<input type="hidden" id="k-iv" value="${esc(r0)}"><div class="seg iv-seg" role="group" aria-label="Intervalo do kit">${KIT_ROT.map(r=>`<button type="button" class="btn" data-kiv="${r}" aria-pressed="${r===r0}">${r.replace('H',' h')}</button>`).join('')}</div></div>
+    <label class="f w">Nome do kit<input id="k-nome" required value="${esc(velho?'':k.codigo||'')}" autocapitalize="characters" autocomplete="off"></label>
+    <label class="f">Minimo de kits<input id="k-min" type="number" step="1" min="0" inputmode="numeric" value="${esc(k.minimo??1)}"></label></div></div>
+    <div class="fset" style="margin-top:12px" id="k-encw"><h3>Equipamento do kit proprio</h3><p class="note" style="margin:0">Use so para a excecao: o equipamento passa a usar este kit.</p>
       <div class="tsec-l enc-sel" id="k-enc"></div>
       <div class="search">${I.search}<input id="k-encq" type="search" placeholder="Adicionar: TAG, modelo ou nº de serie" autocomplete="off" aria-label="Buscar equipamento"></div><div class="tsec-l enc-res" id="k-encr" hidden></div></div>
     <div class="fset" style="margin-top:12px"><h3>Itens do kit</h3><div class="sug-w t-add"><div class="search">${I.search}<input id="k-q" type="search" placeholder="Codigo ou referencia do item" autocomplete="off" autocapitalize="characters" aria-label="Adicionar item"></div><div class="sug" id="k-qh"></div></div>
@@ -5975,22 +6068,29 @@ function formKit(id,pre){
   foot:`<button class="btn pri" form="fk">Salvar kit</button>`,
   mount:sh=>{if(id)atBind(sh,'kit',id);
     const fotoOrig=[...(k.fotos||[])],fotoNow=photoEditor(sh.querySelector('#k-ph'),dr?dr.fotos.slice():[...fotoOrig],3,true);
-    if(dr){sh.querySelector('#k-codigo').value=dr.codigo;sh.querySelector('#k-min').value=dr.min;sh.querySelector('#k-desc').value=dr.desc}
-    /* encaixe de fabrica do kit: um ou varios equipamentos */
-    let enc=[...(dr&&dr.enc?dr.enc:(k.encaixe||[]))].filter(eqById);
-    const apS=sh.querySelector('#k-ap'),modS=sh.querySelector('#k-mod'),ivH=sh.querySelector('#k-iv'),ivO=sh.querySelector('#k-ivo'),nmB=sh.querySelector('#k-nm');
-    if(dr&&dr.ap){apS.value=dr.ap;modS.value=dr.mod||'';ivH.value=dr.iv||''}
-    const modG=()=>kitModelos().find(g=>g.key===modS.value)||(modS.value&&modS.value===kitMod(k)?{marca:k.kMarca,modelo:k.kModelo}:null);
-    const cur=()=>{const g=apS.value==='mod'?modG():null;return {kMarca:g?g.marca:'',kModelo:g?g.modelo:'',kIv:Number(ivH.value)||'',encaixe:apS.value==='eq'?enc:[]}};
-    const nome=()=>{const c=cur();nmB.textContent=(c.kModelo||c.encaixe.length)?kitNome(c):'Escolha o modelo e o intervalo';sh.querySelector('#k-desc').value=nmB.textContent};
-    const apD=()=>{sh.querySelector('#k-modw').hidden=apS.value!=='mod';sh.querySelector('#k-encw').hidden=apS.value!=='eq';nome()};
-    apS.onchange=apD;modS.onchange=nome;
-    sh.querySelectorAll('[data-kiv]').forEach(b=>b.onclick=()=>{sh.querySelectorAll('[data-kiv]').forEach(x=>x.setAttribute('aria-pressed',x===b));if(b.dataset.kiv==='o'){ivO.hidden=false;ivO.focus();ivH.value=ivO.value}else{ivO.hidden=true;ivH.value=b.dataset.kiv}nome()});
-    ivO.oninput=()=>{ivH.value=ivO.value;nome()};const encBox=sh.querySelector('#k-enc'),encQ=sh.querySelector('#k-encq'),encR=sh.querySelector('#k-encr');
+    let enc=[...(dr&&dr.enc?dr.enc:(k.encaixe&&k.encaixe.length?k.encaixe:(sg&&sg.s==='P'?sg.eqs.map(e=>e.id):[])))].filter(eqById);
+    const apS=sh.querySelector('#k-ap'),tpS=sh.querySelector('#k-tp'),modS=sh.querySelector('#k-mod'),ivH=sh.querySelector('#k-iv'),nmI=sh.querySelector('#k-nome');
+    /* nome: segue a sugestao ate a pessoa digitar; kit ja salvo mantem o nome */
+    let auto=!id||velho;
+    if(dr){apS.value=dr.ap;tpS.value=dr.tp||'';ivH.value=dr.iv||'';nmI.value=dr.nome||'';auto=dr.auto;sh.querySelector('#k-min').value=dr.min}
+    const mods=()=>{const m=new Map();S.eqCtl.filter(e=>e.status!=='inativo'&&eqSig(e)===tpS.value&&eqMod(e)).forEach(e=>{const key=eqMod(e);if(!m.has(key))m.set(key,{key,marca:e.marca||'',modelo:e.modelo||'',n:0});m.get(key).n++});
+      if(k.kModelo&&(!k.kTipo||k.kTipo===tpS.value)&&!m.has(kitMod(k)))m.set(kitMod(k),{key:kitMod(k),marca:k.kMarca||'',modelo:k.kModelo,n:0});
+      return [...m.values()].sort((a,b)=>[a.marca,a.modelo].join(' ').localeCompare([b.marca,b.modelo].join(' '),'pt',{numeric:true}))};
+    const drawMods=sel=>{const l=mods();modS.innerHTML=`<option value="">${tpS.value?'Escolha…':'Escolha o tipo'}</option>`+l.map(g=>`<option value="${esc(g.key)}"${g.key===sel?' selected':''}>${esc([g.marca,g.modelo].filter(Boolean).join(' '))}${g.n?` (${g.n})`:''}</option>`).join('')};
+    drawMods(dr?dr.mod:kitMod(k));
+    const modG=()=>mods().find(g=>g.key===modS.value)||null;
+    const cur=()=>{if(apS.value==='eq')return {kTipo:'',kMarca:'',kModelo:'',kRot:ivH.value,encaixe:enc};const g=modG();return {kTipo:tpS.value,kMarca:g?g.marca:'',kModelo:g?g.modelo:'',kRot:ivH.value,encaixe:[]}};
+    const sug=()=>{const c=cur();return apS.value==='eq'?(enc.length?['KIT',enc.map(i=>nzM((eqById(i)||{}).codigo)).join('-'),c.kRot].filter(Boolean).join('-'):''):(c.kTipo&&c.kModelo?kitSugNome(c.kTipo,c.kModelo,c.kRot):'')};
+    const nome=()=>{if(auto)nmI.value=sug()};
+    nmI.oninput=()=>{auto=!nmI.value.trim()};
+    const apD=()=>{sh.querySelector('#k-tpw').hidden=sh.querySelector('#k-modw').hidden=apS.value!=='mod';sh.querySelector('#k-encw').hidden=apS.value!=='eq';nome()};
+    apS.onchange=apD;tpS.onchange=()=>{drawMods('');nome()};modS.onchange=nome;
+    sh.querySelectorAll('[data-kiv]').forEach(b=>b.onclick=()=>{sh.querySelectorAll('[data-kiv]').forEach(x=>x.setAttribute('aria-pressed',x===b));ivH.value=b.dataset.kiv;nome()});
+    const encBox=sh.querySelector('#k-enc'),encQ=sh.querySelector('#k-encq'),encR=sh.querySelector('#k-encr');
     const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
     const drawEnc=()=>{encBox.innerHTML=enc.slice().sort((a,b)=>byCode(eqById(a),eqById(b))).map(i=>{const e=eqById(i);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(i)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
-      encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()});if(typeof nome==='function')nome()};drawEnc();apD();
-    const nzE=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
+      encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()});nome()};drawEnc();apD();
+    const nzE=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const qq=nzE(encQ.value);if(!qq){encR.hidden=true;return}
       const hits=S.eqCtl.filter(e=>!enc.includes(e.id)&&nzE([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(qq)).sort(byCode).slice(0,8);
       encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
@@ -6013,21 +6113,22 @@ function formKit(id,pre){
       const m=its.map(x=>[sc(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]),v=q.value.trim().toUpperCase();
       qh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-kp="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="k-cad" style="color:var(--accent,#0033a0)">Cadastrar item ${esc(v)}</button>`;
       qh.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>{q.value='';qh.innerHTML='';add(stById(b.dataset.kp))});
-      qh.querySelector('#k-cad').onclick=()=>{const d={key:id||'novo',ap:apS.value,mod:modS.value,iv:ivH.value,comps:C.map(c=>({...c})),enc:enc.slice(),fotos:fotoNow.slice(),codigo:sh.querySelector('#k-codigo').value,min:sh.querySelector('#k-min').value,desc:sh.querySelector('#k-desc').value};
+      qh.querySelector('#k-cad').onclick=()=>{const d={key:id||'novo',ap:apS.value,tp:tpS.value,mod:modS.value,iv:ivH.value,nome:nmI.value,auto,comps:C.map(c=>({...c})),enc:enc.slice(),fotos:fotoNow.slice(),min:sh.querySelector('#k-min').value};
         q.value='';qh.innerHTML='';formKit.draft=d;const cb=async sid=>{d.comps.push({id:sid,qtd:1})};cb.msg='Item cadastrado';formStock(null,{ref:v},cb)}};
     draw();
     const kc=sh.querySelector('#k-cam');if(kc)kc.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item){toast('Item nao encontrado no estoque.');return}add(v.item)}});
     sh.querySelector('#fk').onsubmit=ev=>{ev.preventDefault();
-      {const c=cur();if(apS.value==='mod'&&!c.kModelo){toast('Escolha o modelo do kit');modS.focus();return}if(apS.value==='eq'&&!enc.length){toast('Escolha o equipamento do kit proprio');sh.querySelector('#k-encq').focus();return}if(!c.kIv){toast('Escolha o intervalo do kit');return}}
+      {const c=cur();if(apS.value==='mod'&&!c.kTipo){toast('Escolha o tipo do kit');tpS.focus();return}if(apS.value==='mod'&&!c.kModelo){toast('Escolha o modelo do kit');modS.focus();return}if(apS.value==='eq'&&!enc.length){toast('Escolha o equipamento do kit proprio');sh.querySelector('#k-encq').focus();return}if(!c.kRot){toast('Escolha o intervalo do kit');return}if(!nmI.value.trim()){toast('Informe o nome do kit');nmI.focus();return}}
       const m={};C.forEach(c=>{const qq=Number(c.qtd)||0;if(c.id&&qq>0&&stById(c.id))m[c.id]=(m[c.id]||0)+qq});
       const comps=Object.entries(m).map(([cid,q])=>({id:cid,qtd:Math.round(q*10)/10}));
       if(comps.length<2){toast('Um kit precisa de pelo menos 2 itens com quantidade.');return}
       const keep=new Set(comps.map(c=>c.id));
-      const rem=[...(k.comps||[]).filter(c=>!keep.has(c.id)).map(c=>{const s=stById(c.id);return s?`${stCod(s)} do kit`:'item do kit'}),...fotoOrig.filter(x=>!fotoNow.includes(x)).map(()=>'foto'),...(k.encaixe||[]).filter(x=>!enc.includes(x)&&eqById(x)).map(x=>`encaixe em ${eqById(x).codigo}`)];
+      const rem=[...(k.comps||[]).filter(c=>!keep.has(c.id)).map(c=>{const s=stById(c.id);return s?`${stCod(s)} do kit`:'item do kit'}),...fotoOrig.filter(x=>!fotoNow.includes(x)).map(()=>'foto'),...(k.encaixe||[]).filter(x=>!(apS.value==='eq'?enc:[]).includes(x)&&eqById(x)).map(x=>`encaixe em ${eqById(x).codigo}`)];
       confirmRemovals(sh.querySelector('#delbox'),rem,()=>save(comps))};
-    const save=async comps=>{const g=n=>sh.querySelector('#k-'+n).value.trim();
-      const c0=cur();const body={kit:true,tipo:'kit',codigo:g('codigo').toUpperCase(),desc:kitNome(c0),kMarca:c0.kMarca,kModelo:c0.kModelo,kIv:c0.kIv,qtd:kitMont(k),minimo:Number(g('min'))||0,un:'kit',comps,encaixe:c0.encaixe,fotos:fotoNow.slice(0,3),...(k.inativo?{inativo:true}:{})};
-      if(S.estoque.some(x=>x.id!==id&&String(x.codigo).toLowerCase()===body.codigo.toLowerCase())){toast('Ja existe um item ou kit com esse codigo.');return}
+    const save=async comps=>{const c0=cur(),nm=nmI.value.trim().toUpperCase().replace(/\s+/g,' ');
+      if(S.estoque.some(x=>x.id!==id&&nzM(x.codigo)===nzM(nm))){toast('Ja existe um item ou kit com esse nome.');nmI.focus();return}
+      const body={kit:true,tipo:'kit',codigo:nm,desc:nm,kTipo:c0.kTipo,kMarca:c0.kMarca,kModelo:c0.kModelo,kRot:c0.kRot,kIv:'',qtd:kitMont(k),minimo:Number(sh.querySelector('#k-min').value)||0,un:'kit',comps,encaixe:c0.encaixe,fotos:fotoNow.slice(0,3),
+        ...(k.inativo?{inativo:true}:{}),...(k.kConv?{kConv:k.kConv}:velho&&id?{kConv:{ant:kitSnap(k),ts:Date.now()}}:{}),...(k.kJunt?{kJunt:k.kJunt}:{})};
       const ref=id?S.db.doc('estoque/'+id):S.db.collection('estoque').doc();
       if(await safe(()=>ref.set(body),id?'Kit atualizado':'Kit montado')){commitPhotos(fotoOrig,fotoNow);id?goBack():closeSheet()}}}});
 }
@@ -6804,7 +6905,7 @@ const EST_K='frota.estado',EST_MAX=30*60000;
 const NAV_RE={ab:()=>formAbast(),alocar:p=>formAlocar(p[0],p[1],p[2]==='~'?null:p[2]),alq:p=>openAlocEq(p[0]),ar:p=>p[0]==='esc'?formFiltroAr():formFiltroAr(undefined,p.join(':')),
   av:p=>openAviso(p.join(':')),avs:p=>openAvisos(p[0]||'r'),card:p=>openCartao(p.join(':')),cart:()=>openCart(),cbq:p=>openCombEq(p[0]),cr:p=>openPend(p[0],true),pd:p=>openPend(p[0]),
   del:p=>openDelete(p[0],p.slice(1).join(':')),dl:()=>openDelAbast(),edtr:p=>formEditTroca(p[0]),eq:p=>openEq(p[0]),eqv:p=>openEquiv(p[0]||undefined),esf:()=>esFilSheet(),
-  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),osx:p=>openOS(p[0],true),mecs:()=>openMecs(),mecf:p=>openMecFicha(p[0]),mecfe:p=>openMecForm(p[0]),kmod:p=>openKitMod(p.join(':')),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
+  fe:p=>formEq(p[0]==='novo'?undefined:p[0],1),fk:p=>formKit(p[0]==='novo'?undefined:p[0]),kits:()=>openKits(),mest:()=>openMecEst(),mit:p=>openMecItem(p[0]),osdet:p=>openOSDet(p[0]),osinf:p=>openOSInf(p[0],p[1]),osl:()=>openOSLista(),os:p=>openOS(p[0]),osx:p=>openOS(p[0],true),mecs:()=>openMecs(),mecf:p=>openMecFicha(p[0]),mecfe:p=>openMecForm(p[0]),kmod:p=>openKitGrupo(p.join(':')),kconv:()=>openKitConv(),fp:()=>formTroca(),fs:p=>formStock(p[0]==='novo'?undefined:p[0]),gr:p=>formGerir(p[0]),
   hm:p=>formHm(p[0]),hq:p=>openHistEq(p[0],p[1]),leit:()=>formLeituras(),lst:p=>formLista(p[0],p[1]),menu:p=>openMenu(p.length?p.join(':'):undefined),mot:p=>formMotorista(p[0]),mv:p=>formMov(p[0]),
   mve:p=>formMovEst(p[0]),pk:p=>formPickEdit(p[0]),pkd:p=>formPickDel(p[0]),pktr:()=>formPickTr(),ral:p=>formRealocar(p[0]),reg:()=>formRegistrar('',true),rel:p=>openRelEstoque(p[0]||undefined),
   rp:p=>formReprog(p[0],p[1]),ulp:p=>formUltPrev(p[0],p[1]),sp:p=>openSemPrev(p[0]),thm:p=>formTrocaHm(p[0]||undefined),thmx:()=>openDesfazHm(),tr:p=>openTroca(p[0])};

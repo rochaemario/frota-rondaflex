@@ -615,6 +615,7 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .enc-sel .tq{cursor:default}
 .enc-sel .tq .btn{min-height:34px;padding:0 10px;margin-left:auto}
 .enc-res{margin-top:6px}
+.enc-res .tq .enc-add{flex:none;min-height:34px;padding:0 12px;margin-left:auto;font-size:14px;pointer-events:none}
 .mvr{display:grid;grid-template-columns:1fr 78px 22px;gap:8px;align-items:center;padding:9px 12px}
 .mvr+.mvr{box-shadow:inset 0 1px 0 var(--line)}
 .mvr.fill{background:var(--accent-soft)}
@@ -1536,8 +1537,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=390d84550b"></script>
-<script src="shim.js?v=390d84550b"></script>
+<script src="config.js?v=388330c58f"></script>
+<script src="shim.js?v=388330c58f"></script>
 </head>
 <body>
 
@@ -5415,7 +5416,7 @@ function formStock(id,preset,onSaved){
 
     const fotoOrig=[...(s.fotos||[])],fotoNow=photoEditor(sh.querySelector('#s-ph'),[...fotoOrig],3,true);
     let enc=[...(s.encaixe||[])].filter(eqById);const encBox=sh.querySelector('#s-enc'),encQ=sh.querySelector('#s-encq'),encR=sh.querySelector('#s-encr');
-    const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
+    const eqLine=e=>[e.marca,e.modelo].filter(Boolean).join(' ');
     /* encaixe novo: escolhe o intervalo de troca deste item naquele equipamento (so neste momento) */
     const encOrig=new Set(s.encaixe||[]),encIv={};const kitSt=isKit(s);
     const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
@@ -5424,7 +5425,7 @@ function formStock(id,preset,onSaved){
     const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const q=nz(encQ.value);if(!q){encR.hidden=true;return}
       const hits=S.eqCtl.filter(e=>!enc.includes(e.id)&&nz([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(q)).sort(byCode).slice(0,8);
-      encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
+      encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><span class="btn sm pri enc-add">+ Adicionar</span></button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
       encR.querySelectorAll('[data-encadd]').forEach(b=>b.onclick=()=>{enc.push(b.dataset.encadd);encQ.value='';encR.hidden=true;drawEnc()})};
     const tpEf=()=>{const c=sh.querySelector('#s-cat').value;return c==='LUB'?sh.querySelector('#s-tipo').value:c==='FIL'?'filtro':(TIPO2AC[s.tipo]===c?s.tipo:'outro')};
     const tpUpd=()=>{const c=sh.querySelector('#s-cat').value,t=tpEf();sh.querySelector('#s-tpw').hidden=c!=='LUB';sh.querySelector('#s-subw').hidden=t!=='Aditivo';const u=sh.querySelector('#s-un');if(UNS_AUTO().includes(u.value.trim()))u.value=catUn(t)};
@@ -5462,7 +5463,7 @@ function formMov(id){
   ${OS_ON?(()=>{const L=osLista().map(v=>({v,q:osPendPecas(v).filter(p=>p.k==='est'&&p.id===id).reduce((a,p)=>a+(Number(p.qtd)||0),0)})).filter(x=>x.q>0);if(!L.length)return '';const t=L.reduce((a,x)=>a+x.q,0);
     return `<div class="lbl">Reservado em OS</div><div class="spec"><div class="r"><span>Aguardando conferencia</span><b class="num">${nf(t,2)} ${esc(s.un||'')}</b></div>${L.map(x=>`<button type="button" class="r os-rr" data-osv="${esc(x.v.id)}"><span>${osNum(x.v)} · <b class="num">${esc((eqById(x.v.eq)||{}).codigo||x.v.eq)}</b></span><b class="num">${nf(x.q,2)} ${esc(s.un||'')}</b></button>`).join('')}</div><p class="note" style="margin:6px 2px 0">Sai do saldo quando o administrador confere a peca na OS.</p>`})():''}
   <div class="lbl">Dados do item</div><div class="spec"><div class="r"><span>Codigo almoxarifado</span><b class="num">${s.codigo?esc(s.codigo):'<span style="color:var(--faint)">—</span>'}</b></div>${s.ref?`<div class="r"><span>Referencia</span><b class="num">${esc(s.ref)}</b></div>`:''}${s.descFab?`<div class="r"><span>Descricao do fabricante</span><b>${esc(s.descFab)}</b></div>`:''}${s.marca?`<div class="r"><span>Marca</span><b>${esc(s.marca)}</b></div>`:''}${s.aplic?`<div class="r"><span>Aplicacao</span><b>${esc(s.aplic)}</b></div>`:''}${s.local?`<div class="r"><span>Local</span><b>${esc(s.local)}</b></div>`:''}</div>
-  ${enc.length?`<div class="lbl">Encaixe de fabrica <span class="c">${enc.length}</span></div><div class="spec">${enc.map(e=>`<div class="r"><span><b class="num">${esc(e.codigo)}</b></span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' '))}${e.serie?` · <span class="num">${esc(e.serie)}</span>`:''}</b></div>`).join('')}</div>`:''}
+  ${enc.length?`<div class="lbl">Encaixe de fabrica <span class="c">${enc.length}</span></div><div class="spec">${enc.map(e=>`<div class="r"><span><b class="num">${esc(e.codigo)}</b></span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' '))}</b></div>`).join('')}</div>`:''}
   <div class="lbl">Usado em</div><div class="spec">${used.length?specList('Planos',used.map(u=>[u])):'<div class="r"><span>Planos</span><b>Nenhum ligado</b></div>'}${inKits.length?specList('Kits',inKits.map(k=>[k])):''}</div>
   <div class="lbl">Movimentacoes</div><div id="mv-box"><div class="note" style="padding:6px 2px">Carregando…</div></div>
   ${fotoStHTML(s)}`,
@@ -6103,13 +6104,13 @@ function formKit(id,pre){
     apS.onchange=apD;tpS.onchange=()=>{drawMods('');nome()};modS.onchange=nome;
     sh.querySelectorAll('[data-kiv]').forEach(b=>b.onclick=()=>{sh.querySelectorAll('[data-kiv]').forEach(x=>x.setAttribute('aria-pressed',x===b));ivH.value=b.dataset.kiv;nome()});
     const encBox=sh.querySelector('#k-enc'),encQ=sh.querySelector('#k-encq'),encR=sh.querySelector('#k-encr');
-    const eqLine=e=>[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' '),e.serie?'serie '+e.serie:''].filter(Boolean).join(' · ');
+    const eqLine=e=>[e.marca,e.modelo].filter(Boolean).join(' ');
     const drawEnc=()=>{encBox.innerHTML=enc.slice().sort((a,b)=>byCode(eqById(a),eqById(b))).map(i=>{const e=eqById(i);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(i)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()});nome()};drawEnc();apD();
     const nzE=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const qq=nzE(encQ.value);if(!qq){encR.hidden=true;return}
       const hits=S.eqCtl.filter(e=>!enc.includes(e.id)&&nzE([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(qq)).sort(byCode).slice(0,8);
-      encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span>${I.plus}</button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
+      encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><span class="btn sm pri enc-add">+ Adicionar</span></button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
       encR.querySelectorAll('[data-encadd]').forEach(b=>b.onclick=()=>{enc.push(b.dataset.encadd);encQ.value='';encR.hidden=true;drawEnc()})};
     const box=sh.querySelector('#k-comps');
     const draw=()=>{box.innerHTML=C.length?`<div class="kl">${C.map((c,i)=>{const x=stById(c.id);return `<div class="kr"><span class="n"><b>${esc(x?x.desc:'Item removido')}</b><small class="num">${esc(x?stCod(x):'')}</small></span><input type="number" step="0.1" min="0" inputmode="decimal" value="${esc(c.qtd)}" data-kq="${i}" aria-label="Quantidade por kit"><span class="u">${esc(x?stUn(x):'')}</span><button type="button" class="x" data-kx="${i}" aria-label="Tirar do kit">✕</button></div>`}).join('')}</div>`:'<p class="note" style="margin:10px 2px 0">Adicione pelo menos 2 itens.</p>';

@@ -3097,7 +3097,12 @@ const etqQrPequena=()=>false;
 
 /* ---------- desenho de uma etiqueta, em mm, coordenadas da propria etiqueta ---------- */
 const etqMed=(t,b,s)=>pdfW(pdfTx(t),s,b);
-function etqOps(it,modo){const w=it.w,h=it.h,pd=3,ops=[],D=it.d;let tl=pd,tr=w-pd,top=pd,bottom=h-pd,lado=false;
+/* bandeira de mangueira (como etiqueta de fio): face A | volta na mangueira em branco | face B; dobra nos tracejados */
+const ETQ_BF=70,ETQ_BH=40,ETQ_BFMIN=60,ETQ_BMAX=ETQ_H-2*ETQ_MG;
+const etqBand=v=>{let F=ETQ_BF;if(2*F+v>ETQ_BMAX)F=Math.floor((ETQ_BMAX-v)/2);return F>=ETQ_BFMIN?{F,w:2*F+v,h:ETQ_BH}:null};
+function etqOps(it,modo){if(it.band){const g=etqBand(it.band);if(!g)return [];const F=g.F,V=it.band,fa=etqOps({...it,band:0,w:F,h:g.h},modo).filter(o=>o.k!=='c');
+    return [...fa,...fa.map(o=>({...o,x:o.x+F+V})),{k:'c',x:F,y:0,w:0.01,h:g.h},{k:'c',x:F+V,y:0,w:0.01,h:g.h},{k:'c',x:0,y:0,w:g.w,h:g.h}]}
+  const w=it.w,h=it.h,pd=3,ops=[],D=it.d;let tl=pd,tr=w-pd,top=pd,bottom=h-pd,lado=false;
   const m=etqQrM(D.cod);if(m){const n=m.length,kz=(n+2*ETQ_QZ)/n,o=1.5,qs=ETQ_QMIN,ms=qs/n,Z=qs*kz;
     /* modelo da foto: texto em cima, QR no canto inferior esquerdo; etiqueta baixa: QR e texto na mesma linha */
     lado=(h-o-Z)-pd<18;const zx=o,zy=lado?(h-Z)/2:h-o-Z,x0=zx+ETQ_QZ*ms,y0=zy+ETQ_QZ*ms;
@@ -3125,9 +3130,12 @@ function etqMontar(L,modo){const W=ETQ_W-2*ETQ_MG,H=ETQ_H-2*ETQ_MG,g=ETQ_GP,inst
   L.forEach(t=>{if(!t.d||etqQrPequena(t,modo))return;const a=etqCabe(W,H,t.w,t.h,g),b=etqCabe(W,H,t.h,t.w,g),r=b>a||(a===0&&b>0);
     for(let k=0;k<(Number(t.q)||1);k++)inst.push({...t,r,sw:r?t.h:t.w,sh:r?t.w:t.h})});
   inst.sort((a,b)=>b.sh-a.sh||b.sw-a.sw);const pages=[];
-  inst.forEach(it=>{if(it.sw>W||it.sh>H)return;
-    for(const p of pages){for(const s of p.sh)if(it.sh<=s.h&&s.x+it.sw<=W){it.x=s.x;it.y=s.y;s.x+=it.sw+g;p.l.push(it);return}
-      if(p.y+it.sh<=H){p.sh.push({y:p.y,h:it.sh,x:it.sw+g});it.x=0;it.y=p.y;p.y+=it.sh+g;p.l.push(it);return}}
+  const cabe=it=>{for(const p of pages){for(const s of p.sh)if(it.sh<=s.h&&s.x+it.sw<=W){it.x=s.x;it.y=s.y;s.x+=it.sw+g;p.l.push(it);return true}
+      if(p.y+it.sh<=H){p.sh.push({y:p.y,h:it.sh,x:it.sw+g});it.x=0;it.y=p.y;p.y+=it.sh+g;p.l.push(it);return true}}return false};
+  const gira=it=>{it.r=!it.r;[it.sw,it.sh]=[it.sh,it.sw]};
+  /* antes de abrir folha nova, tenta a etiqueta girada no espaco que sobrou (economiza papel) */
+  inst.forEach(it=>{if(it.sw>W||it.sh>H)return;if(cabe(it))return;
+    if(it.sh<=W&&it.sw<=H){gira(it);if(cabe(it))return;gira(it)}
     it.x=0;it.y=0;pages.push({sh:[{y:0,h:it.sh,x:it.sw+g}],y:it.sh+g,l:[it]})});
   return pages.map(p=>({n:p.l.length,ops:p.l.flatMap(it=>etqOps(it,modo).map(o=>etqPlace(o,ETQ_MG+it.x,ETQ_MG+it.y,it)))}))}
 const etqF=v=>Number(v).toFixed(3);
@@ -3151,6 +3159,7 @@ function etqImprimir(svgs){document.querySelectorAll('#prt,#prt-etq').forEach(x=
 
 /* ---------- fila resolvida pelo cadastro ---------- */
 function etqLista(){return (S.etq||[]).map((e,i)=>{const s=stById(e.id),ok=etqPode(s);return {...e,i,s,d:ok?etqDados(s):null}})}
+const etqBandOpts=v=>{const L=[100,140];if(v&&!L.includes(v))L.push(v);return L.map(b=>`<option value="b${b}"${b===v?' selected':''}>Bandeira · volta ${etqCm(b)} cm</option>`).join('')+'<option value="bp">Bandeira · outra volta…</option>'+(v?'<option value="nx">Etiqueta comum (10 × 6 cm)</option>':'')};
 const etqTamOpts=(w,h,extra,curto)=>{const v=`${w}x${h}`,pre=ETQ_TAM.some(t=>t[0]===v);return ETQ_TAM.map(([k,n])=>`<option value="${k}"${k===v?' selected':''}>${curto?n.replace(/ \(.*/,''):n}</option>`).join('')+(pre||!w?'':`<option value="${v}" selected>${etqTamTx(w,h)}</option>`)+(extra?'<option value="p">Personalizado…</option>':'')};
 /* tamanho personalizado: minimo 6 x 4 cm e precisa caber na A4 com a margem */
 function etqTamCustom(box,ok){box.innerHTML=`<div class="etq-cu"><label class="f">Largura (cm)<input type="number" inputmode="decimal" step="0.5" min="6" id="etq-cw" value="12"></label><label class="f">Altura (cm)<input type="number" inputmode="decimal" step="0.5" min="4" id="etq-ch" value="8"></label><button type="button" class="btn sm pri" id="etq-cok">Usar</button></div><p class="note etq-er" id="etq-cer"></p>`;
@@ -3162,7 +3171,7 @@ function openEtq(){
   const tot=L.filter(x=>x.d&&!etqQrPequena(x,modo)).reduce((a,x)=>a+(Number(x.q)||1),0),pg=tot?etqMontar(L,modo).length:0;
   const row=x=>`<div class="etq-r" data-i="${x.i}"><div class="etq-l1"><b class="num">${x.d?esc(x.d.cod):'Sem codigo almoxarifado'}</b><button type="button" class="ct-x" data-rm="${x.i}" aria-label="Tirar da fila">✕</button></div>
     <div class="etq-l2">${x.d?(ehMH(x.d.desc)?`${nomeMH(x.d.desc)}${x.d.ref?`<span class="etq-rf">${esc(x.d.ref)}</span>`:''}`:`${esc(x.d.desc)}${x.d.ref?' · '+esc(x.d.ref):''}`):esc(x.s?x.s.desc:'Item removido do estoque')+' · fica de fora'}</div>
-    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${etqTamOpts(x.w,x.h,true,true)}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><span class="ct-v num">${Number(x.q)||1}</span><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div>`:''}</div>`;
+    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${x.band?'':etqTamOpts(x.w,x.h,true,true)}${x.d.man?etqBandOpts(x.band):''}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><span class="ct-v num">${Number(x.q)||1}</span><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div>`:''}</div>`;
   openSheet({title:'Etiquetas',sub:L.length?`${tot} ${tot===1?'etiqueta':'etiquetas'} · ${pg} ${pg===1?'folha':'folhas'} A4`:'Fila vazia',
   body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="tsec-l">${L.map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
     <div class="etq-nv"><div id="etq-pick"></div></div><div id="etq-cf"></div>`,
@@ -3172,9 +3181,15 @@ function openEtq(){
     sh.querySelectorAll('[data-etm]').forEach(b=>b.onclick=async()=>{if(b.dataset.etm===modo)return;await saveEtq(S.etq||[],b.dataset.etm);re()});
     sh.querySelectorAll('.etq-r .ct-b').forEach(b=>b.onclick=async()=>{const i=+b.closest('.etq-r').dataset.i,c=(S.etq||[]).map(e=>({...e}));c[i].q=Math.max(1,(Number(c[i].q)||1)+Number(b.dataset.d));await saveEtq(c);re()});
     sh.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{const c=(S.etq||[]).filter((e,i)=>i!==+b.dataset.rm);await saveEtq(c);re()});
-    const setTam=async(i,w,h)=>{const c=(S.etq||[]).map(e=>({...e})),j=c.findIndex((e,k)=>k!==i&&e.id===c[i].id&&e.w===w&&e.h===h);
-      if(j>=0){c[j].q=(Number(c[j].q)||1)+(Number(c[i].q)||1);c.splice(i,1)}else{c[i].w=w;c[i].h=h}await saveEtq(c);re()};
-    sh.querySelectorAll('[data-sz]').forEach(sel=>sel.onchange=()=>{const i=+sel.dataset.sz;if(sel.value==='p'){etqTamCustom(sel.closest('.etq-r').querySelector('.etq-cb'),(w,h)=>setTam(i,w,h));return}
+    const setTam=async(i,w,h,band)=>{band=band||0;const c=(S.etq||[]).map(e=>({...e})),j=c.findIndex((e,k)=>k!==i&&e.id===c[i].id&&e.w===w&&e.h===h&&(e.band||0)===band);
+      if(j>=0){c[j].q=(Number(c[j].q)||1)+(Number(c[i].q)||1);c.splice(i,1)}else{c[i].w=w;c[i].h=h;if(band)c[i].band=band;else delete c[i].band}await saveEtq(c);re()};
+    const setBand=(i,v)=>{const g=etqBand(v);if(!g){toast('Volta grande demais para bandeira. Use a plaqueta pendurada com abracadeira.');re();return}setTam(i,g.w,g.h,v)};
+    sh.querySelectorAll('[data-sz]').forEach(sel=>sel.onchange=()=>{const i=+sel.dataset.sz;
+      if(sel.value==='nx'){setTam(i,100,60);return}
+      if(/^b\d+$/.test(sel.value)){setBand(i,+sel.value.slice(1));return}
+      if(sel.value==='bp'){const box=sel.closest('.etq-r').querySelector('.etq-cb');box.innerHTML=`<div class="etq-cu" style="grid-template-columns:1fr auto"><label class="f">Volta na mangueira (cm)<input type="number" inputmode="decimal" step="0.5" min="2" id="etq-bv" value="10"></label><button type="button" class="btn sm pri" id="etq-bok">Usar</button></div>`;
+        box.querySelector('#etq-bok').onclick=()=>{const v=Math.round(parseFloat(String(box.querySelector('#etq-bv').value).replace(',','.'))*10);if(!(v>=20)){toast('Informe a volta em cm.');return}setBand(i,v)};return}
+      if(sel.value==='p'){etqTamCustom(sel.closest('.etq-r').querySelector('.etq-cb'),(w,h)=>setTam(i,w,h));return}
       const [w,h]=sel.value.split('x').map(Number);setTam(i,w,h)});
     etqPicker(sh.querySelector('#etq-pick'),async s=>{if(await etqAdd([{id:s.id,w:100,h:60,q:1}]))re()});
     const clr=sh.querySelector('#etq-clr');clr&&(clr.onclick=()=>askConfirm(sh.querySelector('#etq-cf'),'Limpar','Tirar todas as etiquetas da fila?',async()=>{if(await saveEtq([])){toast('Fila de etiquetas vazia');re()}}));

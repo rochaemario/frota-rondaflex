@@ -690,6 +690,9 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .etq-l2{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .etq-l3{display:flex;align-items:center;justify-content:space-between;gap:10px}.etq-l3 select{flex:0 1 150px;min-width:0;min-height:38px;font-size:13.5px;padding:0 8px}
 .etq-q{min-height:40px!important;font-size:14px!important}
+.mh{display:inline-flex;flex-direction:column;align-items:flex-start;max-width:100%;min-width:0;vertical-align:top}.mh1,.mh2{display:block;white-space:nowrap;max-width:100%}.mh2{overflow:hidden}
+.sh-head h2 .mh{line-height:1.12}
+.etq-rf{display:block}
 .s-sr{display:block;margin:10px auto 0;border:0;background:none;padding:6px;font:inherit;font-size:12.5px;color:var(--muted);text-decoration:underline;cursor:pointer}
 .etq-hit{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:0;background:none;text-align:left;font:inherit;cursor:pointer}.etq-hit+.etq-hit{box-shadow:inset 0 1px 0 var(--line)}.etq-hit span{flex:1;min-width:0;display:flex;flex-direction:column}.etq-hit b{font-size:13.5px}.etq-hit small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.etq-hit em{font-style:normal;font-size:12px;color:var(--muted);flex:none}.etq-hit em svg{width:18px;height:18px;color:var(--accent)}
 .etq-er{display:block;font-size:12px;color:var(--bad);margin-top:3px}
@@ -3037,6 +3040,11 @@ function estRelDados(P,lista,filtTx){const CF=P.modo==='conf';
     blocks:[{t:CF?'Contagem':'Itens',cols,rows,vazio:'Nenhum item no filtro escolhido.'}],assin1:CF?'Contado por':'Responsavel',assin2:CF?'Conferido por':'Conferido por',
     fname:`${CF?'Conferencia estoque':'Estoque'} ${today()}.pdf`}}
 
+/* nome de mangueira nas telas: "Mangueira hidraulica" na 1a linha; o resto na 2a, alinhado ao M, numa linha so (diminui so se nao couber) */
+const ehMH=t=>/^\s*mangueira\s+hidraulica\s+\S/i.test(String(t||''));
+const nomeMH=t=>{const m=String(t||'').match(/^\s*(mangueira\s+hidraulica)\s+(.+)$/i);return m?`<span class="mh"><span class="mh1">${esc(m[1])}</span><span class="mh2">${esc(m[2])}</span></span>`:esc(t)};
+function mhFit(){document.querySelectorAll('.mh2').forEach(x=>{x.style.fontSize='';let f=parseFloat(getComputedStyle(x).fontSize)||14;let k=0;while(x.scrollWidth>x.clientWidth+0.5&&f>8&&k++<40){f-=0.5;x.style.fontSize=f+'px'}})}
+{let mhT=0;const go=()=>{if(mhT)return;mhT=requestAnimationFrame(()=>{mhT=0;mhFit()})};new MutationObserver(m=>{if(m.some(r=>r.addedNodes.length))go()}).observe(document.documentElement,{childList:true,subtree:true});window.addEventListener('resize',go)}
 /* =====================================================================
    ETIQUETAS do almoxarifado: fila (igual a lista de compra) -> folha A4 -> PDF
    Dados sempre do cadastro (codigo almoxarifado, descricao, referencia); nada digitado.
@@ -3153,7 +3161,7 @@ function openEtq(){
   const L=etqLista(),modo='qr',tam=etqLS.get(),[tw,th]=tam.split('x').map(Number);
   const tot=L.filter(x=>x.d&&!etqQrPequena(x,modo)).reduce((a,x)=>a+(Number(x.q)||1),0),pg=tot?etqMontar(L,modo).length:0;
   const row=x=>`<div class="etq-r" data-i="${x.i}"><div class="etq-l1"><b class="num">${x.d?esc(x.d.cod):'Sem codigo almoxarifado'}</b><button type="button" class="ct-x" data-rm="${x.i}" aria-label="Tirar da fila">✕</button></div>
-    <div class="etq-l2">${x.d?`${esc(x.d.desc)}${x.d.ref?' · '+esc(x.d.ref):''}`:esc(x.s?x.s.desc:'Item removido do estoque')+' · fica de fora'}</div>
+    <div class="etq-l2">${x.d?(ehMH(x.d.desc)?`${nomeMH(x.d.desc)}${x.d.ref?`<span class="etq-rf">${esc(x.d.ref)}</span>`:''}`:`${esc(x.d.desc)}${x.d.ref?' · '+esc(x.d.ref):''}`):esc(x.s?x.s.desc:'Item removido do estoque')+' · fica de fora'}</div>
     ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${etqTamOpts(x.w,x.h,true,true)}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><span class="ct-v num">${Number(x.q)||1}</span><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div>`:''}</div>`;
   openSheet({title:'Etiquetas',sub:L.length?`${tot} ${tot===1?'etiqueta':'etiquetas'} · ${pg} ${pg===1?'folha':'folhas'} A4`:'Fila vazia',
   body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="tsec-l">${L.map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
@@ -3180,7 +3188,7 @@ function etqPicker(box,onPick){
     const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');c.focus();
     c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
       const m=S.estoque.filter(x=>etqPode(x)&&(nzCod(x.alm).includes(k)||nzCod(x.ref).includes(k)||nzCod(x.codigo).includes(k)||nzCod(x.desc).includes(k))).sort(byCode).slice(0,6);
-      hit.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>{const d=etqDados(x);return `<button type="button" class="etq-hit" data-ad="${esc(x.id)}"><span><b class="num">${esc(d.cod)}</b><small>${esc(d.desc)}${d.ref?' · '+esc(d.ref):''}</small></span><em>${inEtq(x.id)?'na fila':I.plus}</em></button>`}).join('')}</div>`:'<p class="note" style="margin:6px 2px">Nenhum item com codigo almoxarifado encontrado.</p>';
+      hit.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>{const d=etqDados(x);return `<button type="button" class="etq-hit" data-ad="${esc(x.id)}"><span><b class="num">${esc(d.cod)}</b><small>${ehMH(d.desc)?nomeMH(d.desc)+(d.ref?`<span class="etq-rf">${esc(d.ref)}</span>`:''):esc(d.desc)+(d.ref?' · '+esc(d.ref):'')}</small></span><em>${inEtq(x.id)?'na fila':I.plus}</em></button>`}).join('')}</div>`:'<p class="note" style="margin:6px 2px">Nenhum item com codigo almoxarifado encontrado.</p>';
       hit.querySelectorAll('[data-ad]').forEach(b=>b.onclick=()=>onPick(stById(b.dataset.ad)))}}}
 /* gerar: pre-visualizacao da folha, Compartilhar (PDF) e Imprimir; depois pergunta se esvazia a fila */
 async function etqPronto(){
@@ -3635,7 +3643,7 @@ function itRow({it,st}){const v=Math.abs(Number(st.rest)||0),cod=itCod(it);
 function esRow(s,o={}){const c=stockCls(s),k=isKit(s),q=stQtd(s),btn=o.tag!=='div';
   const sub=o.sub!=null?o.sub:`${esc(k?stCod(s):stCodTx(s))} · min ${nf(s.minimo,2)}${k?` · ${kitComps(s).length} itens`:''}${s.inativo?' · inativo':''}`;
   return `<${btn?'button type="button"':'div'} class="es-r${o.hl?' hl':''}${btn?'':' st'}${o.cls2?' '+o.cls2:''}" ${o.attr||''}><span class="es-b ${o.cls||c}"><b>${nf(o.q!=null?o.q:q,2)}</b><small>${esc(o.un||(k?(q===1?'kit':'kits'):(s.un||'un')))}</small></span>
-    <span class="es-t"><span class="es-n">${esc(s.desc)}</span><span class="es-c">${sub}</span></span>${o.end||''}</${btn?'button':'div'}>`}
+    <span class="es-t"><span class="es-n">${nomeMH(s.desc)}</span><span class="es-c">${sub}</span></span>${o.end||''}</${btn?'button':'div'}>`}
 /* busca do estoque: texto de cada item (codigo, referencia, marca, aplicacao, categoria e TAGs dos equipamentos onde serve) */
 const _esIx={};function esEqIx(){if(_esIx.a===S.estoque&&_esIx.b===S.eqCtl)return _esIx.m;const m={};
   S.eqCtl.forEach(e=>{const c=eqCompat(e);[...c.kits,...c.its].forEach(x=>{(m[x.id]=m[x.id]||new Set()).add(e.codigo)})});_esIx.a=S.estoque;_esIx.b=S.eqCtl;_esIx.m=m;return m}
@@ -5639,7 +5647,7 @@ function formMov(id){
   const inKits=S.estoque.filter(k=>isKit(k)&&(k.comps||[]).some(x=>x.id===id)).sort(byCode).map(k=>stCod(k));
   const used=S.equips.filter(e=>(e.itens||[]).some(i=>i.estoqueId===id)).sort(byCode).map(e=>e.codigo);
   const enc=(s.encaixe||[]).map(eqById).filter(Boolean).sort(byCode);
-  openSheet({title:esc(s.desc),sub:`${s.codigo||s.ref?`<span class="num">${esc(s.codigo||s.ref)}</span> · `:''}${esc(acNm(acOf(s)))}${s.almAnt&&s.almAnt.length?` · antes ${esc(s.almAnt.join(', '))}`:''}${s.marca?` · ${esc(s.marca)}`:''}${s.local?` · ${esc(s.local)}`:''}`,
+  openSheet({title:nomeMH(s.desc),sub:`${s.codigo||s.ref?`<span class="num">${esc(s.codigo||s.ref)}</span> · `:''}${esc(acNm(acOf(s)))}${s.almAnt&&s.almAnt.length?` · antes ${esc(s.almAnt.join(', '))}`:''}${s.marca?` · ${esc(s.marca)}`:''}${s.local?` · ${esc(s.local)}`:''}`,
   body:`${s.inativo?`<div class="nv-b on" style="margin:0 0 12px"><div><b>Item inativo</b><span>Fora das listas, buscas e dos alertas de estoque. Para reativar: + › Editar.</span></div></div>`:''}<div class="hmcard"><div><div class="k">Saldo</div><div class="v">${nf(s.qtd,2)}<small>${esc(s.un)}</small></div><div class="d">Minimo ${nf(s.minimo,2)} ${esc(s.un)}</div></div><span class="pill ${c}">${c==='bad'?'Zerado':c==='warn'?'Repor':'Ok'}</span></div>
   ${OS_ON?(()=>{const L=osLista().map(v=>({v,q:osPendPecas(v).filter(p=>p.k==='est'&&p.id===id).reduce((a,p)=>a+(Number(p.qtd)||0),0)})).filter(x=>x.q>0);if(!L.length)return '';const t=L.reduce((a,x)=>a+x.q,0);
     return `<div class="lbl">Reservado em OS</div><div class="spec"><div class="r"><span>Aguardando conferencia</span><b class="num">${nf(t,2)} ${esc(s.un||'')}</b></div>${L.map(x=>`<button type="button" class="r os-rr" data-osv="${esc(x.v.id)}"><span>${osNum(x.v)} · <b class="num">${esc((eqById(x.v.eq)||{}).codigo||x.v.eq)}</b></span><b class="num">${nf(x.q,2)} ${esc(s.un||'')}</b></button>`).join('')}</div><p class="note" style="margin:6px 2px 0">Sai do saldo quando o administrador confere a peca na OS.</p>`})():''}
@@ -6552,7 +6560,7 @@ function openMecEst(){nav('mest',()=>openMecEst());
     mount:sh=>{const q=sh.querySelector('#me-q'),b=sh.querySelector('#me-b'),bd=()=>b.querySelectorAll('[data-mst]').forEach(x=>x.onclick=()=>openMecItem(x.dataset.mst));q.oninput=()=>{b.innerHTML=mecEstLista(q.value);bd()};bd()}})}
 function openMecItem(id){nav('mit:'+id,()=>openMecItem(id));const s=stById(id);if(!s){goBack();return}
   const r=osReservado(id),c=stockCls(s),enc=(s.encaixe||[]).map(eqById).filter(Boolean).sort(byCode).map(e=>e.codigo),used=S.equips.filter(e=>(e.itens||[]).some(i=>i.estoqueId===id)).sort(byCode).map(e=>e.codigo);
-  openSheet({title:esc(s.desc),sub:`${s.codigo||s.ref?`<span class="num">${esc(s.codigo||s.ref)}</span> · `:''}${esc(acNm(acOf(s)))}${s.almAnt&&s.almAnt.length?` · antes ${esc(s.almAnt.join(', '))}`:''}`,
+  openSheet({title:nomeMH(s.desc),sub:`${s.codigo||s.ref?`<span class="num">${esc(s.codigo||s.ref)}</span> · `:''}${esc(acNm(acOf(s)))}${s.almAnt&&s.almAnt.length?` · antes ${esc(s.almAnt.join(', '))}`:''}`,
   body:`<div class="hmcard"><div><div class="k">Saldo</div><div class="v">${nf(s.qtd,2)}<small>${esc(s.un||'')}</small></div><div class="d">${r?`${nf(r,2)} ${esc(s.un||'')} reservado em OS`:'Nada reservado em OS'}</div></div><span class="pill ${c}">${c==='bad'?'Sem estoque':c==='warn'?'Baixo':'Disponivel'}</span></div>
    <div class="spec"><div class="r"><span>Codigo almoxarifado</span><b class="num">${stAlm(s)?esc(stAlm(s)):'<span style="color:var(--faint)">—</span>'}</b></div>${s.local?`<div class="r"><span>Local</span><b>${esc(s.local)}</b></div>`:''}${s.ref?`<div class="r"><span>Referencia</span><b class="num">${esc(s.ref)}</b></div>`:''}${s.marca?`<div class="r"><span>Marca</span><b>${esc(s.marca)}</b></div>`:''}${s.aplic?`<div class="r"><span>Aplicacao</span><b>${esc(s.aplic)}</b></div>`:''}
     <div class="r"><span>Encaixa em</span><b>${esc(enc.concat(used.filter(u=>!enc.includes(u))).join(', ')||'—')}</b></div></div>

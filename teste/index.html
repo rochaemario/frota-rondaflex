@@ -701,6 +701,7 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .etq-l2{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .etq-l3{display:flex;align-items:center;justify-content:space-between;gap:10px}.etq-l3 select{flex:0 1 150px;min-width:0;min-height:38px;font-size:13.5px;padding:0 8px}
 .etq-q{min-height:40px!important;font-size:14px!important}
+.s-sr{display:block;margin:10px auto 0;border:0;background:none;padding:6px;font:inherit;font-size:12.5px;color:var(--muted);text-decoration:underline;cursor:pointer}
 .etq-hit{display:flex;align-items:center;gap:10px;width:100%;padding:9px 12px;border:0;background:none;text-align:left;font:inherit;cursor:pointer}.etq-hit+.etq-hit{box-shadow:inset 0 1px 0 var(--line)}.etq-hit span{flex:1;min-width:0;display:flex;flex-direction:column}.etq-hit b{font-size:13.5px}.etq-hit small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.etq-hit em{font-style:normal;font-size:12px;color:var(--muted);flex:none}.etq-hit em svg{width:18px;height:18px;color:var(--accent)}
 .etq-er{display:block;font-size:12px;color:var(--bad);margin-top:3px}
 .etq-cu{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin-top:8px}
@@ -1553,8 +1554,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=4e48053c54"></script>
-<script src="shim.js?v=4e48053c54"></script>
+<script src="config.js?v=cd1df265da"></script>
+<script src="shim.js?v=cd1df265da"></script>
 </head>
 <body>
 
@@ -3067,7 +3068,12 @@ const etqTamTx=(w,h)=>{const p=ETQ_TAM.find(t=>t[0]===`${w}x${h}`);return p?p[1]
 let etqTamM='';const etqLS={get:()=>{try{return localStorage.getItem('frota.etq.tam')||etqTamM||'100x60'}catch(e){return etqTamM||'100x60'}},set:v=>{etqTamM=v;try{localStorage.setItem('frota.etq.tam',v)}catch(e){}}};
 /* item do estoque que pode virar etiqueta: tem codigo almoxarifado dado pelo servidor e nao e kit */
 const etqPode=s=>!!s&&!isKit(s)&&/^[A-Z]{3}-\d+$/.test(String(s.alm||''));
-const etqDados=s=>({cod:etqTx(s.alm),desc:etqTx(s.desc),ref:etqTx(s.ref||s.codigo||'')});
+const etqDados=s=>{const man=String(s.alm||'').startsWith('MAN-');if(!man)return {cod:etqTx(s.alm),desc:etqTx(s.desc),ref:etqTx(s.ref||s.codigo||'')};
+  /* so etiqueta de mangueira: equipamentos do Encaixe no lugar da referencia */
+  const enc=(s.encaixe||[]).map(eqById).filter(Boolean).map(e=>e.codigo).sort(_an);return {cod:etqTx(s.alm),desc:etqTx(s.desc),ref:enc.length?'ENCAIXE: '+enc.join(', '):'',man:true,semEnc:!enc.length}};
+/* abreviacoes da etiqueta: so quando o nome inteiro ficaria pequeno demais para ler */
+const ETQ_ABR=[[/\bLADO ESQUERDO\b/g,'LE'],[/\bLADO DIREITO\b/g,'LD'],[/\bMANGUEIRA\b/g,'MAN'],[/\bHIDRAULIC[AO]\b/g,'HIDR.'],[/\bCILINDRO\b/g,'CIL.'],[/\bRETORNO\b/g,'RET.'],[/\bESCAVACAO\b/g,'ESCAV.'],[/\bESQUERDO\b/g,'ESQ.'],[/\bDIREITO\b/g,'DIR.'],[/\bDIANTEIRO\b/g,'DIANT.'],[/\bTRASEIRO\b/g,'TRAS.'],[/\bSUPERIOR\b/g,'SUP.'],[/\bINFERIOR\b/g,'INF.'],[/\bCOMBUSTIVEL\b/g,'COMB.'],[/\bSEPARADOR\b/g,'SEP.'],[/\bPRIMARIO\b/g,'PRIM.'],[/\bSECUNDARIO\b/g,'SEC.']];
+const etqAbrev=t=>ETQ_ABR.reduce((a,[r,v])=>a.replace(r,v),t);
 const inEtq=id=>(S.etq||[]).some(e=>e.id===id);
 function etqBtn(){const b=$('#etqb');if(!b)return;const n=(S.etq||[]).reduce((a,e)=>a+(Number(e.q)||1),0);b.hidden=!(S.etq||[]).length||!podeEscrever()||(typeof ehMec==='function'&&ehMec());$('#etqn').textContent=n;const c=$('#cartb');b.classList.toggle('up',!!c&&!c.hidden)}
 async function saveEtq(itens,modo){S.etq=itens;if(modo)S.etqModo=modo;etqBtn();return safe(()=>S.db.doc('config/etiquetas').set({itens,modo:S.etqModo||'qr'}),'')}
@@ -3107,12 +3113,14 @@ function etqOps(it,modo){const w=it.w,h=it.h,pd=3,ops=[],D=it.d;let tl=pd,tr=w-p
     if(lado)tl=zx+Z;else bottom=zy}
   const th=bottom-top,aw=tr-tl,cx=(tl+tr)/2;
   /* proporcoes da etiqueta de referencia (9,5 x 6): codigo 100%, nome 55%, referencia 60% */
-  let s1=Math.min(th*(lado?0.36:0.29),aw*0.17,16);
-  const quebra=(t,s)=>{if(etqMed(t,0,s)<=aw)return [t];const p=t.split(' ');for(let i=p.length-1;i>0;i--){const a=p.slice(0,i).join(' '),b=p.slice(i).join(' ');if(etqMed(a,0,s)<=aw&&etqMed(b,0,s)<=aw)return [a,b]}return null};
-  let dl,f=1;const alt=(F,dl)=>{const c2=s1*F*0.55*0.72;return s1*F*0.72+c2*1.8+dl.length*c2+(dl.length-1)*c2*0.6+(D.ref?c2*0.85+s1*F*0.6*0.72:0)};
-  for(let k=0;k<40;k++){dl=quebra(D.desc,s1*f*0.55);if(dl&&etqMed(D.cod,1,s1*f)<=aw&&(!D.ref||etqMed(D.ref,0,s1*f*0.6)<=aw)&&alt(f,dl)<=th)break;f*=0.94}
-  if(!dl)dl=[D.desc];s1*=f;const s2=s1*0.55,s3=s1*0.6,c2=s2*0.72;
-  const L=[{t:D.cod,b:1,s:s1,gap:0},...dl.map((t,i)=>({t,b:0,s:s2,gap:i?c2*0.6:c2*1.8})),...(D.ref?[{t:D.ref,b:0,s:s3,gap:c2*0.85}]:[])];
+  const s0=Math.min(th*(lado?0.36:0.29),aw*0.17,16);
+  const quebra=(t,s,b,max)=>{const p=t.split(' '),L=[];let c='';for(const w of p){const n=c?c+' '+w:w;if(etqMed(n,b,s)<=aw)c=n;else{if(!c)return null;L.push(c);c=w;if(etqMed(w,b,s)>aw)return null}}if(c)L.push(c);return L.length<=max?L:null};
+  const monta=desc=>{let f=1,dl,rl;for(let k=0;k<60;k++){const s1=s0*f,s2=s1*0.55,s3=s1*0.6,c2=s2*0.72;dl=quebra(desc,s2,0,3);rl=D.ref?quebra(D.ref,s3,0,2):[];
+      if(dl&&rl&&etqMed(D.cod,1,s1)<=aw){const hh=s1*0.72+c2*1.8+dl.length*c2+(dl.length-1)*c2*0.6+(rl.length?c2*0.85+rl.length*s3*0.72+(rl.length-1)*s3*0.72*0.6:0);if(hh<=th)break}f*=0.95}
+    return {f,dl:dl||[desc],rl:rl||(D.ref?[D.ref]:[])}};
+  let M=monta(D.desc);if(s0*M.f*0.55*0.72<2){const ab=etqAbrev(D.desc);if(ab!==D.desc){const M2=monta(ab);if(M2.f>M.f)M=M2}}
+  const s1=s0*M.f,s2=s1*0.55,s3=s1*0.6,c2=s2*0.72;
+  const L=[{t:D.cod,b:1,s:s1,gap:0},...M.dl.map((t,i)=>({t,b:0,s:s2,gap:i?c2*0.6:c2*1.8})),...M.rl.map((t,i)=>({t,b:0,s:s3,gap:i?s3*0.72*0.6:c2*0.85}))];
   const tot=L.reduce((a,l)=>a+l.gap+l.s*0.72,0);let y=top+(th-tot)/2;
   L.forEach(l=>{y+=l.gap+l.s*0.72;ops.push({k:'t',t:l.t,b:l.b,s:l.s,x:cx-etqMed(l.t,l.b,l.s)/2,y})});
   ops.push({k:'c',x:0,y:0,w,h});return ops}
@@ -3162,7 +3170,7 @@ function openEtq(){
   const tot=L.filter(x=>x.d&&!etqQrPequena(x,modo)).reduce((a,x)=>a+(Number(x.q)||1),0),pg=tot?etqMontar(L,modo).length:0;
   const row=x=>`<div class="etq-r" data-i="${x.i}"><div class="etq-l1"><b class="num">${x.d?esc(x.d.cod):'Sem codigo almoxarifado'}</b><button type="button" class="ct-x" data-rm="${x.i}" aria-label="Tirar da fila">✕</button></div>
     <div class="etq-l2">${x.d?`${esc(x.d.desc)}${x.d.ref?' · '+esc(x.d.ref):''}`:esc(x.s?x.s.desc:'Item removido do estoque')+' · fica de fora'}</div>
-    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${etqTamOpts(x.w,x.h,true,true)}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><span class="ct-v num">${Number(x.q)||1}</span><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${etqQrPequena(x,modo)?'<span class="etq-er">Baixa demais para o QR de 2,5 cm. Use 10 × 6 cm ou maior.</span>':''}<div class="etq-cb"></div>`:''}</div>`;
+    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${etqTamOpts(x.w,x.h,true,true)}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><span class="ct-v num">${Number(x.q)||1}</span><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div>`:''}</div>`;
   openSheet({title:'Etiquetas',sub:L.length?`${tot} ${tot===1?'etiqueta':'etiquetas'} · ${pg} ${pg===1?'folha':'folhas'} A4`:'Fila vazia',
   body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="tsec-l">${L.map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
     <div class="etq-nv"><div id="etq-pick"></div></div><div id="etq-cf"></div>`,
@@ -5567,7 +5575,7 @@ function formStock(id,preset,onSaved){
   /* item novo: primeiro identifica (digitando ou pela camera); se ja existir, mostra; senao abre o resto do cadastro */
   const idStep=!id&&!(preset&&(preset.ref||preset.codigo));
   openSheet({title:id?'Editar item':'Novo item do estoque',sub:id?esc(stCodTx(s)):'',
-  body:`${idStep?`<div class="fset" id="s-idf"><div class="sug-w"><label class="f">Codigo ou referencia<input id="s-idq" autocomplete="off" autocapitalize="characters" placeholder="Ex.: 222-9021" style="font-family:var(--mono);font-size:19px;min-height:52px"></label><div class="sug" id="s-idh" aria-live="polite"></div></div>${rdBtn('s-cam')}</div>`:''}<form id="fs"${idStep?' hidden':''}><div class="fset"><div class="grid">
+  body:`${idStep?`<div class="fset" id="s-idf"><div class="sug-w"><label class="f">Codigo ou referencia<input id="s-idq" autocomplete="off" autocapitalize="characters" placeholder="Ex.: 222-9021" style="font-family:var(--mono);font-size:19px;min-height:52px"></label><div class="sug" id="s-idh" aria-live="polite"></div></div>${rdBtn('s-cam')}<button type="button" class="s-sr" id="s-sr">Sem referencia (so mangueiras da oficina)</button></div>`:''}<form id="fs"${idStep?' hidden':''}><div class="fset"><div class="grid">
     <label class="f">Categoria<select id="s-cat">${acOpts(acOf(s))}</select></label>
     <label class="f">Referencia <span class="hint">codigo de fabrica</span><input id="s-ref" value="${esc(s.ref||'')}" placeholder="Ex.: WIX 51515" autocapitalize="characters"></label>
     <label class="f w">Descricao<input id="s-desc" required value="${esc(s.desc||'')}" placeholder="Ex.: Filtro oleo motor"></label>
@@ -5594,6 +5602,7 @@ function formStock(id,preset,onSaved){
         ih.innerHTML=(m.length?`<p class="note" style="margin:4px 4px 6px">Ja cadastrado${m.length>1?'s':''}: toque para ver o cadastro</p><div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-sx="${esc(x.id)}"`})).join('')}</div>`:'')
           +`<button type="button" class="btn ${m.length?'':'pri '}block" id="s-go" style="margin-top:${m.length?8:0}px">Cadastrar ${esc(v.toUpperCase())}${m.length?' como novo':''}</button>`;
         ih.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));ih.querySelector('#s-go').onclick=()=>seguir(v)};
+      sh.querySelector('#s-sr').onclick=()=>seguir('');
       iq.oninput=busca;iq.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const b=ih.querySelector('#s-go');b&&b.click()}};setTimeout(()=>iq.focus(),60);
       const scm=sh.querySelector('#s-cam');if(scm)scm.onclick=()=>rdOpen({mode:'raw',use:v=>{iq.value=v.text||'';busca()}})}
 
@@ -5626,6 +5635,8 @@ function formStock(id,preset,onSaved){
       const cat=g('cat'),tpN=tpEf();
       if(!cat){toast('Escolha a categoria');sh.querySelector('#s-cat').focus();return}
       if(tpN==='Aditivo'&&!g('sub')){toast('Escolha a subcategoria do aditivo');sh.querySelector('#s-sub').focus();return}
+      /* sem referencia, so mangueiras (MAN): qualquer outra categoria pede a referencia, no cadastro novo e na edicao */
+      if(!g('ref')&&!s.codigo&&cat!=='MAN'){toast('Referencia obrigatoria. Sem referencia, so Mangueiras.');sh.querySelector('#s-ref').focus();return}
       {const dup=g('ref')&&S.estoqueAll.find(x=>x.id!==id&&!(tpN==='oleo'&&x.tipo==='oleo')&&(nzCod(x.ref)===nzCod(g('ref'))||nzCod(x.codigo)===nzCod(g('ref'))));
        if(dup){toast(`Essa referencia ja esta cadastrada em "${dup.desc}".`);return}}
       const body={cat,...(id&&s.alm&&acOf(s)===cat?{alm:s.alm}:{}),...(id&&s.almAnt&&s.almAnt.length?{almAnt:s.almAnt}:{}),codigo:String(s.codigo||'').toUpperCase(),ref:g('ref').toUpperCase(),desc:g('desc'),descFab:g('dfab'),marca:g('marca'),aplic:g('aplic'),encaixe:enc,tipo:tpN,sub:tpN==='Aditivo'?sh.querySelector('#s-sub').value:'',un:g('un')||'un',local:g('local'),qtd:Number(g('qtd'))||0,minimo:Number(g('min'))||0,fotos:fotoNow.slice(0,3),exemplo:!!s.exemplo,...(s.eans&&s.eans.length?{eans:s.eans}:{}),...((id&&stById(id)||s).inativo?{inativo:true}:{})};

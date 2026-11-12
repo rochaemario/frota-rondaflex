@@ -175,17 +175,19 @@
         Promise.resolve().then(()=>{if(set.has(cb))cb(snapCol(parent))});return()=>set.delete(cb)}};
   }
   const DB=Object.freeze({doc:docRef,collection});
-  /* TESTE: copia os dados reais para teste/ (mantem as OS de teste e os mecanicos de teste) */
-  if(NS)window.__frotaCopia=async prog=>{const fora=p=>/^(push\/|config\/push$|config\/notif$|os\/|ose\/|config\/mecanicos$|config\/osnum$)/.test(p);
-    const real=[];let from=0;const N=1000;
-    for(;;){const {data,error}=await sb.from('docs').select('path,data').not('path','like',TNS+'%').order('path').range(from,from+N-1);if(error)throw error;real.push(...data);if(data.length<N)break;from+=N}
-    const keep=real.filter(r=>!fora(r.path)),novos=new Set(keep.map(r=>NS+r.path));
-    const velhos=[];from=0;for(;;){const {data,error}=await sb.from('docs').select('path').like('path',NS+'%').order('path').range(from,from+N-1);if(error)throw error;velhos.push(...data.map(r=>r.path));if(data.length<N)break;from+=N}
-    const apagar=velhos.filter(p=>!novos.has(p)&&!fora(p.slice(NS.length)));
-    for(let i=0;i<apagar.length;i+=200){const {error}=await sb.from('docs').delete().in('path',apagar.slice(i,i+200));if(error)throw error}
-    const agora=new Date().toISOString();
-    for(let i=0;i<keep.length;i+=200){const lote=keep.slice(i,i+200).map(r=>({path:NS+r.path,parent:parentOf(NS+r.path),data:r.data,updated_at:agora}));const {error}=await sb.from('docs').upsert(lote);if(error)throw error;prog&&prog(Math.min(i+200,keep.length),keep.length)}
-    await pull();return keep.length};
+  /* TESTE: copia os dados reais para teste/ (mantem as OS de teste e os mecanicos de teste).
+     Nunca apaga o que so existe no teste: antes, __frotaCopiaPlano mostra esses registros e o admin escolhe Manter ou Levar para o oficial. */
+  if(NS){const fora=p=>/^(push\/|config\/push$|config\/notif$|os\/|ose\/|config\/mecanicos$|config\/osnum$)/.test(p),N=1000;
+    const todos=async(cols,teste)=>{const L=[];let from=0;for(;;){let q=sb.from('docs').select(cols);q=teste?q.like('path',TNS+'%'):q.not('path','like',TNS+'%');
+      const {data,error}=await q.order('path').range(from,from+N-1);if(error)throw error;L.push(...data);if(data.length<N)break;from+=N}return L};
+    window.__frotaCopiaPlano=async()=>{const real=new Set((await todos('path',false)).map(r=>r.path));
+      const so=(await todos('path',true)).map(r=>r.path).filter(p=>!real.has(p.slice(NS.length))&&!fora(p.slice(NS.length)));
+      const L=[];for(let i=0;i<so.length;i+=200){const {data,error}=await sb.from('docs').select('path,data').in('path',so.slice(i,i+200));if(error)throw error;L.push(...data)}
+      return L.sort((x,y)=>x.path<y.path?-1:1)};
+    window.__frotaLevar=async paths=>{const {data,error}=await sb.rpc('teste_levar_oficial',{p_paths:paths});if(error)throw error;return data||{levados:[],pulados:[]}};
+    window.__frotaCopia=async prog=>{const keep=(await todos('path,data',false)).filter(r=>!fora(r.path)),agora=new Date().toISOString();
+      for(let i=0;i<keep.length;i+=200){const lote=keep.slice(i,i+200).map(r=>({path:NS+r.path,parent:parentOf(NS+r.path),data:r.data,updated_at:agora}));const {error}=await sb.from('docs').upsert(lote);if(error)throw error;prog&&prog(Math.min(i+200,keep.length),keep.length)}
+      await pull();return keep.length}}
   /* espera a foto chegar ao servidor (usado antes de abrir o Google Lens) */
   window.__assetPronto=id=>new Promise((ok,no)=>{const t0=Date.now();flushSoon();const tick=()=>{if(!OUT.some(o=>o.op==='upload'&&o.id===id)){ok();return}if(Date.now()-t0>30000||!navigator.onLine){no(new Error('timeout'));return}setTimeout(tick,300)};tick()});
 

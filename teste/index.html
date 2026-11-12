@@ -1377,6 +1377,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-frm{display:flex;flex-direction:column;gap:14px}
 .os-f{display:flex;flex-direction:column;gap:7px}.os-f>span{font-size:14px;font-weight:600;color:#0f1b33}.os-f>span i{font-weight:400;font-style:normal;color:var(--muted)}
 .os-mut{font-size:13px;color:var(--muted);margin:0}
+.cp-b{margin:10px 0 8px}.cp-b.warn{background:#fff4d6;color:#5c4300}.cp-b.err{background:#fde4e6;color:#8a1520}.cp-b span{display:block;font-size:13px}.cp-l{max-height:34vh;overflow:auto;border:1px solid #cdd5e1;border-radius:12px;padding:4px 10px;margin-bottom:8px}.cp-r{padding:7px 0;font-size:13px;border-top:1px solid #e3e8ef}.cp-r:first-child{border-top:0}
+#cp-st:empty{display:none}#cp-bt{margin-top:12px}
 .os-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.os-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .os-op{min-height:50px;border-radius:14px;border:1px solid #cdd5e1;background:var(--surface);color:#3a4659;font:500 15px var(--body);padding:0 8px;cursor:pointer;width:100%}
 .os-op.on{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:600}.os-op.onr{border-color:#c8202f;background:#c8202f;color:#fff;font-weight:600}.os-op.lk{border:0;background:none}
@@ -1557,8 +1559,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=84cc288b38"></script>
-<script src="shim.js?v=84cc288b38"></script>
+<script src="config.js?v=d3420a3053"></script>
+<script src="shim.js?v=d3420a3053"></script>
 </head>
 <body>
 
@@ -7104,10 +7106,32 @@ function osTesteBar(){if(!OS_TESTE)return '';const u=EU()||{};if(u.papel!=='admi
   return `<div class="os-tb"><b>TESTE</b>${S.osComo?`<span>Como <b>${esc(S.osComo.nome)}</b></span><button type="button" data-tb="adm">Voltar a admin</button>`:`<span>Admin</span><button type="button" data-tb="mecs">Mecanicos</button><button type="button" data-tb="cop">Atualizar copia</button>`}</div>`}
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-tb]');if(!b)return;const k=b.dataset.tb;
   if(k==='adm')osComo(null);else if(k==='mecs')openMecs();
-  else if(k==='cop'){const box=document.createElement('div');document.body.appendChild(box);
-    osModal(`<h2>Atualizar copia</h2><p class="os-mut">Copia de novo os dados reais (equipamentos, estoque, preventivas...) para o teste. As OS de teste e os mecanicos de teste ficam como estao. Nada muda na frota real.</p><div id="cp-st" class="os-mut"></div><div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="cp-ok">Copiar</button></div>`,(o,close)=>{
-      o.querySelector('[data-x]').onclick=close;o.querySelector('#cp-ok').onclick=async()=>{const st=o.querySelector('#cp-st'),bt=o.querySelector('#cp-ok');bt.disabled=true;st.textContent='Copiando…';
-        try{const n=await window.__frotaCopia((a,t)=>st.textContent=`Copiando ${a} de ${t}…`);close();toast(`Copia atualizada: ${n} registros`);render()}catch(e){console.error(e);st.textContent='Nao foi possivel copiar. Tente de novo.';bt.disabled=false}}})}});
+  else if(k==='cop')abrirCopia()});
+/* Atualizar copia (teste): nunca apaga o que so existe no teste; mostra esses registros e deixa escolher Manter ou Levar para o oficial */
+function abrirCopia(){
+  osModal(`<h2>Atualizar copia</h2><p class="os-mut">Copia de novo os dados reais para o teste. Nada muda na frota real.</p><div id="cp-so"></div><div id="cp-st" class="os-mut">Conferindo…</div><div id="cp-bt"></div>`,async(o,close)=>{
+    const st=o.querySelector('#cp-st'),so=o.querySelector('#cp-so'),bt=o.querySelector('#cp-bt');
+    const fim=n=>{close();toast(`Copia atualizada: ${n} registros`);render()};
+    const copiar=async()=>{bt.querySelectorAll('button').forEach(b=>b.disabled=true);st.textContent='Copiando…';
+      const n=await window.__frotaCopia((a,t)=>st.textContent=`Copiando ${a} de ${t}…`);return n};
+    const erro=e=>{console.error(e);st.textContent='Nao foi possivel copiar. Tente de novo.';bt.querySelectorAll('button').forEach(b=>b.disabled=false)};
+    let L;try{L=await window.__frotaCopiaPlano()}catch(e){console.error(e);st.textContent='Nao foi possivel conferir. Tente de novo.';bt.innerHTML='<div class="os-g2"><button type="button" class="os-op" data-x>Fechar</button></div>';bt.querySelector('[data-x]').onclick=close;return}
+    const ehIt=r=>/^teste\/estoque\/[^/]+$/.test(r.path)&&r.data&&r.data.alm&&r.data.tipo!=='kit'&&!r.data.kit;
+    const its=L.filter(ehIt),out=L.length-its.length;
+    if(!L.length){st.textContent='';bt.innerHTML='<div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="cp-ok">Copiar</button></div>';
+      bt.querySelector('[data-x]').onclick=close;bt.querySelector('#cp-ok').onclick=async()=>{try{fim(await copiar())}catch(e){erro(e)}};return}
+    const nm=r=>`<div class="cp-r"><b class="num">${esc(r.data.alm)}</b> ${esc(r.data.desc||'')}</div>`;
+    so.innerHTML=`<div class="banner warn cp-b"><div><b>So existe no teste</b>${its.length?`<span>${its.length} ${its.length===1?'item':'itens'} do estoque</span>`:''}${out?`<span>${out} ${out===1?'outro registro':'outros registros'}</span>`:''}</div></div>${its.length?`<div class="cp-l">${its.slice(0,12).map(nm).join('')}${its.length>12?`<div class="cp-r os-mut">+ ${its.length-12}</div>`:''}</div>`:''}<p class="os-mut">Nada e apagado.</p>`;
+    st.textContent='';
+    bt.innerHTML=`${its.length?'<button type="button" class="os-op on" id="cp-lv" style="margin-bottom:8px">Levar para o oficial</button>':''}<div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op${its.length?'':' on'}" id="cp-mt">Manter</button></div>`;
+    bt.querySelector('[data-x]').onclick=close;
+    bt.querySelector('#cp-mt').onclick=async()=>{try{fim(await copiar())}catch(e){erro(e)}};
+    const lv=bt.querySelector('#cp-lv');lv&&(lv.onclick=async()=>{bt.querySelectorAll('button').forEach(b=>b.disabled=true);st.textContent='Levando para o oficial…';let r;
+      try{r=await window.__frotaLevar(its.map(x=>x.path))}catch(e){console.error(e);st.textContent=/teste_levar_oficial|function|404|PGRST/i.test(String(e&&(e.message||e.code)))?'Falta rodar o script teste_levar.sql no Supabase.':'Nao foi possivel levar. Tente de novo.';bt.querySelectorAll('button').forEach(b=>b.disabled=false);return}
+      const lev=(r.levados||[]).length,pul=r.pulados||[];
+      try{const n=await copiar();if(!pul.length){close();toast(`Levados ao oficial: ${lev} · copia atualizada`);render();return}
+        so.innerHTML=`<div class="banner err cp-b"><div><b>${pul.length} nao ${pul.length===1?'foi levado':'foram levados'}</b><span>Codigo ja usado no oficial</span></div></div><div class="cp-l">${pul.map(x=>`<div class="cp-r"><b class="num">${esc(x.alm||'')}</b> ${esc(x.desc||'')}</div>`).join('')}</div>`;
+        st.textContent=`Levados ao oficial: ${lev} · copia atualizada (${n})`;bt.innerHTML='<div class="os-g2"><button type="button" class="os-op on" data-x>Fechar</button></div>';bt.querySelector('[data-x]').onclick=()=>{close();render()}}catch(e){erro(e)}})})}
 
 /* ---------- dados ---------- */
 (async()=>{

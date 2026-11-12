@@ -23,6 +23,8 @@ O app publicado na raiz do repositorio e SEMPRE gerado a partir daqui; nunca edi
 Cada versao publicada tem um ramo `versao-vNNN` no repositorio, com a fonte junto.
 Para voltar: pegar `fonte/` desse ramo, restaurar e publicar como nova versao.
 
-## Em teste (ainda fora do app oficial)
-- Etiquetas do almoxarifado (12/11): publicado so em `teste/`. A fonte esta no ramo `etiquetas-fonte` (fonte/frota.html.txt).
-  Antes de publicar o app oficial por outro chat, incorpore essa fonte; senao a versao de teste perde as etiquetas.
+## Teste x oficial
+- O app teste (/teste) usa os mesmos dados com prefixo teste/. Tudo que existe so no teste fica so no teste.
+- "Atualizar copia" (teste) nunca apaga o que so existe no teste: mostra esses registros e deixa escolher Manter ou Levar para o oficial.
+- "Levar para o oficial" precisa do script fonte/pwa/teste_levar.sql rodado no Supabase (desfazer: teste_levar_desfazer.sql).
+- Etiquetas do almoxarifado e mangueiras sem referencia: no app oficial desde a v402 (antes so no teste, ramo etiquetas-fonte).

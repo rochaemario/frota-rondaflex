@@ -22,3 +22,7 @@ O app publicado na raiz do repositorio e SEMPRE gerado a partir daqui; nunca edi
 ## Desfazer ("voltar vNNN")
 Cada versao publicada tem um ramo `versao-vNNN` no repositorio, com a fonte junto.
 Para voltar: pegar `fonte/` desse ramo, restaurar e publicar como nova versao.
+
+## Em teste (ainda fora do app oficial)
+- Etiquetas do almoxarifado (12/11): publicado so em `teste/`. A fonte esta no ramo `etiquetas-fonte` (fonte/frota.html.txt).
+  Antes de publicar o app oficial por outro chat, incorpore essa fonte; senao a versao de teste perde as etiquetas.

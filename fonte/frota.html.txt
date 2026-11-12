@@ -1366,6 +1366,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-frm{display:flex;flex-direction:column;gap:14px}
 .os-f{display:flex;flex-direction:column;gap:7px}.os-f>span{font-size:14px;font-weight:600;color:#0f1b33}.os-f>span i{font-weight:400;font-style:normal;color:var(--muted)}
 .os-mut{font-size:13px;color:var(--muted);margin:0}
+.eqv-av{display:block;margin-top:3px;padding:3px 8px;border-radius:8px;background:#fff4d6;color:#5c4300;font-size:12px;font-weight:600;line-height:1.35;width:fit-content;max-width:100%}
+.lbl-x .lx-ic{display:inline-flex;color:var(--accent)}.lbl-x .lx-ic svg{width:18px;height:18px}.lbl-x .lx-t{margin-right:auto}
+.eqv-r{width:100%;border:0;background:none;font:inherit;text-align:left;cursor:pointer}.eqv-r span{display:flex;flex-direction:column}.eqv-r small{font-size:12px;color:var(--muted)}.eqv-ok{color:#1d7a3a}.eqv-z{color:#c8202f}
 .cp-b{margin:10px 0 8px}.cp-b.warn{background:#fff4d6;color:#5c4300}.cp-b.err{background:#fde4e6;color:#8a1520}.cp-b span{display:block;font-size:13px}.cp-l{max-height:34vh;overflow:auto;border:1px solid #cdd5e1;border-radius:12px;padding:4px 10px;margin-bottom:8px}.cp-r{padding:7px 0;font-size:13px;border-top:1px solid #e3e8ef}.cp-r:first-child{border-top:0}
 #cp-st:empty{display:none}#cp-bt{margin-top:12px}
 .os-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.os-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -1673,13 +1676,11 @@ function itemStatus(eq,it){
   const manual=!!it.reprog||(it.ivSel!==''&&it.ivSel!=null&&!isNaN(Number(it.ivSel)));
   if(prox==null) return {cls:'mut',label:'Sem intervalo',rest:Infinity,prox:null,pct:0};
   const span=Math.max(1,prox-ult), rest=prox-h, pct=Math.max(0,Math.min(1,(h-ult)/span));
-  const uso=Number(eq.usoDiario)||0;
-  const prev=rest>0&&uso>0?addDays(rest/uso):(rest<=0?today():null);
   let cls='ok',label=`${nf(rest)} h`;
   if(rest<=0){cls='bad';label=`Vencida ${nf(-rest)} h`}
   else if(rest<=Math.max(50,span*.1)){cls='warn';label=`Faltam ${nf(rest)} h`}
   else label=`Faltam ${nf(rest)} h`;
-  return {cls,label,rest,prox,pct,prev,manual};
+  return {cls,label,rest,prox,pct,manual};
 }
 /* intervalo de troca escolhido so no momento de aplicar o item no equipamento
    ('' = acompanha o intervalo do equipamento; numero = horas; 'aval' = Sob avaliacao, nunca vence) */
@@ -1752,6 +1753,21 @@ const eqvKey=(a,b)=>{const x=nzCod(a),y=nzCod(b);return x<y?x+'|'+y:y+'|'+x};
 const eqvDec=(a,b)=>{const k=eqvKey(a,b);const p=S.equiv.find(p=>eqvKey(p.a,p.b)===k);return p?p.status:''};
 /* codigos equivalentes a um codigo (decisoes "equivalentes") */
 const eqvCods=c=>{const k=nzCod(c);return S.equiv.filter(p=>p.status==='eq'&&(nzCod(p.a)===k||nzCod(p.b)===k)).map(p=>nzCod(p.a)===k?p.b:p.a)};
+/* ---------- equivalentes do estoque: itens que se substituem (grupo pelos pares "eq" de config/equivalencias; vale nos dois sentidos e para o grupo todo) ---------- */
+const EQV_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L4 7l3 3M4 7h16M17 14l3 3-3 3M20 17H4"/></svg>';
+const eqvKs=s=>s?[s.ref,s.codigo,s.alm].map(nzCod).filter(Boolean):[];
+const eqvK1=s=>eqvKs(s)[0]||'';
+const _eqvC={e:null,s:null,m:new Map()};
+function eqvGrupo(s){if(!s||isKit(s))return [];if(_eqvC.e!==S.equiv||_eqvC.s!==S.estoque){_eqvC.e=S.equiv;_eqvC.s=S.estoque;_eqvC.m=new Map()}
+  if(_eqvC.m.has(s.id))return _eqvC.m.get(s.id);
+  const C=new Set(eqvKs(s)),P=(S.equiv||[]).filter(p=>p.status==='eq').map(p=>[nzCod(p.a),nzCod(p.b)]);let r=[];
+  if(C.size){let ch=true;while(ch){ch=false;P.forEach(([a,b])=>{if(C.has(a)&&!C.has(b)){C.add(b);ch=true}else if(C.has(b)&&!C.has(a)){C.add(a);ch=true}})}
+    r=S.estoque.filter(x=>x.id!==s.id&&!isKit(x)&&eqvKs(x).some(k=>C.has(k))).sort(byCode)}
+  _eqvC.m.set(s.id,r);return r}
+/* aviso nas outras telas: so quando o item esta zerado ou abaixo do minimo e ha equivalente com saldo */
+function eqvAv(s){if(!s||isKit(s))return '';const c=stockCls(s);if(c==='ok')return '';
+  const g=eqvGrupo(s).filter(x=>stQtd(x)>0).sort((a,b)=>stQtd(b)-stQtd(a));if(!g.length)return '';const x=g[0];
+  return `<span class="eqv-av">${c==='bad'?'Sem saldo':'Abaixo do minimo'}. Equivalente ${esc(x.ref||x.codigo||stAlm(x))} tem ${nf(stQtd(x),2)} ${esc(x.un||'un')}</span>`}
 /* compara, item a item, o codigo usado em cada preventiva com o da anterior do mesmo item */
 function eqvPend(eqId){
   const out=[],seen=new Set();
@@ -2975,8 +2991,8 @@ function pvRelDados(P){
     blocks.push({t:'Materiais da preventiva',cols,rows,vazio:'Nenhum equipamento no filtro escolhido.'})}
   if(P.cron){cont.push('Cronograma');
     const L=allItems().filter(x=>okE(x.eq)&&x.st.cls!=='mut'&&(!P.cronSo||x.st.cls!=='ok'));
-    const rows=L.map(x=>({c:[x.eq.codigo,x.it.virt?x.it.desc:itNome(x.it)||'Item',...(P.iv?[itIv(x.eq,x.it)?nf(itIv(x.eq,x.it),1)+' h':'—']:[]),nf(x.eq.horimetro,1),x.st.prox!=null?nf(x.st.prox,1):'—',x.st.prev?fdate(x.st.prev):'—',x.st.rest<=0?`Vencida ${nf(-x.st.rest)} h`:`Faltam ${nf(x.st.rest)} h`],b:x.st.cls==='bad'?[0,P.iv?6:5]:[0]}));
-    blocks.push({t:'Cronograma',cols:[{t:'TAG',w:52},{t:'ITEM',w:0},...(P.iv?[{t:'INTERV.',w:50,al:'r'}]:[]),{t:'HORIM. ATUAL',w:66,al:'r'},{t:'PROXIMA',w:56,al:'r'},{t:'PREVISTA',w:56,al:'r'},{t:'SITUACAO',w:84,al:'r'}],rows,vazio:'Nenhuma preventiva prevista no filtro escolhido.'});
+    const rows=L.map(x=>({c:[x.eq.codigo,x.it.virt?x.it.desc:itNome(x.it)||'Item',...(P.iv?[itIv(x.eq,x.it)?nf(itIv(x.eq,x.it),1)+' h':'—']:[]),nf(x.eq.horimetro,1),x.st.prox!=null?nf(x.st.prox,1):'—',x.st.rest<=0?`Vencida ${nf(-x.st.rest)} h`:`Faltam ${nf(x.st.rest)} h`],b:x.st.cls==='bad'?[0,P.iv?5:4]:[0]}));
+    blocks.push({t:'Cronograma',cols:[{t:'TAG',w:52},{t:'ITEM',w:0},...(P.iv?[{t:'INTERV.',w:50,al:'r'}]:[]),{t:'HORIM. ATUAL',w:66,al:'r'},{t:'PROXIMA',w:56,al:'r'},{t:'SITUACAO',w:84,al:'r'}],rows,vazio:'Nenhuma preventiva prevista no filtro escolhido.'});
     K.push(['Vencidas',nf(L.filter(x=>x.st.cls==='bad').length)])}
   const det=[P.itens&&'itens',P.iv&&'intervalos'].filter(Boolean);
   const filt=[P.eqT==='esc'?P.eqs.map(id=>(eqById(id)||S.equipsAll.find(z=>z.id===id)||{}).codigo).filter(Boolean).join(', '):'Todos os equipamentos',P.mat&&P.matGrp==='mod'?'materiais por modelo':'',P.cron&&P.cronSo?'cronograma so vencidas e proximas':''].filter(Boolean).join(' · ');
@@ -3475,7 +3491,7 @@ function vPainel(){
 function schedRow(x){
   return `<button class="row" data-eq="${esc(x.eq.id)}">${x.st.cls==='bad'||x.st.cls==='warn'?`<span class="stripe ${x.st.cls}"></span>`:''}
   <div class="main"><div class="t"><span class="code">${esc(x.eq.codigo)}</span>${esc(itNome(x.it))}</div>
-  <div class="s">${x.st.cls==='bad'?`venceu em <span class="num">${nf(x.st.prox)} h</span>`:`proxima <span class="num">${nf(x.st.prox)} h</span>${x.st.prev?` · ${sdate(x.st.prev)}`:''}`}${x.it.qtd?` · ${nf(x.it.qtd,2)} ${esc(x.it.un||'')}`:''}</div></div>
+  <div class="s">${x.st.cls==='bad'?`venceu em <span class="num">${nf(x.st.prox)} h</span>`:`proxima <span class="num">${nf(x.st.prox)} h</span>`}${x.it.qtd?` · ${nf(x.it.qtd,2)} ${esc(x.it.un||'')}`:''}</div></div>
   <div class="end"><span class="pill ${x.st.cls}">${x.st.label}</span></div></button>`;
 }
 /* agrupa uma lista de equipamentos por tipo, com titulo de categoria */
@@ -3660,7 +3676,7 @@ function itRow({it,st}){const v=Math.abs(Number(st.rest)||0),cod=itCod(it);
 function esRow(s,o={}){const c=stockCls(s),k=isKit(s),q=stQtd(s),btn=o.tag!=='div';
   const sub=o.sub!=null?o.sub:`${esc(k?stCod(s):stCodTx(s))} · min ${nf(s.minimo,2)}${k?` · ${kitComps(s).length} itens`:''}${s.inativo?' · inativo':''}`;
   return `<${btn?'button type="button"':'div'} class="es-r${o.hl?' hl':''}${btn?'':' st'}${o.cls2?' '+o.cls2:''}" ${o.attr||''}><span class="es-b ${o.cls||c}"><b>${nf(o.q!=null?o.q:q,2)}</b><small>${esc(o.un||(k?(q===1?'kit':'kits'):(s.un||'un')))}</small></span>
-    <span class="es-t"><span class="es-n">${nomeMH(s.desc)}</span><span class="es-c">${sub}</span></span>${o.end||''}</${btn?'button':'div'}>`}
+    <span class="es-t"><span class="es-n">${nomeMH(s.desc)}</span><span class="es-c">${sub}</span>${o.noEqv?'':eqvAv(s)}</span>${o.end||''}</${btn?'button':'div'}>`}
 /* busca do estoque: texto de cada item (codigo, referencia, marca, aplicacao, categoria e TAGs dos equipamentos onde serve) */
 const _esIx={};function esEqIx(){if(_esIx.a===S.estoque&&_esIx.b===S.eqCtl)return _esIx.m;const m={};
   S.eqCtl.forEach(e=>{const c=eqCompat(e);[...c.kits,...c.its].forEach(x=>{(m[x.id]=m[x.id]||new Set()).add(e.codigo)})});_esIx.a=S.estoque;_esIx.b=S.eqCtl;_esIx.m=m;return m}
@@ -3947,7 +3963,7 @@ function openMenu(mode){
       +g('Manutencoes')+mi('far',AIR_IC,'Filtros de ar','Motor ou ar condicionado')+mi('prev',I.manut,'Preventiva','Troca de oleos e filtros do plano')+(OS_ON&&!ehMec()?mi('os',I.os,'Corretiva','Ordens de servico: nova, editar, adendo e conferir pecas'):'')
       +g('Correcoes')+mi('ed-tr',EDI,'Editar preventiva','Preventivas e filtros de ar: data, horimetro e pecas')+mi('thm-x',I.back,'Desfazer troca de horimetro','Volta a contagem do relogio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saida do estoque','Retirada avulsa, fora das preventivas')
-      +mi('x:st',I.estoque,'Itens do estoque','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')+(podeEscrever()?mi('etq',ETQ_IC,'Etiquetas','Fila de etiquetas: juntar itens e imprimir'):'')+g('Conferencia')+mi('cfe',I.estoque,'Conferencia de estoque','Ajusta o saldo pelo que foi contado')},
+      +mi('x:st',I.estoque,'Itens do estoque','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+(podeEscrever()?mi('eqv',EQV_IC,'Equivalentes','Ligar itens que se substituem'):'')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')+(podeEscrever()?mi('etq',ETQ_IC,'Etiquetas','Fila de etiquetas: juntar itens e imprimir'):'')+g('Conferencia')+mi('cfe',I.estoque,'Conferencia de estoque','Ajusta o saldo pelo que foi contado')},
     comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Abastecimentos','Editar ou excluir um abastecimento')+mi('cbx-de',DEL,'Entradas de diesel','Editar ou excluir uma entrada')},
     aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('acat',ICON_TAG,'Categorias do estoque','Nome e sigla do codigo')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
       +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo, UG e comboios')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
@@ -3961,7 +3977,7 @@ function openMenu(mode){
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
-      const A={'os-nova':()=>osNova(),'os-ed':()=>osMenuPick('ed'),'os-ad':()=>osMenuPick('ad'),'os-cf':()=>osMenuPick('cf'),'os-cx':()=>osMenuPick('cx'),'os-ab':()=>osMenuPick('ab'),cfe:()=>{confEst.d=null;confEst()},acat:()=>formACats(),backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,etq:()=>openEtq(),far:()=>formFiltroAr(''),prev:()=>formTroca(''),'ed-tr':()=>formPickTr(),'dl-ab':openDelAbast,eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
+      const A={'os-nova':()=>osNova(),'os-ed':()=>osMenuPick('ed'),'os-ad':()=>osMenuPick('ad'),'os-cf':()=>osMenuPick('cf'),'os-cx':()=>osMenuPick('cx'),'os-ab':()=>osMenuPick('ab'),cfe:()=>{confEst.d=null;confEst()},acat:()=>formACats(),backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,etq:()=>openEtq(),eqv:()=>openEqv(),far:()=>formFiltroAr(''),prev:()=>formTroca(''),'ed-tr':()=>formPickTr(),'dl-ab':openDelAbast,eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
         'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }
@@ -4150,7 +4166,7 @@ function openEq(id){
     ${novoBox(e)?`<div class="r" style="display:block">${novoBox(e)}</div>`:''}
     ${f('Proprietario',esc(e.locador))}${f('Posse','Rondaflex Ltda')}${f('Alocado em',esc(e.alocacao))}${e.alocacao==='DM1'?f('Area',e.area===RES?'Reserva (compartilhada no DM1)':esc(e.area))+(e.area===RES?'':f('Frente',esc(e.frente))):''}
     ${f('Horimetro',`${e.horimetro===''||e.horimetro==null?'<span style="color:var(--faint)">sem leitura</span>':`<span class="hm">${hmTxt(e)}<small>H</small></span>`}${e.horimetroData?`<div class="note" style="margin-top:3px">leitura de ${fdate(e.horimetroData)}</div>`:''}${(e.hmCorr||[]).length?(()=>{const c=e.hmCorr[e.hmCorr.length-1];return `<div class="note" style="margin-top:3px">corrigido de ${nf(c.de)} h em ${fdate(c.data)}${c.por?' por '+esc(c.por):''}</div>`})():''}`)}
-    ${f('Intervalo preventivas',e.intervaloPrev?`<span class="num">${nf(e.intervaloPrev)} h</span>`:'')}${f('Uso medio',e.usoDiario?`${nf(e.usoDiario,1)} h/dia`:'')}${f('Oleos e filtros no plano',String((e.itens||[]).length))}${f('Trocas registradas',String(hist.length))}${f('Observacoes',esc(e.obs))}</div>
+    ${f('Intervalo preventivas',e.intervaloPrev?`<span class="num">${nf(e.intervaloPrev)} h</span>`:'')}${f('Oleos e filtros no plano',String((e.itens||[]).length))}${f('Trocas registradas',String(hist.length))}${f('Observacoes',esc(e.obs))}</div>
 
   <div class="spec" style="margin-top:12px">${(()=>{const si=eqSituacao(e);return f('Situacao',`<span class="sit ${si.cls}">${si.label}</span>`)+(si.its.length?`<div class="r sit-l"><div class="es-l">${si.its.map(x=>itRow(x)).join('')}</div></div>`:'')+(si.est.length?`<div class="r ls sit-e"><span>Estoque</span><ul class="sl">${si.est.map(x=>`<li><span class="sl-n">${esc(x.s.desc)}<small class="num">${esc(stCod(x.s))}</small></span><b class="${x.c==='bad'?'sit-bad':'sit-warn'}">${x.t}</b></li>`).join('')}</ul></div>`:'')})()}</div>
   ${docsHTML(e)}
@@ -4465,12 +4481,12 @@ function itemList(e,its,empty){
 }
 function itemRows(e,its){
   return `<div class="ilist">${its.map(({it,st},i)=>{const sk=it.estoqueId&&stById(it.estoqueId);return `<div class="ia"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="idot ${st.cls}"></span><span class="ia-t">${esc(itNome(it))}</span><span class="ist ${st.cls}">${st.label.toLowerCase()}</span>${I.chev}</button>
-    <div class="ia-b" hidden><div class="s">${esc(it.espec||'Sem especificacao')}${it.qtd!==''&&it.qtd!=null?` · ${nf(it.qtd,2)} ${esc(it.un||'')}`:''}${sk?` · estoque ${esc(sk.codigo)}`:''}</div>
+    <div class="ia-b" hidden><div class="s">${esc(it.espec||'Sem especificacao')}${it.qtd!==''&&it.qtd!=null?` · ${nf(it.qtd,2)} ${esc(it.un||'')}`:''}${sk?` · estoque ${esc(sk.codigo)}`:''}</div>${sk?eqvAv(sk):''}
     <div class="meter"><i style="width:${Math.round(st.pct*100)}%;background:${meterColor(st.cls)}"></i></div>
     <div class="facts"><div>Ultima troca<b>${it.ultimaH!==''&&it.ultimaH!=null?(()=>{const o=it.ultimaData?hmOrig(e.id,it.ultimaH,it.ultimaData):{v:Number(it.ultimaH),d:0};return nf(o.v,2)+' h'+(o.d?'<small class="rp-mk">relogio antigo</small>':'')})():'—'}</b>${it.ultimaData?sdate(it.ultimaData):''}</div><div>${st.cls==='bad'?'Venceu em':'Proxima'}<b>${st.prox!=null?(()=>{const lt=hmTrocas(e.id).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
       /* vencimento que caiu antes da troca do relogio: mostra no relogio antigo */
       if(st.cls==='bad'&&lt&&it.ultimaData&&(it.ultimaData<(lt.data||''))&&st.prox<=Number(lt.horimetro)){const o=hmOrig(e.id,st.prox,it.ultimaData);return nf(o.v,2)+' h<small class="rp-mk">relogio antigo</small>'}
-      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':st.cls!=='bad'&&st.prev?sdate(st.prev):''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.virt&&!adOleo(it)&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad'&&!it.virt;
+      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.virt&&!adOleo(it)&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad'&&!it.virt;
       return rp||def?`<div class="pn-bt">${def?`<button type="button" class="btn sm" data-ivd="${esc(e.id)}|${esc(it.pid)}">Intervalo</button>`:''}${rp?`<button type="button" class="btn sm" data-rp="${esc(e.id)}|${esc(it.pid)}">Reprogramar</button>`:''}</div><div class="ivd-box"></div>`:''})()}</div></div>`}).join('')}</div>`;
 }
 /* intervalo de troca do item: pode ser mudado a qualquer momento */
@@ -4758,7 +4774,7 @@ function planRow(it,aberto,eqIv){const P=esc(it.pid||uid());const cod=it.espec||
 function formEq(id,mais){
   planRow.eqId=id||'';
   nav('fe:'+(id||'novo'),()=>formEq(id,mais));
-  const e=id?eqById(id):{posse:'proprio',status:'ativo',usoDiario:8,itens:[]};
+  const e=id?eqById(id):{posse:'proprio',status:'ativo',itens:[]};
   openSheet({title:id?'Editar equipamento':'Novo equipamento',sub:id?esc(e.codigo):'',
   body:`<form id="fe">
   <div class="fset"><h3>Identificacao</h3><div class="grid">
@@ -4772,7 +4788,6 @@ function formEq(id,mais){
     <label class="f">Placa<input id="e-placa" value="${esc(e.placa||'')}" placeholder="Se tiver" autocapitalize="characters"></label></div></div>
   <div class="fset"><h3>Operacao</h3><div class="grid">
     <label class="f">Horimetro (h)<input id="e-horimetro" type="number" step="0.1" inputmode="decimal" value="${esc(e.horimetro??'')}"></label>
-    <label class="f">Uso medio (h/dia)<input id="e-uso" type="number" step="0.5" inputmode="decimal" value="${esc(e.usoDiario??'')}"></label>
     <label class="f w">Alocado em<select id="e-aloc">${optList(LOCAIS,e.alocacao||'','Escolha…')}</select></label>
     <label class="f" data-dm ${e.alocacao==='DM1'?'':'hidden'}>Area<select id="e-area">${optList(AREAS_DM(),e.area||'','Escolha…')}</select></label>
     <label class="f" data-dm data-fw ${e.alocacao==='DM1'&&e.area!==RES?'':'hidden'}>Frente<select id="e-frente">${optList(frentesDe(e.area),e.frente||'','Escolha…')}</select></label></div>
@@ -4858,7 +4873,7 @@ function formEq(id,mais){
       if(id&&hm!==''){let gb=sh.querySelector('#e-hmg');if(!gb){sh.querySelector('#e-horimetro').closest('label').insertAdjacentHTML('afterend','<div id="e-hmg" class="w"></div>');gb=sh.querySelector('#e-hmg')}
         if(!hmGuard(gb,eqById(id)||e,Number(hm),today(),hmStE,()=>saveEq()))return;gb.innerHTML=''}
       const body={codigo:g('codigo').toUpperCase(),tipo:g('tipo'),marca:g('marca'),modelo:g('modelo'),ano:g('ano'),serie:g('serie'),placa:g('placa').toUpperCase(),status:(id&&eqById(id)||e).status||'ativo',
-        horimetro:hm===''?'':Number(hm),intervaloPrev:g('ivp')===''?'':Number(g('ivp')),kitProprio:!!(sh.querySelector('#e-kprop')||{}).checked,usoDiario:g('uso')===''?'':Number(g('uso')),alocacao:g('aloc'),area:g('aloc')==='DM1'?g('area'):'',frente:g('aloc')==='DM1'&&g('area')!==RES?g('frente'):'',motor:g('motor'),posse:'Rondaflex Ltda',locador:g('locador'),obs:g('obs'),itens,foto:fotoNow[0]||'',docVeiculo:docNow.docVeiculo||null,notaFiscal:docNow.notaFiscal||null,
+        horimetro:hm===''?'':Number(hm),intervaloPrev:g('ivp')===''?'':Number(g('ivp')),kitProprio:!!(sh.querySelector('#e-kprop')||{}).checked,...(e.usoDiario!=null?{usoDiario:e.usoDiario}:{}),alocacao:g('aloc'),area:g('aloc')==='DM1'?g('area'):'',frente:g('aloc')==='DM1'&&g('area')!==RES?g('frente'):'',motor:g('motor'),posse:'Rondaflex Ltda',locador:g('locador'),obs:g('obs'),itens,foto:fotoNow[0]||'',docVeiculo:docNow.docVeiculo||null,notaFiscal:docNow.notaFiscal||null,
         horimetroData:(id&&Number(hm)===Number(e.horimetro))?(e.horimetroData||''):today(),horimetroReg:(hm!==''&&(!id||Number(hm)>(Number(e.horimetro)||0)))?today():(e.horimetroReg||''),exemplo:!!e.exemplo};
       if(S.equipsAll.some(x=>x.id!==id&&String(x.codigo).toLowerCase()===body.codigo.toLowerCase())){toast('Ja existe um equipamento com essa TAG.');return}
       /* edicao: mantem os campos que este formulario nao mostra (base do combustivel, equipamento novo, correcoes...) */
@@ -4989,7 +5004,7 @@ function formTroca(eqId){
       hm.value=e.horimetro||'';
       /* lista mostra so o que esta no lancamento; tocar na linha abre codigo usado, intervalo e retirar */
       const row=it=>{const s=itemStatus(e,it),st=it.estoqueId&&stById(it.estoqueId),on=false,P=esc(it.pid);return `<div class="tr-i" data-row="${P}"${on?'':' hidden'}><input type="checkbox" hidden data-pid="${P}"${on?' checked':''}>
-        <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="false"><div class="main"><b>${esc(itNome(it))}</b><div class="s"><span class="pill ${s.cls}">${s.label}</span><span class="num" data-cdv="${P}">${esc(it.espec||(st?stCod(st):''))}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),2)} ${esc(stUn(st))}</span>`:''}</div></div>
+        <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="false"><div class="main"><b>${esc(itNome(it))}</b><div class="s"><span class="pill ${s.cls}">${s.label}</span><span class="num" data-cdv="${P}">${esc(it.espec||(st?stCod(st):''))}</span>${st?`<span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),2)} ${esc(stUn(st))}</span>`:''}</div>${st?eqvAv(st):''}</div>
         <input class="q" type="number" step="0.1" inputmode="decimal" data-q="${P}" value="${esc(it.qtd??'')}" aria-label="Quantidade usada de ${esc(it.desc)}"><span class="u">${esc(it.un||'')}</span>${I.chev}</div>
         <div class="tr-b" hidden><label class="f">Codigo usado<input class="cd" data-cd="${P}" value="${esc(it.espec||'')}" placeholder="Codigo usado" autocapitalize="characters" aria-label="Codigo usado em ${esc(itNome(it))}"></label>${st&&isKit(st)?'':ivSelect(ivPad(e,it),e.intervaloPrev,`data-ivp="${P}"`)}${st&&isKit(st)?`<button type="button" class="btn" data-kv>Ver itens do kit</button><div class="kv-w" hidden>${kitLista(st,it.qtd||1)}</div>`:''}<button type="button" class="btn" data-trm="${P}">Retirar do lancamento</button></div></div>`};
       const its=e.itens||[];
@@ -5663,21 +5678,55 @@ function formMov(id){
   const s=stById(id);if(!s)return;if(isKit(s))return kitView(s);const c=stockCls(s);
   const inKits=S.estoque.filter(k=>isKit(k)&&(k.comps||[]).some(x=>x.id===id)).sort(byCode).map(k=>stCod(k));
   const used=S.equips.filter(e=>(e.itens||[]).some(i=>i.estoqueId===id)).sort(byCode).map(e=>e.codigo);
-  const enc=(s.encaixe||[]).map(eqById).filter(Boolean).sort(byCode);
+  const enc=(s.encaixe||[]).map(eqById).filter(Boolean).sort(byCode),eqv=eqvGrupo(s);
   openSheet({title:nomeMH(s.desc),sub:`${s.codigo||s.ref?`<span class="num">${esc(s.codigo||s.ref)}</span> · `:''}${esc(acNm(acOf(s)))}${s.almAnt&&s.almAnt.length?` · antes ${esc(s.almAnt.join(', '))}`:''}${s.marca?` · ${esc(s.marca)}`:''}${s.local?` · ${esc(s.local)}`:''}`,
   body:`${s.inativo?`<div class="nv-b on" style="margin:0 0 12px"><div><b>Item inativo</b><span>Fora das listas, buscas e dos alertas de estoque. Para reativar: + › Editar.</span></div></div>`:''}<div class="hmcard"><div><div class="k">Saldo</div><div class="v">${nf(s.qtd,2)}<small>${esc(s.un)}</small></div><div class="d">Minimo ${nf(s.minimo,2)} ${esc(s.un)}</div></div><span class="pill ${c}">${c==='bad'?'Zerado':c==='warn'?'Repor':'Ok'}</span></div>
   ${OS_ON?(()=>{const L=osLista().map(v=>({v,q:osPendPecas(v).filter(p=>p.k==='est'&&p.id===id).reduce((a,p)=>a+(Number(p.qtd)||0),0)})).filter(x=>x.q>0);if(!L.length)return '';const t=L.reduce((a,x)=>a+x.q,0);
     return `<div class="lbl">Reservado em OS</div><div class="spec"><div class="r"><span>Aguardando conferencia</span><b class="num">${nf(t,2)} ${esc(s.un||'')}</b></div>${L.map(x=>`<button type="button" class="r os-rr" data-osv="${esc(x.v.id)}"><span>${osNum(x.v)} · <b class="num">${esc((eqById(x.v.eq)||{}).codigo||x.v.eq)}</b></span><b class="num">${nf(x.q,2)} ${esc(s.un||'')}</b></button>`).join('')}</div><p class="note" style="margin:6px 2px 0">Sai do saldo quando o administrador confere a peca na OS.</p>`})():''}
   <div class="lbl">Dados do item</div><div class="spec"><div class="r"><span>Codigo almoxarifado</span><b class="num">${stAlm(s)?esc(stAlm(s)):'<span style="color:var(--faint)">—</span>'}</b></div>${s.ref?`<div class="r"><span>Referencia</span><b class="num">${esc(s.ref)}</b></div>`:''}${s.descFab?`<div class="r"><span>Descricao do fabricante</span><b>${esc(s.descFab)}</b></div>`:''}${s.marca?`<div class="r"><span>Marca</span><b>${esc(s.marca)}</b></div>`:''}${s.aplic?`<div class="r"><span>Aplicacao</span><b>${esc(s.aplic)}</b></div>`:''}${s.local?`<div class="r"><span>Local</span><b>${esc(s.local)}</b></div>`:''}</div>
+  ${eqv.length?`<button type="button" class="lbl lbl-x" data-lx aria-expanded="false"><span class="lx-ic">${EQV_IC}</span><span class="lx-t">Equivalentes</span>${I.chev}</button><div class="lx-b" hidden><div class="spec">${eqv.map(x=>`<button type="button" class="r eqv-r" data-eqvo="${esc(x.id)}"><span><b class="num">${esc(x.ref||'—')}</b><small>${esc([stAlm(x),x.marca].filter(Boolean).join(' · '))}</small></span><b class="num ${stQtd(x)>0?'eqv-ok':'eqv-z'}">${nf(stQtd(x),2)} ${esc(x.un||'un')}</b></button>`).join('')}</div></div>`:''}
   ${enc.length?`<div class="lbl">Encaixe de fabrica <span class="c">${enc.length}</span></div><div class="spec">${enc.map(e=>`<div class="r"><span><b class="num">${esc(e.codigo)}</b></span><b>${esc([e.marca,e.modelo].filter(Boolean).join(' '))}</b></div>`).join('')}</div>`:''}
   <div class="lbl">Usado em</div><div class="spec">${used.length?specList('Planos',used.map(u=>[u])):'<div class="r"><span>Planos</span><b>Nenhum ligado</b></div>'}${inKits.length?specList('Kits',inKits.map(k=>[k])):''}</div>
-  <div class="lbl">Movimentacoes</div><div id="mv-box"><div class="note" style="padding:6px 2px">Carregando…</div></div>
+  <button type="button" class="lbl lbl-x" data-lx aria-expanded="false" id="mv-x"><span class="lx-t">Movimentacoes</span>${I.chev}</button><div class="lx-b" hidden id="mv-box"><div class="note" style="padding:6px 2px">Carregando…</div></div>
   ${fotoStHTML(s)}`,
   foot:avisarFoot('item',id)+etqBtnHTML(s),
   mount:sh=>{bindFotoSt(sh);
+    sh.querySelectorAll('[data-eqvo]').forEach(b=>b.onclick=()=>formMov(b.dataset.eqvo));
+    const mvx=sh.querySelector('#mv-x');let mvOk=false;mvx.addEventListener('click',()=>{if(mvOk)return;mvOk=true;
     S.db.collection('movs').where('estoqueId','==',id).get().then(q=>{const b=sh.querySelector('#mv-box');if(!b||!b.isConnected)return;
       const l=q.docs.map(d=>d.data()).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0)).slice(0,6);
-      b.innerHTML=l.length?`<div class="spec">${l.map(m=>movLine(m,s.un)).join('')}</div>`:'<div class="empty">Nenhuma movimentacao registrada.</div>'}).catch(()=>{const b=sh.querySelector('#mv-box');if(b)b.innerHTML='<div class="note">Nao foi possivel carregar.</div>'})}});
+      b.innerHTML=l.length?`<div class="spec">${l.map(m=>movLine(m,s.un)).join('')}</div>`:'<div class="empty">Nenhuma movimentacao registrada.</div>'}).catch(()=>{mvOk=false;const b=sh.querySelector('#mv-box');if(b)b.innerHTML='<div class="note">Nao foi possivel carregar.</div>'})})}});
+}
+/* + › Estoque › Equivalentes: escolhe o item e liga/desliga os que o substituem (grupo: ligar uma vez vale para todos, nos dois sentidos) */
+async function eqvSalvar(pares,msg){if(!await safe(()=>S.db.doc('config/equivalencias').set({pares}),msg))return false;S.equiv=pares;return true}
+function eqvBusca(box,excl,onPick){box.innerHTML=`<div class="sug-w"><input class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou nome" aria-label="Buscar item"><div class="ct-hit sug"></div></div>`;
+  const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');setTimeout(()=>c.focus(),60);
+  c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
+    const m=S.estoque.filter(x=>!isKit(x)&&!excl.has(x.id)&&eqvK1(x)&&(nzCod(x.alm).includes(k)||nzCod(x.ref).includes(k)||nzCod(x.codigo).includes(k)||nzCod(x.desc).includes(k))).sort(byCode).slice(0,8);
+    hit.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-eqp="${esc(x.id)}"`,noEqv:true})).join('')}</div>`:'<p class="note" style="margin:6px 2px">Nenhum item encontrado.</p>';
+    hit.querySelectorAll('[data-eqp]').forEach(b=>b.onclick=()=>onPick(stById(b.dataset.eqp)))}}
+function openEqv(id){
+  nav('eqvi:'+(id||''),()=>openEqv(id));
+  const s=id&&stById(id);
+  if(!s){openSheet({title:'Equivalentes',sub:'Escolha o item',body:`<div id="eqv-pk"></div>`,mount:sh=>eqvBusca(sh.querySelector('#eqv-pk'),new Set(),x=>{NAV.pop();openEqv(x.id)})});return}
+  const g=eqvGrupo(s);
+  openSheet({title:'Equivalentes',sub:`${esc(s.ref||stAlm(s))} · ${nomeMH(s.desc)}`,
+  body:`<div class="lbl">Substituem este item <span class="c">${g.length}</span></div>${g.length?`<div class="es-l">${g.map(x=>esRow(x,{tag:'div',noEqv:true,end:`<button type="button" class="ct-x" data-eqrm="${esc(x.id)}" aria-label="Desligar">✕</button>`})).join('')}</div>`:'<div class="empty">Nenhum equivalente ligado.</div>'}
+    <div id="eqv-cf"></div><div class="etq-nv"><button type="button" class="ct-add" id="eqv-ad">${I.plus}Adicionar</button><div id="eqv-pk"></div></div>`,
+  mount:sh=>{const re=()=>{NAV.pop();openEqv(id)};
+    sh.querySelector('#eqv-ad').onclick=()=>{sh.querySelector('#eqv-ad').hidden=true;
+      eqvBusca(sh.querySelector('#eqv-pk'),new Set([s.id,...g.map(x=>x.id)]),async x=>{
+        const a=eqvK1(s),b=eqvK1(x),k=eqvKey(a,b);
+        const pares=[...(S.equiv||[]).filter(p=>eqvKey(p.a,p.b)!==k),{a,b,desc:s.desc,status:'eq',data:today(),item:true}];
+        if(await eqvSalvar(pares,'Equivalente ligado'))re()})};
+    sh.querySelectorAll('[data-eqrm]').forEach(b=>b.onclick=()=>{const x=stById(b.dataset.eqrm);if(!x)return;
+      askConfirm(sh.querySelector('#eqv-cf'),'Desligar',`Desligar ${esc(x.ref||stAlm(x))} dos equivalentes?`,async()=>{
+        /* tira todas as ligacoes do item; os que ficam no grupo continuam ligados entre si */
+        const kx=new Set(eqvKs(x)),resto=[s,...g.filter(y=>y.id!==x.id)];
+        let pares=(S.equiv||[]).filter(p=>!(p.status==='eq'&&(kx.has(nzCod(p.a))||kx.has(nzCod(p.b)))));
+        const tem=(a,b)=>pares.some(p=>p.status==='eq'&&eqvKey(p.a,p.b)===eqvKey(a,b));
+        resto.slice(1).forEach(y=>{const a=eqvK1(resto[0]),b=eqvK1(y);if(a&&b&&a!==b&&!tem(a,b))pares.push({a,b,desc:resto[0].desc,status:'eq',data:today(),item:true})});
+        if(await eqvSalvar(pares,'Equivalente desligado'))re()})})}});
 }
 /* + › Entrada / Saida: informa so o codigo ou a referencia; o item e localizado sozinho */
 const nzCod=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s.\-\/]/g,'');
@@ -6632,7 +6681,7 @@ function osBindVinc(sh,d,redraw){const r=sh.querySelector('[data-vrm]');if(r)r.o
   if(q&&l){q.oninput=()=>{d.__vq=q.value;l.innerHTML=osVincLista(osVincItens(d,q.value));bd()};bd()}}
 
 /* ---------- pecas e fotos (usado no formulario e no adendo) ---------- */
-function osPecasHTML(arr){return `${arr.map((p,i)=>`<div class="os-pc${p.k==='sc'?' sc':''}">${p.k==='sc'?(p.foto?`<span class="os-ft">${imgTag(p.foto)}</span>`:'<span class="os-ft">SEM FOTO</span>'):''}<div class="t">${esc(p.nome)}<small>${p.k==='sc'?'Sem cadastro':'Do estoque · '+esc(p.cod||'')}</small></div>
+function osPecasHTML(arr){return `${arr.map((p,i)=>`<div class="os-pc${p.k==='sc'?' sc':''}">${p.k==='sc'?(p.foto?`<span class="os-ft">${imgTag(p.foto)}</span>`:'<span class="os-ft">SEM FOTO</span>'):''}<div class="t">${esc(p.nome)}<small>${p.k==='sc'?'Sem cadastro':'Do estoque · '+esc(p.cod||'')}</small>${p.k==='est'?eqvAv(stById(p.id)):''}</div>
     <button type="button" class="os-qb" data-pq="${i}:-1" aria-label="Diminuir">−</button><span class="os-qn">${nf(p.qtd,2)}</span><button type="button" class="os-qb" data-pq="${i}:1" aria-label="Aumentar">+</button></div>`).join('')}
   <div class="os-g2"><button type="button" class="os-ad" data-pest>+ Do estoque</button><button type="button" class="os-ad am" data-psc>+ Sem cadastro</button></div>`}
 function osFotosHTML(arr){return `${arr.length?`<div class="os-fts">${arr.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:''}<button type="button" class="os-dash" data-fadd>${I.cam||''}Adicionar fotos</button>`}
@@ -6727,7 +6776,7 @@ function osrRestaura(){const r=osrLe();if(!r||!r.d||!r.tipo){osrPronto=true;retu
   const t0=Date.now(),ti=setInterval(()=>{if((S.osL1&&S.osL2)||Date.now()-t0>10000){clearInterval(ti);if(S.osL1&&S.osL2)segue();else osrPronto=true}},150);
   return !!r.aberto}
 function osPickEst(cb){const lst=q=>{const k=nzM(q||''),L=S.estoque.filter(s=>!isKit(s)&&(!k||nzM([s.desc,s.alm,s.codigo,s.ref,s.marca].join(' ')).includes(k))).sort(byCode).slice(0,60);
-    return L.length?L.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small></span></button>`).join(''):'<div class="os-vz">Nenhum item com esse nome. Use "Sem cadastro".</div>'};
+    return L.length?L.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small>${eqvAv(s)}</span></button>`).join(''):'<div class="os-vz">Nenhum item com esse nome. Use "Sem cadastro".</div>'};
   osModal(`<h2>Peca do estoque</h2><input class="os-in os-busca" id="pe-q" type="search" placeholder="Digite o nome ou codigo" autocomplete="off"><div class="os-ls" id="pe-l">${lst('')}</div><button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
     const q=o.querySelector('#pe-q'),l=o.querySelector('#pe-l'),bd=()=>l.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{close();cb(stById(b.dataset.st))});q.oninput=()=>{l.innerHTML=lst(q.value);bd()};bd();o.querySelector('[data-x]').onclick=close;setTimeout(()=>q.focus(),60)})}
 function osPickSc(cb){const p={k:'sc',nome:'',qtd:1,foto:''};

@@ -1554,8 +1554,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=cd1df265da"></script>
-<script src="shim.js?v=cd1df265da"></script>
+<script src="config.js?v=cbb91e2425"></script>
+<script src="shim.js?v=cbb91e2425"></script>
 </head>
 <body>
 
@@ -5602,7 +5602,10 @@ function formStock(id,preset,onSaved){
         ih.innerHTML=(m.length?`<p class="note" style="margin:4px 4px 6px">Ja cadastrado${m.length>1?'s':''}: toque para ver o cadastro</p><div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-sx="${esc(x.id)}"`})).join('')}</div>`:'')
           +`<button type="button" class="btn ${m.length?'':'pri '}block" id="s-go" style="margin-top:${m.length?8:0}px">Cadastrar ${esc(v.toUpperCase())}${m.length?' como novo':''}</button>`;
         ih.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));ih.querySelector('#s-go').onclick=()=>seguir(v)};
-      sh.querySelector('#s-sr').onclick=()=>seguir('');
+      /* Sem referencia: so mangueiras -> categoria Mangueiras e referencia travadas */
+      sh.querySelector('#s-sr').onclick=()=>{seguir('');const c=sh.querySelector('#s-cat'),r=sh.querySelector('#s-ref');
+        if(c.querySelector('option[value="MAN"]')){c.value='MAN';c.disabled=true;c.dispatchEvent(new Event('change'))}else toast('Categoria Mangueiras nao encontrada. Veja + › Ajustes do app › Categorias do estoque.');
+        r.value='';r.placeholder='Sem referencia';r.disabled=true};
       iq.oninput=busca;iq.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const b=ih.querySelector('#s-go');b&&b.click()}};setTimeout(()=>iq.focus(),60);
       const scm=sh.querySelector('#s-cam');if(scm)scm.onclick=()=>rdOpen({mode:'raw',use:v=>{iq.value=v.text||'';busca()}})}
 

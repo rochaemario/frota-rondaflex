@@ -1387,6 +1387,7 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-op{min-height:50px;border-radius:14px;border:1px solid #cdd5e1;background:var(--surface);color:#3a4659;font:500 15px var(--body);padding:0 8px;cursor:pointer;width:100%}
 .os-op.on{border-color:var(--accent);background:var(--accent);color:#fff;font-weight:600}.os-op.onr{border-color:#c8202f;background:#c8202f;color:#fff;font-weight:600}.os-op.lk{border:0;background:none}
 .os-op:disabled{opacity:.5}
+.os-ln{height:1px;background:#cdd5e1}
 .os-div{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em}.os-div:before,.os-div:after{content:"";flex:1;height:1px;background:#cdd5e1}
 .os-eq{padding:14px 16px;border-radius:16px;background:var(--ink);color:#fff;display:flex;align-items:center;gap:12px}
 .os-eq b{font:700 23px var(--display);letter-spacing:.01em}.os-eq span{flex:1;font-size:14px;opacity:.9;min-width:0}
@@ -1564,8 +1565,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=4913995158"></script>
-<script src="shim.js?v=4913995158"></script>
+<script src="config.js?v=b2ddecccd5"></script>
+<script src="shim.js?v=b2ddecccd5"></script>
 </head>
 <body>
 
@@ -6881,10 +6882,10 @@ function formOS(){const d=S.osDraft;if(!d){closeSheet();return}if(d.__ini===unde
    <div class="os-f"><span>O servico ja foi concluido?</span><div class="os-g2"><button type="button" class="os-op${d.concl?' on':''}" data-cc="1">Sim, ja fiz</button><button type="button" class="os-op${d.concl?'':' on'}" data-cc="0">Nao, deixar aberta</button></div></div>`}
    ${d.concl?`<label class="os-f"><span>O que foi feito</span><textarea class="os-in" id="of-fei" rows="2" placeholder="Ex.: troca do reparo do cilindro">${esc(d.feito)}</textarea></label>`:''}
    <div class="os-f"><span>Equipamento${d.concl?'':' <i>(opcional)</i>'}</span><div class="os-g2"><button type="button" class="os-op${d.estado==='operando'?' on':''}" data-es="operando">Liberado</button><button type="button" class="os-op${d.estado==='parado'?' onr':''}" data-es="parado">Parado</button></div></div>
-   ${!conc||v.por===osEu().uid?osRespHTML(d,conc?v.por:osEu().uid):''}
    <div class="os-div">OPCIONAL</div>
    ${d.concl?`<div class="os-f"><span>Pecas usadas</span>${osPecasHTML(d.pecas)}</div>`:''}
-   <div class="os-f"><span>Fotos</span>${osFotosHTML(d.fotos)}</div>${conc?'':osVincHTML(d)}</form>`,
+   <div class="os-f"><span>Fotos</span>${osFotosHTML(d.fotos)}</div>
+   ${!conc||v.por===osEu().uid?'<div class="os-ln"></div>'+osRespHTML(d,conc?v.por:osEu().uid):''}${conc?'':osVincHTML(d)}</form>`,
   foot:`<button class="btn pri" form="osf">Salvar</button>`,
   mount:sh=>{const g=id=>sh.querySelector(id);
     const ler=()=>{const h=g('#of-hor'),a=g('#of-aco'),f=g('#of-fei'),o=g('#of-out');if(h)d.hor=h.value;if(a)d.aconteceu=a.value;if(f)d.feito=f.value;if(o)d.outra=o.value};

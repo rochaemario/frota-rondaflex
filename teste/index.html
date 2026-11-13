@@ -1370,6 +1370,10 @@ body.mec #fab,body.mec .brandmark,body.mec .stab{display:none!important}
 .os-tag{font:600 15.5px 'IBM Plex Mono',monospace;flex:1;color:var(--ink)}.os-tx{color:#1a2233;font-size:14.5px}.os-c small{font-size:12px;color:var(--faint)}
 .os-par{font-size:11px;font-weight:700;letter-spacing:.05em;padding:4px 10px;border-radius:10px;background:#fce8ea;color:#9a1622;white-space:nowrap}.os-par.lg{align-self:flex-start;display:inline-block;margin-bottom:10px;font-size:12px}
 .os-cf{font-size:11px;font-weight:700;padding:4px 9px;border-radius:10px;background:#fff6e3;color:#7a5300;white-space:nowrap}
+.os-tp{font-size:11px;font-weight:700;letter-spacing:.04em;padding:4px 9px;border-radius:10px;background:#e8eefc;color:#0b2470;white-space:nowrap}.os-tp.rg{background:#fff6e3;color:#7a5300}
+.os-pc .t .os-sw{align-self:flex-start;border:0;background:none;padding:4px 0 0;color:var(--accent);font:600 13px var(--body);text-decoration:underline;cursor:pointer}
+.os-lb3{margin:12px 2px 4px;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.os-tpb{display:flex;flex-direction:column;gap:8px}
 .os-vz{padding:26px 12px;text-align:center;color:var(--muted);font-size:14.5px}
 .os-box{padding:14px;border-radius:16px;background:var(--surface);box-shadow:0 1px 2px rgba(15,27,51,.05),0 2px 8px rgba(15,27,51,.05);display:flex;flex-direction:column;gap:12px;margin:10px 0}.os-box.sm{gap:8px;padding:12px;margin:0 0 8px}
 .os-in{width:100%;min-height:50px;padding:13px 15px;border-radius:14px;border:1px solid #cdd5e1;background:var(--surface);font:500 16px var(--body);color:#0f1b33;outline:none;box-sizing:border-box}
@@ -1564,8 +1568,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=4913995158"></script>
-<script src="shim.js?v=4913995158"></script>
+<script src="config.js?v=f9f5e99823"></script>
+<script src="shim.js?v=f9f5e99823"></script>
 </head>
 <body>
 
@@ -3501,7 +3505,8 @@ function vPainel(){
   byEq.forEach(g=>{g.bad=g.items.filter(x=>x.st.cls==='bad').length;g.warn=g.items.length-g.bad});
   byEq.sort((a,b)=>(b.bad?1:0)-(a.bad?1:0)||byCode(a.eq,b.eq));
   const st=S.estoque.filter(s=>!isKit(s)&&stockCls(s)!=='ok').sort((a,b)=>ord[stockCls(a)]-ord[stockCls(b)]||byCode(a,b));
-  const n=byEq.length+st.length;
+  const oR=!ehMec()&&podeEscrever()?osARegistrar():[];
+  const n=byEq.length+st.length+oR.length;
   const crit=byEq.some(g=>g.bad)||st.some(x=>stockCls(x)==='bad'),lvl=!n?'ok':crit?'bad':'warn';
   const WARN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3v.2"/></svg>';
   const head=`<div class="ph pnb ${lvl}"><h2>${lvl==='ok'?I.painel:WARN}Painel</h2>${n?`<span class="pnb-n">${n} ${n===1?'pendencia':'pendencias'}</span>`:'<span class="pnb-n">em dia</span>'}</div>`;
@@ -3518,7 +3523,8 @@ function vPainel(){
   const tab=S.pnTab==='st'||(!S.pnTab&&!byEq.length&&st.length)?'st':'eq';
   const tabs=`<div class="pn-tabs" role="tablist"><button type="button" role="tab" data-pntab="eq" aria-selected="${tab==='eq'}">Equipamentos <b class="${byEq.some(g=>g.bad)?'bad':'warn'}">${byEq.length}</b></button><button type="button" role="tab" data-pntab="st" aria-selected="${tab==='st'}">Estoque <b class="stc">${st.length}</b></button></div>`;
   const body=tab==='eq'?(byEq.length?byEq.map(eqRow).join(''):'<div class="pn-empty">Nenhum equipamento com troca pendente.</div>'):(st.length?st.map(stRow).join(''):'<div class="pn-empty">Nenhum item abaixo do minimo.</div>');
-  return head+tabs+`<div class="ilist pn-list">${body}</div>`;
+  const osB=oR.length?`<div class="ti-g" style="margin:4px 2px 6px">Preventivas a registrar</div><div class="ilist pn-list" style="margin-bottom:12px">${oR.map(v=>{const e=eqById(v.eq)||{};return `<div class="ia pn-r"><button type="button" class="ia-h" data-osreg="${esc(v.id)}"><span class="pn-s warn"></span><span class="pn-c num">${esc(e.codigo||v.eq)}</span><span class="ist warn">${osNum(v)} · ${v.tipo==='ar'?'Filtro de ar':'Preventiva'} · ${fdate(v.data).slice(0,5)}</span>${I.chev}</button></div>`}).join('')}</div>`:'';
+  return head+osB+((byEq.length||st.length)?tabs+`<div class="ilist pn-list">${body}</div>`:'');
 }
 function schedRow(x){
   return `<button class="row" data-eq="${esc(x.eq.id)}">${x.st.cls==='bad'||x.st.cls==='warn'?`<span class="stripe ${x.st.cls}"></span>`:''}
@@ -3843,6 +3849,7 @@ function bindView(){
   app.querySelectorAll('[data-aback]').forEach(b=>b.onclick=()=>{const to=b.dataset.aback;S.alocSite=to;S.alocSel='';render();topAloc()});
   app.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>openEq(b.dataset.eq));
   app.querySelectorAll('[data-pend]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.pend)});
+  app.querySelectorAll('[data-osreg]').forEach(b=>b.onclick=()=>{NAV.length=0;osRegistrar(b.dataset.osreg)});
   app.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{const k=b.dataset.pv;S.pv[k]=!S.pv[k];render()});
   app.querySelectorAll('[data-cron]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.cron,true)});app.querySelectorAll('[data-sif]').forEach(b=>b.onclick=()=>{NAV.length=0;openEq(b.dataset.sif)});
   app.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>openTroca(b.dataset.tr));
@@ -3992,7 +3999,7 @@ function openMenu(mode){
     '':{title:'Menu',sub:'Escolha a area',body:mi('frota',I.equip,'Frota','Equipamentos, manutencoes e horimetro')+mi('est',I.estoque,'Estoque','Entrada, saida, itens, kits e compras')+mi('comb',I.comb,'Combustivel','Abastecimentos')+mi('aj',DB_IC,'Ajustes do app','Listas do app e copia de seguranca')},
     os:{title:'Corretiva',sub:'Ordens de servico',body:(podeEscrever()?mi('os-nova',I.plus,'Nova OS','Abrir uma ordem de servico'):'')+mi('os-ab',I.os,'Concluir OS','OS abertas em que voce e responsavel')+g('Correcoes')+(osAdm()?mi('os-ed',EDI,'Editar OS','Corrige uma OS concluida'):'')+mi('os-ad',EDI,'Adendo','Acrescenta ou corrige uma OS concluida')+(osAdm()?mi('os-cf',MV_OUT,'Conferir pecas','Baixa no estoque das pecas das OS'):'')+mi('os-cx',DEL,'Cancelar OS','O numero nao e reutilizado')},
     frota:{title:'Frota',sub:'Equipamentos, manutencoes e horimetro',body:mi('x:eq',I.equip,'Equipamentos','Novo, editar ou excluir')+mi('thm',I.manut,'Troca de horimetro','O relogio de horas foi substituido')
-      +g('Manutencoes')+mi('far',AIR_IC,'Filtros de ar','Motor ou ar condicionado')+mi('prev',I.manut,'Preventiva','Troca de oleos e filtros do plano')+(OS_ON&&!ehMec()?mi('os',I.os,'Corretiva','Ordens de servico: nova, editar, adendo e conferir pecas'):'')
+      +g('Manutencoes')+mi('far',AIR_IC,'Filtros de ar','Motor ou ar condicionado')+mi('prev',I.manut,'Preventiva','Troca de oleos e filtros do plano')+(OS_ON&&!ehMec()?mi('os',I.os,'Ordens de servico','Corretiva, preventiva e filtro de ar: nova, editar, adendo e conferir pecas'):'')
       +g('Correcoes')+mi('ed-tr',EDI,'Editar preventiva','Preventivas e filtros de ar: data, horimetro e pecas')+mi('thm-x',I.back,'Desfazer troca de horimetro','Volta a contagem do relogio antigo')},
     est:{title:'Estoque',sub:'Movimento e cadastro de itens',body:mi('mv-entrada',MV_IN,'Entrada no estoque','Itens que chegaram ao almoxarifado')+mi('mv-saida',MV_OUT,'Saida do estoque','Retirada avulsa, fora das preventivas')
       +mi('x:st',I.estoque,'Itens do estoque','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+(podeEscrever()?mi('eqv',EQV_IC,'Equivalentes','Ligar itens que se substituem'):'')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')+(podeEscrever()?mi('etq',ETQ_IC,'Etiquetas','Fila de etiquetas: juntar itens e imprimir'):'')+g('Conferencia')+mi('cfe',I.estoque,'Conferencia de estoque','Ajusta o saldo pelo que foi contado')},
@@ -4270,7 +4277,7 @@ async function shrink(file,modo='proc'){
 const FROTA_KIDS=['equip','mnt','comb','aloc'],MNT_KIDS=['far','manut','os'];
 const AIR_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 16h7"/></svg>';
 const frB=(k,ic,t)=>`<section class="card acc fr-c"><button type="button" class="acc-h" data-fr="${k}"><span class="ic">${ic}</span><h2>${t}</h2><span class="tg">${I.chev}</span></button></section>`;
-function vMnt(){return `<div class="fr-g">${frB('far',AIR_IC,'Filtros de ar')}${frB('manut',I.manut,'Preventivas')}${OS_ON?frB('os',I.os,'Corretiva'):''}</div>`}
+function vMnt(){return `<div class="fr-g">${frB('far',AIR_IC,'Filtros de ar')}${frB('manut',I.manut,'Preventivas')}${OS_ON?frB('os',I.os,'Ordens de servico'):''}</div>`}
 function abreCard(k){S.focus=k;S.esQ='';S.esFoc=false;S.esAll=false;S.esFil=false;S.alocSite='';S.alocSel='';S.mf.equip='';S.showAllSched=false;S.showAllHist=false;S.pv={};
   try{localStorage.setItem('frota.focus',k)}catch(e){}render();SCR().scrollTo(0,0)}
 function vFrota(){
@@ -4925,20 +4932,20 @@ function formRegistrar(eqId,menu){
   openSheet({title:'Registrar preventiva',sub:'O que foi feito?',body:`<div class="menu">${mi('ar',AIR,'Filtros de ar','Motor ou ar condicionado')}${mi('prev',I.manut,'Preventiva','Troca de oleos e filtros do plano')}${menu?mi('ed',EDT,'Editar preventiva','Corrige data, horimetro e pecas usadas'):''}</div>`,
     mount:sh=>sh.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>b.dataset.rg==='ar'?formFiltroAr(eqId):b.dataset.rg==='ed'?formPickTr():formTroca(eqId))});
 }
-function formFiltroAr(eqId,sub){
+function formFiltroAr(eqId,sub,osId){
   if(!sub){
-    nav('ar:esc',()=>formFiltroAr(eqId));
+    nav('ar:esc',()=>formFiltroAr(eqId,'',osId));
     const mi=(v,t,d)=>`<button class="mi" data-ar="${v}"><span class="tx"><b>${t}</b><span>${d}</span></span>${I.chev}</button>`;
     openSheet({title:'Filtros de ar',sub:'Qual filtro?',body:`<div class="menu">${mi('Motor','Motor','Filtro de ar do motor')}${mi('Ar condicionado','Ar condicionado','Filtro da cabine / ar condicionado')}</div>`,
-      mount:sh=>sh.querySelectorAll('[data-ar]').forEach(b=>b.onclick=()=>formFiltroAr(eqId,b.dataset.ar))});
+      mount:sh=>sh.querySelectorAll('[data-ar]').forEach(b=>b.onclick=()=>formFiltroAr(eqId,b.dataset.ar,osId))});
     return;
   }
-  nav('ar:'+sub,()=>formFiltroAr(eqId,sub));
+  nav('ar:'+sub+(osId?':'+osId:''),()=>formFiltroAr(eqId,sub,osId));const vOS=osId&&OS_ON?osById(osId):null;
   const eqs=S.eqCtl.slice().sort(byCode);
   const cur=eqId&&eqById(eqId)?eqId:'';
   const filtros=S.estoque.filter(s=>s.tipo==='filtro'&&!isKit(s)).sort(byCode);
   openSheet({title:'Filtro de ar · '+esc(sub),sub:sub==='Motor'?'Registre a troca do filtro':'Registre a troca ou limpeza do filtro',
-  body:`${S.ajuste?AJ_BANNER:''}<form id="fa"><div class="fset">
+  body:`${S.ajuste?AJ_BANNER:''}${vOS?osOrigemHTML(vOS):''}<div id="a-osp"></div><form id="fa"><div class="fset">
     <label class="f">Equipamento<select id="a-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     ${sub==='Motor'?'':`<div class="f">Servico <span class="hint">marque um ou os dois</span><div class="seg ar-seg" role="group" aria-label="Servico: marque um ou os dois"><button type="button" data-sv="Troca" aria-pressed="true">Troca</button><button type="button" data-sv="Limpeza" aria-pressed="false">Limpeza</button></div></div>`}
     <div class="grid"><label class="f">Data<input id="a-dt" type="date" required value="${today()}"></label>
@@ -4979,19 +4986,25 @@ function formFiltroAr(eqId,sub){
     const fillHm=()=>{const e=eqById(sel.value);hm.value=e&&e.horimetro!==''&&e.horimetro!=null?e.horimetro:'';
       /* troca de equipamento: sugere de novo o filtro de encaixe (so se a lista estiver vazia) */
       if(!L.length){const fit=filtros.filter(s=>(s.encaixe||[]).includes(sel.value)&&isAr(s)),pref=fit.filter(s=>sub==='Motor'?!isCabine(s):isCabine(s));if(pref.length===1)L.push({id:pref[0].id,q:1})}
-      drawL();fillPlan()};sel.onchange=fillHm;fillHm();
+      drawL();fillPlan();const e2=eqById(sel.value);if(e2)osPendAviso(sh,'#a-osp',e2,'ar',osId,id=>{NAV.pop();formFiltroAr(e2.id,(osById(id)||{}).arSub||sub,id)})};sel.onchange=fillHm;fillHm();
+    /* veio da OS do mecanico: filtros, data, horimetro, responsaveis e servico ja preenchidos */
+    if(vOS){const v=vOS;L.length=0;v.pecas.forEach(p=>{if(p.k==='est'&&stById(p.id)&&!L.some(c=>c.id===p.id))L.push({id:p.id,q:Number(p.qtd)||1})});
+      const hv=osHmNum(v.hor);if(hv!=null)hm.value=hv;sh.querySelector('#a-dt').value=v.data||today();sh.querySelector('#a-resp').value=v.resp.map(osNomeDe).join(', ');
+      const sc=v.pecas.filter(p=>p.k!=='est'||!stById(p.id)).map(p=>`${p.nome} (${nf(p.qtd,2)})`);sh.querySelector('#a-obs').value=[osNum(v),v.feito,sc.length?'Sem cadastro: '+sc.join(', '):''].filter(Boolean).join(' · ');
+      if(sub!=='Motor'&&v.arSv){SV.Troca=/troca/i.test(v.arSv);SV.Limpeza=/limpeza/i.test(v.arSv);if(!SV.Troca&&!SV.Limpeza)SV.Troca=true;sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelectorAll('[data-sv]').forEach(b=>b.setAttribute('aria-pressed',SV[b.dataset.sv]));sh.querySelector('#a-stw').hidden=!tr()}
+      drawL();fillPlan()}
     sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{const k=b.dataset.sv;if(SV[k]&&!SV[k==='Troca'?'Limpeza':'Troca'])return;SV[k]=!SV[k];b.setAttribute('aria-pressed',SV[k]);
       sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelector('#a-stw').hidden=!tr();fillPlan()});
     const hmSt={ok:false};[hm,sh.querySelector('#a-dt')].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false}));sel.addEventListener('change',()=>{hmSt.ok=false;hmSt.salto=false});
     sh.querySelector('#fa').onsubmit=async ev=>{ev.preventDefault();
-      const e=eqById(sel.value);if(!e)return;
+      const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
       const h0=Number(hm.value),dt0=sh.querySelector('#a-dt').value,g=hmGuard(sh.querySelector('#a-hmg'),e,h0,dt0,hmSt,()=>sh.querySelector('#fa').onsubmit({preventDefault(){}}));if(!g)return;
       const h=g.h,dl=g.dl,dt=dt0,nome=`Filtro de ar ${sub==='Motor'?'do motor':'do ar condicionado'}`;
       const lst=tr()?L.map(c=>({st:stById(c.id),q:Number(c.q)||0})).filter(x=>x.st):[];
       const itens=lst.length?lst.map(({st,q})=>({pid:'',desc:st.desc,espec:stCod(st),qtd:q,un:st.un||'un',estoqueId:st.id})):[{pid:'',desc:`${nome} (${sv.toLowerCase()})`,espec:'',qtd:0,un:'un',estoqueId:''}];
       const ok=await safe(async()=>{
         const isAj=!!S.ajuste;
-        await S.db.collection('trocas').add({tipo:'filtro_ar',sub,servico:sv,ajuste:isAj,equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),resp:sh.querySelector('#a-resp').value.trim(),obs:sh.querySelector('#a-obs').value.trim(),proximaH:'',itens});
+        await S.db.collection('trocas').add({tipo:'filtro_ar',...(osId?{os:osId}:{}),sub,servico:sv,ajuste:isAj,equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),resp:sh.querySelector('#a-resp').value.trim(),obs:sh.querySelector('#a-obs').value.trim(),proximaH:'',itens});
         const done=new Set([...sh.querySelectorAll('[data-pl]:checked')].map(c=>c.dataset.pl));
         const upd={};if(done.size)upd.itens=e.itens.map(i=>done.has(i.pid)?{...i,ultimaH:h,ultimaData:dt,proxH:'',reprog:''}:i);
         if(h>(Number(e.horimetro)||0)){upd.horimetro=h;upd.horimetroData=dt;upd.horimetroReg=today()}
@@ -5011,13 +5024,13 @@ const ehFiltroAr=n=>{const s=String(n||'').normalize('NFD').replace(/[\u0300-\u0
 const codeEq=(a,b)=>{const A=nzCod(a),B=nzCod(b);if(!A||!B)return false;return A===B||(Math.min(A.length,B.length)>=6&&(A.endsWith(B)||B.endsWith(A)))};
 const stCodes=s=>[stCod(s),s.codigo,s.ref].filter(Boolean);
 const itMatchSt=(it,s)=>!!(it&&s)&&(it.estoqueId===s.id||[it.espec,itCod(it)].some(c=>c&&stCodes(s).some(x=>codeEq(c,x))));
-function formTroca(eqId){
-  nav('fp:new',()=>formTroca(eqId));
+function formTroca(eqId,osId){
+  nav('fp:new'+(osId?':'+osId:''),()=>formTroca(eqId,osId));const vOS=osId&&OS_ON?osById(osId):null;
   const eqs=S.eqCtl.slice().sort(byCode);
   if(!eqs.length){NAV.pop();toast('Cadastre um equipamento antes.');return}
   const cur=eqId&&eqById(eqId)?eqId:'';
   openSheet({title:'Registrar preventiva',sub:'Cronograma e estoque se ajustam',
-  body:`${S.ajuste?AJ_BANNER:''}<form id="ft"><div class="fset">
+  body:`${S.ajuste?AJ_BANNER:''}${vOS?osOrigemHTML(vOS):''}<div id="t-osp"></div><form id="ft"><div class="fset">
     <label class="f">Equipamento<select id="t-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     <div class="grid"><label class="f">Data<input id="t-dt" type="date" required value="${today()}"></label>
     <label class="f">Horimetro (h)<input id="t-hm" type="number" step="0.1" inputmode="decimal" required></label></div>
@@ -5031,6 +5044,7 @@ function formTroca(eqId){
     <div class="fset" style="margin-top:12px"><label class="f">Observacoes<textarea id="t-obs"></textarea></label></div><div id="t-eqv"></div></form>`,
   foot:`<button class="btn pri" form="ft">Registrar preventiva</button>`,
   mount:sh=>{
+    if(vOS&&!formTroca.draft)formTroca.draft=osParaTroca(vOS,eqById(vOS.eq)||{});
     const sel=sh.querySelector('#t-eq'),box=sh.querySelector('#t-items'),hm=sh.querySelector('#t-hm');
     const fill=()=>{const e=eqById(sel.value);if(!e){box.innerHTML='<div class="empty">Escolha o equipamento.</div>';sh.querySelector('#t-kits').hidden=true;return}
       hm.value=e.horimetro||'';
@@ -5051,6 +5065,7 @@ function formTroca(eqId){
       kb.innerHTML=ks.length?`<div class="ti-g">Kits compativeis</div><div class="list">${ks.map(k=>`<button type="button" class="kt-r" data-kit="${esc(k.id)}"><span class="kt-n"><b>${esc(k.desc)}</b><small class="num">${esc(stCod(k))} · ${kitComps(k).length} itens${kitMont(k)?` · ${nf(kitMont(k),2)} ${kitMont(k)===1?'montado':'montados'}`:''} · disponivel ${nf(stQtd(k),2)}</small></span><span class="kt-a">Adicionar kit</span></button>`).join('')}</div>`:'';
       kb.querySelectorAll('[data-kit]').forEach(b=>b.onclick=()=>{if(!b.classList.contains('on'))addKit(stById(b.dataset.kit))});
       drawPlan();
+      osPendAviso(sh,'#t-osp',e,'prev',osId,id=>{NAV.pop();formTroca(e.id,id)});
       };
     /* atalho: itens do plano (so entram quando tocados) */
     const drawPlan=()=>{const e=eqById(sel.value),pb=sh.querySelector('#t-plan');if(!e){pb.hidden=true;return}
@@ -5109,14 +5124,14 @@ function formTroca(eqId){
     const val=q=>sh.querySelector(q).value;
     const snap=()=>({eq:sel.value,dt:val('#t-dt'),hm:val('#t-hm'),resp:val('#t-resp'),obs:val('#t-obs'),prox:val('#t-prox'),iv,
       chk:[...box.querySelectorAll('input[type=checkbox][data-pid]')].map(c=>{const p=c.dataset.pid;return [p,c.checked,(box.querySelector(`[data-q="${CSS.escape(p)}"]`)||{}).value,(box.querySelector(`[data-cd="${CSS.escape(p)}"]`)||{}).value]}),
-      ex:extras.map(x=>[x.s.id,x.q,x.kit||'']),sid:[...box.querySelectorAll('input[type=checkbox][data-sid]')].map(c=>[c.dataset.pid,c.dataset.sid])});
+      ex:extras.map(x=>[x.s.id,x.q,x.kit||'']),sid:[...box.querySelectorAll('input[type=checkbox][data-sid]')].map(c=>[c.dataset.pid,c.dataset.sid]),kits:[...kitsAdd]});
     sh._restore=()=>{const d=formTroca.draft;formTroca.draft=null;if(!d)return;
       if(d.eq&&eqById(d.eq)){const e1=eqById(d.eq);sel.value=d.eq;fill();const ei=sh.querySelector('.eqs-in');if(ei){ei.value=`${e1.codigo} · ${e1.tipo||''}`;ei.setCustomValidity('')}}
       sh.querySelector('#t-dt').value=d.dt;hm.value=d.hm;sh.querySelector('#t-resp').value=d.resp;sh.querySelector('#t-obs').value=d.obs;sh.querySelector('#t-prox').value=d.prox;
       if(d.iv){iv=d.iv;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv))}
-      d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null){ci.value=cd;const v=box.querySelector(`[data-cdv="${CSS.escape(p)}"]`);if(v&&cd)v.textContent=cd}});vis();
+      d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null){ci.value=cd;const v=box.querySelector(`[data-cdv="${CSS.escape(p)}"]`);if(v&&cd)v.textContent=cd}});vis();drawPlan();
       (d.sid||[]).forEach(([p,s])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.dataset.sid=s});
-      d.ex.forEach(([id,q,kt])=>{const st=stById(id);if(st)extras.push({s:st,q,...(kt?{kit:kt}:{})})});drawX();hint();
+      d.ex.forEach(([id,q,kt])=>{const st=stById(id);if(st)extras.push({s:st,q,...(kt?{kit:kt}:{})})});(d.kits||[]).forEach(k=>{if(stById(k))kitsAdd.add(k)});drawX();hint();
       if(d.add){const st=stById(d.add);if(st)addPeca(st);else setTimeout(()=>{const s2=stById(d.add);if(s2)addPeca(s2)},800)}};
     const ph=sh.querySelector('#t-proxhint'),pin=sh.querySelector('#t-prox');
     let iv=0;sh.querySelectorAll('[data-iv]').forEach(b=>b.onclick=()=>{const v=Number(b.dataset.iv);iv=iv===v?0:v;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv));hint()});
@@ -5128,7 +5143,7 @@ function formTroca(eqId){
     sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
-      const e=eqById(sel.value);if(!e)return;
+      const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
       const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();const ivI=box.querySelector(`[data-ivp="${CSS.escape(it.pid)}"]`);/* item do plano sem ligacao com o estoque: liga pelo codigo (mesmo item mesmo com prefixo diferente) para dar baixa */
         const lig=it.estoqueId||c.dataset.sid||(S.estoque.find(s=>!isKit(s)&&itMatchSt({...it,estoqueId:'',espec:cd||it.espec},s))||{}).id||'';
         return {...it,estoqueId:lig,usado:q===''?0:Number(q),espec:cd||it.espec||'',ivEsc:ivI?ivVal(ivI.value):undefined}});
@@ -5177,7 +5192,7 @@ function formTroca(eqId){
         const kitMontU=S.ajuste?[]:(()=>{const u={};[...picked,...avul].forEach(p=>{if(p.estoqueId)u[p.estoqueId]=(u[p.estoqueId]||0)+(Number(p.usado)||0)});
           return [...kitsAdd].filter(kid=>{const k=stById(kid);return k&&kitMont(k)>=1&&kitComps(k).length&&kitComps(k).every(({c})=>(u[c.id]||0)>=(Number(c.qtd)||0))})})();
         if(rp.length)await S.db.collection('trocas').add(rpDoc({...e,horimetro:h},rp,sh.querySelector('#t-resp').value.trim(),dt));
-        await S.db.collection('trocas').add({...(kitMontU.length?{kitMont:kitMontU}:{}),equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),resp:sh.querySelector('#t-resp').value.trim(),obs:sh.querySelector('#t-obs').value.trim(),
+        await S.db.collection('trocas').add({...(kitMontU.length?{kitMont:kitMontU}:{}),...(osId?{os:osId}:{}),equipId:e.id,data:dt,horimetro:h0,...(dl?{hmConv:h}:{}),resp:sh.querySelector('#t-resp').value.trim(),obs:sh.querySelector('#t-obs').value.trim(),
           proximaH:proxV,intervalo:iv||'',ajuste:!!S.ajuste,itens:[...picked,...avul].map(p=>({pid:p.pid,desc:p.desc,espec:p.espec||'',qtd:p.usado,un:p.un||'',estoqueId:p.estoqueId||''})),exemplo:!!e.exemplo});
         const ids=new Set(picked.map(p=>p.pid));
         /* peca diferente da do plano (marcada como "Diferentes") nao cumpre o item: ele continua pendente */
@@ -6612,13 +6627,13 @@ function osTodas(){const k=S.os.length+':'+S.ose.length+':'+(S.os[0]&&S.os[0].nu
   const ev=new Map();S.ose.slice().sort((a,b)=>(a.ts||0)-(b.ts||0)||String(a.id).localeCompare(String(b.id))).forEach(e=>{if(!ev.has(e.os))ev.set(e.os,[]);ev.get(e.os).push(e)});
   const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai){pai.filhas.push(v);pai.hist.push({ts:v.ts,k:'vi',txt:`Vinculou a ${osNum(v)}`,d:v.aconteceu,nome:v.porNome})}});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
 function osFold(r,evs){const o=r.o;
-  const v={id:r.id,num:r.num||null,eq:o.eq,por:o.por,porNome:o.porNome||osNomeDe(o.por),ts:o.ts||r._em||0,o,data:o.data,hor:o.hor||'',aconteceu:o.aconteceu||'',feito:o.feito||'',estado:o.estado||'',
+  const v={id:r.id,num:r.num||null,tipo:o.tipo||'cor',arSub:o.arSub||'',arSv:o.arSv||'',kit:o.kit||'',eq:o.eq,por:o.por,porNome:o.porNome||osNomeDe(o.por),ts:o.ts||r._em||0,o,data:o.data,hor:o.hor||'',aconteceu:o.aconteceu||'',feito:o.feito||'',estado:o.estado||'',
     sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,k:o.concl?'co':'ab',txt:o.concl?'Abriu e concluiu a OS':'Abriu a OS',d:[o.hor?'Horimetro '+o.hor+' h':'',o.estado?(o.estado==='parado'?'Parado':'Liberado'):''].filter(Boolean).join(' · '),nome:o.porNome||'—'}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
   const addP=(arr,src,eid)=>(arr||[]).forEach((p,i)=>v.pecas.push({...p,src,pk:eid+':'+i}));
   addP(o.pecas,'',r.id);
   evs.forEach(e=>{const nm=e.porNome||osNomeDe(e.por);
     if(e.tipo==='cancelar'&&v.sit!=='cancelada'&&(v.resp.includes(e.por)||e.adm||e.enc)){v.sitAnt=v.sit;v.sit='cancelada';v.cancPor=e.por;v.cancNome=nm;v.cancTs=e.ts;v.cancMot=e.motivo||'';v.hist.push({ts:e.ts,k:'cx',txt:'Cancelou a OS',d:e.motivo||'',nome:nm})}
-    else if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'co',txt:'Concluiu a OS',d:e.estado?(e.estado==='parado'?'Parado':'Liberado'):'',nome:nm})}
+    else if(e.tipo==='concluir'&&v.sit==='aberta'&&v.resp.includes(e.por)){v.sit='fechada';v.concPor=e.por;v.concTs=e.ts;if(e.feito)v.feito=e.feito;if(e.estado){v.estado=e.estado;v.estTs=e.ts}addP(e.pecas,'conclusao',e.id);if(e.kit)v.kit=e.kit;(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'co',txt:'Concluiu a OS',d:e.estado?(e.estado==='parado'?'Parado':'Liberado'):'',nome:nm})}
     else if(e.tipo==='reabrir'&&v.sit==='fechada'&&v.resp.includes(e.por)){v.sit='aberta';v.hist.push({ts:e.ts,k:'re',txt:'Reabriu a OS',nome:nm,reab:1})}
     else if(e.tipo==='resp'&&e.por===v.por&&v.sit==='aberta'){const n=[v.por,...(e.resp||[]).filter(x=>x!==v.por)];const add=n.filter(x=>!v.resp.includes(x)),tir=v.resp.filter(x=>!n.includes(x));v.resp=n;
       if(add.length)v.hist.push({ts:e.ts,txt:'Adicionou '+add.map(osNomeDe).join(', ')+' como responsavel',nome:nm});if(tir.length)v.hist.push({ts:e.ts,txt:'Tirou '+tir.map(osNomeDe).join(', ')+' dos responsaveis',nome:nm})}
@@ -6635,7 +6650,7 @@ function osFold(r,evs){const o=r.o;
 const osLista=()=>[...osTodas().values()];
 const osById=id=>osTodas().get(id);
 /* peca ainda sem conferencia do admin */
-const osPendPecas=v=>v.sit==='cancelada'?[]:v.pecas.filter(p=>!v.conf[p.pk]);
+const osPendPecas=v=>v.sit==='cancelada'||v.tipo!=='cor'?[]:v.pecas.filter(p=>!v.conf[p.pk]);
 /* equipamento parado: vale a ultima informacao de operando/parado dada em qualquer OS dele */
 function osEqEstado(eqId){let best=null;osLista().forEach(v=>{if(v.eq===eqId&&v.sit!=='cancelada'&&v.estado&&v.estTs&&(!best||v.estTs>best.estTs))best=v});return best}
 const osParado=eqId=>{const b=osEqEstado(eqId);return b&&b.estado==='parado'?b:null};
@@ -6653,7 +6668,7 @@ function osFiltra(){const f=S.osF,u=osEu();let L=osLista().filter(v=>f.tab==='ab
   if(f.q){const k=nzM(f.q);L=L.filter(v=>{const e=eqById(v.eq)||{};return nzM([v.eq,e.codigo,e.desc,e.modelo,v.aconteceu,osNum(v)].join(' ')).includes(k)})}
   return L.sort((a,b)=>(b.num||1e9)-(a.num||1e9)||b.ts-a.ts)}
 function osCard(v){const e=eqById(v.eq)||{},par=v.estado==='parado',pc=osAdm()?osPendPecas(v).length:0,pend=!v.num;
-  return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${v.sit==='cancelada'?'<span class="os-cxt">CANCELADA</span>':par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
+  return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${v.tipo!=='cor'?`<span class="os-tp${osAdm()&&!ehMec()&&v.sit==='fechada'&&!osTr(v)?' rg':''}">${v.tipo==='ar'?'FILTRO DE AR':'PREVENTIVA'}</span>`:''}${v.sit==='cancelada'?'<span class="os-cxt">CANCELADA</span>':par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
     <span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}${v.nAd?` · ${v.nAd} ${v.nAd===1?'adendo':'adendos'}`:''}${pend?' · recebe o numero quando tiver sinal':''}</small></button>`}
 const OS_FIL='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
 function osListaHTML(){const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0)+(f.cx?1:0),L=osFiltra();
@@ -6722,7 +6737,77 @@ function osEqLista(q){const k=nzM(q||''),L=osEqs().filter(e=>!k||nzM([e.codigo,e
 function osNova(){nav('osn',()=>osNova());
   openSheet({title:'Qual equipamento?',sub:'Nova OS',body:`<input class="os-in os-busca" id="osn-q" type="search" placeholder="Digite TAG ou nome" autocomplete="off" aria-label="Buscar equipamento"><div class="os-ls" id="osn-l">${osEqLista('')}</div>`,
     mount:sh=>{const q=sh.querySelector('#osn-q'),l=sh.querySelector('#osn-l'),bd=()=>l.querySelectorAll('[data-eqp]').forEach(b=>b.onclick=()=>{S.osDraft=osDraftNovo(b.dataset.eqp);formOS()});q.oninput=()=>{l.innerHTML=osEqLista(q.value);bd()};bd();setTimeout(()=>q.focus(),60)}})}
-const osDraftNovo=eq=>({modo:'novo',eq,hor:'',dia:'hoje',outra:'',aconteceu:'',concl:true,feito:'',estado:'',pecas:[],fotos:[],resp:[],vinc:''});
+const osDraftNovo=eq=>({modo:'novo',eq,tipo:'',arSub:'',arSv:'',kit:'',hor:'',dia:'hoje',outra:'',aconteceu:'',concl:true,feito:'',estado:'',pecas:[],fotos:[],resp:[],vinc:''});
+/* ---------- OS de preventiva e de filtro de ar ----------
+   O mecanico lanca na OS; ao concluir, aparece no Painel do app principal como "preventiva a registrar".
+   O administrador confere, ajusta e registra: so entao o plano anda e a baixa no estoque acontece (uma vez so). */
+const OS_TP={cor:'Corretiva',prev:'Preventiva',ar:'Filtro de ar'};
+const osTr=v=>S.trocas.find(t=>t.os===v.id);
+const osARegistrar=()=>OS_ON?osLista().filter(v=>v.tipo&&v.tipo!=='cor'&&v.sit==='fechada'&&!osTr(v)&&eqById(v.eq)).sort((a,b)=>(a.data||'').localeCompare(b.data||'')||a.ts-b.ts):[];
+const osHmNum=h=>{let s=String(h??'').trim().replace(/\s/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const n=Number(s);return s!==''&&isFinite(n)&&n>=0?n:null};
+const osPcDoIt=(e,i)=>{const st=i.estoqueId&&stById(i.estoqueId);return {k:st?'est':'pl',id:st?st.id:'',pid:i.pid,nome:itNome(i)||i.desc||'Item',cod:st?stCod(st):(i.espec||''),un:i.un||(st&&st.un)||'',qtd:Number(i.qtd)||1}};
+/* itens que vencem nesta preventiva: vencidos e os da faixa amarela (perto de vencer) */
+const osPrevDue=e=>(e.itens||[]).filter(i=>!i.virt&&['bad','warn'].includes(itemStatus(e,i).cls));
+/* prepara a OS conforme o tipo: itens que vencem, filtro de ar de encaixe e textos automaticos (enquanto o mecanico nao mudar) */
+function osPrevPrep(d){const e=eqById(d.eq);if(!e||!d.tipo||d.tipo==='cor')return;
+  if(d.tipo==='prev'&&d.concl&&d.__pf!==d.eq){d.pecas=d.pecas.filter(p=>!p.pid).concat(osPrevDue(e).map(i=>osPcDoIt(e,i)));d.__pf=d.eq;d.kit=''}
+  if(d.tipo==='ar'&&d.concl&&d.arSub&&d.__pf!==d.eq+'|'+d.arSub+'|'+d.arSv){d.__pf=d.eq+'|'+d.arSub+'|'+d.arSv;d.pecas=d.pecas.filter(p=>!p.__ar);
+    if(/troca/i.test(d.arSv||'Troca')){const fit=S.estoque.filter(s=>s.tipo==='filtro'&&!isKit(s)&&isAr(s)&&(s.encaixe||[]).includes(e.id)),pref=fit.filter(s=>d.arSub==='Motor'?!isCabine(s):isCabine(s));
+      if(pref.length===1&&!d.pecas.some(p=>p.id===pref[0].id))d.pecas.push({k:'est',id:pref[0].id,nome:pref[0].desc,cod:stCod(pref[0]),un:pref[0].un||'',qtd:1,__ar:1})}}
+  const iv=Math.max(0,...osPrevDue(e).map(i=>Number(itIv(e,i))||0));
+  const ac=d.tipo==='prev'?'Preventiva'+(iv?' '+nf(iv)+' h':''):d.arSub?`Filtro de ar ${d.arSub==='Motor'?'do motor':'do ar condicionado'}`:'';
+  const fe=d.tipo==='prev'?'Troca de oleos e filtros':d.arSub?(d.arSv||'Troca'):'';
+  if(d.modo!=='concluir'&&(!String(d.aconteceu||'').trim()||d.aconteceu===d.__ac)){d.aconteceu=ac;d.__ac=ac}
+  if(d.concl&&(!String(d.feito||'').trim()||d.feito===d.__fe)){d.feito=fe;d.__fe=fe}}
+function osTipoHTML(d){const b=(k,t)=>`<button type="button" class="os-op${d.tipo===k?' on':''}" data-tp="${k}">${t}</button>`,sv=d.arSv||'Troca';
+  return `<div class="os-f"><span>Tipo de servico</span><div class="os-g3">${b('cor','Corretiva')}${b('prev','Preventiva')}${b('ar','Filtro de ar')}</div></div>
+   ${d.tipo==='ar'?`<div class="os-f"><span>Qual filtro?</span><div class="os-g2"><button type="button" class="os-op${d.arSub==='Motor'?' on':''}" data-arsb="Motor">Motor</button><button type="button" class="os-op${d.arSub==='Ar condicionado'?' on':''}" data-arsb="Ar condicionado">Ar condicionado</button></div></div>
+   ${d.arSub==='Ar condicionado'?`<div class="os-f"><span>Servico <i>(um ou os dois)</i></span><div class="os-g2"><button type="button" class="os-op${/troca/i.test(sv)?' on':''}" data-arsv="Troca">Troca</button><button type="button" class="os-op${/limpeza/i.test(sv)?' on':''}" data-arsv="Limpeza">Limpeza</button></div></div>`:''}`:''}`}
+function osBindTipo(sh,d,rd){
+  sh.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{if(d.tipo!==b.dataset.tp){d.tipo=b.dataset.tp;d.__pf='';d.kit='';d.pecas=d.pecas.filter(p=>!p.pid&&!p.__ar);if(d.tipo!=='ar'){d.arSub='';d.arSv=''}}rd()});
+  sh.querySelectorAll('[data-arsb]').forEach(b=>b.onclick=()=>{d.arSub=b.dataset.arsb;d.arSv=d.arSub==='Motor'?'Troca':(d.arSv||'Troca');rd()});
+  sh.querySelectorAll('[data-arsv]').forEach(b=>b.onclick=()=>{const sv=d.arSv||'Troca';let t=/troca/i.test(sv),l=/limpeza/i.test(sv);if(b.dataset.arsv==='Troca')t=!t;else l=!l;if(!t&&!l)return;d.arSv=t&&l?'Troca e limpeza':t?'Troca':'Limpeza';rd()});
+  sh.querySelectorAll('[data-pkit]').forEach(b=>b.onclick=()=>{const k=stById(b.dataset.pkit),e=eqById(d.eq)||{};if(!k)return;
+    if(d.kit===k.id){d.kit='';rd();return}d.kit=k.id;
+    kitComps(k).forEach(({c,s})=>{const q=Math.max(1,Number(c.qtd)||1);let p=d.pecas.find(x=>x.k==='est'&&x.id===s.id)||d.pecas.find(x=>x.pid&&itMatchSt((e.itens||[]).find(i=>i.pid===x.pid),s));
+      if(p){p.k='est';p.id=s.id;p.nome=s.desc;p.cod=stCod(s);p.un=s.un||'';p.qtd=q}else{const it=(e.itens||[]).find(i=>!i.virt&&!d.pecas.some(x=>x.pid===i.pid)&&itMatchSt(i,s));d.pecas.push({k:'est',id:s.id,pid:it?it.pid:'',nome:s.desc,cod:stCod(s),un:s.un||'',qtd:q})}});
+    toast('Itens do kit na lista');rd()})}
+/* kit montado do equipamento: o mecanico pega pronto no almoxarifado */
+function osKitHTML(d){const e=eqById(d.eq);if(!e)return '';const ks=eqCompat(e).kits.filter(k=>kitMont(k)>=1);
+  return ks.length?`<div class="os-tpb" style="margin-bottom:8px">${ks.map(k=>`<button type="button" class="os-ad${d.kit===k.id?' pri':''}" data-pkit="${esc(k.id)}">${d.kit===k.id?'✓ Usando ':'Usar '}kit montado ${esc(k.codigo||k.desc)}</button>`).join('')}</div>`:''}
+/* Adicionar item: demais itens do plano e busca no estoque (nome, codigo, referencia e camera) */
+function osPickPrev(d,cb){const e=eqById(d.eq)||{},noL=new Set(d.pecas.map(p=>p.pid).filter(Boolean));
+  const plan=(e.itens||[]).filter(i=>!i.virt&&!noL.has(i.pid)).sort((a,b)=>_an(itNome(a),itNome(b)));
+  const lst=q=>{const k=nzM(q||''),P=plan.filter(i=>!k||nzM([itNome(i),i.desc,i.espec,itCod(i)].join(' ')).includes(k));
+    const Sx=k?S.estoque.filter(s=>!isKit(s)&&!s.inativo&&!P.some(i=>itMatchSt(i,s))&&nzM([s.desc,s.alm,s.codigo,s.ref,s.marca].join(' ')).includes(k)).sort(byCode).slice(0,40):[];
+    const h=(P.length?`<div class="os-lb3">Demais itens do plano</div>${P.map(i=>{const s=itemStatus(e,i);return `<button type="button" class="os-lk" data-ppi="${esc(i.pid)}"><span class="os-st"><b>${esc(itNome(i))}</b><small>${esc([itCod(i)||i.espec||'',s.label].filter(Boolean).join(' · '))}</small></span></button>`}).join('')}`:'')
+      +(Sx.length?`<div class="os-lb3">No estoque</div>${Sx.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small>${eqvAv(s)}</span></button>`).join('')}`:'');
+    return h||`<div class="os-vz">${k?'Nada encontrado. Use "Sem cadastro".':'Todos os itens do plano ja estao na lista. Digite para buscar no estoque.'}</div>`};
+  osModal(`<h2>Adicionar item</h2><input class="os-in os-busca" id="pp-q" type="search" placeholder="Nome, codigo ou referencia" autocomplete="off">${CAM_OK?`<button type="button" class="os-dash" id="pp-cam">${I.cam||''}Ler pela camera</button>`:''}<div class="os-ls" id="pp-l">${lst('')}</div><button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
+    const q=o.querySelector('#pp-q'),l=o.querySelector('#pp-l');
+    const bd=()=>{l.querySelectorAll('[data-ppi]').forEach(b=>b.onclick=()=>{close();cb({it:plan.find(i=>i.pid===b.dataset.ppi)})});l.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{close();cb({st:stById(b.dataset.st)})})};
+    q.oninput=()=>{l.innerHTML=lst(q.value);bd()};bd();o.querySelector('[data-x]').onclick=close;
+    const cm=o.querySelector('#pp-cam');if(cm)cm.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&!isKit(v.item)){close();cb({st:v.item})}else toast('Item nao encontrado no estoque')}})})}
+/* quadro na OS: tipo e situacao do registro (administrador registra daqui ou pelo Painel) */
+function osTpBox(v){const t=osTr(v),adm=osAdm()&&!ehMec()&&podeEscrever(),nm=v.tipo==='ar'?'filtro de ar':'preventiva';
+  return `<div class="os-adn" style="margin-top:10px"><b>${esc(OS_TP[v.tipo]||'')}${v.tipo==='ar'&&v.arSub?' · '+esc(v.arSub)+(v.arSv?' · '+esc(v.arSv):''):''}</b><span>${t?`Registrada no plano em ${fdate(t.data)}.`:v.sit==='fechada'?(adm?'Confira e registre para o plano andar.':'Aguardando o administrador registrar.'):'Ao concluir, vai para o administrador registrar.'}</span>${!t&&v.sit==='fechada'&&adm?`<button type="button" class="os-ad pri" data-a="registrar">Registrar ${nm}</button>`:''}</div>`}
+function osRegistrar(id){const v=osById(id);if(!v){toast('OS nao encontrada');return}if(osTr(v)){toast(osNum(v)+' ja foi registrada');return}
+  if(v.tipo==='ar')formFiltroAr(v.eq,v.arSub||'Motor',id);else formTroca(v.eq,id)}
+function osOrigemHTML(v){return `<div class="nv-b on" style="margin:0 0 12px"><div><b>Da ${osNum(v)} · ${esc(v.resp.map(osNomeDe).join(', '))}</b><span>${esc([v.aconteceu,v.feito].filter(Boolean).join(' · '))}</span></div></div>`}
+/* registro direto com OS de preventiva esperando: avisa para nao registrar duas vezes */
+function osPendAviso(sh,sel,e,tp,osId,usar){const bx=sh.querySelector(sel);if(!bx)return;const L=osId||!e?[]:osARegistrar().filter(v=>v.eq===e.id&&v.tipo===tp);
+  bx.innerHTML=L.length?`<div class="nv-b nv-col" style="margin:0 0 12px;background:#fff6e3"><div><b>${L.length===1?osNum(L[0])+' aguardando registro':L.length+' OS aguardando registro'}</b><span>${esc(L.map(v=>`${osNum(v)} · ${fdate(v.data)} · ${v.resp.map(osNomeDe).join(', ')}`).join(' / '))}. Para nao registrar duas vezes, use a OS.</span></div><button type="button" class="btn sm" data-osuse="${esc(L[0].id)}">Usar ${osNum(L[0])}</button></div>`:'';
+  const b=bx.querySelector('[data-osuse]');if(b)b.onclick=()=>usar(b.dataset.osuse)}
+/* OS -> rascunho do Registrar preventiva (itens ligados ao plano; o resto entra como item adicionado) */
+function osParaTroca(v,e){const chk=[],sid=[],ex=[],sc=[],plan=(e.itens||[]).filter(i=>!i.virt);
+  v.pecas.forEach(p=>{const q=Number(p.qtd)||0;if(p.k==='sc'){sc.push(`${p.nome} (${nf(q,2)})`);return}
+    const st=p.k==='est'?stById(p.id):null;let it=p.pid&&plan.find(i=>i.pid===p.pid);
+    if(!it&&st)it=plan.find(i=>itMatchSt(i,st)&&!chk.some(c=>c[0]===i.pid));
+    if(it){const j=chk.findIndex(c=>c[0]===it.pid);if(j>=0){chk[j][2]=String((Number(chk[j][2])||0)+q);return}chk.push([it.pid,true,String(q),st&&!itMatchSt(it,st)?stCod(st):(it.espec||p.cod||'')]);if(st)sid.push([it.pid,st.id]);return}
+    if(st){const k=ex.find(x=>x[0]===st.id);if(k)k[1]=(Number(k[1])||0)+q;else ex.push([st.id,q,''])}else sc.push(`${p.nome} (${nf(q,2)})`)});
+  const hv=osHmNum(v.hor);
+  return {eq:e.id,dt:v.data||today(),hm:hv==null?'':String(hv),resp:v.resp.map(osNomeDe).join(', '),obs:[osNum(v),v.feito,sc.length?'Sem cadastro: '+sc.join(', '):''].filter(Boolean).join(' · '),prox:'',iv:0,chk,ex,sid,kits:v.kit?[v.kit]:[]}}
+
 /* mecanicos no servico (responsaveis): quem cria ja esta; so ele adiciona ou tira */
 const osMecDe=u=>(S.mecs||[]).find(m=>m.uid===u)||{};
 const osAv=u=>`<span class="os-av">${esc(((osNomeDe(u)||'?').trim()[0]||'?').toUpperCase())}</span>`;
@@ -6758,14 +6843,20 @@ function osBindVinc(sh,d,redraw){const r=sh.querySelector('[data-vrm]');if(r)r.o
   if(q&&l){q.oninput=()=>{d.__vq=q.value;l.innerHTML=osVincLista(osVincItens(d,q.value));bd()};bd()}}
 
 /* ---------- pecas e fotos (usado no formulario e no adendo) ---------- */
-function osPecasHTML(arr){return `${arr.map((p,i)=>`<div class="os-pc${p.k==='sc'?' sc':''}">${p.k==='sc'?(p.foto?`<span class="os-ft">${imgTag(p.foto)}</span>`:'<span class="os-ft">SEM FOTO</span>'):''}<div class="t">${esc(p.nome)}<small>${p.k==='sc'?'Sem cadastro':'Do estoque · '+esc(p.cod||'')}</small>${p.k==='est'?eqvAv(stById(p.id)):''}</div>
+function osPecasHTML(arr,opt){opt=opt||{};return `${arr.map((p,i)=>`<div class="os-pc${p.k==='sc'?' sc':''}">${p.k==='sc'?(p.foto?`<span class="os-ft">${imgTag(p.foto)}</span>`:'<span class="os-ft">SEM FOTO</span>'):''}<div class="t">${esc(p.nome)}<small>${p.k==='sc'?'Sem cadastro':p.k==='pl'?'Do plano'+(p.cod?' · '+esc(p.cod):''):'Do estoque · '+esc(p.cod||'')}</small>${p.k==='est'?eqvAv(stById(p.id)):''}${opt.prev&&p.k!=='sc'?`<button type="button" class="os-sw" data-psub="${i}">Trocar por outro</button>`:''}</div>
     <button type="button" class="os-qb" data-pq="${i}:-1" aria-label="Diminuir">−</button><span class="os-qn">${nf(p.qtd,2)}</span><button type="button" class="os-qb" data-pq="${i}:1" aria-label="Aumentar">+</button></div>`).join('')}
-  <div class="os-g2"><button type="button" class="os-ad" data-pest>+ Do estoque</button><button type="button" class="os-ad am" data-psc>+ Sem cadastro</button></div>`}
+  <div class="os-g2">${opt.prev?'<button type="button" class="os-ad" data-pprev>+ Adicionar item</button>':'<button type="button" class="os-ad" data-pest>+ Do estoque</button>'}<button type="button" class="os-ad am" data-psc>+ Sem cadastro</button></div>`}
 function osFotosHTML(arr){return `${arr.length?`<div class="os-fts">${arr.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:''}<button type="button" class="os-dash" data-fadd>${I.cam||''}Adicionar fotos</button>`}
 function osBindPecas(sh,d,redraw){
   sh.querySelectorAll('[data-pq]').forEach(b=>b.onclick=()=>{const [i,n]=b.dataset.pq.split(':').map(Number);const p=d.pecas[i];p.qtd=Math.round((Number(p.qtd)+n)*100)/100;if(p.qtd<=0)d.pecas.splice(i,1);redraw()});
   const pe=sh.querySelector('[data-pest]');if(pe)pe.onclick=()=>osPickEst(st=>{const x=d.pecas.find(p=>p.k==='est'&&p.id===st.id);if(x)x.qtd=Number(x.qtd)+1;else d.pecas.push({k:'est',id:st.id,nome:st.desc,cod:stCod(st),un:st.un||'',qtd:1});redraw()});
   const ps=sh.querySelector('[data-psc]');if(ps)ps.onclick=()=>osPickSc(p=>{d.pecas.push(p);redraw()});
+  sh.querySelectorAll('[data-psub]').forEach(b=>b.onclick=()=>{const p=d.pecas[+b.dataset.psub];if(p)osPickEst(st=>{if(!st)return;p.k='est';p.id=st.id;p.nome=st.desc;p.cod=stCod(st);p.un=st.un||'';redraw()})});
+  const pp=sh.querySelector('[data-pprev]');if(pp)pp.onclick=()=>osPickPrev(d,({it,st})=>{const e=eqById(d.eq)||{};
+    if(it){d.pecas.push(osPcDoIt(e,it));redraw();return}if(!st)return;
+    const ja=d.pecas.find(p=>p.k==='est'&&p.id===st.id);if(ja){ja.qtd=Number(ja.qtd)+1;toast(st.desc+' ja estava na lista: quantidade +1');redraw();return}
+    const it2=(e.itens||[]).find(i=>!i.virt&&!d.pecas.some(p=>p.pid===i.pid)&&itMatchSt(i,st));
+    d.pecas.push({k:'est',id:st.id,pid:it2?it2.pid:'',nome:st.desc,cod:stCod(st),un:st.un||'',qtd:1});redraw()});
   const fa=sh.querySelector('[data-fadd]');if(fa)fa.onclick=async()=>{const id=await osFoto();if(id){d.fotos.push(id);redraw()}};
   sh.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>viewPhoto(d.fotos[+b.dataset.fv],async()=>{d.fotos.splice(+b.dataset.fv,1);redraw()}))}
 async function osFoto(){return await uploadPhoto(false)}
@@ -6854,8 +6945,9 @@ function osrRestaura(){const r=osrLe();if(!r||!r.d||!r.tipo){osrPronto=true;retu
   return !!r.aberto}
 function osPickEst(cb){const lst=q=>{const k=nzM(q||''),L=S.estoque.filter(s=>!isKit(s)&&(!k||nzM([s.desc,s.alm,s.codigo,s.ref,s.marca].join(' ')).includes(k))).sort(byCode).slice(0,60);
     return L.length?L.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small>${eqvAv(s)}</span></button>`).join(''):'<div class="os-vz">Nenhum item com esse nome. Use "Sem cadastro".</div>'};
-  osModal(`<h2>Peca do estoque</h2><input class="os-in os-busca" id="pe-q" type="search" placeholder="Digite o nome ou codigo" autocomplete="off"><div class="os-ls" id="pe-l">${lst('')}</div><button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
-    const q=o.querySelector('#pe-q'),l=o.querySelector('#pe-l'),bd=()=>l.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{close();cb(stById(b.dataset.st))});q.oninput=()=>{l.innerHTML=lst(q.value);bd()};bd();o.querySelector('[data-x]').onclick=close;setTimeout(()=>q.focus(),60)})}
+  osModal(`<h2>Peca do estoque</h2><input class="os-in os-busca" id="pe-q" type="search" placeholder="Digite o nome ou codigo" autocomplete="off">${CAM_OK?`<button type="button" class="os-dash" id="pe-cam">${I.cam||''}Ler pela camera</button>`:''}<div class="os-ls" id="pe-l">${lst('')}</div><button type="button" class="os-op" data-x>Cancelar</button>`,(o,close)=>{
+    const q=o.querySelector('#pe-q'),l=o.querySelector('#pe-l'),bd=()=>l.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{close();cb(stById(b.dataset.st))});q.oninput=()=>{l.innerHTML=lst(q.value);bd()};bd();o.querySelector('[data-x]').onclick=close;setTimeout(()=>q.focus(),60);
+    const cm=o.querySelector('#pe-cam');if(cm)cm.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&!isKit(v.item)){close();cb(v.item)}else toast('Item nao encontrado no estoque')}})})}
 function osPickSc(cb){const p={k:'sc',nome:'',qtd:1,foto:''};
   osModal(`<h2>Peca sem cadastro</h2><label class="os-f"><span>Nome da peca (do jeito que voce conhece)</span><input class="os-in" id="sc-n" placeholder="Ex.: abracadeira do mangote" autocomplete="off"></label>
     <div id="sc-ph"></div><button type="button" class="os-dash" id="sc-f">${I.cam||''}Tirar foto da peca</button>
@@ -6867,29 +6959,31 @@ function osPickSc(cb){const p={k:'sc',nome:'',qtd:1,foto:''};
     o.querySelector('#sc-ok').onclick=()=>{p.nome=n.value.trim();if(!p.nome){n.classList.add('bad');n.focus();toast('Escreva o nome da peca');return}close();cb(p)}})}
 
 /* ---------- formulario: nova OS e concluir OS aberta ---------- */
-function formOS(){const d=S.osDraft;if(!d){closeSheet();return}if(d.__ini===undefined)d.__ini=JSON.stringify([d.hor||'',d.aconteceu||'',d.feito||'',d.pecas.length,d.fotos.length]);const conc=d.modo==='concluir',v=conc?osById(d.osId):null,e=eqById(d.eq)||{};
+function formOS(){const d=S.osDraft;if(!d){closeSheet();return}osPrevPrep(d);if(d.__ini===undefined)d.__ini=JSON.stringify([d.hor||'',d.aconteceu||'',d.feito||'',d.pecas.length,d.fotos.length]);const conc=d.modo==='concluir',v=conc?osById(d.osId):null,e=eqById(d.eq)||{};
   nav('osf',()=>formOS());
   const dsel=d.dia==='hoje'?today():d.dia==='ontem'?iso(new Date(Date.now()-864e5)):d.outra;
   const dB=(k,t)=>`<button type="button" class="os-op${d.dia===k?' on':''}" data-dia="${k}">${t}</button>`;
+  const tpI=d.tipo==='prev'||d.tipo==='ar',pcSec=d.concl?`<div class="os-f"><span>${d.tipo==='prev'?'Itens da preventiva':d.tipo==='ar'?'Filtros trocados':'Pecas usadas'}</span>${d.tipo==='prev'?osKitHTML(d):''}${d.tipo==='prev'&&!d.pecas.length?'<p class="os-mut">Nenhum item vence agora. Use Adicionar item.</p>':''}${osPecasHTML(d.pecas,{prev:d.tipo==='prev'})}</div>`:'';
   openSheet({title:conc?'Concluir '+osNum(v):'Nova OS',sub:esc(e.codigo||d.eq),
   body:`<form id="osf" class="os-frm" novalidate>
    <div class="os-eq"><b>${esc(e.codigo||d.eq)}</b><span>${esc([e.desc||e.tipo,e.modelo].filter(Boolean).join(' · '))}</span>${conc?'':'<button type="button" data-troca>Trocar</button>'}</div>
-   ${conc?`<div class="os-lock"><small>Aberta por ${esc(v.porNome)} · ${fdate(v.data)}${v.hor?' · horimetro '+esc(v.hor):''}</small>${esc(v.aconteceu)}</div><p class="os-mut">O que foi lancado na abertura nao muda. Para corrigir, use um adendo.</p>`
-   :`<label class="os-f"><span>Horimetro <i>(opcional)</i></span><input class="os-in" id="of-hor" inputmode="decimal" placeholder="Ex.: 4512,3" value="${esc(d.hor)}"></label>
+   ${conc?`<div class="os-lock"><small>${v.tipo!=='cor'?esc(OS_TP[v.tipo])+' · ':''}Aberta por ${esc(v.porNome)} · ${fdate(v.data)}${v.hor?' · horimetro '+esc(v.hor):''}</small>${esc(v.aconteceu)}</div><p class="os-mut">O que foi lancado na abertura nao muda. Para corrigir, use um adendo.</p>`
+   :`${osTipoHTML(d)}<label class="os-f"><span>Horimetro</span><input class="os-in" id="of-hor" inputmode="decimal" placeholder="Ex.: 4512,3" value="${esc(d.hor)}"></label>
    <div class="os-f"><span>Data do servico</span><div class="os-g3">${dB('hoje','Hoje')}${dB('ontem','Ontem')}${dB('outra','Outra data')}</div>${d.dia==='outra'?`<input class="os-in" type="date" id="of-out" max="${today()}" value="${esc(d.outra)}">`:''}<small class="os-mut" id="of-dl">${dsel?fdate(dsel):'Escolha o dia'}</small></div>
    <label class="os-f"><span>O que aconteceu</span><textarea class="os-in" id="of-aco" rows="2" placeholder="Ex.: vazamento no cilindro">${esc(d.aconteceu)}</textarea></label>
    <div class="os-f"><span>O servico ja foi concluido?</span><div class="os-g2"><button type="button" class="os-op${d.concl?' on':''}" data-cc="1">Sim, ja fiz</button><button type="button" class="os-op${d.concl?'':' on'}" data-cc="0">Nao, deixar aberta</button></div></div>`}
    ${d.concl?`<label class="os-f"><span>O que foi feito</span><textarea class="os-in" id="of-fei" rows="2" placeholder="Ex.: troca do reparo do cilindro">${esc(d.feito)}</textarea></label>`:''}
    <div class="os-f"><span>Equipamento${d.concl?'':' <i>(opcional)</i>'}</span><div class="os-g2"><button type="button" class="os-op${d.estado==='operando'?' on':''}" data-es="operando">Liberado</button><button type="button" class="os-op${d.estado==='parado'?' onr':''}" data-es="parado">Parado</button></div></div>
    ${!conc||v.por===osEu().uid?osRespHTML(d,conc?v.por:osEu().uid):''}
-   <div class="os-div">OPCIONAL</div>
-   ${d.concl?`<div class="os-f"><span>Pecas usadas</span>${osPecasHTML(d.pecas)}</div>`:''}
+   ${tpI?pcSec:''}<div class="os-div">OPCIONAL</div>
+   ${tpI?'':pcSec}
    <div class="os-f"><span>Fotos</span>${osFotosHTML(d.fotos)}</div>${conc?'':osVincHTML(d)}</form>`,
   foot:`<button class="btn pri" form="osf">Salvar</button>`,
   mount:sh=>{const g=id=>sh.querySelector(id);
     const ler=()=>{const h=g('#of-hor'),a=g('#of-aco'),f=g('#of-fei'),o=g('#of-out');if(h)d.hor=h.value;if(a)d.aconteceu=a.value;if(f)d.feito=f.value;if(o)d.outra=o.value};
     const rd=()=>{ler();const b=sh.querySelector('.sh-body'),y=b?b.scrollTop:0;formOS();const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y};
     sh.querySelectorAll('[data-dia]').forEach(b=>b.onclick=()=>{d.dia=b.dataset.dia;rd()});
+    osBindTipo(sh,d,rd);
     sh.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{d.concl=b.dataset.cc==='1';rd()});
     sh.querySelectorAll('[data-es]').forEach(b=>b.onclick=()=>{d.estado=d.estado===b.dataset.es&&!d.concl?'':b.dataset.es;rd()});
     const o=g('#of-out');if(o)o.onchange=()=>{d.outra=o.value;g('#of-dl').textContent=o.value?fdate(o.value):'Escolha o dia'};
@@ -6897,16 +6991,16 @@ function formOS(){const d=S.osDraft;if(!d){closeSheet();return}if(d.__ini===unde
       const q=m.querySelector('#te-q'),l=m.querySelector('#te-l'),bd=()=>l.querySelectorAll('[data-eqp]').forEach(b=>b.onclick=()=>{close();d.eq=b.dataset.eqp;formOS()});q.oninput=()=>{l.innerHTML=osEqLista(q.value);bd()};bd();m.querySelector('[data-x]').onclick=close;setTimeout(()=>q.focus(),60)})};
     osBindPecas(sh,d,rd);osBindResp(sh,d,conc?v.por:osEu().uid,rd);osBindVinc(sh,d,rd);
     g('#osf').onsubmit=async ev=>{ev.preventDefault();ler();
-      const falta=[];if(!conc&&!d.aconteceu.trim())falta.push(['#of-aco','Conte o que aconteceu']);if(d.concl&&!d.feito.trim())falta.push(['#of-fei','Conte o que foi feito']);if(d.concl&&!d.estado)falta.push([null,'Diga se ficou operando ou parado']);
+      const falta=[];if(!conc&&!d.tipo)falta.push([null,'Escolha o tipo de servico']);if(!conc&&d.tipo==='ar'&&!d.arSub)falta.push([null,'Escolha qual filtro de ar']);if(!conc&&osHmNum(d.hor)==null)falta.push(['#of-hor','Informe o horimetro']);if(!conc&&!d.aconteceu.trim())falta.push(['#of-aco','Conte o que aconteceu']);if(d.concl&&!d.feito.trim())falta.push(['#of-fei','Conte o que foi feito']);if(d.concl&&!d.estado)falta.push([null,'Diga se ficou operando ou parado']);
       if(!conc&&d.dia==='outra'&&!d.outra)falta.push(['#of-out','Escolha a data do servico']);
       sh.querySelectorAll('.os-in.bad').forEach(x=>x.classList.remove('bad'));
       if(falta.length){falta.forEach(([s])=>{const x=s&&g(s);if(x)x.classList.add('bad')});toast(falta[0][1]);const x=falta[0][0]&&g(falta[0][0]);if(x)x.focus();return}
-      const u=osEu(),ts=Date.now(),pecas=d.concl?d.pecas.map(p=>({...p})):[];
+      const u=osEu(),ts=Date.now(),pecas=d.concl?d.pecas.map(p=>{const {__ar,...r}=p;return r}):[],kit=d.concl&&d.tipo==='prev'&&d.kit?{kit:d.kit}:{};
       if(!conc){const data=d.dia==='hoje'?today():d.dia==='ontem'?iso(new Date(ts-864e5)):d.outra;
-        const ok=await safe(()=>S.db.collection('os').add({o:{eq:d.eq,por:u.uid,porNome:u.nome,ts,data,hor:d.hor.trim(),aconteceu:d.aconteceu.trim(),concl:d.concl,feito:d.concl?d.feito.trim():'',estado:d.estado,pecas,fotos:d.fotos.slice(),resp:d.resp.slice(),vinc:d.vinc||''}}));
+        const ok=await safe(()=>S.db.collection('os').add({o:{tipo:d.tipo,...(d.tipo==='ar'?{arSub:d.arSub,arSv:d.arSv||'Troca'}:{}),...kit,eq:d.eq,por:u.uid,porNome:u.nome,ts,data,hor:d.hor.trim(),aconteceu:d.aconteceu.trim(),concl:d.concl,feito:d.concl?d.feito.trim():'',estado:d.estado,pecas,fotos:d.fotos.slice(),resp:d.resp.slice(),vinc:d.vinc||''}}));
         if(!ok)return;S.osDraft=null;S.osF.tab=d.concl?'fechadas':'abertas';toast(navigator.onLine?'OS salva':'OS salva no aparelho. Recebe o numero quando tiver sinal.');osVolta()}
       else{const r0=v.resp.filter(x=>x!==v.por);if(v.por===u.uid&&(r0.length!==d.resp.length||r0.some(x=>!d.resp.includes(x))))await safe(()=>osEvento(d.osId,'resp',{resp:d.resp.slice()}));
-        const ok=await safe(()=>osEvento(d.osId,'concluir',{feito:d.feito.trim(),estado:d.estado,pecas,fotos:d.fotos.slice()}));if(!ok)return;S.osDraft=null;toast(osNum(v)+' concluida');NAV.pop();NAV.pop();openOS(d.osId)}}}})}
+        const ok=await safe(()=>osEvento(d.osId,'concluir',{feito:d.feito.trim(),estado:d.estado,pecas,fotos:d.fotos.slice(),...kit}));if(!ok)return;S.osDraft=null;toast(osNum(v)+' concluida');NAV.pop();NAV.pop();openOS(d.osId)}}}})}
 /* depois de salvar volta para a lista (mecanico: tela inicial) */
 function osVolta(){if(ehMec()){closeSheet();return}const i=NAV.findIndex(n=>n.key==='osl');if(i>=0){NAV.length=i;openOSLista()}else closeSheet()}
 
@@ -6915,8 +7009,8 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
   const u=osEu(),cx=v.sit==='cancelada',resp=AC&&!cx&&v.resp.includes(u.uid),dono=AC&&!cx&&v.por===u.uid,adm=osAdm(),admA=adm&&AC,e=eqById(v.eq)||{},fech=v.sit!=='aberta',podeCx=AC&&osPodeCx(v);
   const marca=c=>{const m=v.marc[c];return !m?'':m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:` <em class="os-cor">· editado por ${esc(m.nome)} em ${osHora(m.ts)} · antes: ${esc(osVal(c,m.de))||'vazio'}</em>`};
   const mm=[e.marca,e.modelo].filter(Boolean).join(' · ');
-  const stP=p=>{const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):cx?'<span class="os-sx">liberada</span>':`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
-  const pcRow=p=>`<button type="button" class="os-pr${admA&&!cx&&!v.conf[p.pk]?' cfp':''}" data-pk="${esc(p.pk)}"${admA&&!cx&&!v.conf[p.pk]?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
+  const stP=p=>{if(v.tipo!=='cor')return cx?'<span class="os-sx">liberada</span>':osTr(v)?'<span class="os-sb">registrado</span>':`<span class="os-sp">${v.sit==='fechada'?'a registrar':'pendente'}</span>`;const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):cx?'<span class="os-sx">liberada</span>':`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
+  const cfOk=p=>admA&&!cx&&!v.conf[p.pk]&&v.tipo==='cor',pcRow=p=>`<button type="button" class="os-pr${cfOk(p)?' cfp':''}" data-pk="${esc(p.pk)}"${cfOk(p)?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
   const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
   const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes</button>`;
   const pai=v.vinc&&osById(v.vinc);
@@ -6927,7 +7021,7 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
   let body;
   if(!fech){
     body=`<div class="os-w"><div class="os-wt"><span class="os-wn">Nº <b>${v.num?String(v.num).padStart(4,'0'):'nova'}</b></span><span class="os-wc">${v.estado==='parado'?'<span class="os-pl par">PARADO</span>':''}<span class="os-pl and">EM ANDAMENTO</span></span></div>
-     <div class="os-we"><b>${esc(e.codigo||v.eq)}</b><span>${esc([e.desc||e.tipo,e.modelo].filter(Boolean).join(' · '))}</span></div>
+     <div class="os-we"><b>${esc(e.codigo||v.eq)}</b><span>${esc([e.desc||e.tipo,e.modelo].filter(Boolean).join(' · '))}</span></div>${v.tipo!=='cor'?osTpBox(v):''}
      <div class="os-wtl"><div><small>Aberta em</small><b>${sdate(v.data)||'—'}</b></div><div class="nv"><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b></div><div><small>Ha</small><b>${tempo()}</b></div></div>
      <div class="os-ws"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
      <div class="os-ws"><div class="os-lb">Servico executado</div>${v.feito?`<div class="os-tx">${esc(v.feito)}${marca('feito')}</div>`:'<div class="os-vz2">Preencha ao concluir</div>'}</div>
@@ -6939,7 +7033,7 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
      <div id="os-cf"></div>${ext?`<div class="os-x">${ext}</div>`:''}${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
   else{const conc=cx?v.cancTs:(v.concTs||v.ts),par=v.estado==='parado'&&!cx;
     body=`<div class="os-d"><div class="os-dh"><div><small>ORDEM DE SERVICO</small><b>${v.num?'Nº '+String(v.num).padStart(4,'0'):'Nova'}</b></div><div class="os-stp${cx?' cx':''}">${cx?'CANCELADA':'CONCLUIDA'}<em>${fdate(iso(new Date(conc)))} ${pad(new Date(conc).getHours())}:${pad(new Date(conc).getMinutes())}</em></div></div>
-     <div class="os-de"><b>${esc(e.codigo||v.eq)}</b><span>${esc(e.desc||e.tipo||'')}${mm?'<br>'+esc(mm):''}</span></div>
+     <div class="os-de"><b>${esc(e.codigo||v.eq)}</b><span>${esc(e.desc||e.tipo||'')}${mm?'<br>'+esc(mm):''}</span></div>${v.tipo!=='cor'&&!cx?osTpBox(v):''}
      ${cx?`<div class="os-cxb"><b>OS cancelada</b><span>Em ${fdate(iso(new Date(v.cancTs)))} por ${esc(v.cancNome)}${v.sitAnt==='fechada'?' (estava concluida)':''}</span><span><i>Motivo:</i> ${esc(v.cancMot)}</span><small>O numero ${osNum(v).replace('OS ','')} nao sera reutilizado. Tudo o que foi registrado continua guardado.</small></div>`:''}
      <div class="os-dg g4"><div><small>Aberta</small><b>${sdate(v.data)}</b>${marca('data')}</div><div><small>${cx?'Cancelada':'Concluida'}</small><b>${sdate(iso(new Date(conc)))}</b></div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':cx?'':'ok'}">${cx?'—':par?'Parado':v.estado==='operando'?'Liberado':'—'}</b>${marca('estado')}</div></div>
      <div class="os-ds"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
@@ -6953,7 +7047,8 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
   openSheet({title:osNum(v),sub:esc(e.codigo||v.eq)+' · '+(cx?'Cancelada em '+fdate(iso(new Date(v.cancTs))):fech?'Concluida em '+fdate(iso(new Date(v.concTs||v.ts))):'Em andamento'),body,
   mount:sh=>{const a=k=>sh.querySelector(`[data-a="${k}"]`);
     sh.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>viewPhoto(v.fotos[+b.dataset.fv]));
-    if(a('concluir'))a('concluir').onclick=()=>{S.osDraft={modo:'concluir',osId:v.id,eq:v.eq,concl:true,feito:v.feito||'',estado:v.estado||'',pecas:[],fotos:[],resp:v.resp.filter(x=>x!==v.por)};formOS()};
+    if(a('registrar'))a('registrar').onclick=()=>osRegistrar(v.id);
+    if(a('concluir'))a('concluir').onclick=()=>{S.osDraft={modo:'concluir',osId:v.id,eq:v.eq,tipo:v.tipo,arSub:v.arSub,arSv:v.arSv,kit:'',concl:true,feito:v.feito||'',estado:v.estado||'',pecas:[],fotos:[],resp:v.resp.filter(x=>x!==v.por)};formOS()};
     if(a('reabrir'))a('reabrir').onclick=()=>askConfirm(sh.querySelector('#os-cf'),'Reabrir',`Reabrir a ${osNum(v)}? Ela volta para Abertas. O que ja foi lancado continua registrado.`,async()=>{if(await safe(()=>osEvento(v.id,'reabrir',{}),osNum(v)+' reaberta'))osRe(v.id)});
     if(a('adendo'))a('adendo').onclick=()=>{S.osDraft={modo:'adendo',osId:v.id,obs:'',corr:[],pecas:[],fotos:[]};formOSAdendo()};
     if(a('cancelar'))a('cancelar').onclick=()=>osCancelar(v.id);
@@ -7072,7 +7167,7 @@ async function osDraw(v,modo){
   y+=180;x.fillStyle=INK;x.fillRect(P,y,gw,5);y+=24;
   /* selos: se nao couberem na linha, descem para a seguinte */
   let sx=P;const selo=(t,cor)=>{F(700,19);ls('2.4px');const w=Math.min(x.measureText(t).width+34,gw);if(sx>P&&sx+w>W-P){sx=P;y+=56}x.lineWidth=2.4;x.strokeStyle=cor;x.strokeRect(sx,y,w,42);x.fillStyle=cor;cvTx(x,t,sx+17,y+29,w-34);ls('0px');sx+=w+14};
-  const CX=v.sit==='cancelada';selo(CX?'CANCELADA':v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',INK);if(v.estado&&!CX)selo(v.estado==='parado'?'PARADO':'LIBERADO',INK);
+  const CX=v.sit==='cancelada';selo(CX?'CANCELADA':v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',INK);if(v.estado&&!CX)selo(v.estado==='parado'?'PARADO':'LIBERADO',INK);if(v.tipo&&v.tipo!=='cor')selo(v.tipo==='ar'?'FILTRO DE AR':'PREVENTIVA',INK);
   const ex=[v.ad.length?`${v.ad.length} ${v.ad.length===1?'adendo':'adendos'}`:'',v.filhas.length?`${v.filhas.length} ${v.filhas.length===1?'vinculada':'vinculadas'}`:''].filter(Boolean).join(' · ');if(ex&&!PR)selo(ex.toUpperCase(),'#a3aab6');
   y+=64;
   /* grade do equipamento: modelo e descricao quebram linha; a grade cresce */

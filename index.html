@@ -1565,8 +1565,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=b2ddecccd5"></script>
-<script src="shim.js?v=b2ddecccd5"></script>
+<script src="config.js?v=5b91df89a4"></script>
+<script src="shim.js?v=5b91df89a4"></script>
 </head>
 <body>
 
@@ -6495,9 +6495,9 @@ async function clearExamples(){
 /* com o teclado aberto, o campo de busca sobe para o topo e as sugestoes ficam visiveis logo abaixo */
 document.addEventListener('focusin',ev=>{const t=ev.target;if(!t.matches||!t.matches('#mv-c,#s-idq,.ct-c,#esq,#pe-q,#pd-q,#pq,.eqs-in,#t-q,#k-q'))return;
   setTimeout(()=>{if(document.activeElement===t)t.scrollIntoView({block:'start',behavior:'smooth'})},320)});
-/* ---------- leitor pela camera (so no app baixavel): codigo de barras, QR ou texto ----------
+/* ---------- leitor pela camera (so no app baixavel): codigo de barras ou QR ----------
    Um botao de camera aparece dentro dos campos onde se informa um item do estoque.
-   Codigos sao lidos na hora; texto e lido sozinho depois de ~2 s sem codigo, ou em "Ler texto agora". */
+   Le so codigo de barras e QR (sem leitura de texto). */
 const CAM_OK=!!(window.__PWA&&navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
 const RD_IC='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>';
 /* botao "Ler com a camera" numa linha propria, logo abaixo do campo de identificacao */
@@ -6517,12 +6517,12 @@ function rdRef(txt){const t=String(txt);let m=t.match(/\b(\d{3})-?(\d{4})\b/);if
   if(/^\d{8,}$/.test(t.trim()))return '';
   const tk=t.toUpperCase().split(/[\s|;]+/).map(x=>x.replace(/[^A-Z0-9.\-\/]/g,'')).filter(x=>x.length>=4&&/\d/.test(x)&&!/^\d{8,}$/.test(x));return tk[0]||''}
 let RD=null;
-function rdOpen(o){if(RD)return;RD={...o,last:'',lastCode:0,busy:false,ocrBusy:false,stopped:false};
+function rdOpen(o){if(RD)return;RD={...o,last:'',lastCode:0,busy:false,stopped:false};
   const d=document.createElement('div');d.className='rdr';d.setAttribute('role','dialog');d.setAttribute('aria-label','Ler item');
-  d.innerHTML=`<div class="rdr-h"><button type="button" class="backbtn" data-x aria-label="Voltar">${I.back}</button><div class="sh-tt"><h2>Ler item</h2><div class="sub">Codigo de barras, QR ou texto</div></div></div>
+  d.innerHTML=`<div class="rdr-h"><button type="button" class="backbtn" data-x aria-label="Voltar">${I.back}</button><div class="sh-tt"><h2>Ler item</h2><div class="sub">Codigo de barras ou QR</div></div></div>
     <div class="rdr-b"><div class="rdr-cam"><video playsinline muted></video><div class="rdr-fr"></div><button type="button" class="rdr-lz" hidden aria-label="Lanterna"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6l-1 6h-4zM10 8h4v12a2 2 0 0 1-4 0z"/></svg></button><div class="rdr-st">Abrindo a camera…</div></div>
-    <div class="rdr-r" hidden></div><div class="rdr-a"><button type="button" class="btn" data-now>Ler texto agora</button><button type="button" class="btn ghost" data-x>Digitar em vez de ler</button></div></div>`;
-  document.body.appendChild(d);RD.el=d;d.querySelectorAll('[data-x]').forEach(b=>b.onclick=rdClose);d.querySelector('[data-now]').onclick=()=>rdOcr(true);
+    <div class="rdr-r" hidden></div><div class="rdr-a"><button type="button" class="btn ghost" data-x>Digitar em vez de ler</button></div></div>`;
+  document.body.appendChild(d);RD.el=d;d.querySelectorAll('[data-x]').forEach(b=>b.onclick=rdClose);
   rdStart()}
 function rdClose(){if(!RD)return;RD.stopped=true;cancelAnimationFrame(RD.raf);clearTimeout(RD.t);if(RD.stream)RD.stream.getTracks().forEach(t=>t.stop());RD.el.remove();RD=null}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&RD)rdClose()});
@@ -6533,34 +6533,15 @@ async function rdStart(){const r=RD,v=r.el.querySelector('video'),st=r.el.queryS
   const tr=r.stream.getVideoTracks()[0];r.track=tr;
   try{const c=tr.getCapabilities?tr.getCapabilities():{};if(c.focusMode&&c.focusMode.includes('continuous'))await tr.applyConstraints({advanced:[{focusMode:'continuous'}]});
     if(c.torch){const lz=r.el.querySelector('.rdr-lz');lz.hidden=false;let on=false;lz.onclick=async()=>{on=!on;try{await tr.applyConstraints({advanced:[{torch:on}]})}catch(e){}}}}catch(e){}
-  v.srcObject=r.stream;await v.play().catch(()=>{});st.textContent='Aponte para o codigo ou enquadre o texto';r.lastCode=performance.now();
+  v.srcObject=r.stream;await v.play().catch(()=>{});st.textContent='Aponte para o codigo';r.lastCode=performance.now();
   try{if('BarcodeDetector' in window)r.det=new BarcodeDetector({formats:await BarcodeDetector.getSupportedFormats()})}catch(e){}
   let lt=0;const loop=()=>{r.raf=requestAnimationFrame(async ts=>{if(r.stopped)return;loop();if(!r.det||r.busy||r.paused||ts-lt<180||v.readyState<2)return;r.busy=true;lt=ts;
     try{const c=(await r.det.detect(v))[0];if(c){r.lastCode=performance.now();if(c.rawValue!==r.last){r.last=c.rawValue;rdShow(c.rawValue,c.format==='qr_code'?'QR code':'codigo de barras')}}}catch(e){}r.busy=false})};loop();
-  r.t=setTimeout(()=>rdOcr(false),2000)}
-function rdCrop(v){const vw=v.videoWidth,vh=v.videoHeight,cw=v.clientWidth,ch=v.clientHeight;if(!vw)return null;const s=Math.max(cw/vw,ch/vh),ox=(vw*s-cw)/2,oy=(vh*s-ch)/2;
-  const fx=(cw*.08+ox)/s,fy=(ch*.40+oy)/s,fw=cw*.84/s,fh=ch*.20/s,k=Math.min(2.2,1400/fw),c=document.createElement('canvas');c.width=Math.round(fw*k);c.height=Math.round(fh*k);
-  const g=c.getContext('2d');g.filter='grayscale(1) contrast(1.6)';g.drawImage(v,fx,fy,fw,fh,0,0,c.width,c.height);return c}
-let rdWorker=null;
-async function rdOcrWorker(){if(rdWorker)return rdWorker;
-  await new Promise((ok,ko)=>{if(window.Tesseract)return ok();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';s.onload=ok;s.onerror=()=>ko(new Error('sem internet'));document.head.appendChild(s)});
-  const w=await Tesseract.createWorker('eng');await w.setParameters({tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-./ ',tessedit_pageseg_mode:'6'});return rdWorker=w}
-async function rdOcr(forced){const r=RD;if(!r||r.stopped)return;clearTimeout(r.t);
-  if(r.paused&&!forced){r.t=setTimeout(()=>rdOcr(false),2500);return}
-  if(!forced&&performance.now()-r.lastCode<2000){r.t=setTimeout(()=>rdOcr(false),1200);return}
-  if(r.ocrBusy)return;r.ocrBusy=true;const st=r.el.querySelector('.rdr-st'),nb=r.el.querySelector('[data-now]');nb.disabled=true;st.textContent=rdWorker?'Lendo texto…':'Preparando a leitura de texto…';
-  try{const w=await rdOcrWorker();if(!RD||r.stopped)return;const c=rdCrop(r.el.querySelector('video'));
-    if(c){const {data}=await w.recognize(c);if(!RD||r.stopped)return;
-      const ls=(data.text||'').split('\n').map(x=>x.trim()).filter(x=>x.replace(/[^A-Z0-9]/gi,'').length>=4);let ok=false;
-      for(const l of ls){if(rdFind(l).lista.length){rdShow(l,'texto');ok=true;break}}
-      if(!ok&&ls.length&&(forced||(data.confidence||0)>=60))rdShow(ls[0],'texto');
-      else if(!ok)st.textContent=ls.length?'Texto lido, sem item igual no estoque':'Nenhum texto no retangulo'}}
-  catch(e){st.textContent='Leitura de texto indisponivel sem internet'}
-  r.ocrBusy=false;if(RD&&!r.stopped){nb.disabled=false;r.t=setTimeout(()=>rdOcr(false),2500)}}
+  if(!r.det)st.textContent='Este celular nao le codigos pela camera. Use Digitar em vez de ler.'}
 function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.querySelector('.rdr-fr'),st=r.el.querySelector('.rdr-st'),box=r.el.querySelector('.rdr-r'),act=r.el.querySelector('.rdr-a');
   try{navigator.vibrate&&navigator.vibrate(40)}catch(e){}
   const f=rdFind(txt),ref=rdRef(txt),lido=f.lista.length===1&&!f.aprox?stCod(f.lista[0]):(ref||txt);fr.classList.add('ok');
-  const again=()=>{r.paused=false;r.last='';box.hidden=true;act.hidden=false;fr.classList.remove('ok');st.textContent='Aponte para o codigo ou enquadre o texto';r.lastCode=performance.now()};
+  const again=()=>{r.paused=false;r.last='';box.hidden=true;act.hidden=false;fr.classList.remove('ok');st.textContent='Aponte para o codigo';r.lastCode=performance.now()};
   const done=v=>{const u=r.use;rdClose();u(v)};
   box.hidden=false;act.hidden=true;
   const row=s=>`<button type="button" class="rdr-it" data-rit="${esc(s.id)}">${esRow(s,{tag:'div'})}</button>`;

@@ -184,6 +184,11 @@
       const so=(await todos('path',true)).map(r=>r.path).filter(p=>!real.has(p.slice(NS.length))&&!fora(p.slice(NS.length)));
       const L=[];for(let i=0;i<so.length;i+=200){const {data,error}=await sb.from('docs').select('path,data').in('path',so.slice(i,i+200));if(error)throw error;L.push(...data)}
       return L.sort((x,y)=>x.path<y.path?-1:1)};
+    /* item 7: OS do teste que ainda nao estao no oficial, e o levar completo (itens, kits, OS, adendos e mecanicos) */
+    window.__frotaOsSo=async()=>{const real=new Set();let from=0;for(;;){const {data,error}=await sb.from('docs').select('path').like('path','os/%').order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>real.add(r.path));if(data.length<N)break;from+=N}
+      const L=[];from=0;for(;;){const {data,error}=await sb.from('docs').select('path,data').like('path',TNS+'os/%').order('path').range(from,from+N-1);if(error)throw error;L.push(...data);if(data.length<N)break;from+=N}
+      return L.filter(r=>/^[^/]+\/os\/[^/]+$/.test(r.path)&&!real.has(r.path.slice(NS.length)))};
+    window.__frotaLevarTudo=async()=>{const {data,error}=await sb.rpc('teste_levar_tudo');if(error)throw error;await pull();return data||{}};
     window.__frotaLevar=async paths=>{const {data,error}=await sb.rpc('teste_levar_oficial',{p_paths:paths});if(error)throw error;return data||{levados:[],pulados:[]}};
     window.__frotaCopia=async prog=>{const keep=(await todos('path,data',false)).filter(r=>!fora(r.path)),agora=new Date().toISOString();
       for(let i=0;i<keep.length;i+=200){const lote=keep.slice(i,i+200).map(r=>({path:NS+r.path,parent:parentOf(NS+r.path),data:r.data,updated_at:agora}));const {error}=await sb.from('docs').upsert(lote);if(error)throw error;prog&&prog(Math.min(i+200,keep.length),keep.length)}

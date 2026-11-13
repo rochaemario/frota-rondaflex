@@ -28,3 +28,7 @@ Para voltar: pegar `fonte/` desse ramo, restaurar e publicar como nova versao.
 - "Atualizar copia" (teste) nunca apaga o que so existe no teste: mostra esses registros e deixa escolher Manter ou Levar para o oficial.
 - "Levar para o oficial" precisa do script fonte/pwa/teste_levar.sql rodado no Supabase (desfazer: teste_levar_desfazer.sql).
 - Etiquetas do almoxarifado e mangueiras sem referencia: no app oficial desde a v402 (antes so no teste, ramo etiquetas-fonte).
+- Item 7 (13/11): "Levar para o oficial" do teste leva itens e kits (saldo zero), OS com o mesmo numero, adendos e mecanicos
+  (funcao teste_levar_tudo, script fonte/pwa/teste_os_3_levar.sql; antes rodar teste_os_1_copia_seguranca.sql e teste_os_2_conferir.sql;
+  desfazer: teste_os_3_levar_desfazer.sql). Depois de levar, o teste NAO e atualizado. Feito direto em teste/ (o teste nao tem fonte propria).
+- CUIDADO: publicar.sh sobrescreve teste/ com o oficial. Enquanto o teste tiver trabalho proprio, restaurar teste/ antes de enviar.

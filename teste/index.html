@@ -1568,8 +1568,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=f9f5e99823"></script>
-<script src="shim.js?v=f9f5e99823"></script>
+<script src="config.js?v=7ce692c6f3"></script>
+<script src="shim.js?v=7ce692c6f3"></script>
 </head>
 <body>
 
@@ -7330,7 +7330,8 @@ function osTesteBar(){if(!OS_TESTE)return '';const u=EU()||{};if(u.papel!=='admi
 document.addEventListener('click',ev=>{const b=ev.target.closest&&ev.target.closest('[data-tb]');if(!b)return;const k=b.dataset.tb;
   if(k==='adm')osComo(null);else if(k==='mecs')openMecs();
   else if(k==='cop')abrirCopia()});
-/* Atualizar copia (teste): nunca apaga o que so existe no teste; mostra esses registros e deixa escolher Manter ou Levar para o oficial */
+/* Atualizar copia (teste): nunca apaga o que so existe no teste; mostra esses registros e deixa escolher Manter ou Levar para o oficial.
+   Item 7 (13/11): Levar leva itens e kits (saldo zero), OS com o mesmo numero, adendos e mecanicos; depois NAO atualiza o teste */
 function abrirCopia(){
   osModal(`<h2>Atualizar copia</h2><p class="os-mut">Copia de novo os dados reais para o teste. Nada muda na frota real.</p><div id="cp-so"></div><div id="cp-st" class="os-mut">Conferindo…</div><div id="cp-bt"></div>`,async(o,close)=>{
     const st=o.querySelector('#cp-st'),so=o.querySelector('#cp-so'),bt=o.querySelector('#cp-bt');
@@ -7338,23 +7339,26 @@ function abrirCopia(){
     const copiar=async()=>{bt.querySelectorAll('button').forEach(b=>b.disabled=true);st.textContent='Copiando…';
       const n=await window.__frotaCopia((a,t)=>st.textContent=`Copiando ${a} de ${t}…`);return n};
     const erro=e=>{console.error(e);st.textContent='Nao foi possivel copiar. Tente de novo.';bt.querySelectorAll('button').forEach(b=>b.disabled=false)};
-    let L;try{L=await window.__frotaCopiaPlano()}catch(e){console.error(e);st.textContent='Nao foi possivel conferir. Tente de novo.';bt.innerHTML='<div class="os-g2"><button type="button" class="os-op" data-x>Fechar</button></div>';bt.querySelector('[data-x]').onclick=close;return}
-    const ehIt=r=>/^teste\/estoque\/[^/]+$/.test(r.path)&&r.data&&r.data.alm&&r.data.tipo!=='kit'&&!r.data.kit;
-    const its=L.filter(ehIt),out=L.length-its.length;
-    if(!L.length){st.textContent='';bt.innerHTML='<div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="cp-ok">Copiar</button></div>';
+    let L,OL;try{L=await window.__frotaCopiaPlano();OL=window.__frotaOsSo?await window.__frotaOsSo():[]}catch(e){console.error(e);st.textContent='Nao foi possivel conferir. Tente de novo.';bt.innerHTML='<div class="os-g2"><button type="button" class="os-op" data-x>Fechar</button></div>';bt.querySelector('[data-x]').onclick=close;return}
+    const ehEs=r=>/^teste\/estoque\/[^/]+$/.test(r.path)&&r.data,ehKt=r=>!!(r.data&&(r.data.kit||r.data.tipo==='kit'));
+    const its=L.filter(r=>ehEs(r)&&!ehKt(r)),kts=L.filter(r=>ehEs(r)&&ehKt(r)),out=L.length-its.length-kts.length;
+    if(!L.length&&!OL.length){st.textContent='';bt.innerHTML='<div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op on" id="cp-ok">Copiar</button></div>';
       bt.querySelector('[data-x]').onclick=close;bt.querySelector('#cp-ok').onclick=async()=>{try{fim(await copiar())}catch(e){erro(e)}};return}
-    const nm=r=>`<div class="cp-r"><b class="num">${esc(r.data.alm)}</b> ${esc(r.data.desc||'')}</div>`;
-    so.innerHTML=`<div class="banner warn cp-b"><div><b>So existe no teste</b>${its.length?`<span>${its.length} ${its.length===1?'item':'itens'} do estoque</span>`:''}${out?`<span>${out} ${out===1?'outro registro':'outros registros'}</span>`:''}</div></div>${its.length?`<div class="cp-l">${its.slice(0,12).map(nm).join('')}${its.length>12?`<div class="cp-r os-mut">+ ${its.length-12}</div>`:''}</div>`:''}<p class="os-mut">Nada e apagado.</p>`;
-    st.textContent='';
-    bt.innerHTML=`${its.length?'<button type="button" class="os-op on" id="cp-lv" style="margin-bottom:8px">Levar para o oficial</button>':''}<div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op${its.length?'':' on'}" id="cp-mt">Manter</button></div>`;
+    const nm=r=>`<div class="cp-r"><b class="num">${esc(r.data.alm||'')}</b> ${esc(r.data.desc||'')}</div>`;
+    const on=r=>`<div class="cp-r"><b class="num">${esc(osNum(r.data||{}))}</b> ${esc((r.data&&r.data.o&&r.data.o.aconteceu)||'')}</div>`;
+    const lst=[...OL.slice().sort((a,b)=>(Number(a.data&&a.data.num)||0)-(Number(b.data&&b.data.num)||0)).map(on),...its.map(nm),...kts.map(nm)];
+    const cnt=(n,a,b)=>n?`<span>${n} ${n===1?a:b}</span>`:'';
+    so.innerHTML=`<div class="banner warn cp-b"><div><b>So existe no teste</b>${cnt(OL.length,'OS','OS')}${cnt(its.length,'item do estoque','itens do estoque')}${cnt(kts.length,'kit','kits')}${cnt(out,'outro registro','outros registros')}</div></div>${lst.length?`<div class="cp-l">${lst.slice(0,12).join('')}${lst.length>12?`<div class="cp-r os-mut">+ ${lst.length-12}</div>`:''}</div>`:''}<p class="os-mut">Nada e apagado.</p>`;
+    st.textContent='';const pode=OL.length||its.length||kts.length;
+    bt.innerHTML=`${pode?'<button type="button" class="os-op on" id="cp-lv" style="margin-bottom:8px">Levar para o oficial</button>':''}<div class="os-g2"><button type="button" class="os-op" data-x>Cancelar</button><button type="button" class="os-op${pode?'':' on'}" id="cp-mt">Manter</button></div>`;
     bt.querySelector('[data-x]').onclick=close;
     bt.querySelector('#cp-mt').onclick=async()=>{try{fim(await copiar())}catch(e){erro(e)}};
     const lv=bt.querySelector('#cp-lv');lv&&(lv.onclick=async()=>{bt.querySelectorAll('button').forEach(b=>b.disabled=true);st.textContent='Levando para o oficial…';let r;
-      try{r=await window.__frotaLevar(its.map(x=>x.path))}catch(e){console.error(e);st.textContent=/teste_levar_oficial|function|404|PGRST/i.test(String(e&&(e.message||e.code)))?'Falta rodar o script teste_levar.sql no Supabase.':'Nao foi possivel levar. Tente de novo.';bt.querySelectorAll('button').forEach(b=>b.disabled=false);return}
-      const lev=(r.levados||[]).length,pul=r.pulados||[];
-      try{const n=await copiar();if(!pul.length){close();toast(`Levados ao oficial: ${lev} · copia atualizada`);render();return}
-        so.innerHTML=`<div class="banner err cp-b"><div><b>${pul.length} nao ${pul.length===1?'foi levado':'foram levados'}</b><span>Codigo ja usado no oficial</span></div></div><div class="cp-l">${pul.map(x=>`<div class="cp-r"><b class="num">${esc(x.alm||'')}</b> ${esc(x.desc||'')}</div>`).join('')}</div>`;
-        st.textContent=`Levados ao oficial: ${lev} · copia atualizada (${n})`;bt.innerHTML='<div class="os-g2"><button type="button" class="os-op on" data-x>Fechar</button></div>';bt.querySelector('[data-x]').onclick=()=>{close();render()}}catch(e){erro(e)}})})}
+      try{r=await window.__frotaLevarTudo()}catch(e){console.error(e);st.textContent=/teste_levar_tudo|function|404|PGRST/i.test(String(e&&(e.message||e.code)))?'Falta rodar o script teste_os_3_levar.sql no Supabase.':'Nao foi possivel levar. Nada foi mudado. Tente de novo.';bt.querySelectorAll('button').forEach(b=>b.disabled=false);return}
+      const pul=r.pulados||[],res=[r.os?`${r.os} OS`:'',r.eventos?`${r.eventos} ${r.eventos===1?'adendo':'adendos'}`:'',r.itens?`${r.itens} ${r.itens===1?'item':'itens'}`:'',r.kits?`${r.kits} ${r.kits===1?'kit':'kits'}`:'',r.mecanicos?`${r.mecanicos} ${r.mecanicos===1?'mecanico':'mecanicos'}`:''].filter(Boolean).join(' · ')||'nada novo';
+      if(!pul.length){close();toast('Levado ao oficial: '+res);render();return}
+      so.innerHTML=`<div class="banner err cp-b"><div><b>${pul.length} nao ${pul.length===1?'foi levado':'foram levados'}</b><span>Continuam no teste</span></div></div><div class="cp-l">${pul.map(x=>`<div class="cp-r"><b class="num">${esc(x.ref||'')}</b> ${esc(x.desc||'')} · ${esc(x.motivo||'')}</div>`).join('')}</div>`;
+      st.textContent='Levado ao oficial: '+res;bt.innerHTML='<div class="os-g2"><button type="button" class="os-op on" data-x>Fechar</button></div>';bt.querySelector('[data-x]').onclick=()=>{close();render()}})})}
 
 /* ---------- dados ---------- */
 (async()=>{

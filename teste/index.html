@@ -1562,8 +1562,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=f24f80ea45"></script>
-<script src="shim.js?v=f24f80ea45"></script>
+<script src="config.js?v=599723a1b0"></script>
+<script src="shim.js?v=599723a1b0"></script>
 </head>
 <body>
 
@@ -5229,16 +5229,18 @@ function formEditTroca(id){
     f.addEventListener('input',()=>cf.innerHTML='');
     /* pecas: linhas fechadas; um toque abre Editar (quantidade) ou Substituir (outra peca) */
     const cur=its.map(i=>({espec:i.espec||(i.estoqueId&&stById(i.estoqueId)?stCod(stById(i.estoqueId)):''),qtd:i.qtd??0,sid:i.estoqueId||''}));
-    let aberto=-1,modo='';const L=sh.querySelector('#et-l');
+    let aberto=-1,modo='';const L=sh.querySelector('#et-l'),tirados=new Set();
     const codTx=k=>{const c=cur[k],x=c.sid&&stById(c.sid);return x?stCod(x):c.espec||'—'};
     const draw=()=>{if(!L)return;L.innerHTML=its.map((i,k)=>{const c=cur[k],x=c.sid&&stById(c.sid),op=aberto===k,ch=codTx(k)!==cur0[k],qch=Number(c.qtd)!==Number(i.qtd||0);
       return `<div class="et-i${op?' op':''}"><button type="button" class="et-h" data-k="${k}" aria-expanded="${op}"><span class="et-n"><b>${esc(itNome(i))}</b><small class="num">${esc(codTx(k))}${x?'':' · fora do estoque'}${ch?` <em>substituiu ${esc(cur0[k])}</em>`:''}${i.novo?' <em>adicionado</em>':''}</small></span><span class="et-q num${qch?' mud':''}">${nf(c.qtd,2)} ${esc(i.un||'')}</span>${I.chev}</button>
       ${!op?'':modo==='ed'?`<div class="et-b"><label class="f">Quantidade usada<div class="et-qw"><input type="number" step="0.1" min="0" inputmode="decimal" id="et-qv" value="${esc(c.qtd)}"><span class="u">${esc(i.un||'')}</span><button type="button" class="btn pri" id="et-ok">Pronto</button></div></label><p class="note" style="margin:0">0 = nao usou do estoque.</p></div>`
        :modo==='sb'?`<div class="et-b"><div class="sug-w"><label class="f">Peca aplicada no lugar<input id="et-sq" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" style="font-family:var(--mono)"></label><div class="sug" id="et-sh"></div></div>${CAM_OK?rdBtn('et-cam'):''}<button type="button" class="btn" id="et-x">Cancelar</button></div>`
+       :modo==='rm'?`<div class="et-b"><p class="note" style="margin:0">Remover <b>${esc(itNome(i))}</b> desta preventiva?</p><div class="et-a" style="display:flex;gap:8px"><button type="button" class="btn" data-md="">Cancelar</button><button type="button" class="btn pri" data-rmok>Remover</button></div></div>`
        :modo==='kv'?`<div class="et-b">${kitLista(x,c.qtd||1)}<button type="button" class="btn" data-md="">Fechar lista</button></div>`
-       :`<div class="et-b et-a"><button type="button" class="btn" data-md="ed">Editar</button>${i.novo?'<button type="button" class="btn" data-md="rm">Tirar</button>':'<button type="button" class="btn" data-md="sb">Substituir</button>'}${x&&isKit(x)?'<button type="button" class="btn" data-md="kv">Ver itens</button>':''}</div>`}</div>`}).join('');
+       :`<div class="et-b et-a"><button type="button" class="btn" data-md="ed">Editar</button>${i.novo?'':'<button type="button" class="btn" data-md="sb">Substituir</button>'}<button type="button" class="btn" data-md="rm">Remover</button>${x&&isKit(x)?'<button type="button" class="btn" data-md="kv">Ver itens</button>':''}</div>`}</div>`}).join('');
       L.querySelectorAll('.et-h').forEach(b=>b.onclick=()=>{const k=Number(b.dataset.k);aberto=aberto===k?-1:k;modo='';draw()});
-      L.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{if(b.dataset.md==='rm'){const k2=aberto;its.splice(k2,1);cur.splice(k2,1);cur0.splice(k2,1);aberto=-1;modo='';draw();cf.innerHTML='';return}modo=b.dataset.md;draw();const fi=L.querySelector('#et-qv,#et-sq');fi&&setTimeout(()=>fi.focus(),40)});
+      L.querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{modo=b.dataset.md;draw();const fi=L.querySelector('#et-qv,#et-sq');fi&&setTimeout(()=>fi.focus(),40)});
+      const rmB=L.querySelector('[data-rmok]');if(rmB)rmB.onclick=()=>{const k2=aberto,r=its[k2];if(!r.novo&&r.pid)tirados.add(r.pid);its.splice(k2,1);cur.splice(k2,1);cur0.splice(k2,1);aberto=-1;modo='';draw();cf.innerHTML='';toast(`${itNome(r)} removido`)};
       const k=aberto;if(k<0)return;
       const qv=L.querySelector('#et-qv');if(qv){const ok=()=>{const v=qv.value===''?0:Math.round(Number(qv.value)*10)/10;if(!(v>=0)){toast('Quantidade invalida.');return}cur[k].qtd=v;aberto=-1;draw();cf.innerHTML=''};
         L.querySelector('#et-ok').onclick=ok;qv.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();ok()}}}
@@ -5287,8 +5289,14 @@ function formEditTroca(id){
       const novos=its.map((i,k)=>{const {novo,...r}=i;return {...r,qtd:cur[k].qtd,espec:cur[k].espec,estoqueId:cur[k].sid}});
       const A=pecasUsadas(t),B=pecasUsadas(t,novos),mais={},menos={};
       new Set([...Object.keys(A),...Object.keys(B)]).forEach(k=>{const d=Math.round(((B[k]||0)-(A[k]||0))*10)/10;if(d>0)mais[k]=d;else if(d<0)menos[k]=-d});
-      const go=async(dev,bx)=>{
-        const ok=await safe(async()=>{
+      /* itens removidos do registro: se este registro era a ultima troca deles, o plano volta para a troca anterior */
+      const effO=t.hmConv??t.horimetro,naoMais=new Set(novos.map(i=>i.pid).filter(Boolean));
+      const volta=[...tirados].filter(pid=>!naoMais.has(pid)).map(pid=>{const pi=(e.itens||[]).find(i=>i.pid===pid);if(!pi||Number(pi.ultimaH)!==Number(effO))return null;
+        const ant=S.trocas.filter(x=>x.id!==id&&x.equipId===e.id&&x.tipo!=='hmtroca'&&x.tipo!=='reprog'&&(x.data||'')<=(t.data||'')&&(x.itens||[]).some(i=>i.pid===pid)).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0))[0];
+        return {pid,pi,ant}}).filter(Boolean);
+      const sem=volta.filter(v=>!v.ant);
+      const go=async(dev,bx,tiraPl)=>{
+        const ok=await safe(async()=>{let planIts=null;
           /* horimetro convertido (troca de relogio) segue a mesma diferenca */
           const effOld=t.hmConv??t.horimetro,effNew=Math.round((h0+(Number(effOld)-Number(t.horimetro)||0))*10)/10,dh=Math.round((effNew-Number(effOld))*10)/10;
           await S.db.doc('trocas/'+id).update({data:dt,horimetro:h0,...(t.hmConv!=null?{hmConv:effNew}:{}),resp:V.resp.trim(),obs:V.obs.trim(),itens:novos,editado:Date.now()});
@@ -5296,11 +5304,15 @@ function formEditTroca(id){
           const pids=new Set(novos.map(i=>i.pid).filter(Boolean));
           if((dh||dt!==t.data)&&pids.size){let mud=false;const its2=(e.itens||[]).map(i=>{if(!pids.has(i.pid)||Number(i.ultimaH)!==Number(effOld))return i;mud=true;
               return {...i,ultimaH:effNew,ultimaData:dt,proxH:i.proxH===''||i.proxH==null||isNaN(Number(i.proxH))?i.proxH:Math.round((Number(i.proxH)+dh)*10)/10}});
-            if(mud)await S.db.doc('equipamentos/'+e.id).update({itens:its2})}
+            if(mud){await S.db.doc('equipamentos/'+e.id).update({itens:its2});planIts=its2}}
           /* peca substituida com intervalo escolhido: vale para o item do plano se este registro e a ultima troca dele */
           const ivK=its.map((i,k)=>[i.pid,cur[k].iv]).filter(([pid,v])=>pid&&v!==undefined);
-          if(ivK.length){const eNow=eqById(e.id)||e;let mud2=false;const its3=(eNow.itens||[]).map(i=>{const m=ivK.find(x=>x[0]===i.pid);if(!m||Number(i.ultimaH)!==Number(effNew))return i;mud2=true;return {...i,ivSel:m[1],ivDef:true,proxH:ivProx(m[1],effNew,i.proxH)}});
-            if(mud2)await S.db.doc('equipamentos/'+e.id).update({itens:its3})}
+          if(ivK.length){const eNow=eqById(e.id)||e;let mud2=false;const its3=(planIts||eNow.itens||[]).map(i=>{const m=ivK.find(x=>x[0]===i.pid);if(!m||Number(i.ultimaH)!==Number(effNew))return i;mud2=true;return {...i,ivSel:m[1],ivDef:true,proxH:ivProx(m[1],effNew,i.proxH)}});
+            if(mud2){await S.db.doc('equipamentos/'+e.id).update({itens:its3});planIts=its3}}
+          if(volta.length){const vm=new Map(volta.map(v=>[v.pid,v]));
+            const its4=(planIts||(eqById(e.id)||e).itens||[]).filter(i=>!(tiraPl&&vm.has(i.pid)&&!vm.get(i.pid).ant)).map(i=>{const v=vm.get(i.pid);if(!v)return i;
+              if(!v.ant)return {...i,ultimaH:'',ultimaData:'',proxH:''};const h2=Number(v.ant.hmConv??v.ant.horimetro);return {...i,ultimaH:h2,ultimaData:v.ant.data||'',proxH:ivProx(i.ivSel,h2,'')}});
+            await S.db.doc('equipamentos/'+e.id).update({itens:its4})}
           if(bx)for(const[sid,q]of Object.entries(mais)){const x=stById(sid);await logBaixa(sid,q,today(),e.id);await S.db.doc('estoque/'+sid).update({qtd:Math.round(((Number(x.qtd)||0)-q)*10)/10})}
           if(dev)for(const[sid,q]of Object.entries(menos)){const x=stById(sid);const saldo=Math.round(((Number(x.qtd)||0)+q)*10)/10;
             await S.db.doc('estoque/'+sid).update({qtd:saldo});try{await S.db.collection('movs').add({estoqueId:sid,tipo:'entrada',qtd:q,data:today(),obs:'Preventiva editada',equipId:e.id,origem:'estorno',saldo,ts:Date.now()})}catch(er){console.error(er)}}
@@ -5311,7 +5323,12 @@ function formEditTroca(id){
           <div class="eqv-f"><button type="button" class="btn" data-n>${no}</button><button type="button" class="btn pri" data-y>${yes}</button></div></div>`;
         cf.scrollIntoView({block:'start',behavior:'smooth'});cf.querySelector('[data-n]').onclick=()=>fn(false);cf.querySelector('[data-y]').onclick=()=>fn(true)};
       /* 1º pergunta se devolve o que saiu do registro; 2º se da baixa no que entrou no lugar */
-      const passo2=dev=>Object.keys(mais).length?ask('Dar baixa no estoque?','Pecas aplicadas no lugar:',mais,'Nao dar baixa','Dar baixa',bx=>go(dev,bx)):go(dev,false);
+      /* item removido sem troca anterior: pergunta se sai tambem do plano do equipamento */
+      const passo3=(dev,bx)=>{if(!sem.length){go(dev,bx,false);return}
+        cf.innerHTML=`<div class="dv-ask"><b>Tirar do plano?</b><p class="note" style="margin:0">Sem troca anterior no historico:</p><div class="spec dv-l">${specList('',sem.map(v=>[itNome(v.pi),itCod(v.pi),'']))}</div>
+          <div class="eqv-f"><button type="button" class="btn" data-n>Manter no plano</button><button type="button" class="btn pri" data-y>Tirar do plano</button></div></div>`;
+        cf.scrollIntoView({block:'start',behavior:'smooth'});cf.querySelector('[data-n]').onclick=()=>go(dev,bx,false);cf.querySelector('[data-y]').onclick=()=>go(dev,bx,true)};
+      const passo2=dev=>Object.keys(mais).length?ask('Dar baixa no estoque?','Pecas aplicadas no lugar:',mais,'Nao dar baixa','Dar baixa',bx=>passo3(dev,bx)):passo3(dev,false);
       if(Object.keys(menos).length)ask('Devolver ao estoque?','Pecas retiradas do registro:',menos,'Nao devolver','Devolver',passo2);
       else passo2(false)}}});
 }
@@ -5654,7 +5671,7 @@ function formStock(id,preset,onSaved){
     const eqLine=e=>[e.marca,e.modelo].filter(Boolean).join(' ');
     /* encaixe novo: escolhe o intervalo de troca deste item naquele equipamento (so neste momento) */
     const encOrig=new Set(s.encaixe||[]),encIv={};const kitSt=isKit(s);
-    const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
+    const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Remover</button></div>`}).join('');encBox.hidden=!enc.length;
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);delete encIv[b.dataset.encrm];drawEnc()});
       encBox.querySelectorAll('[data-enciv]').forEach(v=>v.onchange=()=>{encIv[v.dataset.enciv]=v.value})};drawEnc();
     const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
@@ -6376,7 +6393,7 @@ function formKit(id,pre){
     sh.querySelectorAll('[data-kiv]').forEach(b=>b.onclick=()=>{sh.querySelectorAll('[data-kiv]').forEach(x=>x.setAttribute('aria-pressed',x===b));ivH.value=b.dataset.kiv;nome()});
     const encBox=sh.querySelector('#k-enc'),encQ=sh.querySelector('#k-encq'),encR=sh.querySelector('#k-encr');
     const eqLine=e=>[e.marca,e.modelo].filter(Boolean).join(' ');
-    const drawEnc=()=>{encBox.innerHTML=enc.slice().sort((a,b)=>byCode(eqById(a),eqById(b))).map(i=>{const e=eqById(i);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(i)}">Tirar</button></div>`}).join('');encBox.hidden=!enc.length;
+    const drawEnc=()=>{encBox.innerHTML=enc.slice().sort((a,b)=>byCode(eqById(a),eqById(b))).map(i=>{const e=eqById(i);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(i)}">Remover</button></div>`}).join('');encBox.hidden=!enc.length;
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()});nome()};drawEnc();apD();
     const nzE=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
     encQ.oninput=()=>{const qq=nzE(encQ.value);if(!qq){encR.hidden=true;return}

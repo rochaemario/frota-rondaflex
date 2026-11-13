@@ -5,6 +5,9 @@
 (function(){
   'use strict';
   const CFG=window.FROTA_CFG||{};
+  /* link de "Esqueci a senha": fica na tela Nova senha ate salvar (item 16) */
+  const RCV_URL=location.hash+'&'+location.search;
+  let recuperando=/(^|[#&?])type=recovery(&|$)/.test(RCV_URL)?'ok':/(^|[#&?])error_code=/.test(RCV_URL)?'exp':'';
   const sb=window.supabase.createClient(CFG.url,CFG.key,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   window.__sb=sb;
   const BUCKET='arquivos',BUCKET_DOC='documentos';  /* documentos (veiculo, nota fiscal) ficam no armazenamento privado */
@@ -214,6 +217,8 @@
   .lg-c h1{font-family:var(--display);font-size:26px;letter-spacing:.005em;margin:0}
   .lg-c p{margin:0;color:var(--muted);font-size:14px}
   .lg-f{background:var(--surface,#fff);border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow)}
+  .np-h{display:flex;align-items:center;gap:12px}.np-h h1{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .np-w{position:relative;display:block}.np-w input{width:100%;padding-right:44px;box-sizing:border-box}.np-o{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;padding:8px;color:var(--muted);cursor:pointer;display:flex}.np-o[aria-pressed="true"]{color:var(--accent)}
   .lg-e{font-size:13px;color:var(--bad);font-weight:600;min-height:0}.lg-e:empty{display:none}
   .lg-l{background:none;border:0;color:var(--accent);font:inherit;font-size:14px;font-weight:600;padding:6px 0;cursor:pointer;align-self:center}
   .lg-pk{display:flex;justify-content:center;margin:34px 0 18px;color:#0b2a7a}.lg-pk span{width:84px;height:84px;border-radius:26px;background:#e8edf6;display:flex;align-items:center;justify-content:center}
@@ -235,9 +240,9 @@
   .imp-p{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}.imp-p i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}`;
   function css(){if(document.getElementById('lg-css'))return;const s=document.createElement('style');s.id='lg-css';s.textContent=CSS;document.head.appendChild(s)}
   const BRAND='<div class="brand"><i></i>Controle de Frota</div>';
-  function screen(html,mount){css();let o=document.getElementById('lg');if(!o){o=document.createElement('div');o.id='lg';o.className='lg';document.body.appendChild(o)}
+  function screen(html,mount,rec){if(recuperando&&!rec)return document.getElementById('lg');css();let o=document.getElementById('lg');if(!o){o=document.createElement('div');o.id='lg';o.className='lg';document.body.appendChild(o)}
     o.innerHTML=`<div class="lg-top">${BRAND}</div><div class="lg-c">${html}</div>`;mount&&mount(o);return o}
-  const closeScreen=()=>{const o=document.getElementById('lg');if(o)o.remove()};
+  const closeScreen=()=>{if(recuperando)return;const o=document.getElementById('lg');if(o)o.remove()};
   /* ---------- mecanico: entrar com matricula + senha de 6 numeros ---------- */
   const lsG=k=>{try{return localStorage.getItem(k)}catch(e){return null}},lsS=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch(e){}};
   const fnAnon=async corpo=>{const x=await fetch(CFG.url+'/functions/v1/mecanico',{method:'POST',headers:{'Content-Type':'application/json',apikey:CFG.key,Authorization:'Bearer '+CFG.key},body:JSON.stringify(corpo)});const r=await x.json().catch(()=>null);return r||{erro:'falha'}};
@@ -279,8 +284,24 @@
       o.querySelector('#lg-r').onclick=async()=>{const email=o.querySelector('#lg-m').value.trim();if(!email){x.textContent='Digite seu e-mail acima e toque de novo em "Esqueci a senha".';return}
         const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
         x.style.color='var(--ok)';x.textContent=error?'':'Enviamos um link para criar uma nova senha. Confira seu e-mail.';if(error){x.style.color='';x.textContent='Nao foi possivel enviar. Confira o e-mail.'}}})}
-  function newPassword(){screen(`<h1>Nova senha</h1><p>Crie sua nova senha de acesso.</p><form class="lg-f" id="np-f"><label class="f">Nova senha<input id="np-p" type="password" minlength="6" autocomplete="new-password" required></label><div class="lg-e" id="np-x"></div><button class="btn pri">Salvar senha</button></form>`,o=>{
-    o.querySelector('#np-f').onsubmit=async ev=>{ev.preventDefault();const {error}=await sb.auth.updateUser({password:o.querySelector('#np-p').value});if(error){o.querySelector('#np-x').textContent='Use pelo menos 6 caracteres.';return}history.replaceState(null,'',location.pathname);start()}})}
+  const OLHO='<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  const npCampo=(id,rot)=>`<label class="f">${rot}<span class="np-w"><input id="${id}" type="password" autocomplete="new-password" required><button type="button" class="np-o" data-olho="${id}" aria-label="Mostrar senha" aria-pressed="false">${OLHO}</button></span></label>`;
+  function npExpirado(){recuperando='exp';screen(`<h1>Nova senha</h1><div class="lg-e">Link expirado. Peca outro em Esqueci a senha</div><button type="button" class="btn pri" id="np-v">Voltar ao Entrar</button>`,o=>{
+    o.querySelector('#np-v').onclick=async()=>{recuperando='';history.replaceState(null,'',location.pathname);try{await sb.auth.signOut({scope:'local'})}catch(e){}saindo=false;loginForm('',true)}},true)}
+  function newPassword(){if(recuperando==='exp'){npExpirado();return}recuperando='ok';if(document.getElementById('np-f'))return;
+    screen(`<div class="sh-head np-h"><h1>Nova senha</h1><button class="btn pri hd-pri" form="np-f" id="np-b" title="Salvar" aria-label="Salvar">Salvar</button></div>
+    <form class="lg-f" id="np-f" novalidate>${npCampo('np-p','Nova senha')}${npCampo('np-2','Repetir senha')}<div class="lg-e" id="np-x"></div></form>`,o=>{
+    const x=o.querySelector('#np-x'),b=o.querySelector('#np-b');
+    o.querySelectorAll('[data-olho]').forEach(t=>t.onclick=()=>{const i=o.querySelector('#'+t.dataset.olho),v=i.type==='password';i.type=v?'text':'password';t.setAttribute('aria-pressed',v);t.setAttribute('aria-label',v?'Ocultar senha':'Mostrar senha')});
+    o.querySelector('#np-f').onsubmit=async ev=>{ev.preventDefault();x.textContent='';const p1=o.querySelector('#np-p').value,p2=o.querySelector('#np-2').value;
+      if(p1.length<6){x.textContent='Minimo 6 caracteres';return}if(p1!==p2){x.textContent='As senhas nao conferem';return}
+      b.disabled=true;let sess=null;try{({data:{session:sess}}=await sb.auth.getSession())}catch(e){}
+      if(!sess){b.disabled=false;npExpirado();return}
+      let error=null;try{({error}=await sb.auth.updateUser({password:p1}))}catch(e){error=e}b.disabled=false;
+      if(error){const m=String(error.message||error.code||error);
+        if(/expired|invalid.*(jwt|token)|session|not.*auth|401|403/i.test(m+' '+(error.status||''))){npExpirado();return}
+        x.textContent=/different|same/i.test(m)?'Use uma senha diferente da atual':/fetch|network/i.test(m)||!navigator.onLine?'Sem internet. Conecte e toque de novo.':'Nao foi possivel salvar. Tente de novo.';return}
+      recuperando='';history.replaceState(null,'',location.pathname);avisar('Senha salva','');acabouDeEntrar=true;start()}},true)}
   function waiting(){screen(`<h1>Aguardando liberacao</h1><p>Seu acesso foi criado, mas o administrador ainda precisa liberar. Peca para ele abrir <b>Equipe</b> no app.</p><button type="button" class="btn" id="lg-o">Sair</button>`,o=>{o.querySelector('#lg-o').onclick=()=>(saindo=true,sb.auth.signOut())})}
 
   let started=false,acabouDeEntrar=false,travaP=null,saindo=false,semSessao=false;
@@ -335,11 +356,13 @@
     const r=await x.json().catch(()=>null);if(!x.ok||!r||r.erro)throw new Error((r&&(r.msg||r.erro))||('HTTP '+x.status));return r};
   let startP=null;function start(){if(startP)return startP;startP=start0().finally(()=>{startP=null});return startP}
   async function start0(){
+    if(recuperando){newPassword();return}
     if(!started){const mk=mecParam();if(mk&&await mecEntrar(mk))return}
     /* sessao: nao espera mais que 1,5 s pelo servidor; segue com a guardada e renova em segundo plano */
     let session=null;const guard=sessaoGuardada();
     if(guard&&!acabouDeEntrar&&!started){session=guard;sb.auth.getSession().catch(()=>{})}
     else try{const r=await Promise.race([sb.auth.getSession(),new Promise(ok=>setTimeout(()=>ok(guard&&!acabouDeEntrar?{data:{session:guard},lento:true}:null),1500))]);if(r)session=r.data.session}catch(e){}
+    if(recuperando){newPassword();return}
     if(!session&&!acabouDeEntrar)session=guard;
     if(!session&&acabouDeEntrar){try{({data:{session}}=await sb.auth.getSession())}catch(e){}}
     /* sem sessao e sem internet: se este aparelho ja foi usado, abre com os dados guardados (login volta a ser pedido quando houver internet) */
@@ -368,7 +391,7 @@
       setTimeout(async()=>{if(await pinPrecisa())pinCriar()},400);setTimeout(()=>{realtime();equipeSync()},conLenta()?3000:300);return}
     closeScreen()
   }
-  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){newPassword();return}if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}
+  sb.auth.onAuthStateChange((ev)=>{if(ev==='PASSWORD_RECOVERY'){if(recuperando!=='exp')recuperando='ok';newPassword();return}if(recuperando)return;if(ev==='SIGNED_IN'){if(!started)start();else{const era=semSessao;semSessao=false;closeScreen();era?sincronizar():syncDepois()}return}
     /* sessao perdida sem o usuario pedir (ex.: senha trocada): pede login de novo, sem apagar o que esta guardado */
     if(ev==='SIGNED_OUT'&&!saindo){if(started)loginForm('Entre de novo para enviar o que esta guardado neste aparelho.');return}
     if(ev==='SIGNED_OUT'){window.__frotaSemEstado=true;try{sessionStorage.clear();localStorage.removeItem('frota.perfil');localStorage.removeItem('frota.estado');Object.keys(localStorage).filter(k=>k.startsWith('frota.osRasc.')).forEach(k=>localStorage.removeItem(k))}catch(e){}try{IDBH&&IDBH.close();const r=indexedDB.deleteDatabase(NS?'frota-teste':'frota');try{indexedDB.deleteDatabase(NS?'frota':'frota-teste')}catch(e){}r.onsuccess=r.onerror=r.onblocked=()=>location.reload();setTimeout(()=>location.reload(),1500)}catch(e){location.reload()}}});

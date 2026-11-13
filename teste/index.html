@@ -520,17 +520,18 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
   #prt .p-k div{border:.8pt solid #c9cfda;padding:7pt 9pt;min-width:0;overflow:hidden;box-sizing:border-box}
   body.prt-on #prt{box-sizing:border-box;width:100%;max-width:100%}
   #prt .p-k small{display:block;font-size:7.5pt;font-weight:700;color:#4f5a70;text-transform:uppercase}
-  #prt .p-k b{display:block;font-size:15pt;margin-top:3pt;white-space:nowrap}
+  #prt .p-k b{display:block;font-size:15pt;margin-top:3pt;white-space:normal}
   #prt h2{font-size:13pt;margin:16pt 0 5pt}
   #prt table{width:100%;border-collapse:collapse;table-layout:fixed}
   #prt thead{display:table-header-group}
   #prt tr{break-inside:avoid}
-  #prt th{font-size:7.5pt;text-align:left;padding:4pt 5pt;background:#f2f4f8;border-bottom:1pt solid #121a2c;white-space:nowrap;overflow:hidden}
-  #prt td{font-size:9pt;padding:3.5pt 5pt;border-bottom:.5pt solid #c9cfda;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  #prt th{font-size:7.5pt;text-align:left;vertical-align:top;padding:4pt 5pt;background:#f2f4f8;border-bottom:1pt solid #121a2c;white-space:normal;overflow-wrap:normal;word-break:normal}
+  #prt td{font-size:9pt;vertical-align:top;padding:3.5pt 5pt;border-bottom:.5pt solid #c9cfda;white-space:normal;overflow-wrap:normal;word-break:normal}
   #prt .r{text-align:right}#prt .b{font-weight:700}
   #prt tr.g td{background:#e8edf7;color:#0b2470;font-weight:700;font-size:8.5pt}
   #prt tr.s td{color:#4f5a70}#prt tr.s td:first-child{padding-left:16pt}
   #prt tr.t td{font-weight:700;border-top:1pt solid #121a2c;border-bottom:0}
+  #prt tr[style*="height"] td{vertical-align:middle}
   #prt .p-nt{font-size:8pt;color:#4f5a70;margin:4pt 0 0}
   #prt .p-as{display:grid;grid-template-columns:1fr 1fr;gap:30pt;margin-top:40pt;font-size:8.5pt;color:#4f5a70}
   #prt .p-as span{border-top:.8pt solid #121a2c;padding-top:4pt}
@@ -1520,16 +1521,17 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .rg-pg .p-k{display:grid;gap:8px;margin-top:12px}
 .rg-pg .p-k div{border:.8px solid #c9cfda;padding:7px 9px;min-width:0;overflow:hidden}
 .rg-pg .p-k small{display:block;font-size:7.5px;font-weight:700;color:#4f5a70;text-transform:uppercase}
-.rg-pg .p-k b{display:block;font-size:15px;margin-top:3px;white-space:nowrap}
+.rg-pg .p-k b{display:block;font-size:15px;margin-top:3px;white-space:normal}
 .rg-pg h2{font:700 13px Arial,Helvetica,sans-serif;margin:16px 0 5px;color:#121a2c}
 .rg-pg table{width:100%;border-collapse:collapse;table-layout:fixed}
-.rg-pg th{font-size:7.5px;text-align:left;padding:4px 5px;background:#f2f4f8;border-bottom:1px solid #121a2c;white-space:nowrap;overflow:hidden;color:#33405a}
-.rg-pg td{font-size:9px;padding:3.5px 5px;border-bottom:.5px solid #c9cfda;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rg-pg th{font-size:7.5px;text-align:left;vertical-align:top;padding:4px 5px;background:#f2f4f8;border-bottom:1px solid #121a2c;white-space:normal;overflow-wrap:normal;word-break:normal;color:#33405a}
+.rg-pg td{font-size:9px;vertical-align:top;padding:3.5px 5px;border-bottom:.5px solid #c9cfda;white-space:normal;overflow-wrap:normal;word-break:normal}
 .rg-pg .r{text-align:right}.rg-pg .b{font-weight:700}
 .rg-pg tr.g td{background:#e8edf7;color:#0b2470;font-weight:700;font-size:8.5px}
 .rg-pg tr.s td{color:#4f5a70}.rg-pg tr.s td:first-child{padding-left:16px}
 .rg-pg tr.t td{font-weight:700;border-top:1px solid #121a2c;border-bottom:0}
 .rg-pg tr.cx td+td{border-left:.5px solid #c9cfda}
+.rg-pg tr[style*="height"] td{vertical-align:middle}
 .rg-pg .p-nt{font-size:8px;color:#4f5a70;margin:4px 0 0}
 .rg-pg .p-as{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:40px;font-size:8.5px;color:#4f5a70}
 .rg-pg .p-as span{border-top:.8px solid #121a2c;padding-top:4px}
@@ -1562,8 +1564,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=599723a1b0"></script>
-<script src="shim.js?v=599723a1b0"></script>
+<script src="config.js?v=4913995158"></script>
+<script src="shim.js?v=4913995158"></script>
 </head>
 <body>
 
@@ -2783,7 +2785,7 @@ async function cbxPdfDados(P,c){
     .sort((a,b)=>a.d.localeCompare(b.d)||String(a.c[1]).localeCompare(String(b.c[1]),'pt',{numeric:true})||a.ts-b.ts).map(x=>({c:x.c,b:[1,5]}));
   const perL=P.v==='mes'?`${cbxMesNome(P.m)} ${P.m.slice(0,4)} (${fdate(de).slice(0,5)} a ${fdate(ate).slice(0,5)})`:P.v==='dia'?fdate(de):`${fdate(de)} a ${fdate(ate)}`;
   const tags=eqSet?[...eqSet].map(id=>eqOf(id).codigo):[];
-  const filt=[`Centro de custo: ${cuSet?cuSet.map(cbxCuNome).join(', '):'Todos'}`,`Equipamentos: ${eqSet?(tags.length>8?tags.slice(0,8).join(', ')+` +${tags.length-8}`:tags.join(', ')):'Todos'}`,`MSE: ${P.mse?'incluido':'fora'}`].join(' · ');
+  const filt=[`Centro de custo: ${cuSet?cuSet.map(cbxCuNome).join(', '):'Todos'}`,`Equipamentos: ${eqSet?tags.join(', '):'Todos'}`,`MSE: ${P.mse?'incluido':'fora'}`].join(' · ');
   const cont=[P.cc&&'Resumo por centro de custo',P.eq&&'Total por equipamento',P.eq&&P.cons&&'Consumo',P.ab&&'Cada abastecimento'].filter(Boolean).join(' · ');
   const fper=P.v==='mes'?P.m:P.v==='dia'?de:`${de} a ${ate}`;
   return {tit:'Relatorio de combustivel',perL,filt,cont,gerado:'Gerado em '+agoraTx(),fl:{cc:P.cc,eq:P.eq,cons:P.eq&&P.cons,ab:P.ab},
@@ -2802,7 +2804,9 @@ function pdfDoc(){const PW=595.28,PH=841.89,pages=[];let cur=null;const f=v=>Num
     rect(x,y,w,h,c){cur.push(`${rgb(c)} rg ${f(x)} ${f(PH-y-h)} ${f(w)} ${f(h)} re f`)},
     line(x1,y1,x2,y2,w,c){cur.push(`${rgb(c)} RG ${w} w ${f(x1)} ${f(PH-y1)} m ${f(x2)} ${f(PH-y2)} l S`)},
     text(x,y,s,sz,b,c,al){s=pdfTx(s);const w=pdfW(s,sz,b);if(al==='r')x-=w;else if(al==='c')x-=w/2;cur.push(`BT /${b?'F2':'F1'} ${sz} Tf ${rgb(c||'#121a2c')} rg ${f(x)} ${f(PH-y)} Td (${pdfEsc(s)}) Tj ET`)},
-    fit(s,sz,b,mw){s=pdfTx(s);if(pdfW(s,sz,b)<=mw)return s;while(s.length>1&&pdfW(s+'...',sz,b)>mw)s=s.slice(0,-1);return s+'...'},
+    /* nada e cortado: quebra so entre palavras; palavra maior que a largura diminui a fonte so naquela linha */
+    lines(s,sz,b,mw){s=pdfTx(s);const out=[];s.split('\n').forEach(par=>{let l='';cvTok(par).forEach(w=>{const n=l?l+' '+w:w;if(l&&pdfW(n,sz,b)>mw){out.push(l);l=w}else l=n});out.push(l)});return out.length?out:['']},
+    tx(x,y,s,sz,b,c,al,mw){s=pdfTx(s);const w=pdfW(s,sz,b);if(mw&&w>mw)sz=Math.round(sz*mw/w*0.98*100)/100;D.text(x,y,s,sz,b,c,al)},
     blob(){const enc=new TextEncoder(),parts=[],offs=[];let len=0;const put=s=>{const u=typeof s==='string'?enc.encode(s):s;parts.push(u);len+=u.length};
       const obj=(n,s)=>{offs[n]=len;put(`${n} 0 obj\n${s}\nendobj\n`)};const N=4+pages.length*2;
       put('%PDF-1.4\n');obj(1,'<< /Type /Catalog /Pages 2 0 R >>');obj(2,`<< /Type /Pages /Kids [${pages.map((_,i)=>`${5+i*2} 0 R`).join(' ')}] /Count ${pages.length} >>`);
@@ -2812,6 +2816,33 @@ function pdfDoc(){const PW=595.28,PH=841.89,pages=[];let cur=null;const f=v=>Num
       const xr=len;put(`xref\n0 ${N+1}\n0000000000 65535 f \n`);for(let n=1;n<=N;n++)put(`${String(offs[n]).padStart(10,'0')} 00000 n \n`);
       put(`trailer\n<< /Size ${N+1} /Root 1 0 R >>\nstartxref\n${xr}\n%%EOF\n`);return new Blob(parts,{type:'application/pdf'})}};
   return D}
+/* informes PDF: quadro Filtrar/Conteudo com o texto inteiro (quebra linha) */
+function pdfFiltro(D,M,W,fl,SUNK,MUT,INK,y,set){const L=fl.map(([l,v])=>[l,D.lines(v||'',8.5,0,W-78)]),n=L.reduce((s,z)=>s+z[1].length,0),h=10+n*11.5+1.5;
+  D.rect(M,y,W,h,SUNK);let yy=y+14;L.forEach(([l,ls])=>{D.text(M+10,yy,l,8.5,1,MUT);ls.forEach(s=>{D.tx(M+68,yy,s,8.5,0,INK,null,W-78);yy+=11.5})});set(y+h)}
+/* numeros do topo: ate 4 por linha, rotulo quebra e o valor nunca sai do quadro */
+function pdfKpi(D,M,W,K,y,box,MUT,NAVY){for(let a=0;a<K.length;a+=4){const lin=K.slice(a,a+4),kw=(W-(lin.length-1)*10)/lin.length;
+    const Ls=lin.map(([l])=>D.lines(l,7.5,1,kw-20)),n=Math.max(...Ls.map(z=>z.length)),h=46+(n-1)*9;
+    lin.forEach(([l,v,cl],i)=>{const x=M+i*(kw+10);box(x,y,kw,h);Ls[i].forEach((s,j)=>D.tx(x+10,y+15+j*9,s,7.5,1,MUT,null,kw-20));D.tx(x+10,y+36+(n-1)*9,v,16,1,cl||NAVY,null,kw-20)});y+=h+(a+4<K.length?10:16)}
+  return y}
+/* tabela do informe PDF: cada celula quebra entre palavras e a linha cresce; cabecalho repete na folha seguinte */
+function pdfTabela(D,o){const {M,W,need,title,cols,rows,INK,MUT,NAVY,LN,SUNK}=o,LH=10.5,fx=cols.reduce((s,c)=>s+(c.w||0),0),nz=cols.filter(c=>!c.w).length||1,ws=cols.map(c=>c.w||(W-fx)/nz);let y=o.y();
+  const sy=v=>{y=v;o.set(v)},gy=()=>{y=o.y();return y};
+  const hL=cols.map((c,i)=>D.lines(c.t,7.5,1,ws[i]-10)),hH=18+(Math.max(...hL.map(z=>z.length))-1)*8.5;
+  const hdr=()=>{gy();D.rect(M,y,W,hH,SUNK);let x=M;cols.forEach((c,i)=>{hL[i].forEach((s,j)=>D.tx(c.al==='r'?x+ws[i]-5:x+5,y+12.3+j*8.5,s,7.5,1,'#33405a',c.al,ws[i]-10));x+=ws[i]});D.line(M,y+hH,M+W,y+hH,1,INK);sy(y+hH)};
+  const cont=()=>{gy();D.text(M,y+10,pdfTx(title)+' (continuacao)',9,1,MUT);sy(y+16);hdr()};
+  const TL=D.lines(title,13,1,W);need(8+TL.length*16+hH+17*Math.min(3,rows.length));gy();y+=4;TL.forEach((l,i)=>D.tx(M,y+12+i*16,l,13,1,INK,null,W));sy(y+6+TL.length*16);hdr();
+  rows.forEach(r=>{
+    if(r.k==='g'||r.sp){const g=r.k==='g',sz=g?8.5:9,pl=g?5:16,L=D.lines(r.c[0],sz,g?1:0,W-pl-5),h=Math.max(r.h||(g?19:17),(g?19:17)+(L.length-1)*LH);need(h,cont);gy();
+      if(g)D.rect(M,y,W,h,'#e8edf7');L.forEach((s,j)=>D.tx(M+pl,y+(g?12.8:11.8)+j*LH,s,sz,g?1:0,g?NAVY:MUT,null,W-pl-5));D.line(M,y+h,M+W,y+h,g?.6:.5,LN);sy(y+h);return}
+    const cl=cols.map((c,i)=>{const bold=r.k==='t'||(r.b||[]).includes(i),pl=i===0&&r.k==='s'?16:5;return {bold,pl,L:D.lines(r.c[i]==null?'':r.c[i],9,bold,ws[i]-pl-5)}});
+    const n=Math.max(...cl.map(z=>z.L.length)),h=Math.max(r.h||(r.k==='g'?19:17),17+(n-1)*LH);need(h,cont);gy();
+    if(r.k==='t')D.line(M,y,M+W,y,1,INK);let x=M;const b0=n>1?y+11.8:y+Math.min(h-5.2,11.8+(h-17)/2);
+    cols.forEach((c,i)=>{const z=cl[i];z.L.forEach((s,j)=>D.tx(c.al==='r'?x+ws[i]-5:x+z.pl,b0+j*LH,s,9,z.bold,r.k==='s'?MUT:INK,c.al,ws[i]-z.pl-5));x+=ws[i]});
+    if(r.k!=='t')D.line(M,y+h,M+W,y+h,.5,LN);if(r.cx){let xx=M;ws.forEach((w,i)=>{if(i)D.line(xx,y,xx,y+h,.4,LN);xx+=w})}sy(y+h)});
+  return y+14}
+/* informe impresso/pre-visualizacao: palavra maior que a coluna diminui a fonte so naquela celula (nunca parte a palavra) */
+const prtFit=(s,w,sz,b)=>{const t=pdfTx(s);const mx=Math.max(0,...t.split(/\s+/).map(z=>pdfW(z,sz,b)));return mx>w?` style="font-size:${(sz*w/mx*0.97).toFixed(2)}pt"`:''};
+const prtWs=cols=>{const W=515.28,fx=cols.reduce((s,c)=>s+(c.w||0),0),nz=cols.filter(c=>!c.w).length||1;return cols.map(c=>(c.w||(W-fx)/nz)-10)};
 /* colunas do informe (mesmas no PDF e na impressao) */
 const cbxPdfCols=R=>({
   cc:[{t:'CENTRO DE CUSTO',w:0},{t:'LITROS',w:92,al:'r'},{t:'%',w:60,al:'r'}],
@@ -2823,45 +2854,37 @@ const cbxPdfRows=R=>({cc:R.cc.length?[...R.cc,{k:'t',c:['Total',nf(R.sai,1),'100
 function cbxPdfBlob(R){
   const D=pdfDoc(),M=40,W=D.PW-2*M,BOT=D.PH-50,NAVY='#0b2470',RED='#e30613',INK='#121a2c',MUT='#4f5a70',LN='#c9cfda',SUNK='#f2f4f8';let y=0;
   const head=first=>{D.page();D.rect(M,M-4,4,18,RED);D.text(M+11,M+9.5,'RONDAFLEX · CONTROLE DE FROTA',10,1,NAVY);D.text(M+W,M+9.5,R.gerado,8,0,MUT,'r');D.line(M,M+20,M+W,M+20,1.5,NAVY);y=M+38;
-    if(!first){D.text(M,y,D.fit(`${R.tit} · ${R.perL}`,9,1,W),9,1,MUT);y+=14}};
+    if(!first){D.lines(`${R.tit} · ${R.perL}`,9,1,W).forEach(l=>{D.tx(M,y,l,9,1,MUT,null,W);y+=11});y+=3}};
   const need=(h,re)=>{if(y+h>BOT){head(false);re&&re()}};
   const box=(x,yy,w,h)=>{D.line(x,yy,x+w,yy,.8,LN);D.line(x,yy+h,x+w,yy+h,.8,LN);D.line(x,yy,x,yy+h,.8,LN);D.line(x+w,yy,x+w,yy+h,.8,LN)};
-  head(true);D.text(M,y+10,R.tit,21,1,INK);y+=28;D.text(M,y,R.perL,11,0,MUT);y+=14;
-  D.rect(M,y,W,36,SUNK);D.text(M+10,y+14,'Filtrar',8.5,1,MUT);D.text(M+68,y+14,D.fit(R.filt,8.5,0,W-78),8.5,0,INK);D.text(M+10,y+27,'Conteudo',8.5,1,MUT);D.text(M+68,y+27,D.fit(R.cont,8.5,0,W-78),8.5,0,INK);y+=50;
+  head(true);D.lines(R.tit,21,1,W).forEach((l,i)=>{if(i)y+=25;D.tx(M,y+10,l,21,1,INK,null,W)});y+=28;D.lines(R.perL,11,0,W).forEach(l=>{D.tx(M,y,l,11,0,MUT,null,W);y+=14});
+  pdfFiltro(D,M,W,[['Filtrar',R.filt],['Conteudo',R.cont]],SUNK,MUT,INK,y,v=>y=v);y+=14;
   const K=[['SAIDAS',nf(R.sai,1)+' L',NAVY],...(R.ent!=null?[[R.est?'ENTRADAS (ESTIMADA)':'ENTRADAS',nf(R.ent,1)+' L',INK]]:[]),['EQUIPAMENTOS',nf(R.nEq)+(R.nMse?` + ${R.nMse} MSE`:''),INK],['ABASTECIMENTOS',nf(R.nAb),INK]];
-  const kw=(W-(K.length-1)*10)/K.length;K.forEach(([l,v,cl],i)=>{const x=M+i*(kw+10);box(x,y,kw,46);D.text(x+10,y+15,l,7.5,1,MUT);D.text(x+10,y+36,D.fit(v,16,1,kw-20),16,1,cl)});y+=62;
-  const table=(title,cols,rows)=>{if(!rows.length)return;const fx=cols.reduce((s,c)=>s+c.w,0),ws=cols.map(c=>c.w||W-fx);
-    const hdr=()=>{D.rect(M,y,W,18,SUNK);let x=M;cols.forEach((c,i)=>{D.text(c.al==='r'?x+ws[i]-5:x+5,y+12.3,c.t,7.5,1,'#33405a',c.al);x+=ws[i]});D.line(M,y+18,M+W,y+18,1,INK);y+=18};
-    need(30+18+17*Math.min(3,rows.length));y+=4;D.text(M,y+12,title,13,1,INK);y+=22;hdr();
-    rows.forEach(r=>{const h=r.k==='g'?19:17;need(h,()=>{D.text(M,y+10,title+' (continuacao)',9,1,MUT);y+=16;hdr()});
-      if(r.k==='g'){D.rect(M,y,W,h,'#e8edf7');D.text(M+5,y+12.8,D.fit(r.c[0],8.5,1,W-10),8.5,1,NAVY);D.line(M,y+h,M+W,y+h,.6,LN);y+=h;return}
-      if(r.k==='t')D.line(M,y,M+W,y,1,INK);let x=M;
-      cols.forEach((c,i)=>{const bold=r.k==='t'||(r.b||[]).includes(i),pl=i===0&&r.k==='s'?16:5,v=D.fit(r.c[i]==null?'':r.c[i],9,bold,ws[i]-pl-5);
-        D.text(c.al==='r'?x+ws[i]-5:x+pl,y+11.8,v,9,bold,r.k==='s'?MUT:INK,c.al);x+=ws[i]});
-      if(r.k!=='t')D.line(M,y+h,M+W,y+h,.5,LN);y+=h});y+=14};
+  y=pdfKpi(D,M,W,K,y,box,MUT,NAVY);
+  const table=(title,cols,rows)=>{if(!rows.length)return;y=pdfTabela(D,{M,W,BOT,need,y:()=>y,set:v=>y=v,title,cols,rows,INK,MUT,NAVY,LN,SUNK})};
   const C=cbxPdfCols(R),RW=cbxPdfRows(R);
-  if(!R.nAb){D.text(M,y+14,'Nenhum abastecimento no periodo e filtro escolhidos.',11,0,MUT);y+=30}
+  if(!R.nAb){D.tx(M,y+14,'Nenhum abastecimento no periodo e filtro escolhidos.',11,0,MUT,null,W);y+=30}
   if(R.fl.cc)table('Por centro de custo',C.cc,RW.cc);
   if(R.fl.eq)table('Por equipamento',C.eq,RW.eq);
   if(R.fl.ab)table('Abastecimentos',C.ab,RW.ab);
   const nt=[R.fl.cons&&R.nAb?'Consumo em L/h; veiculo leve em km/L. Calculado com tanque cheio no periodo.':'',R.ent!=null&&R.est?'Entradas estimadas iguais as saidas ate o saldo do comboio ser informado.':''].filter(Boolean);
-  nt.forEach(s=>{need(12);D.text(M,y+4,s,8,0,MUT);y+=12});
+  nt.forEach(s=>D.lines(s,8,0,W).forEach(l=>{need(12);D.tx(M,y+4,l,8,0,MUT,null,W);y+=12}));
   need(70);y+=46;const sw=(W-40)/2;[0,1].forEach(i=>{const x=M+i*(sw+40);D.line(x,y,x+sw,y,.8,INK);D.text(x,y+12,i?'Conferido por':'Responsavel',8.5,0,MUT)});
   const n=D.pages.length;D.pages.forEach((_,i)=>{D.on(i);D.line(M,D.PH-34,M+W,D.PH-34,.6,LN);D.text(M,D.PH-22,'Gerado pelo Controle de Frota · Rondaflex',7.5,0,MUT);D.text(M+W,D.PH-22,`Pagina ${i+1} de ${n}`,7.5,0,MUT,'r')});
   return {blob:D.blob(),pages:n}}
 /* impressao: o mesmo informe em HTML, so na hora de imprimir (o resto da tela some) */
 function cbxPrtHtml(R){const C=cbxPdfCols(R),RW=cbxPdfRows(R);
-  const tb=(t,cols,rows)=>rows.length?`<h2>${esc(t)}</h2><table><thead><tr>${cols.map(c=>`<th class="${c.al==='r'?'r':''}"${c.w?` style="width:${c.w}pt"`:''}>${esc(c.t)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>r.k==='g'?`<tr class="g"><td colspan="${cols.length}">${esc(r.c[0])}</td></tr>`
-    :`<tr class="${r.k||''}">${cols.map((c,i)=>`<td class="${c.al==='r'?'r':''}${(r.b||[]).includes(i)?' b':''}">${esc(r.c[i]==null?'':r.c[i])}</td>`).join('')}</tr>`).join('')}</tbody></table>`:'';
+  const tb=(t,cols,rows,ws=prtWs(cols))=>rows.length?`<h2>${esc(t)}</h2><table><thead><tr>${cols.map((c,i)=>`<th class="${c.al==='r'?'r':''}"${c.w?` style="width:${c.w}pt"`:''}><span${prtFit(c.t,ws[i],7.5,1)}>${esc(c.t)}</span></th>`).join('')}</tr></thead><tbody>${rows.map(r=>r.k==='g'?`<tr class="g"><td colspan="${cols.length}">${esc(r.c[0])}</td></tr>`
+    :`<tr class="${r.k||''}">${cols.map((c,i)=>{const v=r.c[i]==null?'':r.c[i],b=r.k==='t'||(r.b||[]).includes(i);return `<td class="${c.al==='r'?'r':''}${(r.b||[]).includes(i)?' b':''}"${prtFit(v,ws[i],9,b)}>${esc(v)}</td>`}).join('')}</tr>`).join('')}</tbody></table>`:'';
   const K=[['Saidas',nf(R.sai,1)+' L'],...(R.ent!=null?[[R.est?'Entradas (estimada)':'Entradas',nf(R.ent,1)+' L']]:[]),['Equipamentos',nf(R.nEq)+(R.nMse?` + ${R.nMse} MSE`:'')],['Abastecimentos',nf(R.nAb)]];
   return `<div class="p-hd"><i></i><b>RONDAFLEX · CONTROLE DE FROTA</b><span>${esc(R.gerado)}</span></div><h1>${esc(R.tit)}</h1><div class="p-per">${esc(R.perL)}</div>
     <div class="p-fl"><b>Filtrar</b><span>${esc(R.filt)}</span><b>Conteudo</b><span>${esc(R.cont)}</span></div>
-    <div class="p-k" style="grid-template-columns:repeat(${K.length},minmax(0,1fr))">${K.map(([l,v])=>`<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>
+    <div class="p-k" style="grid-template-columns:repeat(${Math.min(4,K.length)},minmax(0,1fr))">${K.map(([l,v])=>`<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>
     ${R.nAb?'':'<p class="p-nt">Nenhum abastecimento no periodo e filtro escolhidos.</p>'}
     ${R.fl.cc?tb('Por centro de custo',C.cc,RW.cc):''}${R.fl.eq?tb('Por equipamento',C.eq,RW.eq):''}${R.fl.ab?tb('Abastecimentos',C.ab,RW.ab):''}
     ${R.fl.cons&&R.nAb?'<p class="p-nt">Consumo em L/h; veiculo leve em km/L. Calculado com tanque cheio no periodo.</p>':''}${R.ent!=null&&R.est?'<p class="p-nt">Entradas estimadas iguais as saidas ate o saldo do comboio ser informado.</p>':''}
     <div class="p-as"><span>Responsavel</span><span>Conferido por</span></div><div class="p-ft">Gerado pelo Controle de Frota · Rondaflex</div>`}
-function cbxImprimir(R){document.querySelectorAll('#prt').forEach(x=>x.remove());const d=document.createElement('div');d.id='prt';d.innerHTML=cbxPrtHtml(R);document.body.appendChild(d);document.body.classList.add('prt-on');
+function cbxImprimir(R){document.querySelectorAll('#prt').forEach(x=>x.remove());const d=document.createElement('div');d.id='prt';d.innerHTML=prtSep(cbxPrtHtml(R));document.body.appendChild(d);document.body.classList.add('prt-on');
   const fim=()=>{window.removeEventListener('afterprint',fim);document.body.classList.remove('prt-on');d.remove()};window.addEventListener('afterprint',fim);
   setTimeout(()=>{try{window.print()}catch(e){fim();toast('Imprimir nao esta disponivel aqui.')}},60)}
 /* informe pronto: Compartilhar (arquivo PDF) ou Imprimir */
@@ -2881,38 +2904,31 @@ const rgGerado=()=>'Gerado em '+agoraTx();
 function rgPdfBlob(R){
   const D=pdfDoc(),M=40,W=D.PW-2*M,BOT=D.PH-50,NAVY='#0b2470',RED='#e30613',INK='#121a2c',MUT='#4f5a70',LN='#c9cfda',SUNK='#f2f4f8';let y=0;
   const head=first=>{D.page();D.rect(M,M-4,4,18,RED);D.text(M+11,M+9.5,'RONDAFLEX · CONTROLE DE FROTA',10,1,NAVY);D.text(M+W,M+9.5,R.gerado,8,0,MUT,'r');D.line(M,M+20,M+W,M+20,1.5,NAVY);y=M+38;
-    if(!first){D.text(M,y,D.fit(`${R.tit}${R.perL?' · '+R.perL:''}`,9,1,W),9,1,MUT);y+=14}};
+    if(!first){D.lines(`${R.tit}${R.perL?' · '+R.perL:''}`,9,1,W).forEach(l=>{D.tx(M,y,l,9,1,MUT,null,W);y+=11});y+=3}};
   const need=(h,re)=>{if(y+h>BOT){head(false);re&&re()}};
   const box=(x,yy,w,h)=>{D.line(x,yy,x+w,yy,.8,LN);D.line(x,yy+h,x+w,yy+h,.8,LN);D.line(x,yy,x,yy+h,.8,LN);D.line(x+w,yy,x+w,yy+h,.8,LN)};
-  head(true);D.text(M,y+10,R.tit,21,1,INK);y+=28;if(R.perL){D.text(M,y,R.perL,11,0,MUT);y+=14}
+  head(true);D.lines(R.tit,21,1,W).forEach((l,i)=>{if(i)y+=25;D.tx(M,y+10,l,21,1,INK,null,W)});y+=28;if(R.perL)D.lines(R.perL,11,0,W).forEach(l=>{D.tx(M,y,l,11,0,MUT,null,W);y+=14});
   const fl=[['Filtrar',R.filt],['Conteudo',R.cont]].filter(x=>x[1]);
-  if(fl.length){const h=10+fl.length*13;D.rect(M,y,W,h,SUNK);fl.forEach(([l,v],i)=>{D.text(M+10,y+14+i*13,l,8.5,1,MUT);D.text(M+68,y+14+i*13,D.fit(v,8.5,0,W-78),8.5,0,INK)});y+=h+14}
-  const K=R.K||[];if(K.length){const kw=(W-(K.length-1)*10)/K.length;K.forEach(([l,v],i)=>{const x=M+i*(kw+10);box(x,y,kw,46);D.text(x+10,y+15,D.fit(String(l).toUpperCase(),7.5,1,kw-20),7.5,1,MUT);D.text(x+10,y+36,D.fit(v,16,1,kw-20),16,1,i===0?NAVY:INK)});y+=62}
-  const table=(title,cols,rows)=>{const fx=cols.reduce((s,c)=>s+(c.w||0),0),nz=cols.filter(c=>!c.w).length||1,ws=cols.map(c=>c.w||(W-fx)/nz);
-    const hdr=()=>{D.rect(M,y,W,18,SUNK);let x=M;cols.forEach((c,i)=>{D.text(c.al==='r'?x+ws[i]-5:x+5,y+12.3,D.fit(c.t,7.5,1,ws[i]-8),7.5,1,'#33405a',c.al);x+=ws[i]});D.line(M,y+18,M+W,y+18,1,INK);y+=18};
-    need(30+18+17*Math.min(3,rows.length));y+=4;D.text(M,y+12,title,13,1,INK);y+=22;hdr();
-    rows.forEach(r=>{const h=r.h||(r.k==='g'?19:17);need(h,()=>{D.text(M,y+10,title+' (continuacao)',9,1,MUT);y+=16;hdr()});
-      if(r.k==='g'){D.rect(M,y,W,h,'#e8edf7');D.text(M+5,y+12.8,D.fit(r.c[0],8.5,1,W-10),8.5,1,NAVY);D.line(M,y+h,M+W,y+h,.6,LN);y+=h;return}
-      if(r.sp){D.text(M+16,y+11.8,D.fit(r.c[0],9,0,W-21),9,0,MUT);D.line(M,y+h,M+W,y+h,.5,LN);y+=h;return}
-      if(r.k==='t')D.line(M,y,M+W,y,1,INK);let x=M;
-      cols.forEach((c,i)=>{const bold=r.k==='t'||(r.b||[]).includes(i),pl=i===0&&r.k==='s'?16:5,v=D.fit(r.c[i]==null?'':r.c[i],9,bold,ws[i]-pl-5);
-        D.text(c.al==='r'?x+ws[i]-5:x+pl,y+Math.min(h-5.2,11.8+(h-17)/2),v,9,bold,r.k==='s'?MUT:INK,c.al);x+=ws[i]});
-      if(r.k!=='t')D.line(M,y+h,M+W,y+h,.5,LN);if(r.cx){let xx=M;ws.forEach((w,i)=>{if(i)D.line(xx,y,xx,y+h,.4,LN);xx+=w})}y+=h});y+=14};
-  (R.blocks||[]).forEach(b=>{if(b.rows.length)table(b.t,b.cols,b.rows);else if(b.vazio){need(30);D.text(M,y+14,b.t+': '+b.vazio,10,0,MUT);y+=28}});
-  (R.notas||[]).forEach(n=>{need(14);D.text(M,y+8,D.fit(n,8,0,W),8,0,MUT);y+=12});
-  if(R.assin!==false){need(70);y+=40;const aw=(W-30)/2;[R.assin1||'Responsavel',R.assin2||'Conferido por'].forEach((t,i)=>{const x=M+i*(aw+30);D.line(x,y,x+aw,y,.8,INK);D.text(x,y+12,t,8.5,0,MUT)});y+=24}
+  if(fl.length){pdfFiltro(D,M,W,fl,SUNK,MUT,INK,y,v=>y=v);y+=14}
+  const K=(R.K||[]).map(([l,v],i)=>[String(l).toUpperCase(),v,i===0?NAVY:INK]);if(K.length)y=pdfKpi(D,M,W,K,y,box,MUT,NAVY);
+  const table=(title,cols,rows)=>{y=pdfTabela(D,{M,W,BOT,need,y:()=>y,set:v=>y=v,title,cols,rows,INK,MUT,NAVY,LN,SUNK})};
+  (R.blocks||[]).forEach(b=>{if(b.rows.length)table(b.t,b.cols,b.rows);else if(b.vazio){const L=D.lines(b.t+': '+b.vazio,10,0,W);need(16+L.length*13);L.forEach((l,i)=>D.tx(M,y+14+i*13,l,10,0,MUT,null,W));y+=15+L.length*13}});
+  (R.notas||[]).forEach(n=>D.lines(n,8,0,W).forEach(l=>{need(14);D.tx(M,y+8,l,8,0,MUT,null,W);y+=12}));
+  if(R.assin!==false){need(70);y+=40;const aw=(W-30)/2;[R.assin1||'Responsavel',R.assin2||'Conferido por'].forEach((t,i)=>{const x=M+i*(aw+30);D.line(x,y,x+aw,y,.8,INK);D.tx(x,y+12,t,8.5,0,MUT,null,aw)});y+=24}
   D.pages.forEach((_,i)=>{D.on(i);D.text(M,D.PH-28,'Gerado pelo Controle de Frota · Rondaflex',7.5,0,MUT);D.text(M+W,D.PH-28,`Pagina ${i+1} de ${D.pages.length}`,7.5,0,MUT,'r')});
   return {blob:D.blob(),pages:D.pages.length}}
 function rgHtml(R){
-  const tb=b=>b.rows.length?`<h2>${esc(b.t)}</h2><table><thead><tr>${b.cols.map(c=>`<th class="${c.al==='r'?'r':''}"${c.w?` style="width:${c.w}pt"`:''}>${esc(c.t)}</th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>r.k==='g'||r.sp?`<tr class="${r.sp?'s':'g'}"><td colspan="${b.cols.length}">${esc(r.c[0])}</td></tr>`
-    :`<tr class="${r.k||''}${r.cx?' cx':''}"${r.h?` style="height:${r.h}pt"`:''}>${b.cols.map((c,i)=>`<td class="${c.al==='r'?'r':''}${(r.b||[]).includes(i)?' b':''}">${esc(r.c[i]==null?'':r.c[i])}</td>`).join('')}</tr>`).join('')}</tbody></table>`:b.vazio?`<h2>${esc(b.t)}</h2><p class="p-nt">${esc(b.vazio)}</p>`:'';
+  const tb=(b,ws=prtWs(b.cols))=>b.rows.length?`<h2>${esc(b.t)}</h2><table><thead><tr>${b.cols.map((c,i)=>`<th class="${c.al==='r'?'r':''}"${c.w?` style="width:${c.w}pt"`:''}><span${prtFit(c.t,ws[i],7.5,1)}>${esc(c.t)}</span></th>`).join('')}</tr></thead><tbody>${b.rows.map(r=>r.k==='g'||r.sp?`<tr class="${r.sp?'s':'g'}"><td colspan="${b.cols.length}">${esc(r.c[0])}</td></tr>`
+    :`<tr class="${r.k||''}${r.cx?' cx':''}"${r.h?` style="height:${r.h}pt"`:''}>${b.cols.map((c,i)=>{const v=r.c[i]==null?'':r.c[i],bo=r.k==='t'||(r.b||[]).includes(i);return `<td class="${c.al==='r'?'r':''}${(r.b||[]).includes(i)?' b':''}"${prtFit(v,ws[i],9,bo)}>${esc(v)}</td>`}).join('')}</tr>`).join('')}</tbody></table>`:b.vazio?`<h2>${esc(b.t)}</h2><p class="p-nt">${esc(b.vazio)}</p>`:'';
   const K=R.K||[];
   return `<div class="p-hd"><i></i><b>RONDAFLEX · CONTROLE DE FROTA</b><span>${esc(R.gerado)}</span></div><h1>${esc(R.tit)}</h1>${R.perL?`<div class="p-per">${esc(R.perL)}</div>`:''}
     ${R.filt||R.cont?`<div class="p-fl">${R.filt?`<b>Filtrar</b><span>${esc(R.filt)}</span>`:''}${R.cont?`<b>Conteudo</b><span>${esc(R.cont)}</span>`:''}</div>`:''}
-    ${K.length?`<div class="p-k" style="grid-template-columns:repeat(${K.length},minmax(0,1fr))">${K.map(([l,v])=>`<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>`:''}
-    ${(R.blocks||[]).map(tb).join('')}${(R.notas||[]).map(n=>`<p class="p-nt">${esc(n)}</p>`).join('')}
+    ${K.length?`<div class="p-k" style="grid-template-columns:repeat(${Math.min(4,K.length)},minmax(0,1fr))">${K.map(([l,v])=>`<div><small>${esc(l)}</small><b>${esc(v)}</b></div>`).join('')}</div>`:''}
+    ${(R.blocks||[]).map(b=>tb(b)).join('')}${(R.notas||[]).map(n=>`<p class="p-nt">${esc(n)}</p>`).join('')}
     ${R.assin!==false?`<div class="p-as"><span>${esc(R.assin1||'Responsavel')}</span><span>${esc(R.assin2||'Conferido por')}</span></div>`:''}<div class="p-ft">Gerado pelo Controle de Frota · Rondaflex</div>`}
-function rgImprimir(html){document.querySelectorAll('#prt').forEach(x=>x.remove());const d=document.createElement('div');d.id='prt';d.innerHTML=html;document.body.appendChild(d);document.body.classList.add('prt-on');
+/* informe em html: o separador ' · ' nao comeca linha */
+const prtSep=h=>String(h).replace(/ · /g,'&nbsp;· ');
+function rgImprimir(html){document.querySelectorAll('#prt').forEach(x=>x.remove());const d=document.createElement('div');d.id='prt';d.innerHTML=prtSep(html);document.body.appendChild(d);document.body.classList.add('prt-on');
   const fim=()=>{window.removeEventListener('afterprint',fim);document.body.classList.remove('prt-on');d.remove()};window.addEventListener('afterprint',fim);
   setTimeout(()=>{try{window.print()}catch(e){fim();toast('Imprimir nao esta disponivel aqui.')}},60)}
 async function rgShare(blob,fname,tit){const f=new File([blob],fname,{type:'application/pdf'});
@@ -2921,8 +2937,8 @@ async function rgShare(blob,fname,tit){const f=new File([blob],fname,{type:'appl
   if(dl){try{await dl.save({filename:fname,data:blob});toast('PDF salvo');return}catch(e){if(e&&e.code==='declined')return}}
   const u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('PDF salvo')}
 /* pre-visualizacao: a folha como vai sair, com Compartilhar (PDF) e Imprimir */
-function rgPreview(sh,html,F,fname,tit,printHtml){
-  const box=sh.querySelector('#rg-pv');if(box){box.innerHTML=`<div class="rg-pg">${html.replace(/width:(\d+(?:\.\d+)?)pt/g,'width:$1px')}</div>`;const fit=()=>{const pg=box.firstChild;if(!pg||!box.isConnected)return;const s=Math.min(1,box.clientWidth/pg.offsetWidth);pg.style.transform=`scale(${s})`;box.style.height=Math.ceil(pg.offsetHeight*s)+'px'};requestAnimationFrame(fit);setTimeout(fit,120)}
+function rgPreview(sh,html,F,fname,tit,printHtml){html=prtSep(html);
+  const box=sh.querySelector('#rg-pv');if(box){box.innerHTML=`<div class="rg-pg">${html.replace(/(width|font-size):(\d+(?:\.\d+)?)pt/g,'$1:$2px')}</div>`;const fit=()=>{const pg=box.firstChild;if(!pg||!box.isConnected)return;const s=Math.min(1,box.clientWidth/pg.offsetWidth);pg.style.transform=`scale(${s})`;box.style.height=Math.ceil(pg.offsetHeight*s)+'px'};requestAnimationFrame(fit);setTimeout(fit,120)}
   sh.querySelector('#rg-pr').onclick=()=>rgImprimir(printHtml||html);
   const b=sh.querySelector('#rg-sh');b.onclick=async()=>{b.disabled=true;try{await rgShare(F.blob,fname,tit)}catch(e){toast('Nao foi possivel compartilhar o PDF.')}finally{b.disabled=false}}}
 const RG_BTNS=`<div class="rl-okb rg-okb"><button type="button" class="btn pri" id="rg-sh">${I.share}Compartilhar</button><button type="button" class="btn" id="rg-pr">${PRT_IC}Imprimir</button></div>`;
@@ -3012,7 +3028,7 @@ function pvRelDados(P){
     K.push(['Vencidas',nf(L.filter(x=>x.st.cls==='bad').length)])}
   const det=[P.itens&&'itens',P.iv&&'intervalos'].filter(Boolean);
   const filt=[P.eqT==='esc'?P.eqs.map(id=>(eqById(id)||S.equipsAll.find(z=>z.id===id)||{}).codigo).filter(Boolean).join(', '):'Todos os equipamentos',P.mat&&P.matGrp==='mod'?'materiais por modelo':'',P.cron&&P.cronSo?'cronograma so vencidas e proximas':''].filter(Boolean).join(' · ');
-  return {tit:'Relatorio de preventivas',sub:'Preventivas',perL:P.hist?pr.perL:fdate(today()),filt,cont:cont.join(', ')+(det.length?' · com '+det.join(' e '):''),gerado:rgGerado(),K:K.slice(0,4),blocks,
+  return {tit:'Relatorio de preventivas',sub:'Preventivas',perL:P.hist?pr.perL:fdate(today()),filt,cont:cont.join(', ')+(det.length?' · com '+det.join(' e '):''),gerado:rgGerado(),K,blocks,
     fname:`Preventivas ${P.hist?pr.fper:today()}.pdf`}
 }
 
@@ -5885,11 +5901,21 @@ function openCartRe(){NAV.pop();openCart()}
    - botao unico chamado "Compartilhar", que abre o menu do celular;
    - sem o menu do celular, oferece salvar a imagem no aparelho. */
 /* varias imagens (cartao 1/2, 2/2) num compartilhamento so; sem suporte, salva uma por uma */
+/* informes: nada e cortado. O texto quebra so entre palavras (nunca no meio de uma);
+   palavra maior que a largura toda diminui a fonte so naquela linha, para nao sair do quadro */
+/* separador ' · ' fica grudado na palavra anterior: nenhuma linha comeca com ele */
+const cvTok=par=>par.split(/\s+/).filter(Boolean).reduce((a,w)=>{if(w==='·'&&a.length)a[a.length-1]+=' ·';else a.push(w);return a},[]);
+function cvWrap(x,txt,mw){const out=[];String(txt??'').split('\n').forEach(par=>{let l='';cvTok(par).forEach(w=>{const n=l?l+' '+w:w;if(l&&x.measureText(n).width>mw){out.push(l);l=w}else l=n});out.push(l)});return out.length?out:['']}
+function cvTx(x,s,X,Y,mw,al){s=String(s??'');const f=x.font;let w=x.measureText(s).width;
+  if(mw&&w>mw){const k=mw/w*0.98;x.font=f.replace(/(\d+(?:\.\d+)?)px/,(a,n)=>(Number(n)*k).toFixed(2)+'px');w=x.measureText(s).width}
+  x.fillText(s,al==='r'?X-w:al==='c'?X-w/2:X,Y);x.font=f;return w}
 /* assinatura de todos os informes do app: barra no rodape */
 const agoraTx=()=>{const d=new Date();return `${fdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
 function genBar(x,W,yb,mid){const h=64,y=yb-h,P=W>1100?84:56;x.save();x.fillStyle='#eceef2';x.fillRect(0,y,W,h);x.fillStyle='#c9ced8';x.fillRect(0,y,W,2);x.textBaseline='middle';const cy=y+h/2+1;try{x.letterSpacing='0px'}catch(_){}
   x.textAlign='left';x.font='600 21px "IBM Plex Sans",Arial,sans-serif';x.fillStyle='#1d2430';const a='Gerado pelo Controle de Frota';x.fillText(a,P,cy);const aw=x.measureText(a).width;x.font='400 21px "IBM Plex Sans",Arial,sans-serif';x.fillStyle='#4a5262';x.fillText(' · Rondaflex',P+aw,cy);
-  x.textAlign='right';x.fillText(agoraTx(),W-P,cy);if(mid){x.textAlign='center';x.fillText(mid,W/2+60,cy)}x.restore()}
+  x.textAlign='right';const dt=agoraTx();x.fillText(dt,W-P,cy);
+  /* texto do meio centralizado no espaco livre entre os dois lados, sem encostar */
+  if(mid){x.textAlign='left';const l0=P+aw+x.measureText(' · Rondaflex').width+28,r0=W-P-x.measureText(dt).width-28;cvTx(x,mid,(l0+r0)/2,cy,r0-l0,'c')}x.restore()}
 async function shareImgs(cvs,fname,title){const fs=await Promise.all(cvs.map((c,i)=>new Promise(r=>c.toBlob(b=>r(new File([b],fname.replace(/\.png$/,` ${i+1} de ${cvs.length}.png`),{type:'image/png'})),'image/png'))));
   try{if(navigator.canShare&&navigator.canShare({files:fs})){await navigator.share({files:fs,title});return}}catch(e){if(e&&e.name==='AbortError')return}
   for(let i=0;i<cvs.length;i++)await shareImg(cvs[i],fs[i].name,title)}
@@ -5904,24 +5930,32 @@ async function drawLista(l){
   try{await Promise.all(['700 64px "Barlow Condensed"','600 30px "IBM Plex Sans"','400 30px "IBM Plex Sans"','600 30px "IBM Plex Mono"'].map(f=>document.fonts.load(f)))}catch(_){}
   const C={bg:'#ffffff',ink:'#0b2470',inkFg:'#ffffff',inkMuted:'#a9b8e6',acc:'#0033a0',accInk:'#ffffff',fg:'#121a2c',mut:'#4f5a70',line:'#dfe4ec',sunk:'#f3f5f9'};
   const DSP='"Barlow Condensed","Arial Narrow",Arial,sans-serif',SAN='"IBM Plex Sans",Arial,sans-serif',MON='"IBM Plex Mono",Menlo,monospace';
-  const W=1080,P=64,its=l.itens||[],cv=document.createElement('canvas');cv.width=W;cv.height=420+its.length*150+200;const x=cv.getContext('2d');
-  x.fillStyle=C.bg;x.fillRect(0,0,W,cv.height);const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;
-  const rr=(X,Y,w,h,r,f)=>{x.beginPath();x.roundRect?x.roundRect(X,Y,w,h,r):x.rect(X,Y,w,h);x.fillStyle=f;x.fill()};
-  const fit=(t,mw)=>{let s2=String(t);if(x.measureText(s2).width<=mw)return s2;while(s2.length>1&&x.measureText(s2+'…').width>mw)s2=s2.slice(0,-1);return s2+'…'};
-  x.fillStyle=C.ink;x.fillRect(0,0,W,190);x.fillStyle='#e30613';x.fillRect(P,58,10,74);
-  font(600,34,MON);const dt=fdate(l.data),dw=x.measureText(dt).width+40;rr(W-P-dw,64,dw,62,31,'#ffffff');x.fillStyle=C.ink;x.fillText(dt,W-P-dw+20,107);
-  font(700,70,DSP);x.fillStyle=C.inkFg;x.fillText('LISTA DE COMPRA',P+34,118);
-  font(500,28,SAN);x.fillStyle=C.inkMuted;x.fillText('Rondaflex Ltda · Controle de Frota',P+36,158);
-  let y=190+80;font(700,38,DSP);x.fillStyle=C.fg;x.fillText('ITENS',P,y);y+=20;x.fillStyle=C.acc;x.fillRect(P,y,W-2*P,4);y+=4;
-  its.forEach((i,k)=>{const q=`${nf(i.qtd,2)} ${i.un||''}`.trim();font(600,34,MON);const qw=x.measureText(q).width;
-    const yy=y+58;font(600,34,SAN);x.fillStyle=C.fg;x.fillText(fit(i.desc||'Item',W-2*P-qw-40),P,yy);font(600,34,MON);x.fillText(q,W-P-qw,yy);
-    let h=80;const sl=[i.cod&&i.cod!=='—'?i.cod:'',liMarca(i)].filter(Boolean).join(' · ');if(sl){font(500,28,MON);x.fillStyle=C.mut;x.fillText(fit(sl,W-2*P-(i.equipId?220:0)),P,yy+44);h=120}
-    const e=i.equipId&&eqById(i.equipId);if(e){font(400,26,SAN);x.fillStyle=C.mut;const t='para '+e.codigo;const tw=x.measureText(t).width;x.fillText(t,W-P-tw,yy+44);if(h<120)h=120}
-    y+=h;if(k<its.length-1){x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2)}});
-  y+=40;
-  const out=document.createElement('canvas');out.width=W;out.height=Math.ceil(y+64);const ox=out.getContext('2d');ox.fillStyle=C.bg;ox.fillRect(0,0,W,out.height);ox.drawImage(cv,0,0);genBar(ox,W,out.height);return out;
+  const W=1080,P=64,its=l.itens||[],TOPO=190+80+24,FIM=40+64,MAXH=9000;
+  /* medidas antes de desenhar: nome e codigo quebram entre palavras; a imagem cresce (lista enorme vira 1/2, 2/2) */
+  const m=document.createElement('canvas').getContext('2d'),mf=(w,sz,f)=>m.font=`${w} ${sz}px ${f}`;
+  const B=its.map(i=>{const q=`${nf(i.qtd,2)} ${i.un||''}`.trim();mf(600,34,MON);const qw=Math.min(m.measureText(q).width,(W-2*P)*0.35);
+    mf(600,34,SAN);const nL=cvWrap(m,i.desc||'Item',W-2*P-qw-40);
+    const sl=[i.cod&&i.cod!=='—'?i.cod:'',liMarca(i)].filter(Boolean).join(' · '),e=i.equipId&&eqById(i.equipId),pt=e?'para '+e.codigo:'';
+    mf(400,26,SAN);const pw=pt?Math.min(m.measureText(pt).width,(W-2*P)*0.4):0;mf(500,28,MON);const sW=W-2*P-(pw?pw+24:0),sL=sl?cvWrap(m,sl,sW):[];
+    const last=58+(nL.length-1)*44,sub=sL.length||pt?last+44+(Math.max(1,sL.length)-1)*36:0;
+    return {q,qw,nL,sL,sW,pt,pw,h:sub?sub+18:Math.max(80,last+22)}});
+  const pags=[[]];let usado=0;B.forEach(b=>{if(pags[pags.length-1].length&&TOPO+usado+b.h+FIM>MAXH){pags.push([]);usado=0}pags[pags.length-1].push(b);usado+=b.h});
+  return pags.map((pb,pg)=>{const hT=TOPO+pb.reduce((s,b)=>s+b.h,0)+FIM,cv=document.createElement('canvas');cv.width=W;cv.height=Math.ceil(hT);const x=cv.getContext('2d');
+    x.fillStyle=C.bg;x.fillRect(0,0,W,cv.height);const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;
+    const rr=(X,Y,w,h,r,f)=>{x.beginPath();x.roundRect?x.roundRect(X,Y,w,h,r):x.rect(X,Y,w,h);x.fillStyle=f;x.fill()};
+    x.fillStyle=C.ink;x.fillRect(0,0,W,190);x.fillStyle='#e30613';x.fillRect(P,58,10,74);
+    font(600,34,MON);const dt=fdate(l.data),dw=x.measureText(dt).width+40;rr(W-P-dw,64,dw,62,31,'#ffffff');x.fillStyle=C.ink;x.fillText(dt,W-P-dw+20,107);
+    font(700,70,DSP);x.fillStyle=C.inkFg;cvTx(x,'LISTA DE COMPRA'+(pags.length>1?` · ${pg+1}/${pags.length}`:''),P+34,118,W-P-dw-24-(P+34));
+    font(500,28,SAN);x.fillStyle=C.inkMuted;x.fillText('Rondaflex Ltda · Controle de Frota',P+36,158);
+    let y=190+80;font(700,38,DSP);x.fillStyle=C.fg;x.fillText('ITENS',P,y);y+=20;x.fillStyle=C.acc;x.fillRect(P,y,W-2*P,4);y+=4;
+    pb.forEach((b,k)=>{let yy=y+58;font(600,34,MON);x.fillStyle=C.fg;cvTx(x,b.q,W-P,yy,b.qw,'r');
+      font(600,34,SAN);b.nL.forEach((s,j)=>{cvTx(x,s,P,yy,W-2*P-b.qw-40);if(j<b.nL.length-1)yy+=44});
+      if(b.sL.length||b.pt){yy+=44;if(b.pt){font(400,26,SAN);x.fillStyle=C.mut;cvTx(x,b.pt,W-P,yy,b.pw,'r')}
+        font(500,28,MON);x.fillStyle=C.mut;b.sL.forEach((s,j)=>{cvTx(x,s,P,yy,b.sW);if(j<b.sL.length-1)yy+=36})}
+      y+=b.h;if(k<pb.length-1){x.fillStyle=C.line;x.fillRect(P,y,W-2*P,2)}});
+    genBar(x,W,cv.height);return cv})
 }
-async function shareLista(l){shareImg(await drawLista(l),`Lista de compra ${l.data||''}.png`,'Lista de compra')}
+async function shareLista(l){const cvs=await drawLista(l),fn=`Lista de compra ${l.data||''}.png`;cvs.length>1?shareImgs(cvs,fn,'Lista de compra'):shareImg(cvs[0],fn,'Lista de compra')}
 /* tela seguinte a conclusao: aviso + compartilhar */
 function openListaFeita(l){
   nav('ldone',()=>openListaFeita(l));
@@ -5929,7 +5963,7 @@ function openListaFeita(l){
   body:`<div class="mv-done" style="padding-bottom:4px"><span class="mv-ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><b>Lista de compra concluida</b><span class="note">Ela fica guardada em + › Listas de compra.</span></div>
     <div id="ld-img" class="card-wait" style="min-height:160px">Montando a imagem…</div>`,
   foot:`<button type="button" class="btn pri" id="ld-sh" style="flex:1">${I.share}Compartilhar</button>`,
-  mount:async sh=>{sh.querySelector('#ld-sh').onclick=()=>shareLista(l);const cv=await drawLista(l),b=sh.querySelector('#ld-img');if(b&&b.isConnected){b.className='';b.style.minHeight='';b.innerHTML=`<img class="card-prev" style="margin-top:14px" alt="Imagem da lista de compra" src="${cv.toDataURL('image/png')}">`}}});
+  mount:async sh=>{sh.querySelector('#ld-sh').onclick=()=>shareLista(l);const cvs=await drawLista(l),b=sh.querySelector('#ld-img');if(b&&b.isConnected){b.className='';b.style.minHeight='';b.innerHTML=cvs.map((cv,i)=>`<img class="card-prev" style="margin-top:14px" alt="Imagem da lista de compra${cvs.length>1?` ${i+1} de ${cvs.length}`:''}" src="${cv.toDataURL('image/png')}">`).join('')}}});
 }
 /* botao "Adicionar item" que so mostra a busca quando tocado */
 function addPicker(box,has,onPick,onAvulso){
@@ -6125,58 +6159,68 @@ async function drawCartao45(t){
   const pagina=(x,pgTx)=>{
     const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`,ls=v=>{try{x.letterSpacing=v}catch(_){}};
     const rr=(X,Y,w,hh,r,fill,stroke)=>{x.beginPath();x.roundRect?x.roundRect(X,Y,w,hh,r):x.rect(X,Y,w,hh);x.fillStyle=fill;x.fill();if(stroke){x.lineWidth=2;x.strokeStyle=stroke;x.stroke()}};
-    const fit=(txt,maxW)=>{let s2=String(txt);if(x.measureText(s2).width<=maxW)return s2;while(s2.length>1&&x.measureText(s2+'…').width>maxW)s2=s2.slice(0,-1);return s2+'…'};
     const ico=(k,X,Y,cor,sz)=>{x.save();x.translate(X,Y);x.scale(sz/24,sz/24);x.lineWidth=1.9;x.lineCap='round';x.lineJoin='round';x.strokeStyle=cor;x.stroke(new Path2D(ICO[k]));x.restore()};
-    const lab=(t2,X,Y,cor)=>{font(600,17,SAN);ls('1.4px');x.fillStyle=cor;x.fillText(t2.toUpperCase(),X,Y);ls('0px')};
+    const lab=(t2,X,Y,cor,mw)=>{font(600,17,SAN);ls('1.4px');x.fillStyle=cor;cvTx(x,t2.toUpperCase(),X,Y,mw);ls('0px')};
     x.fillStyle=C.pg;x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
     // cabecalho (o de sempre, sem a data)
     x.fillStyle=C.ink;x.fillRect(0,0,W,128);x.fillStyle='#e30613';x.fillRect(56,34,9,60);
-    font(700,56,DSP);x.fillStyle='#ffffff';x.fillText((AR?'CARTAO FILTRO DE AR':'CARTAO PREVENTIVA')+(pgTx?' · '+pgTx:''),90,76);
+    font(700,56,DSP);x.fillStyle='#ffffff';cvTx(x,(AR?'CARTAO FILTRO DE AR':'CARTAO PREVENTIVA')+(pgTx?' · '+pgTx:''),90,76,W-90-P-(AR?90:0));
     if(AR){x.beginPath();x.arc(W-P-36,64,36,0,Math.PI*2);x.fillStyle=AR_COR;x.fill();x.save();x.translate(W-P-56,44);x.scale(40/24,40/24);x.lineWidth=2;x.lineCap='round';x.strokeStyle='#ffffff';x.stroke(new Path2D('M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h8'));x.restore()}
     font(500,23,SAN);x.fillStyle=C.inkMuted;x.fillText('Rondaflex Ltda · Controle de Frota',91,106);
-    // equipamento
-    let y=146;rr(P,y,W-2*P,94,8,C.card,C.line);
-    font(600,64,MON);x.fillStyle=C.fg;const cod=e.codigo||'—';x.fillText(cod,P+24,y+72);const cw=x.measureText(cod).width;
-    const mm=[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · ');font(600,26,SAN);x.fillStyle=C.fg;x.fillText(fit(mm||'—',W-2*P-cw-72),P+cw+48,y+40);
-    const loc=t.tipo==='filtro_ar'?sv:e.alocacao?alocTxt(e):'';if(loc){font(t.tipo==='filtro_ar'?600:400,21,SAN);x.fillStyle=t.tipo==='filtro_ar'?C.ink:C.mut;x.fillText(fit(loc,W-2*P-cw-72),P+cw+48,y+70)}
+    // equipamento: TAG a esquerda; tipo, modelo e alocacao quebram linha (o quadro cresce)
+    let y=146;
+    font(600,64,MON);const cod=e.codigo||'—';const cw=Math.min(x.measureText(cod).width,(W-2*P)*0.45);
+    const tw=W-2*P-cw-72,mm=[e.tipo,[e.marca,e.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · ')||'—',loc=t.tipo==='filtro_ar'?sv:e.alocacao?alocTxt(e):'';
+    font(600,26,SAN);const mL=cvWrap(x,mm,tw);font(t.tipo==='filtro_ar'?600:400,21,SAN);const lL=loc?cvWrap(x,loc,tw):[];
+    const ch=23+(mL.length-1)*32+(lL.length?30+(lL.length-1)*27:0)+8,bh=Math.max(94,ch+28);
+    rr(P,y,W-2*P,bh,8,C.card,C.line);
+    font(600,64,MON);x.fillStyle=C.fg;cvTx(x,cod,P+24,y+bh/2+24,cw);
+    let ty=y+(bh-ch)/2+23;font(600,26,SAN);x.fillStyle=C.fg;mL.forEach((l,i)=>{cvTx(x,l,P+cw+48,ty,tw);if(i<mL.length-1)ty+=32});
+    if(lL.length){ty+=30;font(t.tipo==='filtro_ar'?600:400,21,SAN);x.fillStyle=t.tipo==='filtro_ar'?C.ink:C.mut;lL.forEach(l=>{cvTx(x,l,P+cw+48,ty,tw);ty+=27})}
     // numeros
-    y+=104;const bx=[['cal','Data',fdate(t.data),0],['clk','Horimetro',nf(h,2)+' h',1]];if(AR)bx.push(['wr','Servico',t.servico||'Troca',0]);else if(prox!=null)bx.push(['nxt','Proxima',nf(prox)+' h',0]);
+    y+=bh+10;const bx=[['cal','Data',fdate(t.data),0],['clk','Horimetro',nf(h,2)+' h',1]];if(AR)bx.push(['wr','Servico',t.servico||'Troca',0]);else if(prox!=null)bx.push(['nxt','Proxima',nf(prox)+' h',0]);
     const gap=10,bw=(W-2*P-gap*(bx.length-1))/bx.length;
-    bx.forEach(([k,l,v,az],i)=>{const X=P+i*(bw+gap),bg=AR?AR_COR:C.ink,mu=AR?'#fde7c4':C.inkMuted;rr(X,y,bw,100,8,az?bg:C.card,az?null:C.line);ico(k,X+18,y+13,az?mu:C.ink,24);lab(l,X+52,y+31,az?mu:C.mut);
-      let fs=48;font(700,fs,DSP);while(fs>30&&x.measureText(v).width>bw-36){fs-=2;font(700,fs,DSP)}x.fillStyle=az?'#ffffff':C.fg;x.fillText(v,X+18,y+86)});
+    bx.forEach(([k,l,v,az],i)=>{const X=P+i*(bw+gap),bg=AR?AR_COR:C.ink,mu=AR?'#fde7c4':C.inkMuted;rr(X,y,bw,100,8,az?bg:C.card,az?null:C.line);ico(k,X+18,y+13,az?mu:C.ink,24);lab(l,X+52,y+31,az?mu:C.mut,bw-70);
+      let fs=48;font(700,fs,DSP);while(fs>30&&x.measureText(v).width>bw-36){fs-=2;font(700,fs,DSP)}x.fillStyle=az?'#ffffff':C.fg;cvTx(x,v,X+18,y+86,bw-36)});
     y+=110;
     if(trocasHm.length){const l=trocasHm.map(z=>`Horimetro trocado em ${fdate(z.data)}: ${nf(z.antigo,2)} h → ${nf(z.horimetro,2)} h · a proxima esta no relogio atual`).join(' · ');
-      rr(P,y,W-2*P,44,8,'#fff4cc');font(600,21,SAN);x.fillStyle='#8a5a00';x.fillText(fit(l,W-2*P-36),P+18,y+29);y+=54}
+      font(600,21,SAN);const L=cvWrap(x,l,W-2*P-36),hh=44+(L.length-1)*28;rr(P,y,W-2*P,hh,8,'#fff4cc');x.fillStyle='#8a5a00';L.forEach((s,i)=>cvTx(x,s,P+18,y+29+i*28,W-2*P-36));y+=hh+10}
     /* sem quadro de servico/observacao: o espaco vai para a lista de material */
     return y};
-  /* rodape: responsavel e data de geracao */
-  const rodH=(t.resp?72+12:0)+76;
+  /* medidas feitas antes de desenhar: nada e cortado */
+  const prova=document.createElement('canvas');prova.width=W;prova.height=H;const m=prova.getContext('2d'),mf=(w,sz,f)=>m.font=`${w} ${sz}px ${f}`;
+  /* rodape: responsavel (quebra linha) e data de geracao */
+  mf(400,26,SAN);const rL=t.resp?cvWrap(m,String(t.resp),W-2*P-8):[];
+  const rodH=(rL.length?72+(rL.length-1)*32+12:0)+76;
   const rodape=x=>{const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;let y=H-rodH;
-    if(t.resp){font(700,24,DSP);x.fillStyle=C.mut;x.fillText('RESPONSAVEL',P+4,y+28);font(400,26,SAN);x.fillStyle=C.fg;x.fillText(String(t.resp),P+4,y+60);y+=72}
+    if(rL.length){font(700,24,DSP);x.fillStyle=C.mut;x.fillText('RESPONSAVEL',P+4,y+28);font(400,26,SAN);x.fillStyle=C.fg;rL.forEach((l,i)=>cvTx(x,l,P+4,y+60+i*32,W-2*P-8))}
     genBar(x,W,H)};
-  /* quantas linhas cabem */
-  const prova=document.createElement('canvas');prova.width=W;prova.height=H;const yTopo=pagina(prova.getContext('2d'),'');
+  const yTopo=pagina(m,'');
   const cardTop=yTopo,cardBot=H-rodH-12,lista=cardBot-cardTop-66-10;
-  const MAXR=78,MINR=40;let rowH=Math.min(MAXR,Math.floor(lista/Math.max(1,its.length)));if(rowH<MINR)rowH=MINR;
-  const porPg=Math.max(1,Math.floor(lista/rowH)),pgs=Math.max(1,Math.ceil(its.length/porPg));
-  const out=[];
+  /* cada item: nome quebra entre palavras; codigo na mesma linha se couber, senao embaixo; quantidade a direita */
+  const lay=rowH=>{const fsN=Math.max(18,Math.min(32,Math.round(rowH*0.53))),fsC=Math.round(fsN*0.84),fsQ=Math.round(fsN*0.94),lnN=Math.round(fsN*1.28),lnC=Math.round(fsC*1.3);
+    return its.map(it=>{const q=it.qtd!==''&&it.qtd!=null&&Number(it.qtd)?`${nf(it.qtd,2)} ${it.un||''}`.trim():'';mf(600,fsQ,MON);const qw=q?Math.min(m.measureText(q).width,(W-2*P-40)*0.35):0;
+      const livre=W-2*P-40-qw-(q?24:0),cd=itCod(it)||'';mf(500,fsN,SAN);const nL=cvWrap(m,itNome(it)||'Item',livre);const lw=m.measureText(nL[nL.length-1]).width;
+      mf(500,fsC,MON);const cdw=cd?m.measureText(cd).width:0,inl=!!cd&&lw+14+cdw<=livre,cL=cd&&!inl?cvWrap(m,cd,livre):[];
+      return {it,q,qw,livre,cd,nL,lw,inl,cL,fsN,fsC,fsQ,lnN,lnC,rowH,h:rowH+(nL.length-1)*lnN+cL.length*lnC}})};
+  const MAXR=78,MINR=40;let L=null;
+  for(let r=MAXR;r>=MINR;r-=2){L=lay(r);if(L.reduce((s,z)=>s+z.h,0)<=lista)break}
+  /* paginas: enche cada uma ate onde cabe; o resto vai para a seguinte (1/2, 2/2) */
+  const pags=[[]];let usado=0;L.forEach(z=>{if(pags[pags.length-1].length&&usado+z.h>lista){pags.push([]);usado=0}pags[pags.length-1].push(z);usado+=z.h});
+  const pgs=pags.length,out=[];
   for(let pg=0;pg<pgs;pg++){const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
     const font=(w,sz,f)=>x.font=`${w} ${sz}px ${f}`;
     let y=pagina(x,pgs>1?`${pg+1}/${pgs}`:'');
     x.beginPath();x.roundRect?x.roundRect(P,y,W-2*P,cardBot-y,8):x.rect(P,y,W-2*P,cardBot-y);x.fillStyle=C.card;x.fill();x.lineWidth=2;x.strokeStyle=C.line;x.stroke();
     font(700,36,DSP);x.fillStyle=C.fg;x.fillText(AR?'FILTROS TROCADOS':'MATERIAL APLICADO',P+20,y+46);font(600,26,MON);x.fillStyle=C.mut;const nIt=String(its.length);x.fillText(nIt,W-P-20-x.measureText(nIt).width,y+46);
     x.fillStyle=AR?AR_COR:C.acc;x.fillRect(P+20,y+60,W-2*P-40,4);y+=66;
-    const part=its.slice(pg*porPg,(pg+1)*porPg),fsN=Math.max(18,Math.min(32,Math.round(rowH*0.53))),fsC=Math.round(fsN*0.84),fsQ=Math.round(fsN*0.94);
+    const part=pags[pg];
     if(!its.length){font(400,28,SAN);x.fillStyle=C.mut;x.fillText('Nenhum item informado.',P+20,y+50)}
-    part.forEach((it,i)=>{const by=y+Math.round(rowH*0.66);
-      const q=it.qtd!==''&&it.qtd!=null&&Number(it.qtd)?`${nf(it.qtd,2)} ${it.un||''}`.trim():'';font(600,fsQ,MON);const qw=q?x.measureText(q).width:0;
-      if(q){x.fillStyle=C.fg;x.fillText(q,W-P-20-qw,by)}
-      const livre=W-2*P-40-qw-24,cd=itCod(it)||'';font(500,fsC,MON);const cdw=cd?x.measureText(cd).width:0;
-      font(500,fsN,SAN);let nm=itNome(it);const maxN=cd&&cdw+14<livre*0.55?livre-cdw-14:livre;
-      if(x.measureText(nm).width>maxN){while(nm.length>1&&x.measureText(nm+'…').width>maxN)nm=nm.slice(0,-1);nm+='…'}
-      x.fillStyle=C.fg;x.fillText(nm,P+20,by);const nw=x.measureText(nm).width;
-      if(cd&&nw+14+cdw<=livre){font(500,fsC,MON);x.fillStyle=C.faint;x.fillText(cd,P+20+nw+14,by)}
-      y+=rowH;if(i<part.length-1){x.fillStyle=C.line2;x.fillRect(P+20,y,W-2*P-40,1)}});
+    part.forEach((z,i)=>{let by=y+Math.round(z.rowH*0.66);
+      if(z.q){font(600,z.fsQ,MON);x.fillStyle=C.fg;cvTx(x,z.q,W-P-20,by,z.qw,'r')}
+      font(500,z.fsN,SAN);x.fillStyle=C.fg;z.nL.forEach((l,j)=>{cvTx(x,l,P+20,by,z.livre);if(j<z.nL.length-1)by+=z.lnN});
+      if(z.cd){font(500,z.fsC,MON);x.fillStyle=C.faint;if(z.inl)x.fillText(z.cd,P+20+z.lw+14,by);else z.cL.forEach(l=>{by+=z.lnC;cvTx(x,l,P+20,by,z.livre)})}
+      y+=z.h;if(i<part.length-1){x.fillStyle=C.line2;x.fillRect(P+20,y,W-2*P-40,1)}});
     rodape(x);out.push(cv)}
   return out;
 }
@@ -7005,59 +7049,77 @@ function osConf(v,p){const est=p.k==='est'?stById(p.id):null;
 const osLoadImg=src=>new Promise(ok=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src});
 async function osDraw(v,modo){
   try{await Promise.all(['600 30px "IBM Plex Sans"','400 30px "IBM Plex Sans"','700 30px "IBM Plex Sans"','600 30px "IBM Plex Mono"','500 30px "IBM Plex Mono"'].map(f=>document.fonts.load(f)))}catch(_){}
-  const PR=modo==='print',W=PR?1240:1080,H=PR?1754:1350,P=PR?84:64,e=eqById(v.eq)||{},gw=W-2*P;
-  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const PR=modo==='print',W=PR?1240:1080,H=PR?1754:1350,P=PR?84:64,e=eqById(v.eq)||{},gw=W-2*P,BOT=H-64-24;
   const SAN='"IBM Plex Sans",Arial,sans-serif',MON='"IBM Plex Mono",Menlo,monospace',INK='#1d2430',MU='#6b7383',LN='#d6dae2';
+  const pgs=[];let x=null,y=0;
   const F=(w,sz,f)=>x.font=`${w} ${sz}px ${f||SAN}`,ls=t=>{try{x.letterSpacing=t}catch(_){}};
-  const fit=(t,mw)=>{let s2=String(t??'');if(x.measureText(s2).width<=mw)return s2;while(s2.length>1&&x.measureText(s2+'…').width>mw)s2=s2.slice(0,-1);return s2+'…'};
-  const wrap=(t,mw)=>{const out=[];String(t||'').split('\n').forEach(par=>{let l='';par.split(/\s+/).forEach(w=>{const n=l?l+' '+w:w;if(x.measureText(n).width>mw&&l){out.push(l);l=w}else l=n});out.push(l)});return out};
+  const wrap=(t,mw)=>cvWrap(x,t,mw);
   const box=(X,Y,w,h)=>{x.lineWidth=2.4;x.strokeStyle=INK;x.strokeRect(X+1.2,Y+1.2,w-2.4,h-2.4)};
-  const lab=(t,X,Y,sz,cor)=>{F(700,sz||17);ls('2.2px');x.fillStyle=cor||INK;x.fillText(String(t).toUpperCase(),X,Y);ls('0px')};
-  x.fillStyle='#fff';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';
+  const lab=(t,X,Y,sz,cor,mw)=>{F(700,sz||17);ls('2.2px');x.fillStyle=cor||INK;cvTx(x,String(t).toUpperCase(),X,Y,mw||gw);ls('0px')};
+  const lg=await osLoadImg(LOGO);
+  /* folha nova: a primeira tem o cabecalho completo; as seguintes, um cabecalho curto de continuacao */
+  const nova=()=>{const cv=document.createElement('canvas');cv.width=W;cv.height=H;x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,W,H);x.textBaseline='alphabetic';pgs.push(cv);
+    if(pgs.length===1)return;y=P-8;if(lg){const lh=44;x.drawImage(lg,P,y,lg.width*lh/lg.height,lh)}
+    F(600,30);x.fillStyle=INK;const tt=`${osNum(v)} · ${e.codigo||v.eq}`;cvTx(x,tt,W-P,y+32,gw*0.62,'r');F(400,19);x.fillStyle=MU;cvTx(x,'continuacao',W-P,y+58,gw*0.62,'r');
+    y+=78;x.fillStyle=INK;x.fillRect(P,y,gw,4);y+=26};
+  const need=h=>{if(y+h>BOT){nova();return true}return false};
+  nova();
   /* cabecalho: logo, titulo e numero */
-  let y=P-8;const lg=await osLoadImg(LOGO);if(lg){const lh=60;x.drawImage(lg,P,y,lg.width*lh/lg.height,lh)}
+  y=P-8;if(lg){const lh=60;x.drawImage(lg,P,y,lg.width*lh/lg.height,lh)}
   F(600,58);x.fillStyle=INK;x.fillText('Ordem de Servico',P,y+128);F(400,22);x.fillStyle=MU;x.fillText('Controle de Frota',P,y+162);
   const nbw=250,nbh=150,nbx=W-P-nbw;box(nbx,y,nbw,nbh);F(600,17);ls('3px');x.fillStyle=MU;const nt='NUMERO';x.fillText(nt,nbx+(nbw-x.measureText(nt).width)/2,y+40);ls('0px');
-  F(600,64,MON);x.fillStyle=INK;const nn=v.num?String(v.num).padStart(4,'0'):'NOVA';x.fillText(nn,nbx+(nbw-x.measureText(nn).width)/2,y+112);
+  F(600,64,MON);x.fillStyle=INK;const nn=v.num?String(v.num).padStart(4,'0'):'NOVA';cvTx(x,nn,nbx+nbw/2,y+112,nbw-30,'c');
   y+=180;x.fillStyle=INK;x.fillRect(P,y,gw,5);y+=24;
-  /* selos */
-  const selo=(t,X,cor)=>{F(700,19);ls('2.4px');const w=x.measureText(t).width+34;x.lineWidth=2.4;x.strokeStyle=cor;x.strokeRect(X,y,w,42);x.fillStyle=cor;x.fillText(t,X+17,y+29);ls('0px');return X+w+14};
-  const CX=v.sit==='cancelada';let sx=selo(CX?'CANCELADA':v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',P,INK);if(v.estado&&!CX)sx=selo(v.estado==='parado'?'PARADO':'LIBERADO',sx,INK);
-  const ex=[v.ad.length?`${v.ad.length} ${v.ad.length===1?'adendo':'adendos'}`:'',v.filhas.length?`${v.filhas.length} ${v.filhas.length===1?'vinculada':'vinculadas'}`:''].filter(Boolean).join(' · ');if(ex&&!PR)selo(ex.toUpperCase(),sx,'#a3aab6');
+  /* selos: se nao couberem na linha, descem para a seguinte */
+  let sx=P;const selo=(t,cor)=>{F(700,19);ls('2.4px');const w=Math.min(x.measureText(t).width+34,gw);if(sx>P&&sx+w>W-P){sx=P;y+=56}x.lineWidth=2.4;x.strokeStyle=cor;x.strokeRect(sx,y,w,42);x.fillStyle=cor;cvTx(x,t,sx+17,y+29,w-34);ls('0px');sx+=w+14};
+  const CX=v.sit==='cancelada';selo(CX?'CANCELADA':v.sit==='fechada'?'CONCLUIDA':'EM ANDAMENTO',INK);if(v.estado&&!CX)selo(v.estado==='parado'?'PARADO':'LIBERADO',INK);
+  const ex=[v.ad.length?`${v.ad.length} ${v.ad.length===1?'adendo':'adendos'}`:'',v.filhas.length?`${v.filhas.length} ${v.filhas.length===1?'vinculada':'vinculadas'}`:''].filter(Boolean).join(' · ');if(ex&&!PR)selo(ex.toUpperCase(),'#a3aab6');
   y+=64;
-  /* grade do equipamento */
-  const r1=116,r2=88;box(P,y,gw,r1+r2);x.fillStyle=INK;x.fillRect(P,y+r1,gw,2.4);x.fillRect(P+gw/2,y,2.4,r1);
-  lab('Equipamento',P+16,y+30,16,MU);F(600,50,MON);x.fillStyle=INK;x.fillText(fit(e.codigo||v.eq,gw/2-32),P+16,y+92);
-  lab('Modelo',P+gw/2+18,y+30,16,MU);F(600,29);x.fillStyle=INK;x.fillText(fit([e.marca,e.modelo].filter(Boolean).join(' ')||'—',gw/2-40),P+gw/2+18,y+70);F(400,22);x.fillStyle=MU;x.fillText(fit(e.desc||e.tipo||'',gw/2-40),P+gw/2+18,y+100);
+  /* grade do equipamento: modelo e descricao quebram linha; a grade cresce */
+  F(600,29);const mL=wrap([e.marca,e.modelo].filter(Boolean).join(' ')||'—',gw/2-40);F(400,22);const dL=e.desc||e.tipo?wrap(e.desc||e.tipo,gw/2-40):[];
+  const r1=Math.max(116,70+(mL.length-1)*34+(dL.length?30+(dL.length-1)*28:0)+18),r2=88;
+  box(P,y,gw,r1+r2);x.fillStyle=INK;x.fillRect(P,y+r1,gw,2.4);x.fillRect(P+gw/2,y,2.4,r1);
+  lab('Equipamento',P+16,y+30,16,MU,gw/2-32);F(600,50,MON);x.fillStyle=INK;cvTx(x,e.codigo||v.eq,P+16,y+92,gw/2-32);
+  lab('Modelo',P+gw/2+18,y+30,16,MU,gw/2-40);let my=y+70;F(600,29);x.fillStyle=INK;mL.forEach((l,i)=>{cvTx(x,l,P+gw/2+18,my,gw/2-40);if(i<mL.length-1)my+=34});
+  if(dL.length){my+=30;F(400,22);x.fillStyle=MU;dL.forEach(l=>{cvTx(x,l,P+gw/2+18,my,gw/2-40);my+=28})}
   const cc=[['Aberta',fdate(v.data)],CX?['Cancelada',fdate(iso(new Date(v.cancTs)))]:['Concluida',v.sit==='fechada'&&v.concTs?fdate(iso(new Date(v.concTs))):'—'],['Horimetro',v.hor?v.hor+' h':'—'],['Situacao',CX?'—':v.estado==='parado'?'Parado':v.estado==='operando'?'Liberado':'—']],cw=gw/4;
-  cc.forEach(([k,t],i)=>{const X=P+i*cw;if(i){x.fillStyle=INK;x.fillRect(X,y+r1,2.4,r2)}lab(k,X+16,y+r1+30,16,MU);F(600,29);x.fillStyle=INK;x.fillText(fit(t,cw-28),X+16,y+r1+70)});
+  cc.forEach(([k,t],i)=>{const X=P+i*cw;if(i){x.fillStyle=INK;x.fillRect(X,y+r1,2.4,r2)}lab(k,X+16,y+r1+30,16,MU,cw-28);F(600,29);x.fillStyle=INK;cvTx(x,t,X+16,y+r1+70,cw-28)});
   y+=r1+r2+24;
-  if(CX){F(400,24);const ml=wrap('Motivo: '+(v.cancMot||'—'),gw-60).slice(0,PR?3:2),h=70+ml.length*34;x.lineWidth=4;x.strokeStyle=INK;x.setLineDash([]);x.strokeRect(P+2,y+2,gw-4,h-4);
-    F(700,20);ls('2.4px');x.fillStyle=INK;x.fillText('OS CANCELADA',P+22,y+38);ls('0px');F(400,20);x.fillStyle=MU;const qt=`em ${fdate(iso(new Date(v.cancTs)))} · numero ${String(v.num||'').padStart(4,'0')} inutilizado`;x.fillText(qt,W-P-22-x.measureText(qt).width,y+38);
-    F(400,24);x.fillStyle=INK;ml.forEach((l,i)=>x.fillText(l,P+22,y+76+i*34));y+=h+22}
-  /* secoes */
-  const sec=(t,txt,max)=>{lab(t,P,y+18);y+=30;F(400,26);const L=wrap(txt||'—',gw-40);const L2=L.slice(0,max);if(L.length>max)L2[max-1]=fit(L2[max-1]+'…',gw-40);const h=Math.max(68,L2.length*37+30);box(P,y,gw,h);x.fillStyle=INK;L2.forEach((l,i)=>x.fillText(l,P+18,y+44+i*37));y+=h+22};
-  sec('Ocorrencia',v.aconteceu,PR?6:3);sec('Servico executado',v.feito||'—',PR?7:3);
-  if(v.pecas.length){lab('Pecas e materiais',P,y+18);y+=30;const rh=50,maxR=PR?10:4,L=v.pecas.slice(0,maxR),mais=v.pecas.length-L.length,h=46+L.length*rh+(mais>0?40:0),cX=W-P-270;
-    box(P,y,gw,h);F(600,15);ls('2px');x.fillStyle=MU;x.fillText('QTD',P+16,y+30);x.fillText('DESCRICAO',P+150,y+30);x.fillText('CODIGO',cX,y+30);ls('0px');x.fillStyle=INK;x.fillRect(P,y+46,gw,2.4);
-    L.forEach((p,i)=>{const yy=y+46+i*rh;if(i){x.fillStyle=LN;x.fillRect(P+3,yy,gw-6,1.5)}x.fillStyle=INK;F(600,23,MON);x.fillText(fit(`${nf(p.qtd,2)} ${p.un||'un'}`,124),P+16,yy+34);F(400,24);x.fillText(fit(p.nome,cX-P-170),P+150,yy+34);F(500,20,MON);x.fillStyle=MU;x.fillText(fit(p.k==='sc'?'sem cadastro':(p.cod||''),250),cX,yy+34)});
-    if(mais>0){F(400,20);x.fillStyle=MU;x.fillText(`+ ${mais} ${mais===1?'item':'itens'}`,P+16,y+h-14)}y+=h+22}
+  if(CX){F(400,24);const ml=wrap('Motivo: '+(v.cancMot||'—'),gw-60),h=70+ml.length*34;need(h);x.lineWidth=4;x.strokeStyle=INK;x.setLineDash([]);x.strokeRect(P+2,y+2,gw-4,h-4);
+    F(400,20);const qt=`em ${fdate(iso(new Date(v.cancTs)))} · numero ${String(v.num||'').padStart(4,'0')} inutilizado`;const qw=Math.min(x.measureText(qt).width,gw-44-230);x.fillStyle=MU;cvTx(x,qt,W-P-22,y+38,qw,'r');
+    F(700,20);ls('2.4px');x.fillStyle=INK;cvTx(x,'OS CANCELADA',P+22,y+38,gw-44-qw-20);ls('0px');
+    F(400,24);x.fillStyle=INK;ml.forEach((l,i)=>cvTx(x,l,P+22,y+76+i*34,gw-60));y+=h+22}
+  /* quadro de texto: tudo o que foi escrito; se passar da folha, continua na seguinte */
+  const quadro=(t,L,sz,step,b0,minH)=>{const pad=23;let i=0,first=true;if(!L.length)L=['—'];
+    while(i<L.length){need(30+Math.max(minH,b0+pad));lab(first?t:t+' (continuacao)',P,y+18);y+=30;
+      const cap=Math.max(1,Math.floor((BOT-y-b0-pad)/step)+1),ch=L.slice(i,i+cap),h=Math.max(minH,b0+(ch.length-1)*step+pad);
+      box(P,y,gw,h);F(400,sz);x.fillStyle=INK;ch.forEach((l,k)=>cvTx(x,l,P+18,y+b0+k*step,gw-40));y+=h+22;i+=ch.length;first=false}};
+  const sec=(t,txt)=>{F(400,26);quadro(t,wrap(txt||'—',gw-40),26,37,44,68)};
+  sec('Ocorrencia',v.aconteceu);sec('Servico executado',v.feito||'—');
+  /* pecas: todas, com nome e codigo quebrando linha; tabela continua na folha seguinte com o cabecalho */
+  if(v.pecas.length){const cX=W-P-270,nW=cX-P-170,cW=W-P-cX-14;
+    const R=v.pecas.map(p=>{F(400,24);const nL=wrap(p.nome,nW);F(500,20,MON);const cL=wrap(p.k==='sc'?'sem cadastro':(p.cod||''),cW);return {p,nL,cL,h:Math.max(50,34+Math.max((nL.length-1)*30,(cL.length-1)*26)+16)}});
+    let i=0,first=true;while(i<R.length){need(30+46+R[i].h);lab(first?'Pecas e materiais':'Pecas e materiais (continuacao)',P,y+18);y+=30;
+      let hh=46,j=i;while(j<R.length&&(j===i||y+hh+R[j].h<=BOT)){hh+=R[j].h;j++}
+      box(P,y,gw,hh);F(600,15);ls('2px');x.fillStyle=MU;x.fillText('QTD',P+16,y+30);x.fillText('DESCRICAO',P+150,y+30);x.fillText('CODIGO',cX,y+30);ls('0px');x.fillStyle=INK;x.fillRect(P,y+46,gw,2.4);
+      let yy=y+46;for(let k=i;k<j;k++){const r=R[k];if(k>i){x.fillStyle=LN;x.fillRect(P+3,yy,gw-6,1.5)}
+        x.fillStyle=INK;F(600,23,MON);cvTx(x,`${nf(r.p.qtd,2)} ${r.p.un||'un'}`,P+16,yy+34,124);F(400,24);r.nL.forEach((l,n)=>cvTx(x,l,P+150,yy+34+n*30,nW));F(500,20,MON);x.fillStyle=MU;r.cL.forEach((l,n)=>cvTx(x,l,cX,yy+34+n*26,cW));yy+=r.h}
+      y+=hh+22;i=j;first=false}}
   const pai=v.vinc&&osById(v.vinc);
   const vl=[...(pai?[`Faz parte da ${osNum(pai)} · ${pai.aconteceu}`]:[]),...v.filhas.map(f=>`${osNum(f)} · ${f.aconteceu} · ${f.porNome}`),...(PR?v.ad.map(a=>`Adendo ${a.n} · ${a.obs||'itens e fotos'} · ${a.nome}`):[])];
-  if(vl.length){lab(PR?'Adendos e OS vinculadas':'OS vinculadas',P,y+18);y+=30;F(400,23);const L=vl.slice(0,PR?6:2),h=L.length*36+28;box(P,y,gw,h);x.fillStyle=INK;L.forEach((l,i)=>x.fillText(fit(l,gw-36),P+18,y+42+i*36));y+=h+22}
-  if(!PR){const rs=[['Responsaveis',v.resp.map(osNomeDe).join(', ')]];let rx=P;
-    rs.forEach(([k,t])=>{lab(k,rx,y+20,15,MU);F(400,25);x.fillStyle=INK;const tt=fit(t,W-P-rx);x.fillText(tt,rx,y+54);rx+=Math.max(x.measureText(tt).width,190)+44});
-    genBar(x,W,H)}
-  else{if(v.fotos.length){lab('Fotos',P,y+18);y+=30;const n=Math.min(6,v.fotos.length),fw=(gw-5*12)/6;
-      for(let i=0;i<n;i++){const X=P+i*(fw+12);x.fillStyle='#e6e8ec';x.fillRect(X,y,fw,fw);const im=await osLoadImg(blobUrl(v.fotos[i]));if(im){const k=Math.max(fw/im.width,fw/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(X,y,fw,fw);x.clip();x.filter='grayscale(1)';x.drawImage(im,X+(fw-w)/2,y+(fw-h)/2,w,h);x.restore()}}y+=fw+26}
+  if(vl.length){F(400,23);const L=[];vl.forEach(s=>L.push(...wrap(s,gw-40)));quadro(PR?'Adendos e OS vinculadas':'OS vinculadas',L,23,36,42,0)}
+  if(!PR){F(400,25);const rL=wrap(v.resp.map(osNomeDe).join(', ')||'—',gw);need(30+rL.length*32);lab('Responsaveis',P,y+20,15,MU);rL.forEach((l,i)=>{F(400,25);x.fillStyle=INK;cvTx(x,l,P,y+54+i*32,gw)});y+=54+rL.length*32}
+  else{if(v.fotos.length){const fw=(gw-5*12)/6;for(let a=0;a<v.fotos.length;a+=6){need(30+fw+26);lab(a?'Fotos (continuacao)':'Fotos',P,y+18);y+=30;
+        for(let i=a;i<Math.min(a+6,v.fotos.length);i++){const X=P+(i-a)*(fw+12);x.fillStyle='#e6e8ec';x.fillRect(X,y,fw,fw);const im=await osLoadImg(blobUrl(v.fotos[i]));if(im){const k=Math.max(fw/im.width,fw/im.height),w=im.width*k,h=im.height*k;x.save();x.beginPath();x.rect(X,y,fw,fw);x.clip();x.filter='grayscale(1)';x.drawImage(im,X+(fw-w)/2,y+(fw-h)/2,w,h);x.restore()}}y+=fw+26}}
     /* assinaturas: os responsaveis desta OS e o encarregado (so se ele nao for responsavel) */
     const papel=uid=>{const m=(S.mecs||[]).find(x=>x.uid===uid);const f=(m&&m.funcao)||'Mecanico';return m&&m.enc?f+' · Encarregado de manutencao':f};
     const sig=v.resp.map(uid=>[osNomeDe(uid),papel(uid)]);const enc=(S.mecs||[]).find(m=>m.enc&&m.ativo!==false);if(enc&&!v.resp.includes(enc.uid))sig.push([enc.nome,'Encarregado de manutencao']);
-    const rows=Math.ceil(sig.length/2),sh=118,cw2=(gw-70)/2;let sy=Math.max(y+20,H-64-30-rows*sh);
-    sig.forEach(([n,r],i)=>{const X=P+(i%2)*(cw2+70),Y=sy+Math.floor(i/2)*sh+56;x.fillStyle=INK;x.fillRect(X,Y,cw2,2.4);F(400,24);x.fillText(fit(n,cw2),X,Y+34);F(400,18);x.fillStyle=MU;x.fillText(r,X,Y+60)});
-    genBar(x,W,H,`${osNum(v)} · pagina 1 de 1`)}
-  if(v.sit==='cancelada'){x.save();x.translate(W/2,H/2);x.rotate(-Math.atan2(H,W)*.8);F(700,PR?190:170);ls('14px');x.globalAlpha=.07;x.fillStyle='#000';const t='CANCELADA';x.fillText(t,-x.measureText(t).width/2,60);x.restore();ls('0px')}
-  return cv}
+    const rows=Math.ceil(sig.length/2),sh=118,cw2=(gw-70)/2;need(20+rows*sh);const sy=Math.max(y+20,BOT-6-rows*sh);
+    sig.forEach(([n,r],i)=>{const X=P+(i%2)*(cw2+70),Y=sy+Math.floor(i/2)*sh+56;x.fillStyle=INK;x.fillRect(X,Y,cw2,2.4);F(400,24);cvTx(x,n,X,Y+34,cw2);F(400,18);x.fillStyle=MU;cvTx(x,r,X,Y+60,cw2)})}
+  /* rodape e marca d'agua em todas as folhas */
+  pgs.forEach((cv,i)=>{x=cv.getContext('2d');genBar(x,W,H,PR||pgs.length>1?`${osNum(v)} · pagina ${i+1} de ${pgs.length}`:undefined);
+    if(v.sit==='cancelada'){x.save();x.translate(W/2,H/2);x.rotate(-Math.atan2(H,W)*.8);F(700,PR?190:170);ls('14px');x.globalAlpha=.07;x.fillStyle='#000';const t='CANCELADA';x.fillText(t,-x.measureText(t).width/2,60);x.restore();ls('0px')}});
+  return pgs}
 /* detalhes (so app principal): tudo o que aconteceu na OS, com horario e quem fez */
 function openOSDet(id){nav('osdet:'+id,()=>openOSDet(id));const v=osById(id);if(!v){goBack();return}
   const dh=t=>{const d=new Date(t);return `${fdate(iso(d))} · ${pad(d.getHours())}:${pad(d.getMinutes())}`},hr=t=>{const d=new Date(t);return `${sdate(iso(d))} ${pad(d.getHours())}:${pad(d.getMinutes())}`};
@@ -7079,10 +7141,10 @@ function openOSInf(id,modo){nav('osinf:'+id+':'+modo,()=>openOSInf(id,modo));con
   body:`<div id="oi-box" class="card-wait">Montando o informe…</div><p class="note" style="margin:10px 2px 0">${PR?'Folha A4 para imprimir em preto e branco, com as assinaturas. Tambem pode ser compartilhada.':'Imagem pronta para enviar no WhatsApp, e-mail ou grupo da equipe.'}</p>`,
   foot:`<button type="button" class="btn" id="oi-alt">${PR?'Ver compartilhar':'Ver impressao'}</button><button type="button" class="btn pri" id="oi-go" disabled>${I.share||''}Compartilhar</button>`,
   mount:async sh=>{sh.querySelector('#oi-alt').onclick=()=>{NAV.pop();openOSInf(id,PR?'share':'print')};
-    let cv=null;try{cv=await osDraw(v,modo)}catch(err){console.error(err)}const box=sh.querySelector('#oi-box');if(!box||!box.isConnected)return;
-    if(!cv){box.textContent='Nao foi possivel montar o informe.';return}
-    box.className='card-prev';box.innerHTML='';const im=document.createElement('img');im.src=cv.toDataURL('image/png');im.alt='Informe da OS';im.style.cssText='width:100%;display:block;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.12)';box.appendChild(im);
-    const go=sh.querySelector('#oi-go');go.disabled=false;go.onclick=()=>shareImgs([cv],fname,osNum(v))}})}
+    let cvs=null;try{cvs=await osDraw(v,modo)}catch(err){console.error(err)}const box=sh.querySelector('#oi-box');if(!box||!box.isConnected)return;
+    if(!cvs||!cvs.length){box.textContent='Nao foi possivel montar o informe.';return}
+    box.className='card-prev';box.innerHTML='';cvs.forEach((cv,i)=>{const im=document.createElement('img');im.src=cv.toDataURL('image/png');im.alt='Informe da OS'+(cvs.length>1?` ${i+1} de ${cvs.length}`:'');im.style.cssText='width:100%;display:block;border-radius:6px;box-shadow:0 2px 12px rgba(0,0,0,.12)'+(i?';margin-top:12px':'');box.appendChild(im)});
+    const go=sh.querySelector('#oi-go');go.disabled=false;go.onclick=()=>shareImgs(cvs,fname,osNum(v))}})}
 /* ---------- equipe de mecanicos (admin) e modo teste ---------- */
 const MEC_FN=['Comboista','Mecanico','Mecanico eletricista','Mecanico soldador'];
 /* tem lancamento: abriu OS, e responsavel em alguma, ou registrou algo numa OS */

@@ -692,7 +692,10 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .etq-l3{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .etq-ap{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:15px;font-weight:600}.sp-sw.etq-sw[aria-checked="true"]{background:var(--accent)}
 .etq-cds{display:flex;flex-direction:column;gap:12px;margin-top:6px}.etq-cds .etq-r{border:1.5px solid var(--accent);border-radius:14px;background:var(--surface);box-shadow:none;padding:12px}
-.etq-cod{font-size:19px}.etq-r .etq-cb:empty,.etq-r .etq-rm:empty,.etq-r [data-pva]:empty{display:none}.etq-q{width:52px;border:0;background:none;padding:0;min-height:0;height:38px;box-shadow:none;-moz-appearance:textfield}.etq-q::-webkit-inner-spin-button,.etq-q::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.rf-av{background:var(--warn-bg,#fff4d6);border:1px solid #e8c766;border-radius:12px;padding:10px 12px;margin-top:8px;color:#6b4e00}.rf-av>b{display:block;margin-bottom:6px}
+.rf-l{display:flex;flex-direction:column;gap:4px}.rf-r{text-align:left;background:none;border:0;padding:6px 0;border-top:1px solid rgba(0,0,0,.08);color:inherit;font-size:14px;line-height:1.35;cursor:pointer}
+.rf-bt{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.rf-er{border:1px solid var(--bad);color:var(--bad);background:#fdecea;border-radius:12px;padding:10px 12px;margin-top:12px;font-weight:600}
+.etq-cod{font-size:19px}.etq-r .etq-cb:empty,.etq-r .etq-rm:empty,.etq-r [data-pva]:empty{display:none}.etq-qn{width:52px;border:0;background:none;padding:0;min-height:0;height:38px;box-shadow:none;-moz-appearance:textfield}.etq-qn::-webkit-inner-spin-button,.etq-qn::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 .etq-tg{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:4px;padding:10px 0 2px;border:0;border-top:1px solid var(--line);background:none;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;text-align:left}
 .etq-pvw{display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}.etq-pvw[hidden]{display:none}.etq-pvw small{font-size:12px;color:var(--muted)}.etq-rg{display:block;width:100%;height:200px}
 [data-pva] .eqv-av{display:block;margin-top:6px}.etq-l3 select{flex:0 1 150px;min-width:0;min-height:38px;font-size:13.5px;padding:0 8px}
@@ -3170,11 +3173,12 @@ const inEtq=id=>(S.etq||[]).some(e=>e.id===id);
 function etqBtn(){const b=$('#etqb');if(!b)return;const n=(S.etq||[]).reduce((a,e)=>a+(Number(e.q)||1),0);b.hidden=!(S.etq||[]).length||!podeEscrever()||(typeof ehMec==='function'&&ehMec());$('#etqn').textContent=n;const c=$('#cartb');b.classList.toggle('up',!!c&&!c.hidden)}
 async function saveEtq(itens,modo){S.etq=itens;if(modo)S.etqModo=modo;etqBtn();return safe(()=>S.db.doc('config/etiquetas').set({itens,modo:S.etqModo||'qr'}),'')}
 /* poe na fila; mesmo item e mesmo tamanho somam nas copias */
-async function etqAdd(list){const cur=(S.etq||[]).map(e=>({...e}));let n=0,f=0;
-  list.forEach(x=>{const s=stById(x.id);if(!etqPode(s)){f++;return}const j=cur.findIndex(e=>e.id===x.id&&e.w===x.w&&e.h===x.h);
-    if(j>=0)cur[j].q=(Number(cur[j].q)||1)+(Number(x.q)||1);else cur.push({id:x.id,w:x.w,h:x.h,q:Number(x.q)||1});n+=Number(x.q)||1});
+async function etqAdd(list,msg){const cur=(S.etq||[]).map(e=>({...e}));let n=0,f=0;
+  /* item 27: a chave Aplicacoes comeca LIGADA em item com encaixe (mangueira nao tem a chave); junta so com linha de chave igual */
+  list.forEach(x=>{const s=stById(x.id);if(!etqPode(s)){f++;return}const ap=etqAplG(s).length?1:0,j=cur.findIndex(e=>e.id===x.id&&e.w===x.w&&e.h===x.h&&!e.band&&!e.apl===!ap);
+    if(j>=0)cur[j].q=(Number(cur[j].q)||1)+(Number(x.q)||1);else cur.push({id:x.id,w:x.w,h:x.h,q:Number(x.q)||1,...(ap?{apl:1}:{})});n+=Number(x.q)||1});
   if(!n){toast(f?'Itens sem codigo almoxarifado nao viram etiqueta.':'Nada para adicionar.');return false}
-  if(await saveEtq(cur)){const t=cur.reduce((a,e)=>a+(Number(e.q)||1),0);toast(`Na fila: ${t} ${t===1?'etiqueta':'etiquetas'}${f?` · ${f} sem codigo ficou de fora`:''}`);
+  if(await saveEtq(cur)){const t=cur.reduce((a,e)=>a+(Number(e.q)||1),0);toast(msg||`Na fila: ${t} ${t===1?'etiqueta':'etiquetas'}${f?` · ${f} sem codigo ficou de fora`:''}`);
     const b=$('#etqb');if(b){b.classList.remove('pop');void b.offsetWidth;b.classList.add('pop')}return true}return false}
 function etqBtnHTML(s){if(!podeEscrever()||!etqPode(s))return '';return inEtq(s.id)?`<button type="button" class="btn cart-on" disabled>✓ Na fila</button>`:`<button type="button" class="btn" data-etqadd="${esc(s.id)}">${ETQ_IC}Etiqueta</button>`}
 document.addEventListener('click',async ev=>{const b=ev.target.closest&&ev.target.closest('[data-etqadd]');if(!b)return;const w=100,h=60;
@@ -3300,19 +3304,26 @@ const etqTamOpts=(w,h,extra,curto)=>{const v=`${w}x${h}`,pre=ETQ_TAM.some(t=>t[0
 function etqTamCustom(box,ok){box.innerHTML=`<div class="etq-cu"><label class="f">Largura (cm)<input type="number" inputmode="decimal" step="0.5" min="6" id="etq-cw" value="12"></label><label class="f">Altura (cm)<input type="number" inputmode="decimal" step="0.5" min="4" id="etq-ch" value="8"></label><button type="button" class="btn sm pri" id="etq-cok">Usar</button></div><p class="note etq-er" id="etq-cer"></p>`;
   const W=ETQ_W-2*ETQ_MG,H=ETQ_H-2*ETQ_MG;box.querySelector('#etq-cok').onclick=()=>{const w=Math.round(parseFloat(String(box.querySelector('#etq-cw').value).replace(',','.'))*10),h=Math.round(parseFloat(String(box.querySelector('#etq-ch').value).replace(',','.'))*10),er=box.querySelector('#etq-cer');
     if(!(w>=60&&h>=40)){er.textContent='O tamanho minimo e 6 × 4 cm.';return}if(!((w<=W&&h<=H)||(h<=W&&w<=H))){er.textContent='Esse tamanho nao cabe na folha A4.';return}ok(w,h)}}
-function openEtq(){
+function openEtq(op){op=op||{};
   nav('etq:',()=>openEtq());
   const L=etqLista(),modo='qr',tam=etqLS.get(),[tw,th]=tam.split('x').map(Number);
   const tot=L.filter(x=>x.d&&!etqQrPequena(x,modo)).reduce((a,x)=>a+(Number(x.q)||1),0),pg=tot?etqMontar(L,modo).length:0;
   const row=x=>`<div class="etq-r" data-i="${x.i}"><div class="etq-l1"><b class="num etq-cod">${x.d?esc(x.d.cod):'Sem codigo almoxarifado'}</b><button type="button" class="ct-x" data-rm="${x.i}" aria-label="Tirar da fila">✕</button></div>
     <div class="etq-l2">${x.d?(ehMH(x.d.desc)?`${nomeMH(x.d.desc)}${x.d.ref?`<span class="etq-rf">${esc(x.d.ref)}</span>`:''}`:`${esc(x.d.desc)}${x.d.ref?' · '+esc(x.d.ref):''}`):esc(x.s?x.s.desc:'Item removido do estoque')+' · fica de fora'}</div>
-    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${x.band?'':etqTamOpts(x.w,x.h,true,true)}${x.d.man?etqBandOpts(x.band):''}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><input class="ct-v num etq-q" type="number" inputmode="numeric" min="1" step="1" value="${Number(x.q)||1}" aria-label="Copias"><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${!x.d.man&&etqAplG(x.s).length?`<div class="etq-ap"><span>Aplicacoes</span><button type="button" class="sp-sw etq-sw" role="switch" aria-checked="${!!x.apl}" data-ap="${x.i}" aria-label="Aplicacoes"></button></div>`:''}${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div><div class="etq-rm"></div><div data-pva="${x.i}">${(t=>t?`<span class="eqv-av">${t}</span>`:'')(etqAvTx(x))}</div>${(([W,H])=>`<button type="button" class="etq-tg" data-pvt="${x.i}" aria-expanded="${etqPvAb.has(etqPvK(x))}">${etqPvAb.has(etqPvK(x))?'Recolher ▴':`Pre-visualizar · ${etqCm(W)} × ${etqCm(H)} cm ▾`}</button>`)(etqDim(x))}<div class="etq-pvw" data-pv="${x.i}"${etqPvAb.has(etqPvK(x))?'':' hidden'}></div>`:''}</div>`;
+    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${x.band?'':etqTamOpts(x.w,x.h,true,true)}${x.d.man?etqBandOpts(x.band):''}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><input class="ct-v num etq-qn" type="number" inputmode="numeric" min="1" step="1" value="${Number(x.q)||1}" aria-label="Copias"><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${!x.d.man&&etqAplG(x.s).length?`<div class="etq-ap"><span>Aplicacoes</span><button type="button" class="sp-sw etq-sw" role="switch" aria-checked="${!!x.apl}" data-ap="${x.i}" aria-label="Aplicacoes"></button></div>`:''}${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div><div class="etq-rm"></div><div data-pva="${x.i}">${(t=>t?`<span class="eqv-av">${t}</span>`:'')(etqAvTx(x))}</div>${(([W,H])=>`<button type="button" class="etq-tg" data-pvt="${x.i}" aria-expanded="${etqPvAb.has(etqPvK(x))}">${etqPvAb.has(etqPvK(x))?'Recolher ▴':`Pre-visualizar · ${etqCm(W)} × ${etqCm(H)} cm ▾`}</button>`)(etqDim(x))}<div class="etq-pvw" data-pv="${x.i}"${etqPvAb.has(etqPvK(x))?'':' hidden'}></div>`:''}</div>`;
   openSheet({title:'Etiquetas',sub:L.length?`${tot} ${tot===1?'etiqueta':'etiquetas'} · ${pg} ${pg===1?'folha':'folhas'} A4`:'Fila vazia',
-  body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="etq-cds">${L.map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
+  body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="etq-cds">${[...L].sort((a,b)=>_an(a.d?a.d.cod:'~',b.d?b.d.cod:'~')||a.i-b.i).map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
     <div class="etq-nv"><div id="etq-pick"></div></div><div id="etq-cf"></div>`,
   foot:L.length?`<button type="button" class="btn" id="etq-clr">Limpar fila</button><button type="button" class="btn pri" id="etq-go">Gerar etiquetas</button>`:'',
   mount:sh=>{
-    const re=()=>{NAV.pop();openEtq()};
+    /* item 28: redesenhar sem mexer na rolagem; com ancora, o elemento fica no mesmo lugar da tela */
+    const re=(anc,o)=>{const sb=sh.querySelector('.sh-body'),st=sb?sb.scrollTop:0,a=anc&&sh.querySelector(anc),y0=a?a.getBoundingClientRect().top:null;
+      NAV.pop();openEtq(o);const s2=$('#sheet'),b2=s2.querySelector('.sh-body');if(!b2)return;b2.scrollTop=st;
+      const a2=anc&&s2.querySelector(anc);if(a2&&y0!=null)b2.scrollTop+=a2.getBoundingClientRect().top-y0};
+    if(op.pick)setTimeout(()=>{const c=sh.querySelector('#etq-pick .ct-c');c&&c.focus({preventScroll:true})},0);
+    /* subtitulo (total de etiquetas e folhas) sem redesenhar */
+    const subUp=()=>{const L2=etqLista(),t2=L2.filter(x=>x.d&&!etqQrPequena(x,modo)).reduce((a,x)=>a+(Number(x.q)||1),0),p2=t2?etqMontar(L2,modo).length:0,sb=sh.querySelector('.sh-tt .sub');
+      if(sb)sb.textContent=L2.length?`${t2} ${t2===1?'etiqueta':'etiquetas'} · ${p2} ${p2===1?'folha':'folhas'} A4`:'Fila vazia'};
     /* item 25: pre-visualizacao recolhivel (comeca fechada); so desenha a aberta; quadro igual para todas */
     const PVH=200,avDraw=i=>{const a=sh.querySelector(`[data-pva="${i}"]`),t=L[i]&&L[i].d?etqAvTx(L[i]):'';a&&(a.innerHTML=t?`<span class="eqv-av">${t}</span>`:'')};
     const pvDraw=el=>{const i=+el.dataset.pv,x=L[i];if(!x||!x.d||el.hidden)return;const fw=Math.max(200,el.clientWidth||300);
@@ -3323,15 +3334,17 @@ function openEtq(){
     if(!window.qrcode&&L.length)qrLib().then(()=>{pvs.forEach(pvDraw);L.forEach((x,i)=>avDraw(i))}).catch(()=>{});
     sh.querySelectorAll('[data-ap]').forEach(b=>b.onclick=async()=>{const i=+b.dataset.ap,c=(S.etq||[]).map(e=>({...e}));if(!c[i])return;const on=b.getAttribute('aria-checked')!=='true';
       if(on)c[i].apl=1;else delete c[i].apl;b.setAttribute('aria-checked',on);const ab=etqPvAb.has(etqPvK(L[i]));if(ab){etqPvAb.delete(etqPvK(L[i]))}const pr=saveEtq(c);L[i]=etqLista()[i];if(ab)etqPvAb.add(etqPvK(L[i]));
-      const el=sh.querySelector(`[data-pv="${i}"]`);el&&pvDraw(el);avDraw(i);await pr});
+      const el=sh.querySelector(`[data-pv="${i}"]`);el&&pvDraw(el);avDraw(i);await pr;subUp()});
     /* copias: digitar o numero (minimo 1) */
-    sh.querySelectorAll('.etq-q').forEach(inp=>{inp.onfocus=()=>inp.select();inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}};inp.onchange=async()=>{const i=+inp.closest('.etq-r').dataset.i,c=(S.etq||[]).map(e=>({...e}));if(!c[i])return;
-      const v=Math.max(1,Math.floor(Number(String(inp.value).replace(',','.')))||1);if(v===(Number(c[i].q)||1)){inp.value=v;return}c[i].q=v;await saveEtq(c);re()}});
+    const setQ=async(i,v)=>{const c=(S.etq||[]).map(e=>({...e}));if(!c[i])return;v=Math.max(1,v);const r=sh.querySelector(`.etq-r[data-i="${i}"]`);
+      r.querySelector('.etq-qn').value=v;r.querySelector('.ct-b[data-d="-1"]').disabled=v<=1;if(v===(Number(c[i].q)||1))return;c[i].q=v;L[i]={...L[i],q:v};await saveEtq(c);subUp()};
+    sh.querySelectorAll('.etq-qn').forEach(inp=>{inp.onfocus=()=>inp.select();inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}};
+      inp.onchange=()=>setQ(+inp.closest('.etq-r').dataset.i,Math.floor(Number(String(inp.value).replace(',','.')))||1)});
     sh.querySelectorAll('[data-etm]').forEach(b=>b.onclick=async()=>{if(b.dataset.etm===modo)return;await saveEtq(S.etq||[],b.dataset.etm);re()});
-    sh.querySelectorAll('.etq-r .ct-b').forEach(b=>b.onclick=async()=>{const i=+b.closest('.etq-r').dataset.i,c=(S.etq||[]).map(e=>({...e}));c[i].q=Math.max(1,(Number(c[i].q)||1)+Number(b.dataset.d));await saveEtq(c);re()});
+    sh.querySelectorAll('.etq-r .ct-b').forEach(b=>b.onclick=()=>{const i=+b.closest('.etq-r').dataset.i,c=(S.etq||[])[i];if(!c)return;setQ(i,(Number(c.q)||1)+Number(b.dataset.d))});
     sh.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rm,x=L[i];askConfirm(b.closest('.etq-r').querySelector('.etq-rm'),'Tirar',`Tirar ${x&&x.d?x.d.cod:'esta etiqueta'} da fila?`,async()=>{const c=(S.etq||[]).filter((e,k)=>k!==i);await saveEtq(c);re()})});
     const setTam=async(i,w,h,band)=>{band=band||0;const c=(S.etq||[]).map(e=>({...e})),j=c.findIndex((e,k)=>k!==i&&e.id===c[i].id&&e.w===w&&e.h===h&&(e.band||0)===band&&!e.apl===!c[i].apl);
-      if(j>=0){c[j].q=(Number(c[j].q)||1)+(Number(c[i].q)||1);c.splice(i,1)}else{c[i].w=w;c[i].h=h;if(band)c[i].band=band;else delete c[i].band}await saveEtq(c);re()};
+      if(j>=0){c[j].q=(Number(c[j].q)||1)+(Number(c[i].q)||1);c.splice(i,1)}else{c[i].w=w;c[i].h=h;if(band)c[i].band=band;else delete c[i].band}await saveEtq(c);re(j>=0?null:`.etq-r[data-i="${i}"]`)};
     const setBand=(i,v)=>{const g=etqBand(v);if(!g){toast('Volta grande demais para bandeira. Use a plaqueta pendurada com abracadeira.');re();return}setTam(i,g.w,g.h,v)};
     sh.querySelectorAll('[data-sz]').forEach(sel=>sel.onchange=()=>{const i=+sel.dataset.sz;
       if(sel.value==='nx'){setTam(i,100,60);return}
@@ -3340,16 +3353,17 @@ function openEtq(){
         box.querySelector('#etq-bok').onclick=()=>{const v=Math.round(parseFloat(String(box.querySelector('#etq-bv').value).replace(',','.'))*10);if(!(v>=20)){toast('Informe a volta em cm.');return}setBand(i,v)};return}
       if(sel.value==='p'){etqTamCustom(sel.closest('.etq-r').querySelector('.etq-cb'),(w,h)=>setTam(i,w,h));return}
       const [w,h]=sel.value.split('x').map(Number);setTam(i,w,h)});
-    etqPicker(sh.querySelector('#etq-pick'),async s=>{if(await etqAdd([{id:s.id,w:100,h:60,q:1}]))re()});
+    etqPicker(sh.querySelector('#etq-pick'),async s=>{if(await etqAdd([{id:s.id,w:100,h:60,q:1}],`${stCodTx(s)} na fila`))re('#etq-pick',{pick:1})});
     const clr=sh.querySelector('#etq-clr');clr&&(clr.onclick=()=>askConfirm(sh.querySelector('#etq-cf'),'Limpar','Tirar todas as etiquetas da fila?',async()=>{if(await saveEtq([])){toast('Fila de etiquetas vazia');re()}}));
     const go=sh.querySelector('#etq-go');go&&(go.onclick=()=>{if(!tot){toast('Nenhuma etiqueta pronta para gerar.');return}etqPronto()});
   }});
 }
 /* busca no cadastro: codigo almoxarifado, referencia ou descricao (so itens com codigo almoxarifado) */
 function etqPicker(box,onPick){
-  box.innerHTML=`<button type="button" class="ct-add">${I.plus}Adicionar item</button>`;
-  box.querySelector('.ct-add').onclick=ev=>{ev.stopPropagation();box.innerHTML=`<div class="sug-w"><input class="ct-c etq-q" autocomplete="off" autocapitalize="characters" placeholder="Codigo almoxarifado, referencia ou nome" aria-label="Buscar item"><div class="ct-hit sug"></div></div>`;
-    const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');c.focus();
+  /* item 28: campo de busca do tamanho das outras barras do app, sempre a mostra */
+  {box.innerHTML=`<div class="lbl" style="margin-top:14px">Adicionar a fila</div><div class="sug-w"><div class="search">${I.search}<input type="search" class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" aria-label="Buscar item"></div><div class="ct-hit sug"></div></div>`;
+    const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');
+    c.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const f=hit.querySelector('[data-ad]');f&&f.click()}};
     c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
       const m=S.estoque.filter(x=>etqPode(x)&&bScSt(x,c.value)<9).sort(bCmpSt(c.value)).slice(0,6);
       hit.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>{const d=etqDados(x);return `<button type="button" class="etq-hit" data-ad="${esc(x.id)}"><span><b class="num">${esc(d.cod)}</b><small>${ehMH(d.desc)?nomeMH(d.desc)+(d.ref?`<span class="etq-rf">${esc(d.ref)}</span>`:''):esc(d.desc)+(d.ref?' · '+esc(d.ref):'')}</small></span><em>${inEtq(x.id)?'na fila':I.plus}</em></button>`}).join('')}</div>`:'<p class="note" style="margin:6px 2px">Nenhum item com codigo almoxarifado encontrado.</p>';
@@ -5757,6 +5771,10 @@ function openTroca(id){
 }
 
 /* ---------- estoque ---------- */
+/* item 26: itens com a mesma referencia (ou codigo), comparando sem espacos, tracos e acentos */
+const nzMarca=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/\s+/g,'');
+const stRefIguais=(v,sem)=>{const k=nzCod(v);if(!k)return [];return S.estoqueAll.filter(x=>x.id!==sem&&!isKit(x)&&(nzCod(x.ref)===k||nzCod(x.codigo)===k)).sort((a,b)=>_an(stCodTx(a),stCodTx(b)))};
+const stRefLista=L=>`<div class="rf-l">${L.map(x=>`<button type="button" class="rf-r" data-sx="${esc(x.id)}"><b class="num">${esc(stAlm(x)||stCodTx(x))}</b> · ${esc(x.desc||'')} · ${x.marca?esc(x.marca):'Sem marca'} · saldo <span class="num">${nf(x.qtd,2)} ${esc(x.un||'')}</span></button>`).join('')}</div>`;
 function formStock(id,preset,onSaved){
   nav('fs:'+(id||'novo'),()=>formStock(id,preset,onSaved));
   const s=id?stById(id):{tipo:'filtro',un:'un',qtd:0,minimo:2,...(preset||{})};
@@ -5769,7 +5787,7 @@ function formStock(id,preset,onSaved){
     <label class="f w">Descricao<input id="s-desc" required value="${esc(s.desc||'')}" placeholder="Ex.: Filtro oleo motor"></label>
     <label class="f w">Descricao do fabricante<textarea id="s-dfab" class="ag" rows="1" placeholder="Nome completo do catalogo (opcional)">${esc(s.descFab||'')}</textarea></label>
     <label class="f w">Aplicacao<textarea id="s-aplic" class="ag" rows="1" placeholder="Ex.: Ar da cabine">${esc(s.aplic||'')}</textarea></label>
-    <label class="f">Marca<input id="s-marca" value="${esc(s.marca||'')}" placeholder="Ex.: Cat, Fleetguard"></label>
+    <label class="f">Marca<input id="s-marca" required value="${esc(s.marca||'')}" placeholder="Ex.: Cat, Fleetguard"></label>
     <label class="f" id="s-tpw"${acOf(s)==='LUB'?'':' hidden'}>Tipo<select id="s-tipo">${LUB_T.map(([v,t])=>`<option value="${v}"${s.tipo===v?' selected':''}>${t}</option>`).join('')}</select></label>
     <label class="f" id="s-subw"${acOf(s)==='LUB'&&s.tipo==='Aditivo'?'':' hidden'}>Subcategoria<select id="s-sub"><option value="">Escolha…</option>${AD_SUB.map(o=>`<option${s.sub===o?' selected':''}>${o}</option>`).join('')}</select></label>
     <label class="f">Unidade<input id="s-un" value="${esc(s.un||'')}" placeholder="un, L, kg, m"></label>
@@ -5780,12 +5798,18 @@ function formStock(id,preset,onSaved){
       <div class="tsec-l enc-sel" id="s-enc"></div>
       <div class="search">${I.search}<input id="s-encq" type="search" placeholder="Adicionar: TAG, modelo ou nº de serie" autocomplete="off" aria-label="Buscar equipamento"></div><div class="tsec-l enc-res" id="s-encr" hidden></div></div>
     <div class="fset" style="margin-top:12px"><h3>Fotos (opcional, ate 3)</h3><div id="s-ph"></div></div>
-    ${atBox('st',id?stById(id):null)}<div id="delbox"></div></form>`,
+    ${atBox('st',id?stById(id):null)}<div id="s-rfbox"></div><div id="delbox"></div></form>`,
   foot:`<button class="btn pri" form="fs">Salvar</button>`,
   mount:sh=>{if(id)atBind(sh,'st',id);
+    let refOk=id?nzCod(s.ref||s.codigo):'';
     if(idStep){const ft=sh.querySelector('.sh-foot');if(ft)ft.hidden=true;const iq=sh.querySelector('#s-idq'),ih=sh.querySelector('#s-idh');
       const seguir=v=>{const V=v.trim().toUpperCase();if(V)sh.querySelector('#s-ref').value=V;sh.querySelector('#s-idf').remove();sh.querySelector('#fs').hidden=false;if(ft)ft.hidden=false;setTimeout(()=>sh.querySelector('#s-desc').focus(),60)};
       const busca=()=>{const v=iq.value.trim(),k=nzCod(v);if(!k){ih.innerHTML='';return}
+        /* item 26: referencia (ou codigo) IGUAL a de itens ja cadastrados: aviso ja aqui, com marca e saldo */
+        const ig=stRefIguais(v,null);
+        if(ig.length){ih.innerHTML=`<div class="rf-av"><b>Referencia ja cadastrada</b>${stRefLista(ig)}<div class="rf-bt"><button type="button" class="btn" id="s-rfx">Cancelar</button><button type="button" class="btn pri" id="s-go">Cadastrar</button></div></div>`;
+          ih.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));
+          ih.querySelector('#s-rfx').onclick=()=>{iq.value='';ih.innerHTML='';iq.focus()};ih.querySelector('#s-go').onclick=()=>{refOk=nzCod(v);seguir(v)};return}
         const m=S.estoque.filter(x=>nzCod(x.alm).includes(k)||(x.almAnt||[]).some(a=>nzCod(a)===k)||nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||(x.eans||[]).some(e=>nzCod(e)===k)||nzCod(x.desc).includes(k)||bTodas(v,[x.desc,x.alm,x.codigo,x.ref])).sort(bCmpSt(v)).slice(0,6);
         ih.innerHTML=(m.length?`<p class="note" style="margin:4px 4px 6px">Ja cadastrado${m.length>1?'s':''}: toque para ver o cadastro</p><div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-sx="${esc(x.id)}"`})).join('')}</div>`:'')
           +`<button type="button" class="btn ${m.length?'':'pri '}block" id="s-go" style="margin-top:${m.length?8:0}px">Cadastrar ${esc(v.toUpperCase())}${m.length?' como novo':''}</button>`;
@@ -5828,8 +5852,14 @@ function formStock(id,preset,onSaved){
       if(tpN==='Aditivo'&&!g('sub')){toast('Escolha a subcategoria do aditivo');sh.querySelector('#s-sub').focus();return}
       /* sem referencia, so mangueiras (MAN): qualquer outra categoria pede a referencia, no cadastro novo e na edicao */
       if(!g('ref')&&!s.codigo&&cat!=='MAN'){toast('Referencia obrigatoria. Sem referencia, so Mangueiras.');sh.querySelector('#s-ref').focus();return}
-      {const dup=g('ref')&&S.estoqueAll.find(x=>x.id!==id&&!(tpN==='oleo'&&x.tipo==='oleo')&&(nzCod(x.ref)===nzCod(g('ref'))||nzCod(x.codigo)===nzCod(g('ref'))));
-       if(dup){toast(`Essa referencia ja esta cadastrada em "${dup.desc}".`);return}}
+      /* item 26: marca obrigatoria; mesma referencia so bloqueia com a mesma marca (vale tambem para oleo) */
+      const rfBx=sh.querySelector('#s-rfbox');rfBx.innerHTML='';
+      if(!g('marca')){toast('Informe a marca');const mi=sh.querySelector('#s-marca');mi.focus();mi.scrollIntoView({block:'center',behavior:'smooth'});return}
+      if(g('ref')){const ig=stRefIguais(g('ref'),id),dup=ig.find(x=>nzMarca(x.marca)===nzMarca(g('marca')));
+        if(dup){rfBx.innerHTML=`<div class="rf-er">Ja existe ${esc(stAlm(dup)||stCodTx(dup))} com a mesma referencia e marca.</div>`;rfBx.scrollIntoView({block:'center',behavior:'smooth'});return}
+        if(ig.length&&refOk!==nzCod(g('ref'))){rfBx.innerHTML=`<div class="rf-av"><b>Referencia ja cadastrada</b>${stRefLista(ig)}<div class="rf-bt"><button type="button" class="btn" id="s-rfx">Cancelar</button><button type="button" class="btn pri" id="s-rfok">Salvar</button></div></div>`;
+          rfBx.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));rfBx.querySelector('#s-rfx').onclick=()=>{rfBx.innerHTML=''};
+          rfBx.querySelector('#s-rfok').onclick=()=>{refOk=nzCod(g('ref'));rfBx.innerHTML='';saveSt()};rfBx.scrollIntoView({block:'center',behavior:'smooth'});return}}
       const body={cat,...(id&&s.alm&&acOf(s)===cat?{alm:s.alm}:{}),...(id&&s.almAnt&&s.almAnt.length?{almAnt:s.almAnt}:{}),codigo:String(s.codigo||'').toUpperCase(),ref:g('ref').toUpperCase(),desc:g('desc'),descFab:g('dfab'),marca:g('marca'),aplic:g('aplic'),encaixe:enc,tipo:tpN,sub:tpN==='Aditivo'?sh.querySelector('#s-sub').value:'',un:g('un')||'un',local:g('local'),qtd:Number(g('qtd'))||0,minimo:Number(g('min'))||0,fotos:fotoNow.slice(0,3),exemplo:!!s.exemplo,...(s.eans&&s.eans.length?{eans:s.eans}:{}),...((id&&stById(id)||s).inativo?{inativo:true}:{})};
       const ref=id?S.db.doc('estoque/'+id):S.db.collection('estoque').doc();
       if(await safe(async()=>{await ref.set(body);if(onSaved)await onSaved(ref.id,body);

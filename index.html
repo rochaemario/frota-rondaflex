@@ -702,7 +702,10 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .etq-l2{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .etq-l3{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .etq-ap{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;font-size:15px;font-weight:600}.sp-sw.etq-sw[aria-checked="true"]{background:var(--accent)}
-.etq-pvw{margin-top:10px;min-height:40px;display:flex;justify-content:center;pointer-events:none}.etq-pvs{display:block;width:100%;height:auto;max-height:200px;border-radius:4px;box-shadow:0 0 0 1px #d6dbe4}
+.etq-cds{display:flex;flex-direction:column;gap:12px;margin-top:6px}.etq-cds .etq-r{border:1.5px solid var(--accent);border-radius:14px;background:var(--surface);box-shadow:none;padding:12px}
+.etq-cod{font-size:19px}.etq-r .etq-cb:empty,.etq-r .etq-rm:empty,.etq-r [data-pva]:empty{display:none}.etq-q{width:52px;border:0;background:none;padding:0;min-height:0;height:38px;box-shadow:none;-moz-appearance:textfield}.etq-q::-webkit-inner-spin-button,.etq-q::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.etq-tg{display:flex;align-items:center;justify-content:space-between;width:100%;margin-top:4px;padding:10px 0 2px;border:0;border-top:1px solid var(--line);background:none;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;text-align:left}
+.etq-pvw{display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:none}.etq-pvw[hidden]{display:none}.etq-pvw small{font-size:12px;color:var(--muted)}.etq-rg{display:block;width:100%;height:200px}
 [data-pva] .eqv-av{display:block;margin-top:6px}.etq-l3 select{flex:0 1 150px;min-width:0;min-height:38px;font-size:13.5px;padding:0 8px}
 .etq-q{min-height:40px!important;font-size:14px!important}
 .mh{display:inline-flex;flex-direction:column;align-items:flex-start;max-width:100%;min-width:0;vertical-align:top}.mh1,.mh2{display:block;white-space:nowrap;max-width:100%}.mh2{overflow:hidden}
@@ -1568,8 +1571,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=1f4f938df3"></script>
-<script src="shim.js?v=1f4f938df3"></script>
+<script src="config.js?v=a383dc58d3"></script>
+<script src="shim.js?v=a383dc58d3"></script>
 </head>
 <body>
 
@@ -3292,6 +3295,20 @@ function etqPv(x){const ops=etqOps(x,'qr');let W=x.w,H=x.h,mg=[];
   if(x.band){const g=etqBand(x.band);if(g){W=g.w;H=g.h;mg=[[3,g.F-6],[g.F+x.band+3,g.F-6]].map(([a,l])=>({k:'m',x:a,y:3,w:l,h:g.h-6}))}}else mg=[{k:'m',x:3,y:3,w:W-6,h:H-6}];
   const a=ops.av,av=a&&a.cut?(a.mais?`Aplicacoes cortadas (E MAIS ${a.mais}). Use tamanho maior`:'Aplicacoes cortadas. Use tamanho maior'):a&&a.red?'Letra reduzida para caber':'';
   return {svg:etqSvg([...mg,...ops],W,H,1).replace('class="etq-pvs"',`class="etq-pvs" style="max-width:${Math.round(200*W/H)}px"`),av:av?`<span class="eqv-av">${av}</span>`:''}}
+/* item 25: tamanho real da etiqueta da linha (bandeira = aberta) */
+const etqDim=x=>{if(x.band){const g=etqBand(x.band);if(g)return [g.w,g.h]}return [x.w,x.h]};
+/* desenho da linha com regua em cm, para um quadro de fw x fh px (contain, sem deformar) */
+function etqPvRegua(x,fw,fh){const [W,H]=etqDim(x),pv=etqPv(x),px=14,pad=4;
+  const k=Math.min((fw-px-pad)/W,(fh-px-pad)/H),r=px/k,p=pad/k,VW=W+r+p,VH=H+r+p,fs=9/k,tk=4/k,sw=1/k;
+  const passo=10*k>=22?1:20*k>=22?2:5;let g='';
+  for(let c=0;c<=Math.floor(W/10+1e-6);c++){const xx=r+c*10;g+=`<line x1="${etqF(xx)}" y1="${etqF(r-tk)}" x2="${etqF(xx)}" y2="${etqF(r)}" stroke="#6b7280" stroke-width="${etqF(sw)}"/>`;if(c%passo===0)g+=`<text x="${etqF(xx)}" y="${etqF(r-tk-1/k)}" font-size="${etqF(fs)}" text-anchor="middle" fill="#6b7280" font-family="Helvetica,Arial,sans-serif">${c}</text>`}
+  for(let c=0;c<=Math.floor(H/10+1e-6);c++){const yy=r+c*10;g+=`<line x1="${etqF(r-tk)}" y1="${etqF(yy)}" x2="${etqF(r)}" y2="${etqF(yy)}" stroke="#6b7280" stroke-width="${etqF(sw)}"/>`;if(c%passo===0)g+=`<text x="${etqF(r-tk-1.5/k)}" y="${etqF(yy+fs*0.35)}" font-size="${etqF(fs)}" text-anchor="end" fill="#6b7280" font-family="Helvetica,Arial,sans-serif">${c}</text>`}
+  const inner=pv.svg.replace(/<svg [^>]*>/,`<svg x="${etqF(r)}" y="${etqF(r)}" width="${etqF(W)}" height="${etqF(H)}" viewBox="0 0 ${W} ${H}">`);
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${etqF(VW)} ${etqF(VH)}" width="${fw}" height="${fh}" preserveAspectRatio="xMidYMid meet" class="etq-rg">${g}<rect x="${etqF(r)}" y="${etqF(r)}" width="${W}" height="${H}" fill="#fff" stroke="#c3cad6" stroke-width="${etqF(sw)}"/>${inner}</svg>`}
+/* aviso da linha (so quando ha aplicacoes), visivel com a pre-visualizacao fechada */
+const etqAvTx=x=>{if(!x.d||!x.d.apl||!x.d.apl.length)return '';const a=etqOps(x,'qr').av;if(!a)return '';
+  return a.cut?(a.mais?`Aplicacoes cortadas (E MAIS ${a.mais}). Use tamanho maior`:'Aplicacoes cortadas. Use tamanho maior'):a.red?'Letra reduzida para caber':''};
+const etqPvAb=new Set(),etqPvK=x=>`${x.id}|${x.w}x${x.h}|${x.band||0}|${x.apl?1:0}`;
 function etqLista(){return (S.etq||[]).map((e,i)=>{const s=stById(e.id),ok=etqPode(s);return {...e,i,s,d:ok?{...etqDados(s),apl:e.apl?etqAplG(s):[]}:null}})}
 const etqBandOpts=v=>{const L=[100,140];if(v&&!L.includes(v))L.push(v);return L.map(b=>`<option value="b${b}"${b===v?' selected':''}>Bandeira · volta ${etqCm(b)} cm</option>`).join('')+'<option value="bp">Bandeira · outra volta…</option>'+(v?'<option value="nx">Etiqueta comum (10 × 6 cm)</option>':'')};
 const etqTamOpts=(w,h,extra,curto)=>{const v=`${w}x${h}`,pre=ETQ_TAM.some(t=>t[0]===v);return ETQ_TAM.map(([k,n])=>`<option value="${k}"${k===v?' selected':''}>${curto?n.replace(/ \(.*/,''):n}</option>`).join('')+(pre||!w?'':`<option value="${v}" selected>${etqTamTx(w,h)}</option>`)+(extra?'<option value="p">Personalizado…</option>':'')};
@@ -3303,25 +3320,32 @@ function openEtq(){
   nav('etq:',()=>openEtq());
   const L=etqLista(),modo='qr',tam=etqLS.get(),[tw,th]=tam.split('x').map(Number);
   const tot=L.filter(x=>x.d&&!etqQrPequena(x,modo)).reduce((a,x)=>a+(Number(x.q)||1),0),pg=tot?etqMontar(L,modo).length:0;
-  const row=x=>`<div class="etq-r" data-i="${x.i}"><div class="etq-l1"><b class="num">${x.d?esc(x.d.cod):'Sem codigo almoxarifado'}</b><button type="button" class="ct-x" data-rm="${x.i}" aria-label="Tirar da fila">✕</button></div>
+  const row=x=>`<div class="etq-r" data-i="${x.i}"><div class="etq-l1"><b class="num etq-cod">${x.d?esc(x.d.cod):'Sem codigo almoxarifado'}</b><button type="button" class="ct-x" data-rm="${x.i}" aria-label="Tirar da fila">✕</button></div>
     <div class="etq-l2">${x.d?(ehMH(x.d.desc)?`${nomeMH(x.d.desc)}${x.d.ref?`<span class="etq-rf">${esc(x.d.ref)}</span>`:''}`:`${esc(x.d.desc)}${x.d.ref?' · '+esc(x.d.ref):''}`):esc(x.s?x.s.desc:'Item removido do estoque')+' · fica de fora'}</div>
-    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${x.band?'':etqTamOpts(x.w,x.h,true,true)}${x.d.man?etqBandOpts(x.band):''}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><span class="ct-v num">${Number(x.q)||1}</span><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${!x.d.man&&etqAplG(x.s).length?`<div class="etq-ap"><span>Aplicacoes</span><button type="button" class="sp-sw etq-sw" role="switch" aria-checked="${!!x.apl}" data-ap="${x.i}" aria-label="Aplicacoes"></button></div>`:''}${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div><div class="etq-pvw" data-pv="${x.i}"></div><div data-pva="${x.i}"></div>`:''}</div>`;
+    ${x.d?`<div class="etq-l3"><select class="etq-sz" data-sz="${x.i}" aria-label="Tamanho">${x.band?'':etqTamOpts(x.w,x.h,true,true)}${x.d.man?etqBandOpts(x.band):''}</select><div class="ct-st"><button type="button" class="ct-b" data-d="-1" aria-label="Uma copia a menos"${(Number(x.q)||1)<=1?' disabled':''}>−</button><input class="ct-v num etq-q" type="number" inputmode="numeric" min="1" step="1" value="${Number(x.q)||1}" aria-label="Copias"><button type="button" class="ct-b" data-d="1" aria-label="Uma copia a mais">+</button></div></div>${!x.d.man&&etqAplG(x.s).length?`<div class="etq-ap"><span>Aplicacoes</span><button type="button" class="sp-sw etq-sw" role="switch" aria-checked="${!!x.apl}" data-ap="${x.i}" aria-label="Aplicacoes"></button></div>`:''}${x.d.semEnc?'<span class="etq-er">Mangueira sem equipamento no Encaixe</span>':''}<div class="etq-cb"></div><div class="etq-rm"></div><div data-pva="${x.i}">${(t=>t?`<span class="eqv-av">${t}</span>`:'')(etqAvTx(x))}</div>${(([W,H])=>`<button type="button" class="etq-tg" data-pvt="${x.i}" aria-expanded="${etqPvAb.has(etqPvK(x))}">${etqPvAb.has(etqPvK(x))?'Recolher ▴':`Pre-visualizar · ${etqCm(W)} × ${etqCm(H)} cm ▾`}</button>`)(etqDim(x))}<div class="etq-pvw" data-pv="${x.i}"${etqPvAb.has(etqPvK(x))?'':' hidden'}></div>`:''}</div>`;
   openSheet({title:'Etiquetas',sub:L.length?`${tot} ${tot===1?'etiqueta':'etiquetas'} · ${pg} ${pg===1?'folha':'folhas'} A4`:'Fila vazia',
-  body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="tsec-l">${L.map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
+  body:`<div class="lbl" style="margin-top:4px">Fila <span class="c">${L.length}</span></div>${L.length?`<div class="etq-cds">${L.map(row).join('')}</div>`:'<div class="empty">Ponha itens na fila pela tela do item, pelo relatorio do estoque ou aqui embaixo.</div>'}
     <div class="etq-nv"><div id="etq-pick"></div></div><div id="etq-cf"></div>`,
   foot:L.length?`<button type="button" class="btn" id="etq-clr">Limpar fila</button><button type="button" class="btn pri" id="etq-go">Gerar etiquetas</button>`:'',
   mount:sh=>{
     const re=()=>{NAV.pop();openEtq()};
-    /* pre-visualizacao: desenha so quando a linha aparece na tela */
-    const pvDraw=el=>{const i=+el.dataset.pv,x=L[i];if(!x||!x.d)return;const r=etqPv(x);el.innerHTML=r.svg;const a=sh.querySelector(`[data-pva="${i}"]`);a&&(a.innerHTML=r.av)};
-    const pvs=[...sh.querySelectorAll('[data-pv]')],io=window.IntersectionObserver?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){io.unobserve(e.target);pvDraw(e.target)}}),{rootMargin:'300px'}):null;
-    pvs.forEach(el=>io?io.observe(el):pvDraw(el));
-    if(!window.qrcode&&pvs.length)qrLib().then(()=>pvs.filter(el=>el.innerHTML).forEach(pvDraw)).catch(()=>{});
+    /* item 25: pre-visualizacao recolhivel (comeca fechada); so desenha a aberta; quadro igual para todas */
+    const PVH=200,avDraw=i=>{const a=sh.querySelector(`[data-pva="${i}"]`),t=L[i]&&L[i].d?etqAvTx(L[i]):'';a&&(a.innerHTML=t?`<span class="eqv-av">${t}</span>`:'')};
+    const pvDraw=el=>{const i=+el.dataset.pv,x=L[i];if(!x||!x.d||el.hidden)return;const fw=Math.max(200,el.clientWidth||300);
+      el.innerHTML=etqPvRegua(x,fw,PVH)+(([W,H])=>`<small>${etqCm(W)} × ${etqCm(H)} cm · tracejado = margem</small>`)(etqDim(x))};
+    sh.querySelectorAll('[data-pvt]').forEach(b=>b.onclick=()=>{const i=+b.dataset.pvt,x=L[i],el=sh.querySelector(`[data-pv="${i}"]`),k=etqPvK(x),ab=!etqPvAb.has(k);
+      if(ab)etqPvAb.add(k);else etqPvAb.delete(k);el.hidden=!ab;b.setAttribute('aria-expanded',ab);const [W,H]=etqDim(x);b.textContent=ab?'Recolher ▴':`Pre-visualizar · ${etqCm(W)} × ${etqCm(H)} cm ▾`;if(ab)pvDraw(el);else el.innerHTML=''});
+    const pvs=[...sh.querySelectorAll('[data-pv]')];pvs.forEach(pvDraw);
+    if(!window.qrcode&&L.length)qrLib().then(()=>{pvs.forEach(pvDraw);L.forEach((x,i)=>avDraw(i))}).catch(()=>{});
     sh.querySelectorAll('[data-ap]').forEach(b=>b.onclick=async()=>{const i=+b.dataset.ap,c=(S.etq||[]).map(e=>({...e}));if(!c[i])return;const on=b.getAttribute('aria-checked')!=='true';
-      if(on)c[i].apl=1;else delete c[i].apl;b.setAttribute('aria-checked',on);const pr=saveEtq(c);L[i]=etqLista()[i];const el=sh.querySelector(`[data-pv="${i}"]`);el&&pvDraw(el);await pr});
+      if(on)c[i].apl=1;else delete c[i].apl;b.setAttribute('aria-checked',on);const ab=etqPvAb.has(etqPvK(L[i]));if(ab){etqPvAb.delete(etqPvK(L[i]))}const pr=saveEtq(c);L[i]=etqLista()[i];if(ab)etqPvAb.add(etqPvK(L[i]));
+      const el=sh.querySelector(`[data-pv="${i}"]`);el&&pvDraw(el);avDraw(i);await pr});
+    /* copias: digitar o numero (minimo 1) */
+    sh.querySelectorAll('.etq-q').forEach(inp=>{inp.onfocus=()=>inp.select();inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();inp.blur()}};inp.onchange=async()=>{const i=+inp.closest('.etq-r').dataset.i,c=(S.etq||[]).map(e=>({...e}));if(!c[i])return;
+      const v=Math.max(1,Math.floor(Number(String(inp.value).replace(',','.')))||1);if(v===(Number(c[i].q)||1)){inp.value=v;return}c[i].q=v;await saveEtq(c);re()}});
     sh.querySelectorAll('[data-etm]').forEach(b=>b.onclick=async()=>{if(b.dataset.etm===modo)return;await saveEtq(S.etq||[],b.dataset.etm);re()});
     sh.querySelectorAll('.etq-r .ct-b').forEach(b=>b.onclick=async()=>{const i=+b.closest('.etq-r').dataset.i,c=(S.etq||[]).map(e=>({...e}));c[i].q=Math.max(1,(Number(c[i].q)||1)+Number(b.dataset.d));await saveEtq(c);re()});
-    sh.querySelectorAll('[data-rm]').forEach(b=>b.onclick=async()=>{const c=(S.etq||[]).filter((e,i)=>i!==+b.dataset.rm);await saveEtq(c);re()});
+    sh.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{const i=+b.dataset.rm,x=L[i];askConfirm(b.closest('.etq-r').querySelector('.etq-rm'),'Tirar',`Tirar ${x&&x.d?x.d.cod:'esta etiqueta'} da fila?`,async()=>{const c=(S.etq||[]).filter((e,k)=>k!==i);await saveEtq(c);re()})});
     const setTam=async(i,w,h,band)=>{band=band||0;const c=(S.etq||[]).map(e=>({...e})),j=c.findIndex((e,k)=>k!==i&&e.id===c[i].id&&e.w===w&&e.h===h&&(e.band||0)===band&&!e.apl===!c[i].apl);
       if(j>=0){c[j].q=(Number(c[j].q)||1)+(Number(c[i].q)||1);c.splice(i,1)}else{c[i].w=w;c[i].h=h;if(band)c[i].band=band;else delete c[i].band}await saveEtq(c);re()};
     const setBand=(i,v)=>{const g=etqBand(v);if(!g){toast('Volta grande demais para bandeira. Use a plaqueta pendurada com abracadeira.');re();return}setTam(i,g.w,g.h,v)};

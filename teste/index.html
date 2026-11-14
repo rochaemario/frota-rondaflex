@@ -1568,8 +1568,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=cde7033156"></script>
-<script src="shim.js?v=cde7033156"></script>
+<script src="config.js?v=i21b131120"></script>
+<script src="shim.js?v=i21b131120"></script>
 </head>
 <body>
 
@@ -6639,9 +6639,10 @@ function osFold(r,evs){const o=r.o;
       if(add.length)v.hist.push({ts:e.ts,txt:'Adicionou '+add.map(osNomeDe).join(', ')+' como responsavel',nome:nm});if(tir.length)v.hist.push({ts:e.ts,txt:'Tirou '+tir.map(osNomeDe).join(', ')+' dos responsaveis',nome:nm})}
     else if(e.tipo==='adendo'&&v.sit==='fechada'&&!v.resp.includes(e.por)){const n=v.ad.length+1;const corr=[];
       v.ad.push({n,id:e.id,por:e.por,nome:nm,ts:e.ts,obs:e.obs||'',corr,pecas:e.pecas||[],fotos:e.fotos||[]});addP(e.pecas,'adendo '+n,e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'ad',txt:`Fez o adendo ${n}`,d:e.obs||'',nome:nm})}
+    else if(e.tipo==='edit'&&e.campo==='tipo'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=osTpTx(v);v.tipo=OS_TP[e.para]?e.para:'cor';v.arSub=v.tipo==='ar'?(e.arSub||''):'';v.arSv=v.tipo==='ar'?(e.arSv||''):'';v.hist.push({ts:e.ts,k:'ed',txt:'Editou tipo de servico',d:`${de} → ${osTpTx(v)}`,nome:nm})}
     else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,k:'ed',txt:`Editou ${(OS_CAMPOS[e.campo]||e.campo).toLowerCase()}`,d:`${osVal(e.campo,de)||'vazio'} → ${osVal(e.campo,e.para)||'vazio'}`,nome:nm})}
     else if(/^(pcadd|pcrm|ftadd|ftrm)$/.test(e.tipo)&&((v.sit==='aberta'&&v.resp.includes(e.por))||(v.sit==='fechada'&&e.adm))){
-      if(e.tipo==='pcadd'){addP(e.pecas,'editado por '+nm,e.id);v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
+      if(e.tipo==='pcadd'){addP(e.pecas,'',e.id);v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
       else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`Tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
       else if(e.tipo==='ftadd'){(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.fotos||[]).length} foto(s)`,nome:nm})}
       else{v.fotos=v.fotos.filter(f=>!(e.fotos||[]).includes(f));v.hist.push({ts:e.ts,txt:`Tirou ${(e.fotos||[]).length} foto(s)`,nome:nm})}}
@@ -6742,6 +6743,7 @@ const osDraftNovo=eq=>({modo:'novo',eq,tipo:'',arSub:'',arSv:'',kit:'',hor:'',di
    O mecanico lanca na OS; ao concluir, aparece no Painel do app principal como "preventiva a registrar".
    O administrador confere, ajusta e registra: so entao o plano anda e a baixa no estoque acontece (uma vez so). */
 const OS_TP={cor:'Corretiva',prev:'Preventiva',ar:'Filtro de ar'};
+const osTpTx=v=>(OS_TP[v.tipo]||'Corretiva')+(v.tipo==='ar'&&v.arSub?' · '+v.arSub+(v.arSv&&v.arSub!=='Motor'?' · '+v.arSv:''):'');
 const osTr=v=>S.trocas.find(t=>t.os===v.id);
 const osARegistrar=()=>OS_ON?osLista().filter(v=>v.tipo&&v.tipo!=='cor'&&v.sit==='fechada'&&!osTr(v)&&eqById(v.eq)).sort((a,b)=>(a.data||'').localeCompare(b.data||'')||a.ts-b.ts):[];
 const osHmNum=h=>{let s=String(h??'').trim().replace(/\s/g,'');if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');const n=Number(s);return s!==''&&isFinite(n)&&n>=0?n:null};
@@ -7007,7 +7009,7 @@ function osVolta(){if(ehMec()){closeSheet();return}const i=NAV.findIndex(n=>n.ke
 /* ---------- a OS registrada ---------- */
 function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:')+id,()=>openOS(id,acao));const v=osById(id);if(!v){toast('OS nao encontrada');goBack();return}
   const u=osEu(),cx=v.sit==='cancelada',resp=AC&&!cx&&v.resp.includes(u.uid),dono=AC&&!cx&&v.por===u.uid,adm=osAdm(),admA=adm&&AC,e=eqById(v.eq)||{},fech=v.sit!=='aberta',podeCx=AC&&osPodeCx(v);
-  const marca=c=>{const m=v.marc[c];return !m?'':m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:` <em class="os-cor">· editado por ${esc(m.nome)} em ${osHora(m.ts)} · antes: ${esc(osVal(c,m.de))||'vazio'}</em>`};
+  const marca=c=>{const m=v.marc[c];return m&&m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:''};
   const mm=[e.marca,e.modelo].filter(Boolean).join(' · ');
   const stP=p=>{if(v.tipo!=='cor')return cx?'<span class="os-sx">liberada</span>':osTr(v)?'<span class="os-sb">registrado</span>':`<span class="os-sp">${v.sit==='fechada'?'a registrar':'pendente'}</span>`;const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):cx?'<span class="os-sx">liberada</span>':`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
   const cfOk=p=>admA&&!cx&&!v.conf[p.pk]&&v.tipo==='cor',pcRow=p=>`<button type="button" class="os-pr${cfOk(p)?' cfp':''}" data-pk="${esc(p.pk)}"${cfOk(p)?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
@@ -7099,8 +7101,10 @@ function formOSEdit(id){const v=osById(id),u=osEu();nav('ose:'+id,()=>formOSEdit
   if(!podeR&&!podeA){toast(v.sit==='fechada'?'OS fechada: para mudar algo, reabra':'So os responsaveis editam a OS aberta');goBack();return}
   if(!S.osEd||S.osEd.id!==id)S.osEd={id,pecas:[],fotos:[],rmPk:[],rmFt:[]};const d=S.osEd;
   const atuais=v.pecas.filter(p=>!d.rmPk.includes(p.pk)),fts=v.fotos.filter(f=>!d.rmFt.includes(f));
-  openSheet({title:'Editar '+osNum(v),sub:'Cada mudanca fica marcada e o valor antigo vai para o historico',
+  const tpLv=!!osTr(v);if(!d.tp)d.tp={tipo:v.tipo||'cor',arSub:v.arSub||'',arSv:v.arSv||'',pecas:[],kit:''};
+  openSheet({title:'Editar '+osNum(v),sub:'O valor antigo vai para o historico',
   body:`<form id="oed" class="os-frm" novalidate>
+   ${tpLv?'':osTipoHTML(d.tp)}
    <label class="os-f"><span>Data do servico</span><input class="os-in" type="date" id="ed-data" max="${today()}" value="${esc(d.data??v.data)}"></label>
    <label class="os-f"><span>Horimetro</span><input class="os-in" id="ed-hor" inputmode="decimal" value="${esc(d.hor??v.hor)}"></label>
    <label class="os-f"><span>O que aconteceu</span><textarea class="os-in" id="ed-aconteceu" rows="2">${esc(d.aconteceu??v.aconteceu)}</textarea></label>
@@ -7112,12 +7116,15 @@ function formOSEdit(id){const v=osById(id),u=osEu();nav('ose:'+id,()=>formOSEdit
   mount:sh=>{const ler=()=>{['data','hor','aconteceu','feito'].forEach(c=>{d[c]=sh.querySelector('#ed-'+c).value})};
     const rd=()=>{ler();const b=sh.querySelector('.sh-body'),y=b?b.scrollTop:0;formOSEdit(id);const nb=$('#sheet .sh-body');if(nb)nb.scrollTop=y};
     sh.querySelectorAll('[data-es]').forEach(b=>b.onclick=()=>{d.estado=b.dataset.es;rd()});
+    if(!tpLv)osBindTipo(sh,d.tp,rd);
     sh.querySelectorAll('[data-rpk]').forEach(b=>b.onclick=()=>{d.rmPk.push(b.dataset.rpk);rd()});
     sh.querySelectorAll('[data-rft]').forEach(b=>b.onclick=()=>{d.rmFt.push(b.dataset.rft);rd()});
     osBindPecas(sh,d,rd);
     sh.querySelector('#oed').onsubmit=async ev=>{ev.preventDefault();ler();const mud=[];['data','hor','aconteceu','feito'].forEach(c=>{const x=String(d[c]??'').trim();if(x!==String(v[c]||''))mud.push([c,x])});if(d.estado&&d.estado!==v.estado)mud.push(['estado',d.estado]);
-      if(!mud.length&&!d.pecas.length&&!d.fotos.length&&!d.rmPk.length&&!d.rmFt.length){toast('Nada mudou');return}
-      const ok=await safe(async()=>{for(const [c,x] of mud)await osEvento(id,'edit',{campo:c,para:x});
+      let tpM=null;if(!tpLv){const t=d.tp,sub=t.tipo==='ar'?t.arSub:'',sv=t.tipo==='ar'&&sub?(t.arSv||'Troca'):'';if(t.tipo==='ar'&&!sub){toast('Escolha qual filtro de ar');return}
+        if(t.tipo!==(v.tipo||'cor')||sub!==(v.tipo==='ar'?v.arSub||'':'')||sv!==(v.tipo==='ar'&&v.arSub?v.arSv||'Troca':''))tpM={para:t.tipo,...(t.tipo==='ar'?{arSub:sub,arSv:sv}:{})}}
+      if(!mud.length&&!tpM&&!d.pecas.length&&!d.fotos.length&&!d.rmPk.length&&!d.rmFt.length){toast('Nada mudou');return}
+      const ok=await safe(async()=>{if(tpM)await osEvento(id,'edit',{campo:'tipo',...tpM});for(const [c,x] of mud)await osEvento(id,'edit',{campo:c,para:x});
         if(d.rmPk.length)await osEvento(id,'pcrm',{pks:d.rmPk.slice()});if(d.pecas.length)await osEvento(id,'pcadd',{pecas:d.pecas.map(p=>({...p}))});
         if(d.rmFt.length)await osEvento(id,'ftrm',{fotos:d.rmFt.slice()});if(d.fotos.length)await osEvento(id,'ftadd',{fotos:d.fotos.slice()})},'OS editada');
       if(ok){S.osEd=null;NAV.pop();NAV.pop();openOS(id)}}}})}

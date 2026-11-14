@@ -1566,10 +1566,20 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 /* comboio: botao do relatorio */
 .cbx-rcb{width:100%;margin-top:14px;min-height:46px;gap:8px}
 .cbx-rcb svg{width:17px;height:17px}
+/* item 22: conciliacao com o plano no registro vindo da OS */
+.cc-l{margin-top:6px}
+.cc-r{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
+.cc-r .main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cc-r small{font-size:12.5px;color:var(--muted)}
+.cc-r.ok b{color:#0a7a3d}.cc-r.man{cursor:pointer}.cc-r.man svg{width:16px;height:16px;opacity:.5}
+.cc-r.pen small{color:#b26a00;font-weight:600}
+.cc-r.bad{background:#fdecec}.cc-r.bad small{color:#c62828;font-weight:600}
+.cc-r .cc-iv{max-width:150px}
+.cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=i21b131120"></script>
-<script src="shim.js?v=i21b131120"></script>
+<script src="config.js?v=i22b131121"></script>
+<script src="shim.js?v=i22b131121"></script>
 </head>
 <body>
 
@@ -4965,10 +4975,10 @@ function formFiltroAr(eqId,sub,osId){
     const L=[];const box=sh.querySelector('#a-its'),sug=sh.querySelector('#a-sug');
     const drawL=()=>{box.innerHTML=L.length?`<div class="kl ar-kl">${L.map((c,i)=>{const x=stById(c.id);return `<div class="kr"><span class="n"><b>${esc(x?x.desc:'Item removido')}</b><small class="num">${esc(x?stCod(x):'')}${x?` · saldo ${nf(stQtd(x),2)}`:''}</small></span><input type="number" step="1" min="0" inputmode="numeric" value="${esc(c.q)}" data-aq="${i}" aria-label="Quantidade"><span class="u">${esc(x?stUn(x):'un')}</span><button type="button" class="x" data-ax="${i}" aria-label="Tirar">✕</button></div>`}).join('')}</div>`:'<p class="note" style="margin:10px 2px 0">Nenhum filtro adicionado. Sem filtro, o servico e registrado sem baixa no estoque.</p>';
       box.querySelectorAll('[data-aq]').forEach(q=>q.oninput=()=>{L[Number(q.dataset.aq)].q=q.value});
-      box.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{L.splice(Number(b.dataset.ax),1);drawL();drawSug()});drawSug()};
+      box.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{L.splice(Number(b.dataset.ax),1);drawL();drawSug()});drawSug();if(vOS)fillPlan()};
     const add=x=>{if(!x)return;if(isKit(x)){toast('Escolha um filtro, nao um kit.');return}if(L.some(c=>c.id===x.id)){toast(`${x.desc} ja esta na lista`);return}L.push({id:x.id,q:1});drawL()};
     /* sugestoes: filtros de ar com encaixe neste equipamento (motor ou cabine primeiro) */
-    const drawSug=()=>{const eid=sel.value,fit=filtros.filter(s=>(s.encaixe||[]).includes(eid)&&isAr(s)),pref=fit.filter(s=>sub==='Motor'?!isCabine(s):isCabine(s)),l=[...pref,...fit.filter(s=>!pref.includes(s))].filter(s=>!L.some(c=>c.id===s.id));
+    const drawSug=()=>{if(vOS){sug.innerHTML='';return}const eid=sel.value,fit=filtros.filter(s=>(s.encaixe||[]).includes(eid)&&isAr(s)),pref=fit.filter(s=>sub==='Motor'?!isCabine(s):isCabine(s)),l=[...pref,...fit.filter(s=>!pref.includes(s))].filter(s=>!L.some(c=>c.id===s.id));
       sug.innerHTML=l.length?`<div class="ti-g ar-sg">Encaixe de fabrica · toque para adicionar</div><div class="tsec-l">${l.map(s=>esRow(s,{attr:`data-as="${esc(s.id)}"`})).join('')}</div>`:'';
       sug.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>add(stById(b.dataset.as)))};
     const q=sh.querySelector('#a-q'),qh=sh.querySelector('#a-qh');
@@ -4979,16 +4989,39 @@ function formFiltroAr(eqId,sub,osId){
       qh.querySelectorAll('[data-ap2]').forEach(b=>b.onclick=()=>{q.value='';qh.innerHTML='';add(stById(b.dataset.ap2))})};
     const cm=sh.querySelector('#a-cam');if(cm)cm.onclick=()=>rdOpen({mode:'item',use:v=>{if(!v.item){toast('Filtro nao encontrado no estoque.');return}add(v.item)}});
     /* itens do plano do equipamento que esta troca cumpre (pre-marcados pelo nome) */
+    const arMan={};let arOpen='',arLk='';
     const fillPlan=()=>{const e=eqById(sel.value),bx=sh.querySelector('#a-plan');const its=(e&&e.itens||[]).filter(i=>/\bar\b/i.test(itNome(i)+' '+(i.desc||'')));
+      if(vOS){concAr(e,bx,its);return}
       if(!its.length||!tr()){bx.innerHTML='';return}
       const cab=i=>/condicionad|cabine/i.test(itNome(i)+' '+(i.desc||'')),pre=i=>sub==='Motor'?!cab(i):cab(i);
       bx.innerHTML=`<div class="fset" style="margin-top:12px"><h3>Itens do plano cumpridos</h3><div class="list">${its.map(i=>`<label class="chk"><input type="checkbox" data-pl="${esc(i.pid)}"${pre(i)?' checked':''}><span class="box"></span><div class="main"><b>${esc(itNome(i))}</b></div></label>`).join('')}</div></div>`};
+    /* item 22: conciliacao do filtro de ar vindo da OS (mesmo filtro ou equivalente anda sozinho; os demais vencendo ficam pendentes ou "Trocado por...") */
+    function concAr(e,bx,its){if(!e){bx.innerHTML='';return}const np=osNaoPrev(vOS,e);const usados=new Set(),rec={};
+      if(tr())its.forEach(i=>{if(arMan[i.pid]&&L.some(c=>c.id===arMan[i.pid])){rec[i.pid]={id:arMan[i.pid],man:1};usados.add(arMan[i.pid]);return}delete arMan[i.pid];
+        const c=L.find(c=>!usados.has(c.id)&&itMatchSt(i,stById(c.id)))||L.find(c=>!usados.has(c.id)&&itEqvSt(i,stById(c.id)));if(c){rec[i.pid]={id:c.id,same:itMatchSt(i,stById(c.id))};usados.add(c.id)}});
+      const show=tr()?its.filter(i=>rec[i.pid]||['bad','warn'].includes(itemStatus(e,i).cls)).sort((a,b)=>_an(itNome(a),itNome(b))):[];
+      const sobra=L.filter(c=>!usados.has(c.id)&&stById(c.id));
+      let h=np.map(p=>`<div class="cc-r bad"><span class="main"><b>${esc(p.nome)} · ${nf(p.qtd,2)}</b><small>Nao e preventiva · retire pelo Editar OS</small></span><button type="button" class="btn sm" data-cced>Editar OS</button></div>`).join('');
+      show.forEach(i=>{const r=rec[i.pid],P=esc(i.pid);
+        if(r){const st=stById(r.id),pc=itCodPl(i),cd=st?stCod(st):'',jaEq=!pc||!cd||nzCod(pc)===nzCod(cd)||eqvDec(pc,cd)==='eq'||(st&&eqvGrupo(st).some(x=>itMatchSt(i,x)));
+          h+=`<input type="checkbox" hidden checked data-pl="${P}"><div class="cc-r ok${r.man?' man':''}"${r.man?` data-ccop="${P}" role="button" tabindex="0"`:''}><span class="main"><b>✓ ${esc(itNome(i))}</b><small>${esc(cd)} · ${r.man?'trocado por este':r.same?'mesmo item':'equivalente'}</small></span>${r.man?I.chev:''}</div>`;
+          if(r.man&&arOpen===i.pid)h+=`<div class="cc-x">${jaEq?'':`<button type="button" class="btn sm" data-cceq="${P}">Gravar como equivalente</button>`}<button type="button" class="btn sm" data-ccun="${P}">Desfazer ligacao</button></div>`}
+        else{h+=`<div class="cc-r pen"><span class="main"><b>${esc(itNome(i))}</b><small>Pendente · mantem a programacao</small></span>${sobra.length?`<button type="button" class="btn sm" data-cctp="${P}">Trocado por...</button>`:''}</div>`;
+          if(arLk===i.pid&&sobra.length)h+=`<div class="cc-x">${sobra.map(c=>{const s=stById(c.id);return `<button type="button" class="btn sm" data-cclk="${esc(c.id)}" data-ccpid="${P}">${esc(s.desc)} · ${esc(stCod(s))}</button>`}).join('')}</div>`}});
+      sobra.forEach(c=>{const s=stById(c.id);h+=`<div class="cc-r"><span class="main"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · fora do plano · so baixa no estoque</small></span></div>`});
+      bx.innerHTML=h?`<div class="fset" style="margin-top:12px"><h3>Plano do ${esc(e.codigo)}</h3><div class="list cc-l">${h}</div></div>`:'';
+      bx.querySelectorAll('[data-cced]').forEach(b=>b.onclick=()=>formOSEdit(vOS.id));
+      bx.querySelectorAll('[data-ccop]').forEach(b=>b.onclick=()=>{arOpen=arOpen===b.dataset.ccop?'':b.dataset.ccop;fillPlan()});
+      bx.querySelectorAll('[data-cctp]').forEach(b=>b.onclick=()=>{arLk=arLk===b.dataset.cctp?'':b.dataset.cctp;fillPlan()});
+      bx.querySelectorAll('[data-cclk]').forEach(b=>b.onclick=()=>{arMan[b.dataset.ccpid]=b.dataset.cclk;arLk='';arOpen=b.dataset.ccpid;fillPlan()});
+      bx.querySelectorAll('[data-ccun]').forEach(b=>b.onclick=()=>{delete arMan[b.dataset.ccun];arOpen='';fillPlan()});
+      bx.querySelectorAll('[data-cceq]').forEach(b=>b.onclick=async()=>{const i=its.find(x=>x.pid===b.dataset.cceq),st=i&&arMan[i.pid]&&stById(arMan[i.pid]);if(!st)return;if(await eqvGrava(itCodPl(i),stCod(st),itNome(i),e.id))fillPlan()})}
     const fillHm=()=>{const e=eqById(sel.value);hm.value=e&&e.horimetro!==''&&e.horimetro!=null?e.horimetro:'';
       /* troca de equipamento: sugere de novo o filtro de encaixe (so se a lista estiver vazia) */
-      if(!L.length){const fit=filtros.filter(s=>(s.encaixe||[]).includes(sel.value)&&isAr(s)),pref=fit.filter(s=>sub==='Motor'?!isCabine(s):isCabine(s));if(pref.length===1)L.push({id:pref[0].id,q:1})}
+      if(!L.length&&!vOS){const fit=filtros.filter(s=>(s.encaixe||[]).includes(sel.value)&&isAr(s)),pref=fit.filter(s=>sub==='Motor'?!isCabine(s):isCabine(s));if(pref.length===1)L.push({id:pref[0].id,q:1})}
       drawL();fillPlan();const e2=eqById(sel.value);if(e2)osPendAviso(sh,'#a-osp',e2,'ar',osId,id=>{NAV.pop();formFiltroAr(e2.id,(osById(id)||{}).arSub||sub,id)})};sel.onchange=fillHm;fillHm();
     /* veio da OS do mecanico: filtros, data, horimetro, responsaveis e servico ja preenchidos */
-    if(vOS){const v=vOS;L.length=0;v.pecas.forEach(p=>{if(p.k==='est'&&stById(p.id)&&!L.some(c=>c.id===p.id))L.push({id:p.id,q:Number(p.qtd)||1})});
+    if(vOS){const v=vOS;L.length=0;v.pecas.forEach(p=>{if(p.k==='est'&&stById(p.id)&&ehPrevSt(stById(p.id))&&!L.some(c=>c.id===p.id))L.push({id:p.id,q:Number(p.qtd)||1})});
       const hv=osHmNum(v.hor);if(hv!=null)hm.value=hv;sh.querySelector('#a-dt').value=v.data||today();sh.querySelector('#a-resp').value=v.resp.map(osNomeDe).join(', ');
       const sc=v.pecas.filter(p=>p.k!=='est'||!stById(p.id)).map(p=>`${p.nome} (${nf(p.qtd,2)})`);sh.querySelector('#a-obs').value=[osNum(v),v.feito,sc.length?'Sem cadastro: '+sc.join(', '):''].filter(Boolean).join(' · ');
       if(sub!=='Motor'&&v.arSv){SV.Troca=/troca/i.test(v.arSv);SV.Limpeza=/limpeza/i.test(v.arSv);if(!SV.Troca&&!SV.Limpeza)SV.Troca=true;sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelectorAll('[data-sv]').forEach(b=>b.setAttribute('aria-pressed',SV[b.dataset.sv]));sh.querySelector('#a-stw').hidden=!tr()}
@@ -4998,6 +5031,7 @@ function formFiltroAr(eqId,sub,osId){
     const hmSt={ok:false};[hm,sh.querySelector('#a-dt')].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false}));sel.addEventListener('change',()=>{hmSt.ok=false;hmSt.salto=false});
     sh.querySelector('#fa').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
+      if(vOS&&osNaoPrev(vOS,e).length){toast('Retire pelo Editar OS o que nao e preventiva');const c=sh.querySelector('#a-plan');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       const h0=Number(hm.value),dt0=sh.querySelector('#a-dt').value,g=hmGuard(sh.querySelector('#a-hmg'),e,h0,dt0,hmSt,()=>sh.querySelector('#fa').onsubmit({preventDefault(){}}));if(!g)return;
       const h=g.h,dl=g.dl,dt=dt0,nome=`Filtro de ar ${sub==='Motor'?'do motor':'do ar condicionado'}`;
       const lst=tr()?L.map(c=>({st:stById(c.id),q:Number(c.q)||0})).filter(x=>x.st):[];
@@ -5024,6 +5058,16 @@ const ehFiltroAr=n=>{const s=String(n||'').normalize('NFD').replace(/[\u0300-\u0
 const codeEq=(a,b)=>{const A=nzCod(a),B=nzCod(b);if(!A||!B)return false;return A===B||(Math.min(A.length,B.length)>=6&&(A.endsWith(B)||B.endsWith(A)))};
 const stCodes=s=>[stCod(s),s.codigo,s.ref].filter(Boolean);
 const itMatchSt=(it,s)=>!!(it&&s)&&(it.estoqueId===s.id||[it.espec,itCod(it)].some(c=>c&&stCodes(s).some(x=>codeEq(c,x))));
+/* item 22: item de preventiva = Filtro, Oleo, Aditivo, Graxa e Fluido (kit tambem); equivalente pelo grupo de equivalentes do estoque */
+const PREV_T=['filtro','oleo','Aditivo','Graxa','Fluido'];
+const ehPrevSt=s=>!!s&&(isKit(s)||PREV_T.includes(s.tipo));
+const itEqvSt=(it,s)=>itMatchSt(it,s)||(!!s&&eqvGrupo(s).some(x=>itMatchSt(it,x)));
+const itCodPl=it=>it.espec||itCod(it)||(it.estoqueId&&stById(it.estoqueId)?stCod(stById(it.estoqueId)):'');
+/* pecas do estoque que nao sao de preventiva e nao estao no plano: o administrador retira pelo Editar OS */
+const osNaoPrev=(v,e)=>v.pecas.filter(p=>{const st=p.k==='est'&&stById(p.id);return st&&!ehPrevSt(st)&&!((e&&e.itens)||[]).some(i=>!i.virt&&itMatchSt(i,st))});
+/* grava o par como equivalente (config/equivalencias) */
+async function eqvGrava(a,b,desc,equipId){const add={a,b,desc,equipId,status:'eq',data:today()},k=eqvKey(a,b);
+  const L=[...(S.equiv||[]).filter(x=>eqvKey(x.a,x.b)!==k),add];if(await safe(()=>S.db.doc('config/equivalencias').set({pares:L}),'Equivalencia gravada')){S.equiv=L;return true}return false}
 function formTroca(eqId,osId){
   nav('fp:new'+(osId?':'+osId:''),()=>formTroca(eqId,osId));const vOS=osId&&OS_ON?osById(osId):null;
   const eqs=S.eqCtl.slice().sort(byCode);
@@ -5040,7 +5084,7 @@ function formTroca(eqId,osId){
     <p class="note" id="t-proxhint" style="margin:0">Em branco, a proxima e agendada sozinha pelo intervalo de cada item.</p></div>
     <div class="lbl" style="margin-top:16px">Itens trocados <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">so entra o que voce adicionar</span></div>
     <div id="t-kits" hidden></div><div id="t-plan" hidden></div><div class="sug-w t-add"><div class="search">${I.search}<input id="t-q" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="t-qh"></div></div>
-    ${rdBtn('t-cam','Adicionar item pela camera')}<div class="list" id="t-items"></div><div class="list" id="t-extra" hidden></div>
+    ${rdBtn('t-cam','Adicionar item pela camera')}<div class="list" id="t-items"></div><div class="list" id="t-extra" hidden></div>${vOS?'<div id="t-conc"></div>':''}
     <div class="fset" style="margin-top:12px"><label class="f">Observacoes<textarea id="t-obs"></textarea></label></div><div id="t-eqv"></div></form>`,
   foot:`<button class="btn pri" form="ft">Registrar preventiva</button>`,
   mount:sh=>{
@@ -5060,7 +5104,7 @@ function formTroca(eqId,osId){
       box.querySelectorAll('[data-trm]').forEach(b=>b.onclick=()=>{const p=b.dataset.trm,cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.checked=false;const r=b.closest('.tr-i');r.classList.remove('op');r.querySelector('.tr-b').hidden=true;r.querySelector('[data-trh]').setAttribute('aria-expanded','false');box.dispatchEvent(new Event('change'));toast('Retirado do lancamento')});
       extras.length=0;drawX();
       /* kits que servem neste equipamento */
-      const kb=sh.querySelector('#t-kits'),ks=eqCompat(e).kits.slice();kb.hidden=!ks.length;
+      const kb=sh.querySelector('#t-kits'),ks=vOS?[]:eqCompat(e).kits.slice();kb.hidden=!ks.length;
       ks.sort(byKit);
       kb.innerHTML=ks.length?`<div class="ti-g">Kits compativeis</div><div class="list">${ks.map(k=>`<button type="button" class="kt-r" data-kit="${esc(k.id)}"><span class="kt-n"><b>${esc(k.desc)}</b><small class="num">${esc(stCod(k))} · ${kitComps(k).length} itens${kitMont(k)?` · ${nf(kitMont(k),2)} ${kitMont(k)===1?'montado':'montados'}`:''} · disponivel ${nf(stQtd(k),2)}</small></span><span class="kt-a">Adicionar kit</span></button>`).join('')}</div>`:'';
       kb.querySelectorAll('[data-kit]').forEach(b=>b.onclick=()=>{if(!b.classList.contains('on'))addKit(stById(b.dataset.kit))});
@@ -5068,7 +5112,7 @@ function formTroca(eqId,osId){
       osPendAviso(sh,'#t-osp',e,'prev',osId,id=>{NAV.pop();formTroca(e.id,id)});
       };
     /* atalho: itens do plano (so entram quando tocados) */
-    const drawPlan=()=>{const e=eqById(sel.value),pb=sh.querySelector('#t-plan');if(!e){pb.hidden=true;return}
+    const drawPlan=()=>{const e=eqById(sel.value),pb=sh.querySelector('#t-plan');if(!e||vOS){pb.hidden=true;return}
       const fora=(e.itens||[]).filter(it=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(it.pid)}"]`);return cb&&!cb.checked});
       pb.hidden=!fora.length;pb.innerHTML=fora.length?`<div class="ti-g">Itens do plano · toque para adicionar</div><div class="list">${fora.map(it=>{const s=itemStatus(e,it);return `<button type="button" class="kt-r" data-tp="${esc(it.pid)}"><span class="kt-n"><b>${esc(itNome(it))}</b><small class="num">${esc([it.espec||'',it.qtd?`${nf(it.qtd,2)} ${it.un||''}`:''].filter(Boolean).join(' · '))}</small></span><span class="pill ${s.cls}">${s.label}</span></button>`}).join('')}</div>`:'';
       pb.querySelectorAll('[data-tp]').forEach(b=>b.onclick=()=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(b.dataset.tp)}"]`);if(cb&&!cb.checked){cb.checked=true;box.dispatchEvent(new Event('change'));const it=(e.itens||[]).find(i=>i.pid===b.dataset.tp);toast(`${itNome(it)} adicionado`)}})};
@@ -5078,12 +5122,42 @@ function formTroca(eqId,osId){
     const drawX=()=>{xb.hidden=!extras.length;xb.innerHTML=`<div class="ti-g">Itens adicionados</div>`+extras.map((x,k)=>{const st=x.s,op=xOpen.has(st.id);return `<div class="tr-i${op?' op':''}" data-xrow="${k}">
         <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${op}"><div class="main"><b>${esc(st.desc)}</b><div class="s">${x.kit?`<span class="pill kt-tag">${esc(x.kit)}</span>`:''}<span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),2)} ${esc(stUn(st))}</span></div></div>
         <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span>${I.chev}</div>
-        <div class="tr-b"${op?'':' hidden'}>${isKit(st)||x.kit?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}${isKit(st)?`<button type="button" class="btn" data-kv>Ver itens do kit</button><div class="kv-w" hidden>${kitLista(st,x.q)}</div>`:''}<button type="button" class="btn" data-xr="${k}">Retirar do lancamento</button></div></div>`}).join('');
+        <div class="tr-b"${op?'':' hidden'}>${isKit(st)||x.kit||vOS?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}${isKit(st)?`<button type="button" class="btn" data-kv>Ver itens do kit</button><div class="kv-w" hidden>${kitLista(st,x.q)}</div>`:''}<button type="button" class="btn" data-xr="${k}">Retirar do lancamento</button></div></div>`}).join('');
       xb.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const x=extras.splice(Number(b.dataset.xr),1)[0];if(x)xOpen.delete(x.s.id);drawX();hint();toast('Retirado do lancamento')});
       xb.querySelectorAll('[data-xq]').forEach(q=>{q.oninput=()=>{extras[Number(q.dataset.xq)].q=q.value}});
       xb.querySelectorAll('[data-xiv]').forEach(v=>{v.onclick=ev=>ev.stopPropagation();v.onchange=()=>{extras[Number(v.dataset.xiv)].iv=v.value}});sh.querySelectorAll('[data-kit]').forEach(b=>{const on=kitTodo(stById(b.dataset.kit));b.querySelector('.kt-a').textContent=on?'Adicionado':'Adicionar kit';b.classList.toggle('on',on)});vis()};
     /* mostra so as linhas que estao no lancamento */
-    const vis=()=>{let n=0;box.querySelectorAll('[data-row]').forEach(r=>{const on=r.querySelector('input[type=checkbox]').checked;r.hidden=!on;if(on)n++});const z=box.querySelector('#t-none');if(z)z.hidden=!!(n||extras.length)};
+    const vis=()=>{let n=0;box.querySelectorAll('[data-row]').forEach(r=>{const on=r.querySelector('input[type=checkbox]').checked;r.hidden=!on;if(on)n++});const z=box.querySelector('#t-none');if(z)z.hidden=!!(n||extras.length);drawConc()};
+    /* item 22: conciliacao com o plano (so no registro vindo da OS) */
+    let ccOpen='',ccLk='';
+    function drawConc(){const cc=sh.querySelector('#t-conc');if(!cc)return;const e=eqById(sel.value);if(!e){cc.innerHTML='';return}
+      const on=new Map([...box.querySelectorAll('input[type=checkbox][data-pid]')].filter(c=>c.checked).map(c=>[c.dataset.pid,c]));
+      const its=(e.itens||[]).filter(i=>!i.virt&&(on.has(i.pid)||(['bad','warn'].includes(itemStatus(e,i).cls)&&!ehFiltroAr(itNome(i)+' '+(i.desc||''))))).sort((a,b)=>_an(itNome(a),itNome(b)));
+      const sobra=extras.map((x,k)=>({x,k})).filter(({x})=>!isKit(x.s)&&!x.kit&&ehPrevSt(x.s)&&!ehFiltroAr(x.s.desc));
+      const fora=extras.map((x,k)=>({x,k})).filter(({x})=>!sobra.some(y=>y.x===x));
+      const np=osNaoPrev(vOS,e);
+      const cdOf=pid=>((box.querySelector(`[data-cd="${CSS.escape(pid)}"]`)||{}).value||'').trim().toUpperCase();
+      const ivO=x=>`<select class="ivs cc-iv" data-ccnv="${x.k}" aria-label="Intervalo de ${esc(x.x.s.desc)}"><option value="__"${x.x.ivOk?'':' selected'} disabled>Escolha o intervalo</option><option value="eqp"${x.x.ivOk&&x.x.iv===''?' selected':''}>Do equipamento${e.intervaloPrev?` (${nf(e.intervaloPrev)} h)`:''}</option>${IV_OP.map(v=>`<option value="${v}"${x.x.ivOk&&Number(x.x.iv)===v?' selected':''}>${nf(v)} h</option>`).join('')}<option value="aval"${x.x.ivOk&&x.x.iv==='aval'?' selected':''}>Quando avaliado</option></select>`;
+      let h=np.map(p=>`<div class="cc-r bad"><span class="main"><b>${esc(p.nome)} · ${nf(p.qtd,2)}</b><small>Nao e preventiva · retire pelo Editar OS</small></span><button type="button" class="btn sm" data-cced>Editar OS</button></div>`).join('');
+      its.forEach(i=>{const c=on.get(i.pid),P=esc(i.pid);
+        if(c){const man=!!c.dataset.man,st=c.dataset.sid&&stById(c.dataset.sid),same=!st||itMatchSt(i,st),cd=cdOf(i.pid),pc=itCodPl(i),jaEq=!!(pc&&cd&&(nzCod(pc)===nzCod(cd)||eqvDec(pc,cd)==='eq'||(st&&eqvGrupo(st).some(x=>itMatchSt(i,x)))));
+          h+=`<div class="cc-r ok${man?' man':''}"${man?` data-ccop="${P}" role="button" tabindex="0"`:''}><span class="main"><b>✓ ${esc(itNome(i))}</b><small>${esc(cd||pc||'')}${cd||pc?' · ':''}${man?'trocado por este':same?'mesmo item':'equivalente'}</small></span>${man?I.chev:''}</div>`;
+          if(man&&ccOpen===i.pid)h+=`<div class="cc-x">${jaEq||!pc||!cd?'':`<button type="button" class="btn sm" data-cceq="${P}">Gravar como equivalente</button>`}<button type="button" class="btn sm" data-ccun="${P}">Desfazer ligacao</button></div>`}
+        else{h+=`<div class="cc-r pen"><span class="main"><b>${esc(itNome(i))}</b><small>Pendente · mantem a programacao</small></span>${sobra.length?`<button type="button" class="btn sm" data-cctp="${P}">Trocado por...</button>`:''}</div>`;
+          if(ccLk===i.pid&&sobra.length)h+=`<div class="cc-x">${sobra.map(({x,k})=>`<button type="button" class="btn sm" data-cclk="${k}" data-ccpid="${P}">${esc(x.s.desc)} · ${esc(stCod(x.s))}</button>`).join('')}</div>`}});
+      sobra.forEach(y=>{h+=`<div class="cc-r nv"><span class="main"><b>${esc(y.x.s.desc)}</b><small>${esc(stCod(y.x.s))} · novo no plano</small></span>${ivO(y)}</div>`});
+      fora.forEach(({x})=>{h+=`<div class="cc-r"><span class="main"><b>${esc(x.s.desc)}</b><small>${esc(stCod(x.s))} · fora do plano · so baixa no estoque</small></span></div>`});
+      cc.innerHTML=h?`<div class="ti-g" style="margin-top:14px">Plano do ${esc(e.codigo)}</div><div class="list cc-l">${h}</div>`:'';
+      cc.querySelectorAll('[data-cced]').forEach(b=>b.onclick=()=>formOSEdit(vOS.id));
+      cc.querySelectorAll('[data-ccop]').forEach(b=>b.onclick=()=>{ccOpen=ccOpen===b.dataset.ccop?'':b.dataset.ccop;drawConc()});
+      cc.querySelectorAll('[data-cctp]').forEach(b=>b.onclick=()=>{ccLk=ccLk===b.dataset.cctp?'':b.dataset.cctp;drawConc()});
+      cc.querySelectorAll('[data-cclk]').forEach(b=>b.onclick=()=>{const x=extras[Number(b.dataset.cclk)],pid=b.dataset.ccpid,cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(pid)}"]`);if(!x||!cb)return;
+        cb.dataset.sid=x.s.id;cb.dataset.man='1';const qi=box.querySelector(`[data-q="${CSS.escape(pid)}"]`);if(qi)qi.value=x.q;const cdI=box.querySelector(`[data-cd="${CSS.escape(pid)}"]`);if(cdI){cdI.value=stCod(x.s);const v=box.querySelector(`[data-cdv="${CSS.escape(pid)}"]`);if(v)v.textContent=stCod(x.s)}
+        cb.checked=true;extras.splice(extras.indexOf(x),1);ccLk='';ccOpen=pid;drawX();box.dispatchEvent(new Event('change'))});
+      cc.querySelectorAll('[data-ccun]').forEach(b=>b.onclick=()=>{const pid=b.dataset.ccun,cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(pid)}"]`);if(!cb)return;const st=stById(cb.dataset.sid),q=(box.querySelector(`[data-q="${CSS.escape(pid)}"]`)||{}).value;
+        cb.checked=false;delete cb.dataset.man;delete cb.dataset.sid;if(st)extras.push({s:st,q:q||1});ccOpen='';drawX();box.dispatchEvent(new Event('change'))});
+      cc.querySelectorAll('[data-cceq]').forEach(b=>b.onclick=async()=>{const i=(e.itens||[]).find(x=>x.pid===b.dataset.cceq);if(!i)return;if(await eqvGrava(itCodPl(i),cdOf(i.pid),itNome(i),e.id))drawConc()});
+      cc.querySelectorAll('[data-ccnv]').forEach(v=>{v.onchange=()=>{const x=extras[Number(v.dataset.ccnv)];if(!x)return;x.iv=v.value==='eqp'?'':ivVal(v.value);x.ivOk=true}})}
     box.addEventListener('change',()=>{vis();drawPlan();drawX()});
     sh.addEventListener('click',ev=>{const h=ev.target.closest('[data-trh]');if(!h||ev.target.closest('input,select,button:not([data-trh])'))return;const r=h.closest('.tr-i'),b=r.querySelector('.tr-b'),o=b.hidden;b.hidden=!o;r.classList.toggle('op',o);h.setAttribute('aria-expanded',o);
       const xr=r.dataset.xrow;if(xr!=null){const x=extras[Number(xr)];if(x){o?xOpen.add(x.s.id):xOpen.delete(x.s.id)}}});
@@ -5124,13 +5198,13 @@ function formTroca(eqId,osId){
     const val=q=>sh.querySelector(q).value;
     const snap=()=>({eq:sel.value,dt:val('#t-dt'),hm:val('#t-hm'),resp:val('#t-resp'),obs:val('#t-obs'),prox:val('#t-prox'),iv,
       chk:[...box.querySelectorAll('input[type=checkbox][data-pid]')].map(c=>{const p=c.dataset.pid;return [p,c.checked,(box.querySelector(`[data-q="${CSS.escape(p)}"]`)||{}).value,(box.querySelector(`[data-cd="${CSS.escape(p)}"]`)||{}).value]}),
-      ex:extras.map(x=>[x.s.id,x.q,x.kit||'']),sid:[...box.querySelectorAll('input[type=checkbox][data-sid]')].map(c=>[c.dataset.pid,c.dataset.sid]),kits:[...kitsAdd]});
+      ex:extras.map(x=>[x.s.id,x.q,x.kit||'']),sid:[...box.querySelectorAll('input[type=checkbox][data-sid]')].map(c=>[c.dataset.pid,c.dataset.sid]),man:[...box.querySelectorAll('input[type=checkbox][data-man]')].map(c=>c.dataset.pid),kits:[...kitsAdd]});
     sh._restore=()=>{const d=formTroca.draft;formTroca.draft=null;if(!d)return;
       if(d.eq&&eqById(d.eq)){const e1=eqById(d.eq);sel.value=d.eq;fill();const ei=sh.querySelector('.eqs-in');if(ei){ei.value=`${e1.codigo} · ${e1.tipo||''}`;ei.setCustomValidity('')}}
       sh.querySelector('#t-dt').value=d.dt;hm.value=d.hm;sh.querySelector('#t-resp').value=d.resp;sh.querySelector('#t-obs').value=d.obs;sh.querySelector('#t-prox').value=d.prox;
       if(d.iv){iv=d.iv;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv))}
       d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null){ci.value=cd;const v=box.querySelector(`[data-cdv="${CSS.escape(p)}"]`);if(v&&cd)v.textContent=cd}});vis();drawPlan();
-      (d.sid||[]).forEach(([p,s])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.dataset.sid=s});
+      (d.sid||[]).forEach(([p,s])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.dataset.sid=s});(d.man||[]).forEach(p=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.dataset.man='1'});
       d.ex.forEach(([id,q,kt])=>{const st=stById(id);if(st)extras.push({s:st,q,...(kt?{kit:kt}:{})})});(d.kits||[]).forEach(k=>{if(stById(k))kitsAdd.add(k)});drawX();hint();
       if(d.add){const st=stById(d.add);if(st)addPeca(st);else setTimeout(()=>{const s2=stById(d.add);if(s2)addPeca(s2)},800)}};
     const ph=sh.querySelector('#t-proxhint'),pin=sh.querySelector('#t-prox');
@@ -5144,9 +5218,11 @@ function formTroca(eqId,osId){
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
+      if(vOS&&osNaoPrev(vOS,e).length){toast('Retire pelo Editar OS o que nao e preventiva');const c=sh.querySelector('#t-conc');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
+      if(vOS&&extras.some(x=>!isKit(x.s)&&!x.kit&&ehPrevSt(x.s)&&!ehFiltroAr(x.s.desc)&&!x.ivOk)){toast('Escolha o intervalo dos itens novos no plano');const c=sh.querySelector('#t-conc');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();const ivI=box.querySelector(`[data-ivp="${CSS.escape(it.pid)}"]`);/* item do plano sem ligacao com o estoque: liga pelo codigo (mesmo item mesmo com prefixo diferente) para dar baixa */
         const lig=it.estoqueId||c.dataset.sid||(S.estoque.find(s=>!isKit(s)&&itMatchSt({...it,estoqueId:'',espec:cd||it.espec},s))||{}).id||'';
-        return {...it,estoqueId:lig,usado:q===''?0:Number(q),espec:cd||it.espec||'',ivEsc:ivI?ivVal(ivI.value):undefined}});
+        return {...it,estoqueId:lig,usado:q===''?0:Number(q),espec:cd||it.espec||'',ivEsc:ivI?ivVal(ivI.value):undefined,man:!!c.dataset.man}});
       const avul=extras.map(x=>({pid:isKit(x.s)||x.kit||ehFiltroAr(x.s.desc)?'':novoPid(),desc:x.s.desc,espec:stCod(x.s),usado:Number(x.q)||0,un:isKit(x.s)?'kit':x.s.un||'un',estoqueId:x.s.id,tipo:x.s.tipo||'',ivEsc:isKit(x.s)||x.kit||ehFiltroAr(x.s.desc)?undefined:ivVal(x.iv??((e.ivEnc||{})[x.s.id]??''))}));
       if(!picked.length&&!avul.length){toast('Marque pelo menos um item.');return}
       const h0=Number(hm.value),dt=sh.querySelector('#t-dt').value;
@@ -5157,7 +5233,7 @@ function formTroca(eqId,osId){
       /* codigo diferente do usado na preventiva anterior: pergunta se sao equivalentes antes de registrar */
       const lastCod=pid=>{const pc=(e.itens.find(i=>i.pid===pid)||{}).espec;if(pc)return pc;const t=S.trocas.filter(t=>t.equipId===e.id&&t.tipo!=='filtro_ar'&&t.tipo!=='reprog'&&t.tipo!=='hmtroca'&&(t.itens||[]).some(i=>i.pid===pid&&i.espec)).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];return t?t.itens.find(i=>i.pid===pid).espec:(e.itens.find(i=>i.pid===pid)||{}).espec||''};
       const pend=picked.map(p=>({p,a:lastCod(p.pid),b:p.espec})).filter(x=>x.a&&x.b&&nzCod(x.a)!==nzCod(x.b)&&!eqvDec(x.a,x.b));
-      if(pend.length&&!ev.eqvOk){const bx=sh.querySelector('#t-eqv'),dec={};
+      if(pend.length&&!ev.eqvOk&&!vOS){const bx=sh.querySelector('#t-eqv'),dec={};
         bx.innerHTML=`<div class="eqv-ask"><b>Confirme antes de registrar</b><p class="note" style="margin:0">O codigo usado e diferente do codigo do plano. Para efeito de preventiva, eles se equivalem? Se sim, o item fica cumprido; se nao, continua pendente.</p>${pend.map((x,i)=>`<div class="eqv" data-i="${i}"><div class="eqv-h"><b>${esc(itNome(x.p))}</b></div>
           <div class="eqv-c"><div><small>no plano</small><span class="num">${esc(x.a)}</span></div><span class="eqv-ar">→</span><div><small>agora</small><span class="num">${esc(x.b)}</span></div></div>
           <div class="eqv-b"><button type="button" class="btn sm" data-eq="eq" aria-pressed="false">Equivalentes</button><button type="button" class="btn sm" data-eq="dif" aria-pressed="false">Diferentes</button></div></div>`).join('')}
@@ -5174,7 +5250,7 @@ function formTroca(eqId,osId){
         return}
       /* vencidos que ficaram sem trocar: oferece reprogramar antes de registrar */
       const ids0=new Set(picked.map(p=>p.pid)),miss=e.itens.filter(i=>!ids0.has(i.pid)&&itemStatus(e,i).cls==='bad');
-      if(miss.length&&!ev.rpOk){const bx=sh.querySelector('#t-eqv');
+      if(miss.length&&!ev.rpOk&&!vOS){const bx=sh.querySelector('#t-eqv');
         bx.innerHTML=`<div class="eqv-ask"><b>Itens vencidos nao trocados</b><p class="note" style="margin:0">Se ficaram para depois, reprograme o vencimento. So muda neste equipamento.</p>${miss.map(i=>`<div class="eqv" data-rpi="${esc(i.pid)}"><div class="eqv-h"><b>${esc(itNome(i))}</b></div>
           <label class="f">Nova proxima (h)<input type="number" step="0.1" inputmode="decimal" data-rpv placeholder="Maior que ${nf(h,2)}"></label><div class="f">Motivo${rpMotHTML(i.pid)}</div></div>`).join('')}
           <div class="eqv-f"><button type="button" class="btn" data-skip>Nao reprogramar</button><button type="button" class="btn pri" data-go disabled>Reprogramar</button></div></div>`;
@@ -5196,7 +5272,7 @@ function formTroca(eqId,osId){
           proximaH:proxV,intervalo:iv||'',ajuste:!!S.ajuste,itens:[...picked,...avul].map(p=>({pid:p.pid,desc:p.desc,espec:p.espec||'',qtd:p.usado,un:p.un||'',estoqueId:p.estoqueId||''})),exemplo:!!e.exemplo});
         const ids=new Set(picked.map(p=>p.pid));
         /* peca diferente da do plano (marcada como "Diferentes") nao cumpre o item: ele continua pendente */
-        const cumpre=new Set(picked.filter(p=>{const pc=(e.itens.find(i=>i.pid===p.pid)||{}).espec;return !pc||!p.espec||nzCod(pc)===nzCod(p.espec)||eqvDec(pc,p.espec)!=='dif'}).map(p=>p.pid));
+        const cumpre=new Set(picked.filter(p=>{if(p.man)return true;const pc=(e.itens.find(i=>i.pid===p.pid)||{}).espec;return !pc||!p.espec||nzCod(pc)===nzCod(p.espec)||eqvDec(pc,p.espec)!=='dif'}).map(p=>p.pid));
         const ivOf={};picked.forEach(p=>{if(p.ivEsc!==undefined)ivOf[p.pid]=p.ivEsc});
         const upd={itens:e.itens.map(i=>{if(ids.has(i.pid)&&cumpre.has(i.pid)){const v=ivOf[i.pid];return v===undefined?{...i,ultimaH:h,ultimaData:dt,proxH:proxV,reprog:''}:{...i,ultimaH:h,ultimaData:dt,proxH:ivProx(v,h,proxV),reprog:'',ivSel:v,ivDef:true}}return rpM[i.pid]?rpApply(i,rpM[i.pid]):i})};
         /* itens adicionados (fora do plano, exceto kits) passam a seguir o proprio intervalo no plano do equipamento */
@@ -6620,6 +6696,7 @@ const osNomeDe=uid=>{const m=(S.mecs||[]).find(x=>x.uid===uid);if(m)return m.nom
 const OS_CAMPOS={data:'Data do servico',hor:'Horimetro',aconteceu:'O que aconteceu',feito:'O que foi feito',estado:'Equipamento'};
 const osVal=(c,v)=>c==='data'?fdate(v):c==='estado'?(v==='parado'?'Parado':v==='operando'?'Liberado':''):String(v??'');
 const osNum=v=>v.num?'OS '+String(v.num).padStart(4,'0'):'Nova';
+const osNumId=id=>{const r=(S.os||[]).find(o=>o.id===id);return r&&r.num?osNum(r):'nova OS'};
 const osHora=t=>{const d=new Date(t),h=pad(d.getHours())+':'+pad(d.getMinutes()),k=iso(d),hj=today(),on=iso(new Date(Date.now()-864e5));return (k===hj?'hoje':k===on?'ontem':sdate(k))+' '+h};
 /* estado atual: original + eventos */
 const _osC={k:null,m:null};
@@ -6643,7 +6720,7 @@ function osFold(r,evs){const o=r.o;
     else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,k:'ed',txt:`Editou ${(OS_CAMPOS[e.campo]||e.campo).toLowerCase()}`,d:`${osVal(e.campo,de)||'vazio'} → ${osVal(e.campo,e.para)||'vazio'}`,nome:nm})}
     else if(/^(pcadd|pcrm|ftadd|ftrm)$/.test(e.tipo)&&((v.sit==='aberta'&&v.resp.includes(e.por))||(v.sit==='fechada'&&e.adm))){
       if(e.tipo==='pcadd'){addP(e.pecas,'',e.id);v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
-      else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`Tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
+      else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`Tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}${e.para?' · '+((e.paraPks||[]).length<fora.length?'os que nao sao preventiva ':'')+'foram para a '+osNumId(e.para):''}`,nome:nm})}
       else if(e.tipo==='ftadd'){(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.fotos||[]).length} foto(s)`,nome:nm})}
       else{v.fotos=v.fotos.filter(f=>!(e.fotos||[]).includes(f));v.hist.push({ts:e.ts,txt:`Tirou ${(e.fotos||[]).length} foto(s)`,nome:nm})}}
     else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,k:'cf',txt:`Conferiu ${e.nome||'peca'}`,d:e.acao==='nao'?'Nao veio do estoque':'Baixa de '+nf(e.qtd,2)+' no estoque',nome:nm})}});
@@ -6805,7 +6882,9 @@ function osParaTroca(v,e){const chk=[],sid=[],ex=[],sc=[],plan=(e.itens||[]).fil
   v.pecas.forEach(p=>{const q=Number(p.qtd)||0;if(p.k==='sc'){sc.push(`${p.nome} (${nf(q,2)})`);return}
     const st=p.k==='est'?stById(p.id):null;let it=p.pid&&plan.find(i=>i.pid===p.pid);
     if(!it&&st)it=plan.find(i=>itMatchSt(i,st)&&!chk.some(c=>c[0]===i.pid));
+    if(!it&&st)it=plan.find(i=>itEqvSt(i,st)&&!chk.some(c=>c[0]===i.pid));
     if(it){const j=chk.findIndex(c=>c[0]===it.pid);if(j>=0){chk[j][2]=String((Number(chk[j][2])||0)+q);return}chk.push([it.pid,true,String(q),st&&!itMatchSt(it,st)?stCod(st):(it.espec||p.cod||'')]);if(st)sid.push([it.pid,st.id]);return}
+    if(st&&!ehPrevSt(st))return;
     if(st){const k=ex.find(x=>x[0]===st.id);if(k)k[1]=(Number(k[1])||0)+q;else ex.push([st.id,q,''])}else sc.push(`${p.nome} (${nf(q,2)})`)});
   const hv=osHmNum(v.hor);
   return {eq:e.id,dt:v.data||today(),hm:hv==null?'':String(hv),resp:v.resp.map(osNomeDe).join(', '),obs:[osNum(v),v.feito,sc.length?'Sem cadastro: '+sc.join(', '):''].filter(Boolean).join(' · '),prox:'',iv:0,chk,ex,sid,kits:v.kit?[v.kit]:[]}}
@@ -7124,8 +7203,11 @@ function formOSEdit(id){const v=osById(id),u=osEu();nav('ose:'+id,()=>formOSEdit
       let tpM=null;if(!tpLv){const t=d.tp,sub=t.tipo==='ar'?t.arSub:'',sv=t.tipo==='ar'&&sub?(t.arSv||'Troca'):'';if(t.tipo==='ar'&&!sub){toast('Escolha qual filtro de ar');return}
         if(t.tipo!==(v.tipo||'cor')||sub!==(v.tipo==='ar'?v.arSub||'':'')||sv!==(v.tipo==='ar'&&v.arSub?v.arSv||'Troca':''))tpM={para:t.tipo,...(t.tipo==='ar'?{arSub:sub,arSv:sv}:{})}}
       if(!mud.length&&!tpM&&!d.pecas.length&&!d.fotos.length&&!d.rmPk.length&&!d.rmFt.length){toast('Nada mudou');return}
+      const tpF=tpM?tpM.para:v.tipo,rmNP=osAdm()&&!ehMec()&&(tpF==='prev'||tpF==='ar')?v.pecas.filter(p=>d.rmPk.includes(p.pk)&&p.k==='est'&&stById(p.id)&&!ehPrevSt(stById(p.id))):[];
       const ok=await safe(async()=>{if(tpM)await osEvento(id,'edit',{campo:'tipo',...tpM});for(const [c,x] of mud)await osEvento(id,'edit',{campo:c,para:x});
-        if(d.rmPk.length)await osEvento(id,'pcrm',{pks:d.rmPk.slice()});if(d.pecas.length)await osEvento(id,'pcadd',{pecas:d.pecas.map(p=>({...p}))});
+        let nid='';if(rmNP.length){const r=await S.db.collection('os').add({o:{tipo:'cor',eq:v.eq,por:v.por,porNome:v.porNome,ts:Date.now(),data:v.data,hor:v.hor||'',aconteceu:`Itens retirados da ${osNum(v)}`,concl:v.sit!=='aberta',
+          feito:'Troca de '+rmNP.map(p=>p.nome).join(', '),estado:v.estado||'',pecas:rmNP.map(({src,pk,...p})=>p),fotos:[],resp:v.resp.filter(x=>x!==v.por),vinc:v.id,origem:{os:v.id,por:u.uid}}});nid=r&&r.id||''}
+        if(d.rmPk.length)await osEvento(id,'pcrm',{pks:d.rmPk.slice(),...(nid?{para:nid,paraPks:rmNP.map(p=>p.pk)}:{})});if(d.pecas.length)await osEvento(id,'pcadd',{pecas:d.pecas.map(p=>({...p}))});
         if(d.rmFt.length)await osEvento(id,'ftrm',{fotos:d.rmFt.slice()});if(d.fotos.length)await osEvento(id,'ftadd',{fotos:d.fotos.slice()})},'OS editada');
       if(ok){S.osEd=null;NAV.pop();NAV.pop();openOS(id)}}}})}
 

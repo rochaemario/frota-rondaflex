@@ -2057,8 +2057,7 @@ async function abastGravar(e,{dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,resp='',obs='',
   if(h>(Number(e.horimetro)||0)&&dt>=(e.horimetroData||'')){up.horimetro=h;up.horimetroData=dt;up.horimetroReg=today()}
   await S.db.doc('equipamentos/'+e.id).update(up);
   Object.assign(e,up);return up}
-/* abastecimentos em lote (pacote preparado pelo Claude a partir das folhas):
-   confere cada linha como o lancamento manual e so grava depois de confirmar */
+/* calculo de um abastecimento (consumo, base do tanque cheio); usado pela conferencia do lote do comboio */
 function calcAbast(e,dt,h0,l,cheio){const dl=hmDeltaApos(e.id,dt),h=Math.round((h0+dl)*10)/10,b=e.combBase||null;let horas=null,lh=null,L=0,nb,erro='';
   /* data anterior ao ultimo abastecimento: lanca pelo abastOp, que confere os vizinhos e recalcula o consumo */
   if(e.combUltData&&dt<e.combUltData)return {dt,h0,h,dl,l,cheio,horas,lh,L,nb:b,b,erro,retro:true};
@@ -2067,7 +2066,6 @@ function calcAbast(e,dt,h0,l,cheio){const dl=hmDeltaApos(e.id,dt),h=Math.round((
   else if(cheio)nb={h,data:dt,pend:0};
   else nb=b?{...b,pend:Math.round(((b.pend||0)+l)*10)/10}:null;
   return {dt,h0,h,dl,l,cheio,horas,lh,L,nb,b,erro}}
-window.__frotaLote=lista=>openLoteAbast(lista);
 /* itens do estoque em lote (pacote preparado pelo Claude a partir de prints):
    confere repetidos, mostra a foto e so cadastra depois de confirmar */
 window.__frotaItens=lista=>openLoteItens(lista);
@@ -2097,41 +2095,6 @@ function openLoteItens(lista){
           await ref.set({ref:x.ref,codigo:x.codigo||'',desc:x.desc,descFab:x.descFab||'',aplic:x.aplic||'',marca:x.marca||'',tipo:x.tipo||'filtro',un:x.un||'un',minimo:x.minimo??1,qtd:0,local:'',encaixe:r.eqs.map(e=>e.id),fotos,exemplo:false});k++}
         catch(e){console.error(e);f++}}
       toast(f?`${k} cadastrados · ${f} com erro`:`${k} ${k===1?'item cadastrado':'itens cadastrados'}`);goBack()}}});
-}
-async function openLoteAbast(lista){
-  nav('lote',()=>openLoteAbast(lista));
-  const achar=x=>{const c=nzCod(x.equip),pl=nzCod(x.placa),L=eqComb();return L.find(e=>c&&nzCod(e.codigo)===c)||L.find(e=>pl&&e.placa&&nzCod(e.placa)===pl)};
-  const fora=[],rows=[];lista.forEach(x=>{const e=achar(x);if(e)rows.push({x,e});else fora.push(x)});
-  rows.sort((a,b)=>a.x.data.localeCompare(b.x.data)||a.e.codigo.localeCompare(b.e.codigo)||a.x.horimetro-b.x.horimetro);
-  /* simula em sequencia: cada linha usa a base deixada pela anterior do mesmo equipamento */
-  const sim={};for(const r of rows){const e0=sim[r.e.id]||{...r.e};const c=calcAbast(e0,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);r.c=c;
-    if(c.retro){r.aviso='Anterior ao ultimo abastecimento: consumo recalculado ao lancar';continue}
-    if(!c.erro){if(c.lh!=null){const md=await combMedia(r.e.id,r.x.data);if(md&&(c.lh>md*1.5||c.lh<md*0.5))r.aviso=`Consumo fora do normal (media ${consTxt(r.e,md)})`}
-      const sj=hmSalto(e0,c.h,r.x.data);if(sj){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro ${nf(sj.dif)} h acima do esperado`;r.fora=true}
-      if(hmAtras(e0,c.h,r.x.data)){r.aviso=(r.aviso?r.aviso+' · ':'')+`Horimetro maior que a leitura de ${fdate(e0.horimetroData)} (${nf(e0.horimetro,1)} h)`;r.fora=true}
-      sim[r.e.id]={...e0,combBase:c.nb,combUltData:r.x.data,...(c.h>(Number(e0.horimetro)||0)?{horimetro:c.h,horimetroData:r.x.data}:{})}}}
-  /* abastecimento igual (ja lancado ou repetido na propria folha): vem desmarcado */
-  {const DC={};for(const r of rows){const k=mesKey(r.x.data);if(!DC[k])DC[k]=await abDupCarga(r.x.data);const dp=abDupEq(DC[k],r.e.id,r.x.horimetro)||rows.find(z=>z!==r&&z.e.id===r.e.id&&Number(z.x.horimetro)===Number(r.x.horimetro)&&rows.indexOf(z)<rows.indexOf(r));
-    if(dp){r.aviso=(r.aviso?r.aviso+' · ':'')+'Ja existe abastecimento igual';r.fora=true}}}
-  rows.forEach((r,i)=>{r.i=i;r.sel=!r.c.erro&&!r.fora});
-  const linha=r=>`<button type="button" class="lt-r${r.c.erro?' er':r.aviso?' av':''}${r.sel?'':' off'}" data-lt="${r.i}"${r.c.erro?' disabled':''}><span class="lt-k" aria-hidden="true"></span><span class="lt-c num">${esc(r.e.codigo)}</span><span class="lt-m"><b class="num">${nf(r.x.horimetro,2)} h · ${nf(r.x.litros,2)} L</b><small>${r.c.erro?esc(r.c.erro):r.aviso?esc(r.aviso):r.c.lh!=null?nf(r.c.lh,1)+' L/h':'Vira a base da medicao'}</small></span></button>`;
-  const dias=[...new Set(rows.map(r=>r.x.data))];
-  const nSel=()=>rows.filter(r=>r.sel).length;
-  openSheet({title:'Abastecimentos',sub:`Folha de ${dias.map(d=>fdate(d).slice(0,5)).join(' e ')}${fora.length?` · ${fora.length} fora da base`:''}`,
-  body:`${dias.map(d=>`<div class="lbl" style="margin-top:12px">${fdate(d)}</div><div class="list">${rows.filter(r=>r.x.data===d).map(linha).join('')}</div>`).join('')}
-    ${fora.length?`<div class="lbl" style="margin-top:16px">Fora da base · nao serao lancados</div><div class="list">${fora.map(x=>`<div class="lt-r fo"><span class="lt-c num">${esc(x.equip||'—')}</span><span class="lt-m"><b class="num">${fdate(x.data)} · ${nf(x.litros,2)} L</b>${x.placa?`<small>${esc(x.placa)}</small>`:''}</span></div>`).join('')}</div>`:''}
-    <p class="note" style="margin:12px 2px 0">Toque numa linha para incluir ou tirar do lancamento. Linhas com horimetro muito acima do esperado ja vem desmarcadas; confira antes. Todos como tanque cheio.</p><div id="lt-st"></div>`,
-  foot:`<button type="button" class="btn pri" id="lt-go"></button>`,
-  mount:sh=>{const go=sh.querySelector('#lt-go');const txt=()=>{const n=nSel();go.disabled=!n;go.textContent=n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada marcado'};txt();
-    sh.querySelectorAll('[data-lt]').forEach(b=>b.onclick=()=>{const r=rows[Number(b.dataset.lt)];r.sel=!r.sel;b.classList.toggle('off',!r.sel);txt()});
-    go.onclick=async()=>{const ok=rows.filter(r=>r.sel);if(!ok.length)return;
-    /* sem saldo no comboio: nao lanca (lancamentos sem comboio contam no primeiro) */
-    {const c=await cbxCfg();await cbxFechAll();const cb0=c.comboios[0]&&c.comboios[0].id,aj={};ok.forEach(r=>aj[r.x.data]=Math.round(((aj[r.x.data]||0)-Number(r.x.litros))*10)/10);
-      const rs=cb0?await cbxRun(c,cb0,Object.keys(aj).sort()[0],aj):null;if(rs&&rs.min<0){sh.querySelector('#lt-st').innerHTML=cbxMsg('bad',cbxSemSaldo(rs));return}}
-    go.disabled=true;let n=0,f=0;
-    for(const r of ok){go.textContent=`Lancando ${n+f+1} de ${ok.length}…`;const e=eqById(r.e.id);const c=calcAbast(e,r.x.data,Number(r.x.horimetro),Number(r.x.litros),r.x.cheio!==false);
-      if(c.erro){f++;continue}try{if(c.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.x.data,h0:Number(r.x.horimetro),litros:Number(r.x.litros),cheio:r.x.cheio!==false}});if(rr.erro){f++;continue}}else await abastGravar(e,c);n++}catch(er){console.error(er);f++}}
-    toast(f?`${n} lancados · ${f} nao lancados`:`${n} abastecimentos lancados`);goBack()}}});
 }
 /* + › Copia de seguranca: um arquivo JSON com todas as colecoes (fotos e documentos ficam so como referencia) */
 async function backupAll(btn){if(backupAll.busy)return;
@@ -2382,10 +2345,13 @@ const cbxNum=v=>v===''||v==null?null:Number(v);
 /* abastecimento igual: frota = mesmo equipamento com o mesmo horimetro (km nos VL); MSE = mesma TAG com o mesmo horimetro ou km
    (sem TAG: qualquer MSE). Confere o mes da data e os vizinhos. So avisa: Revisar ou Lancar assim mesmo */
 async function abDupCarga(dt){const m=mesKey(dt),[y,mo]=m.split('-').map(Number),pm=mo===1?`${y-1}-12`:`${y}-${String(mo-1).padStart(2,'0')}`,ms=[pm,m,mesSeg(m)].filter(k=>k<=mesKey());
-  const E={},M=[];for(const k of ms){try{const q=await S.db.collection('comb/'+k+'/abast').get();q.docs.forEach(d=>{const x=d.data();if(x.horimetro===''||x.horimetro==null)return;(E[x.equipId]=E[x.equipId]||[]).push({h:Number(x.horimetro),data:x.data})})}catch(e){}
+  const E={},M=[];for(const k of ms){try{const q=await S.db.collection('comb/'+k+'/abast').get();q.docs.forEach(d=>{const x=d.data();(E[x.equipId]=E[x.equipId]||[]).push({h:x.horimetro===''||x.horimetro==null?null:Number(x.horimetro),l:x.litros===''||x.litros==null?null:Number(x.litros),data:x.data})})}catch(e){}
     try{const q=await S.db.collection('comb/'+k+'/mse').get();q.docs.forEach(d=>{const x=d.data();M.push({t:nzCod(x.tag||''),h:cbxNum(x.horimetro),km:cbxNum(x.km),data:x.data})})}catch(e){}}
   return {E,M}}
-const abDupEq=(D,eId,h)=>D&&h!==''&&h!=null?(D.E[eId]||[]).find(r=>r.h===Number(h)):null;
+const abDupEq=(D,eId,h)=>D&&h!==''&&h!=null?(D.E[eId]||[]).find(r=>r.h!=null&&r.h===Number(h)):null;
+/* item 35: mesmo equipamento + mesmos litros no mesmo dia (litros iguais em dias diferentes nao contam) */
+const abDupLt=(D,eId,l,dt)=>D&&Number(l)>0?(D.E[eId]||[]).find(r=>r.data===dt&&r.l!=null&&Math.round(r.l*10)===Math.round(Number(l)*10)):null;
+const abDupTxtL=r=>`<b>Ja existe abastecimento igual</b> (${nf(r.l,1)} L${r.data?' em '+fdate(r.data).slice(0,5):''}).`;
 const abDupMse=(L,x)=>{const t=nzCod(x.t||''),h=cbxNum(x.h),km=cbxNum(x.km);if(h==null&&km==null)return null;
   return (L||[]).find(r=>(!t||r.t===t)&&((h!=null&&r.h!=null&&Number(r.h)===h)||(km!=null&&r.km!=null&&Number(r.km)===km)))};
 const abDupTxt=(r,un)=>`<b>Ja existe abastecimento igual</b> (${un} ${nf(r.v,1)}${r.data?' em '+fdate(r.data).slice(0,5):''}).`;
@@ -2440,7 +2406,8 @@ async function cbxLote(dt0){
     const pad=cbxCustoR(e,c,x.r);if(pad&&cu!==pad)o.msg.push(['info',`Custo ${esc(cbxCuNome(cu))}, alocado em ${esc(cbxCuNome(pad))}. Vale so neste lancamento.`]);
     const dp=dupDt===st.dt&&abDupEq(DUP,e.id,x.h);
     if(dp){o.av=1;o.msg.push(['warn',abDupTxt({v:Number(x.h),data:dp.data},ehVL(e)?'km':'horimetro')])}
-    else if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}
+    else{const dl=dupDt===st.dt&&abDupLt(DUP,e.id,x.l,st.dt);if(dl){o.av=1;o.msg.push(['warn',abDupTxtL(dl)])}
+      if(e.horimetro!==''&&e.horimetro!=null&&Number(x.h)===Number(e.horimetro)){o.av=1;o.msg.push(['warn','Horimetro igual ao ultimo: abasteceu sem trabalhar?'])}}
     const sj=hmSalto(e,r.h,st.dt);if(sj){o.av=1;o.msg.push(['warn',`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`])}
     if(hmAtras(e,r.h,st.dt)){o.av=1;o.msg.push(['warn',`Horimetro maior que a leitura mais nova (${nf(e.horimetro,1)} h em ${fdate(e.horimetroData)}). Confira.`])}
     o.ok=true;return o};

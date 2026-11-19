@@ -1589,8 +1589,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=6f2b53cd0f"></script>
-<script src="shim.js?v=6f2b53cd0f"></script>
+<script src="config.js?v=80a8d1c59c"></script>
+<script src="shim.js?v=80a8d1c59c"></script>
 </head>
 <body>
 
@@ -1632,13 +1632,24 @@ const byCode=(a,b)=>_isSt(a)&&_isSt(b)?(_an(a.desc,b.desc)||_an(a.codigo||a.ref,
    Dentro de cada faixa, ordem alfanumerica (ou a ordem da lista, quando ela e por data). */
 const _bnC=new Map();
 function bN(v){const s=v==null?'':String(v);let r=_bnC.get(s);if(r===undefined){r=s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();if(_bnC.size>40000)_bnC.clear();_bnC.set(s,r)}return r}
-const bCx=v=>bN(v).replace(/[^a-z0-9]/g,'');
-const bPal=q=>bN(q).trim().split(/[\s,;]+/).filter(Boolean);
-const bTodas=(q,tx)=>{const ws=bPal(q);if(!ws.length)return false;const t=bN(Array.isArray(tx)?tx.filter(Boolean).join(' '):tx);return ws.every(w=>t.includes(w))};
+/* item 34: so letras e numeros contam; simbolos (/ - . , espaco etc.) sao ignorados na comparacao */
+const _bsC=new Map(),_bxC=new Map();
+function bS(v){const s=v==null?'':String(v);let r=_bsC.get(s);if(r===undefined){r=bN(s).replace(/[^a-z0-9]+/g,' ').trim();if(_bsC.size>40000)_bsC.clear();_bsC.set(s,r)}return r}
+function bCx(v){const s=v==null?'':String(v);let r=_bxC.get(s);if(r===undefined){r=bN(s).replace(/[^a-z0-9]/g,'');if(_bxC.size>40000)_bxC.clear();_bxC.set(s,r)}return r}
+const nzB=bCx;
+const bPal=q=>{const s=bS(q);return s?s.split(' '):[]};
+const _bTx=tx=>Array.isArray(tx)?tx.filter(x=>x!=null&&x!=='').join(' '):tx;
+/* por palavra: todas as palavras digitadas aparecem (qualquer ordem) */
+const bPalOk=(q,tx)=>{const ws=bPal(q);if(!ws.length)return false;const t=bS(_bTx(tx));return ws.every(w=>t.includes(w))};
+/* tudo junto: o digitado inteiro sem simbolos nem espacos aparece no texto inteiro sem simbolos nem espacos */
+const bJunto=(q,tx)=>{const qc=bCx(q);return !!qc&&bCx(_bTx(tx)).includes(qc)};
+const bTodas=(q,tx)=>bPalOk(q,tx)||bJunto(q,tx);
 function bRank(q,cods,nome){const ws=bPal(q);if(!ws.length)return 9;const qc=bCx(q),w=ws[0],cs=(cods||[]).filter(c=>c!=null&&c!=='');
-  if(qc&&cs.some(c=>bCx(c)===qc))return 0;const n=bN(nome).trim();
+  if(qc&&cs.some(c=>bCx(c)===qc))return 0;const n=bS(nome);
   if(n.startsWith(w))return 1;
-  if((qc&&cs.some(c=>bCx(c).startsWith(qc)))||n.split(/[^a-z0-9]+/).some(x=>x&&x.startsWith(w)))return 2;return 3}
+  if((qc&&cs.some(c=>bCx(c).startsWith(qc)))||n.split(' ').some(x=>x&&x.startsWith(w)))return 2;
+  /* faixa 4 (por ultimo): achado so pelo "tudo junto" */
+  const tx=[nome,...cs];return !bPalOk(q,tx)&&bJunto(q,tx)?4:3}
 function bOrdena(l,q,cods,nome,cmp){if(!bPal(q).length)return l;const R=l.map((x,i)=>[bRank(q,cods(x),nome(x)),i,x]);
   R.sort((a,b)=>a[0]-b[0]||(cmp===null?0:(cmp||byCode)(a[2],b[2]))||a[1]-b[1]);return R.map(a=>a[2])}
 const bCodSt=s=>[s.alm,...(s.almAnt||[]),s.codigo,s.ref,...(s.eans||[])];
@@ -1646,8 +1657,8 @@ const bOrdSt=(l,q)=>bOrdena(l,q,bCodSt,s=>s.desc);
 const bOrdEq=(l,q)=>bOrdena(l,q,e=>[e.codigo,e.placa,e.serie],e=>[e.codigo,e.tipo,e.desc,e.marca,e.modelo].filter(Boolean).join(' '));
 const bOrdOs=(l,q)=>bOrdena(l,q,v=>[osNum(v),String(v.num||''),(eqById(v.eq)||{}).codigo],v=>[(eqById(v.eq)||{}).codigo,v.aconteceu].filter(Boolean).join(' '),null);
 /* item: acha o mesmo de antes (codigo/referencia/descricao contendo o digitado) e tambem com todas as palavras; devolve a faixa ou 9 */
-function bScSt(x,q){const k=nzCod(q);if(!k)return 9;const cs=[stCod(x),...bCodSt(x)],d=x.desc;
-  return cs.some(c=>nzCod(c).includes(k))||nzCod(d).includes(k)||bTodas(q,[d,...cs])?bRank(q,cs,d):9}
+function bScSt(x,q){const k=nzB(q);if(!k)return 9;const cs=[stCod(x),...bCodSt(x)],d=x.desc;
+  return cs.some(c=>nzB(c).includes(k))||nzB(d).includes(k)||bTodas(q,[d,...cs])?bRank(q,cs,d):9}
 const bCmpSt=q=>(a,b)=>bScSt(a,q)-bScSt(b,q)||byCode(a,b);
 /* mostra os primeiros 30 resultados e o resto ao rolar */
 function bLista(el,l,row,bind,o={}){if(el.__bio){el.__bio.disconnect();el.__bio=null}
@@ -2218,12 +2229,12 @@ async function openDelAbast(){
   const l=[];for(let m=de.slice(0,7);m<=t.slice(0,7);m=mesSeg(m)){try{const q=await S.db.collection('comb/'+m+'/abast').get();q.docs.forEach(d=>{const x=d.data();if(x.data>=de&&!cbxTrava(x.comboio||cb0,x.data))l.push({...x,id:d.id,mes:m})})}catch(e){}}
   l.sort((a,b)=>(b.data||'').localeCompare(a.data||'')||String((eqById(a.equipId)||{}).codigo||'').localeCompare(String((eqById(b.equipId)||{}).codigo||''),'pt',{numeric:true}));
   if(NAV[NAV.length-1]?.key!=='dl:ab')return;
-  const cus=cbxCustosAb(c),item=f=>{const e=eqById(f.equipId),k=esc(f.mes+'/'+f.id);return `<div class="ia" data-ab="${k}" data-tag="${esc(nzCod(e?e.codigo:''))}"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
+  const cus=cbxCustosAb(c),item=f=>{const e=eqById(f.equipId),k=esc(f.mes+'/'+f.id);return `<div class="ia" data-ab="${k}" data-tag="${esc(nzB(e?e.codigo:''))}"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
     <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} ${e?lhU(e):'h'}</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Centro de custo</span><b>${esc(f.custo?cbxCuNome(f.custo):'—')}</b></div><div class="r"><span>Consumo</span><b>${e?consTxt(e,f.lh):lhTxt(f.lh)}</b></div>${(f.hist||[]).length?`<div class="r"><span>Editado</span><b>${f.hist.length}x · ${esc(f.hist[f.hist.length-1].por||'')}</b></div>`:''}</div>
     <div class="pn-bt ab-bt"><button type="button" class="btn sm" data-abe>Editar</button>${(f.hist||[]).length?'<button type="button" class="btn sm" data-abu>Desfazer edicao</button>':''}<button type="button" class="btn sm danger" data-abx>Excluir</button></div><div data-abf></div><div data-abc></div></div></div>`};
   openSheet({title:'Abastecimentos',sub:'Editar ou excluir',
   body:`<label class="cbx-q" style="margin-bottom:12px">${CBX_IC.q}<input id="ab-q" type="search" placeholder="Buscar TAG" autocomplete="off" aria-label="Buscar TAG"></label>${l.length?`<div class="ilist" id="ab-l">${l.map(item).join('')}</div><div class="empty" id="ab-0" hidden><b>Nenhuma TAG encontrada</b>Confira o codigo.</div>`:'<div class="empty">Nenhum abastecimento no periodo aberto.</div>'}`,
-  mount:sh=>{const q=sh.querySelector('#ab-q');q.addEventListener('input',()=>{const v=nzCod(q.value);let n=0;sh.querySelectorAll('[data-ab]').forEach(x=>{const ok=!v||x.dataset.tag.includes(v);x.hidden=!ok;if(ok)n++});{const al=sh.querySelector('#ab-l');if(al)bDom(al,q.value,x=>x.hasAttribute('data-ab'),x=>[x.dataset.tag],x=>x.dataset.tag)}const z=sh.querySelector('#ab-0');if(z)z.hidden=!!n||!l.length});
+  mount:sh=>{const q=sh.querySelector('#ab-q');q.addEventListener('input',()=>{const v=nzB(q.value);let n=0;sh.querySelectorAll('[data-ab]').forEach(x=>{const ok=!v||x.dataset.tag.includes(v);x.hidden=!ok;if(ok)n++});{const al=sh.querySelector('#ab-l');if(al)bDom(al,q.value,x=>x.hasAttribute('data-ab'),x=>[x.dataset.tag],x=>x.dataset.tag)}const z=sh.querySelector('#ab-0');if(z)z.hidden=!!n||!l.length});
     const fim=(ok,msg)=>{if(ok){toast(msg);NAV.pop();openDelAbast()}};
     sh.querySelectorAll('[data-ab]').forEach(el=>{const f=l.find(x=>x.mes+'/'+x.id===el.dataset.ab),e=f&&eqById(f.equipId);if(!e)return;const box=el.querySelector('[data-abf]'),cx=el.querySelector('[data-abc]');
       const run=async op=>{let r;const ok=await safe(async()=>{r=await abastOp(e,op)});if(r&&r.erro){cx.innerHTML=cbxMsg('bad',esc(r.erro)+'.');return false}return ok};
@@ -2427,8 +2438,8 @@ async function cbxLote(dt0){
       if(dp){const hk=cbxNum(x.h)!=null&&dp.h!=null&&Number(dp.h)===cbxNum(x.h);o.av=1;o.msg.push(['warn',abDupTxt({v:hk?cbxNum(x.h):cbxNum(x.km),data:dp.data},hk?'horimetro':'km')])}}
     o.ok=true;return o};
   const base=()=>eqComb();
-  const lista=()=>{const q=nzCod(st.q),d=dr();let l=base();
-    if(q)l=l.filter(e=>nzCod(e.codigo).includes(q)||(e.placa&&nzCod(e.placa).includes(q)));
+  const lista=()=>{const q=nzB(st.q),d=dr();let l=base();
+    if(q)l=l.filter(e=>nzB(e.codigo).includes(q)||(e.placa&&nzB(e.placa).includes(q)));
     else{l=l.filter(e=>cbxNaObra(e)||d[e.id]);
       if(st.f==='planta')l=l.filter(e=>e.area==='Planta');
       if(st.f==='mina')l=l.filter(e=>e.area==='Mina'&&(st.sf==='mina'?e.frente!=='UG':st.sf==='ug'?e.frente==='UG':true))}
@@ -2468,7 +2479,7 @@ async function cbxLote(dt0){
     const mIn=(x,f,ph,num)=>`<input${num?' type="number" inputmode="decimal" step="0.1" min="0"':' autocomplete="off" autocapitalize="characters"'} enterkeyhint="next" data-mf="${f}" placeholder="${ph}" aria-label="${ph}"${f==='l'?' class="l"':''} value="${esc(x[f]??'')}">`;
     const mrow=(x,i)=>{const o=chkM(x);return `<div class="cbx-mr${o.msg.some(m=>m[0]==='bad')?' er':o.av&&o.tem?' av':''}" data-m="${i}"><div class="cbx-g m2">${mIn(x,'t','TAG')}${mIn(x,'d','Dono')}<button type="button" class="cbx-mx" data-mx aria-label="Tirar linha">&times;</button></div>
       <div class="cbx-g m3">${mIn(x,'h','Horimetro',1)}${mIn(x,'km','Km',1)}${mIn(x,'p','Placa')}</div><div class="cbx-g mc">${mIn(x,'l','Litros',1)}${mCu(x,i)}</div>${o.msg.map(([l,t])=>cbxMsg(l,t)).join('')}<div data-mdc></div></div>`};
-    const mAll=()=>{mLoad();const q=nzCod(st.q);if(q&&!'mse'.includes(q)&&!M.some(x=>nzCod(x.t).includes(q))){mw.innerHTML='';return}
+    const mAll=()=>{mLoad();const q=nzB(st.q);if(q&&!'mse'.includes(q)&&!M.some(x=>nzB(x.t).includes(q))){mw.innerHTML='';return}
       mw.innerHTML=`<div class="cbx-mse"><div class="cbx-rh"><b>MSE</b><span class="cbx-tag">Terceiros</span><button type="button" class="cbx-madd" data-madd>${CBX_IC.plus}Adicionar</button></div>${M.map(mrow).join('')}</div>`;
       mw.querySelector('[data-madd]').onclick=()=>{M.push({});mAll();const r=mw.querySelectorAll('.cbx-mr');const t=r[r.length-1].querySelector('[data-mf="t"]');t.focus();t.scrollIntoView({block:'center',behavior:'smooth'})};
       mw.querySelectorAll('.cbx-mr').forEach(mBind)};
@@ -3395,7 +3406,7 @@ function etqPicker(box,onPick){
   {box.innerHTML=`<div class="lbl" style="margin-top:14px">Adicionar a fila</div><div class="sug-w"><div class="search">${I.search}<input type="search" class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou descricao" aria-label="Buscar item"></div><div class="ct-hit sug"></div></div>`;
     const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');
     c.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();const f=hit.querySelector('[data-ad]');f&&f.click()}};
-    c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
+    c.oninput=()=>{const k=nzB(c.value);if(!k){hit.innerHTML='';return}
       const m=S.estoque.filter(x=>etqPode(x)&&bScSt(x,c.value)<9).sort(bCmpSt(c.value)).slice(0,6);
       hit.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>{const d=etqDados(x);return `<button type="button" class="etq-hit" data-ad="${esc(x.id)}"><span><b class="num">${esc(d.cod)}</b><small>${ehMH(d.desc)?nomeMH(d.desc)+(d.ref?`<span class="etq-rf">${esc(d.ref)}</span>`:''):esc(d.desc)+(d.ref?' · '+esc(d.ref):'')}</small></span><em>${inEtq(x.id)?'na fila':I.plus}</em></button>`}).join('')}</div>`:'<p class="note" style="margin:6px 2px">Nenhum item com codigo almoxarifado encontrado.</p>';
       hit.querySelectorAll('[data-ad]').forEach(b=>b.onclick=()=>onPick(stById(b.dataset.ad)))}}}
@@ -3567,7 +3578,7 @@ function osMenuPick(kind){
   nav('osmp:'+kind,()=>osMenuPick(kind));
   const T={ed:['Editar OS','OS concluidas'],ad:['Adendo','OS concluidas'],cf:['Conferir pecas','OS com pecas a conferir'],cx:['Cancelar OS','OS abertas ou concluidas'],ab:['Concluir OS','OS abertas em que voce e responsavel']}[kind];
   const ok=v=>kind==='cf'?osPendPecas(v).length>0:kind==='cx'?osPodeCx(v):kind==='ab'?v.sit==='aberta'&&v.resp.includes(osEu().uid):v.sit==='fechada';
-  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const all=osLista().filter(ok).sort((a,b)=>(b.num||0)-(a.num||0));
   const row=v=>{const e=eqById(v.eq)||{};return `<button type="button" class="tq" data-omp="${esc(v.id)}"><span class="tq-c">${esc(osNum(v).replace('OS ',''))}</span><span class="tq-m">${esc(e.codigo||v.eq)} · ${esc(v.aconteceu||'')}</span><span class="tq-d">${sdate(v.data)}</span>${I.chev}</button>`};
   const draw=l=>l.length?`<div class="tsec-l">${l.map(row).join('')}</div>`:'<div class="empty">Nenhuma OS.</div>';
@@ -3914,7 +3925,7 @@ function esFilSheet(){const E=S.esSel=S.esSel||esSelDef(),O=esOpts();if(!E.kit)E
     sh.querySelector('#xf-ver').onclick=()=>esFilTela();
     if(!S.esMov)esMovLoad().then(()=>{const v=sh.querySelector('#xf-ver');if(v&&v.isConnected)v.textContent=ver()})}});
 }
-function esFilList(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[\s.\-\/]/g,'');
+function esFilList(){const E=S.esSel=S.esSel||esSelDef(),ix=esEqIx(),M=S.esMov,nz=v=>esNorm(v).replace(/[^a-z0-9]/g,'');
   const d90=iso(new Date(Date.now()-90*864e5)),mv=s=>(M&&M[s.id])||{last:'',n30:0};
   const tpCods=E.etp.length?new Set(S.eqCtl.filter(e=>E.etp.includes(e.tipo)).map(e=>e.codigo)):null,tag=nz(E.tag);
   const cods=s=>[...(ix[s.id]||[]),...(s.encaixe||[]).map(id=>{const e=eqById(id);return e&&e.codigo}).filter(Boolean)];
@@ -4014,14 +4025,14 @@ function bindView(){
       function mais(){L.slice(n,n+(io?30:L.length)).forEach(r=>{r.__home=r.parentNode;homes.add(r.parentNode);movidos.push(r);r.classList.remove('es-first');lst.appendChild(r)});n=Math.min(L.length,n+(io?30:L.length));
         if(n>=L.length){io&&io.disconnect();sen.remove()}else if(io){io.unobserve(sen);io.observe(sen)}}
       mais();L[0].classList.add('es-first')};
-    const run=()=>{volta();S.esQ=esq.value;const toks=esNorm(esq.value.trim()).split(/\s+/).filter(Boolean);let tot=0;
+    const run=()=>{volta();S.esQ=esq.value;const toks=bPal(esq.value),qj=bCx(esq.value);let tot=0;
       /* sem busca, a listagem completa so aparece pelo botao Relatorio */
       const fil=!!S.esFil,blks=[...app.querySelectorAll('.es-blk')].filter(b=>b.classList.contains('es-res')===fil);
       if(fil)app.querySelectorAll('.es-blk:not(.es-res)').forEach(b=>b.hidden=true);
       if(!toks.length&&!S.esAll&&!fil){blks.forEach(blk=>blk.hidden=true);const z=$('#esq-0');if(z)z.hidden=true;return}
-      blks.forEach(blk=>{let n=0,first=null;blk.querySelectorAll('[data-q]').forEach(r=>{const t=r.dataset.q,w=t.split(/[\s(),·–]+/),c=t.replace(/[\s.\-\/]/g,'');
+      blks.forEach(blk=>{let n=0,first=null;blk.querySelectorAll('[data-q]').forEach(r=>{const t=r.dataset.q,w=bS(t).split(' '),c=bCx(t);
         /* palavra comecando pelo termo; codigos com numeros tambem valem sem traco/ponto (cb05 = CB-05) */
-        const ok=toks.every(k=>w.some(x=>x.startsWith(k))||(/\d/.test(k)&&c.includes(k.replace(/[.\-\/]/g,''))));r.hidden=!ok;r.classList.remove('es-first');if(ok){n++;if(!first){first=r;r.classList.add('es-first')}}});
+        const ok=toks.every(k=>w.some(x=>x.startsWith(k))||(/\d/.test(k)&&c.includes(k)))||(qj.length>1&&c.includes(qj));r.hidden=!ok;r.classList.remove('es-first');if(ok){n++;if(!first){first=r;r.classList.add('es-first')}}});
         blk.hidden=!n;const em=blk.querySelector('.es-g em');if(em)em.textContent=n;tot+=n});
       if(toks.length&&blks.length)junta(blks);
       const z=$('#esq-0');if(z)z.hidden=!!tot||(fil&&!blks.length);const en=$('#es-n');if(en&&fil)en.textContent=`${tot} ${tot===1?'item encontrado':'itens encontrados'}`};
@@ -4051,8 +4062,8 @@ function bindView(){
   const pq=$('#pq');if(pq){const box=$('#pq-r');
     const norm=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
     pq.oninput=()=>{const q=norm(pq.value.trim());if(!q){box.hidden=true;box.innerHTML='';return}
-      const qs=q.replace(/[\s-]/g,'');
-      const hits=bOrdEq(S.eqCtl.filter(e=>{const k=norm(e.codigo).replace(/[\s-]/g,'');return k.includes(qs)||norm([e.tipo,e.marca,e.modelo].join(' ')).includes(q)||bTodas(q,[e.codigo,e.tipo,e.marca,e.modelo])}).sort(byCode),pq.value).slice(0,8);
+      const qs=q.replace(/[^a-z0-9]/g,'');
+      const hits=bOrdEq(S.eqCtl.filter(e=>{const k=norm(e.codigo).replace(/[^a-z0-9]/g,'');return k.includes(qs)||norm([e.tipo,e.marca,e.modelo].join(' ')).includes(q)||bTodas(q,[e.codigo,e.tipo,e.marca,e.modelo])}).sort(byCode),pq.value).slice(0,8);
       box.hidden=false;box.innerHTML=hits.length?hits.map(e=>`<button type="button" class="tq" data-pqid="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(e.tipo)}${e.modelo?` · ${esc([e.marca,e.modelo].filter(Boolean).join(' '))}`:''}</span>${I.chev}</button>`).join(''):'<div class="empty" style="border-radius:0">Nenhum equipamento encontrado.</div>';
       box.querySelectorAll('[data-pqid]').forEach(b=>b.onclick=()=>{const id=b.dataset.pqid;pq.value='';box.hidden=true;box.innerHTML='';pq.blur();NAV.length=0;const tem=S.trocas.some(t=>t.equipId===id&&t.tipo!=='reprog'&&t.tipo!=='hmtroca');tem?openEq(id):openSemPrev(id)})};}
 }
@@ -4182,20 +4193,20 @@ function formPickDel(kind){
   let all,row,title,ph,match;
   if(kind==='eq'){all=S.equipsAll.slice().sort(byCode);title='Excluir equipamento';ph='TAG, tipo ou modelo';
     row=x=>`<button type="button" class="tq" data-pd="${esc(x.id)}"><span class="tq-c">${esc(x.codigo)}</span><span class="tq-m">${esc([x.marca,x.modelo].filter(Boolean).join(' ')||'—')}${x.status==='inativo'?' · inativo':''}</span>${I.chev}</button>`;
-    match=(x,t)=>norm([x.codigo,x.tipo,x.marca,x.modelo].join(' ')).includes(t)||norm(x.codigo).replace(/[\s-]/g,'').includes(t)}
+    match=(x,t)=>norm([x.codigo,x.tipo,x.marca,x.modelo].join(' ')).includes(t)||norm(x.codigo).replace(/[^a-z0-9]/g,'').includes(t)}
   else if(kind==='st'||kind==='kit'){const K=kind==='kit';all=S.estoqueAll.filter(x=>isKit(x)===K).sort(byCode);title=K?'Excluir kit':'Excluir item do estoque';ph=K?'Codigo ou descricao':'Codigo, referencia ou descricao';
     row=x=>esRow(x,{attr:`data-pd="${esc(x.id)}"`});
     match=(x,t)=>norm([x.alm,x.codigo,x.ref,x.desc].join(' ')).includes(t)}
   else{all=S.trocas.filter(t=>t.tipo!=='hmtroca').sort((a,b)=>(b.data||'').localeCompare(a.data||''));title='Excluir preventiva';ph='TAG do equipamento';
     row=x=>{const e=eqById(x.equipId);return `<button type="button" class="tq" data-pd="${esc(x.id)}"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="tq-m">${tTit(x)}</span><span class="tq-d">${fdate(x.data)}</span>${I.chev}</button>`};
-    match=(x,t)=>{const e=eqById(x.equipId),c=norm(e?e.codigo:'');return c.includes(t)||c.replace(/[\s-]/g,'').includes(t)}}
+    match=(x,t)=>{const e=eqById(x.equipId),c=norm(e?e.codigo:'');return c.includes(t)||c.replace(/[^a-z0-9]/g,'').includes(t)}}
   const draw=l=>kind==='eq'?porTipo(l,row):l.length?`<div class="tsec-l">${l.map(row).join('')}</div>`:'';
   openSheet({title,sub:'Toque no item para excluir',
   body:`<div class="search">${I.search}<input id="pd-q" type="search" placeholder="${ph}" autocomplete="off" aria-label="Buscar"></div>${kind==='st'||kind==='kit'?rdBtn('pd-cam'):''}
     <div id="pd-l" style="margin-top:8px">${draw(all)||'<div class="empty">Nada cadastrado.</div>'}</div>`,
   mount:sh=>{const l=sh.querySelector('#pd-l'),q=sh.querySelector('#pd-q');
     const bind=()=>l.querySelectorAll('[data-pd]').forEach(b=>b.onclick=()=>openDelete(kind,b.dataset.pd));
-    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,''),h=all.filter(x=>!t||match(x,t)||match(x,tc)||bTodas(q.value,kind==='eq'?[x.codigo,x.tipo,x.marca,x.modelo]:kind==='st'||kind==='kit'?[x.alm,x.codigo,x.ref,x.desc]:[(eqById(x.equipId)||{}).codigo]));if(!t){l.innerHTML=draw(h)||'<div class="empty">Nada encontrado.</div>';bind();return}bLista(l,kind==='eq'?bOrdEq(h,q.value):kind==='st'||kind==='kit'?bOrdSt(h,q.value):bOrdena(h,q.value,x=>[(eqById(x.equipId)||{}).codigo],x=>(eqById(x.equipId)||{}).codigo,null),row,bind,{wrap:'tsec-l',vazio:'<div class="empty">Nada encontrado.</div>'})};bind();
+    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[^a-z0-9]/g,''),h=all.filter(x=>!t||match(x,t)||match(x,tc)||bTodas(q.value,kind==='eq'?[x.codigo,x.tipo,x.marca,x.modelo]:kind==='st'||kind==='kit'?[x.alm,x.codigo,x.ref,x.desc]:[(eqById(x.equipId)||{}).codigo]));if(!t){l.innerHTML=draw(h)||'<div class="empty">Nada encontrado.</div>';bind();return}bLista(l,kind==='eq'?bOrdEq(h,q.value):kind==='st'||kind==='kit'?bOrdSt(h,q.value):bOrdena(h,q.value,x=>[(eqById(x.equipId)||{}).codigo],x=>(eqById(x.equipId)||{}).codigo,null),row,bind,{wrap:'tsec-l',vazio:'<div class="empty">Nada encontrado.</div>'})};bind();
     const pc=sh.querySelector('#pd-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))openDelete(kind,v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
 }
 /* o que prende um cadastro: com qualquer registro ligado, ele nao pode ser excluido (so desativado) */
@@ -4637,7 +4648,7 @@ function formPickEdit(kind){
   mount:sh=>{const l=sh.querySelector('#pe-l'),q=sh.querySelector('#pe-q');
     const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
     const bind=()=>l.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>isEq?formEq(b.dataset.pe,1):K?formKit(b.dataset.pe):formStock(b.dataset.pe));
-    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.alm,x.ref,x.desc].join(' ')).includes(t)||bTodas(q.value,isEq?[x.codigo,x.tipo,x.marca,x.modelo]:[x.codigo,x.alm,x.ref,x.desc]));
+    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[^a-z0-9]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[^a-z0-9]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.alm,x.ref,x.desc].join(' ')).includes(t)||bTodas(q.value,isEq?[x.codigo,x.tipo,x.marca,x.modelo]:[x.codigo,x.alm,x.ref,x.desc]));
       if(!t){l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind();return}
       bLista(l,isEq?bOrdEq(hit,q.value):bOrdSt(hit,q.value),row,bind,{wrap:'tsec-l',vazio:'<div class="empty">Nada encontrado.</div>'})};bind();
     const pc=sh.querySelector('#pe-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))K?formKit(v.item.id):formStock(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
@@ -4661,7 +4672,7 @@ function formGerir(kind){
     const edit=id=>isEq?formEq(id,1):K?formKit(id):formStock(id);
     sh.querySelector('#gr-new').onclick=()=>isEq?formEq():K?formKit():formStock();
     const bind=()=>{l.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>edit(b.dataset.ge));l.querySelectorAll('[data-gx]').forEach(b=>b.onclick=()=>openDelete(kind,b.dataset.gx))};
-    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[\s-]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[\s-]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.alm,x.ref,x.desc].join(' ')).includes(t)||bTodas(q.value,isEq?[x.codigo,x.tipo,x.marca,x.modelo]:[x.codigo,x.alm,x.ref,x.desc]));
+    q.oninput=()=>{const t=norm(q.value.trim()),tc=t.replace(/[^a-z0-9]/g,'');const hit=all.filter(x=>!t||norm(x.codigo).replace(/[^a-z0-9]/g,'').includes(tc)||norm(isEq?[x.tipo,x.marca,x.modelo].join(' '):[x.alm,x.ref,x.desc].join(' ')).includes(t)||bTodas(q.value,isEq?[x.codigo,x.tipo,x.marca,x.modelo]:[x.codigo,x.alm,x.ref,x.desc]));
       if(!t){l.innerHTML=draw(hit)||'<div class="empty">Nada encontrado.</div>';bind();return}
       bLista(l,isEq?bOrdEq(hit,q.value):bOrdSt(hit,q.value),row,bind,{wrap:'tsec-l',vazio:'<div class="empty">Nada encontrado.</div>'})};bind();
     const pc=sh.querySelector('#gr-cam');if(pc)pc.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item&&all.some(x=>x.id===v.item.id))edit(v.item.id);else{q.value=v.item?stCod(v.item):v.text||'';q.oninput()}}})}});
@@ -5037,7 +5048,7 @@ function formEq(id,mais){
       if(ja){ja.scrollIntoView({block:'center',behavior:'smooth'});toast(`${st.desc} ja esta no plano`);return}
       addRow({desc:st.desc,espec:stCod(st),un:isKit(st)?'kit':st.un||'un',tipo:isKit(st)?'kit':st.tipo||'filtro',qtd:1,estoqueId:st.id});toast(`${st.desc} adicionado`)};
     const pq=sh.querySelector('#p-q'),pqh=sh.querySelector('#p-qh');
-    pq.oninput=()=>{const k=nzCod(pq.value);if(!k){pqh.innerHTML='';return}
+    pq.oninput=()=>{const k=nzB(pq.value);if(!k){pqh.innerHTML='';return}
       const score=x=>bScSt(x,pq.value);
       const m=S.estoque.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]),v=pq.value.trim();
       pqh.innerHTML=(m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-pk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>')+`<button type="button" class="et-fora" id="p-livre">Adicionar ${esc(v)} <span>sem ligar ao estoque</span></button>`;
@@ -5146,7 +5157,7 @@ function formFiltroAr(eqId,sub,osId){
       sug.innerHTML=l.length?`<div class="ti-g ar-sg">Encaixe de fabrica · toque para adicionar</div><div class="tsec-l">${l.map(s=>esRow(s,{attr:`data-as="${esc(s.id)}"`})).join('')}</div>`:'';
       sug.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>add(stById(b.dataset.as)))};
     const q=sh.querySelector('#a-q'),qh=sh.querySelector('#a-qh');
-    q.oninput=()=>{const k=nzCod(q.value);if(!k){qh.innerHTML='';return}
+    q.oninput=()=>{const k=nzB(q.value);if(!k){qh.innerHTML='';return}
       const sc=x=>bScSt(x,q.value);
       const m=filtros.map(x=>[sc(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]);
       qh.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-ap2="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum filtro encontrado no estoque.</div>';
@@ -5351,7 +5362,7 @@ function formTroca(eqId,osId){
       box.dispatchEvent(new Event('change'));drawX();hint();
       toast(n?`${n} ${n===1?'item do kit adicionado':'itens do kit adicionados'}${ja?` · ${ja} ja ${ja===1?'estava':'estavam'} no lancamento`:''}`:'Todos os itens do kit ja estao no lancamento')};
     const tq=sh.querySelector('#t-q'),tqh=sh.querySelector('#t-qh');
-    tq.oninput=()=>{const k=nzCod(tq.value);if(!k){tqh.innerHTML='';return}
+    tq.oninput=()=>{const k=nzB(tq.value);if(!k){tqh.innerHTML='';return}
       const score=x=>bScSt(x,tq.value);
       const m=S.estoque.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]);
       const v=tq.value.trim().toUpperCase();
@@ -5465,7 +5476,7 @@ function formTroca(eqId,osId){
 /* + › Frota › Editar preventiva: escolhe o registro (preventivas e filtros de ar) */
 function formPickTr(){
   nav('pktr',()=>formPickTr());
-  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
   const all=S.trocas.filter(t=>t.tipo!=='hmtroca'&&t.tipo!=='reprog'&&eqById(t.equipId)).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));
   const row=x=>{const e=eqById(x.equipId);return `<button type="button" class="tq" data-pt="${esc(x.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${tTit(x)}${x.ajuste&&x.tipo!=='informada'?AJS:''}</span><span class="tq-d">${fdate(x.data)}</span>${I.chev}</button>`};
   const draw=l=>l.length?`<div class="tsec-l">${l.slice(0,80).map(row).join('')}</div>`:'<div class="empty">Nada encontrado.</div>';
@@ -5539,7 +5550,7 @@ function formEditTroca(id){
       const sq=L.querySelector('#et-sq');if(sq){const sh2=L.querySelector('#et-sh');
         const ivE=L.querySelector('#et-iv');if(ivE)ivE.onchange=()=>{cur[k].iv=ivVal(ivE.value)};
         const pick=(x,cod)=>{cur[k].sid=x?x.id:'';cur[k].espec=x?stCod(x):cod;if(ivE)cur[k].iv=ivVal(ivE.value);aberto=-1;draw();cf.innerHTML=''};
-        sq.oninput=()=>{const k2=nzCod(sq.value);if(!k2){sh2.innerHTML='';return}
+        sq.oninput=()=>{const k2=nzB(sq.value);if(!k2){sh2.innerHTML='';return}
           const score=x=>bScSt(x,sq.value);
           const m=S.estoque.filter(x=>!isKit(x)).map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,5).map(a=>a[1]),v=sq.value.trim().toUpperCase();
           sh2.innerHTML=`${m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-pk="${esc(x.id)}"`})).join('')}</div>`:''}<button type="button" class="et-fora" data-fx>Usar ${esc(v)} <span>fora do estoque, sem baixa</span></button>`;
@@ -5553,7 +5564,7 @@ function formEditTroca(id){
       its.push({pid:'',desc:x.desc,espec:stCod(x),qtd:1,un:isKit(x)?'kit':x.un||'un',estoqueId:x.id,tipo:x.tipo||'',novo:true});cur.push({espec:stCod(x),qtd:1,sid:x.id});cur0.push(stCod(x));
       aberto=-1;modo='';draw();cf.innerHTML='';toast(`${x.desc} adicionado`)};
     const aq=sh.querySelector('#et-add'),aqh=sh.querySelector('#et-addh');
-    aq.oninput=()=>{const k2=nzCod(aq.value);if(!k2){aqh.innerHTML='';return}
+    aq.oninput=()=>{const k2=nzB(aq.value);if(!k2){aqh.innerHTML='';return}
       const sc=x=>bScSt(x,aq.value);
       const m=S.estoque.map(x=>[sc(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]);
       aqh.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-ea="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado no estoque.</div>';
@@ -5630,7 +5641,7 @@ function formEditTroca(id){
 /* equipamento: digita TAG, tipo, modelo ou placa e escolhe nas sugestoes (a lista fica escondida por tras) */
 function eqSearch(sel){if(sel.dataset.eqsOn)return;sel.dataset.eqsOn=1;
   const obrig=sel.required;sel.required=false;sel.hidden=true;
-  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nz=v=>norm(v).replace(/[\s.\-\/]/g,'');
+  const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase(),nz=v=>norm(v).replace(/[^a-z0-9]/g,'');
   const ids=[...sel.options].map(o=>o.value).filter(Boolean),all=ids.map(eqById).filter(Boolean);
   const lab=e=>e?`${e.codigo} · ${e.tipo||''}`:'';
   const w=document.createElement('div');w.className='sug-w';
@@ -5865,13 +5876,13 @@ function formAviso(pre){
       if(t==='foto'){const id=await uploadPhoto();if(id)add({t:'foto',id});return}
       sb.innerHTML=`<div class="sug-w t-add" style="margin-top:12px"><div class="search">${I.search}<input id="avn-q" type="search" placeholder="${t==='item'?'Item: codigo, referencia ou nome':'Equipamento: TAG, tipo ou modelo'}" autocomplete="off"></div><div class="sug" id="avn-h"></div></div>${t==='item'?rdBtn('avn-cam','Anexar item pela camera'):''}`;
       const q=sb.querySelector('#avn-q'),h=sb.querySelector('#avn-h');q.focus();
-      q.oninput=()=>{const k=nzCod(q.value);if(!k){h.innerHTML='';return}
+      q.oninput=()=>{const k=nzB(q.value);if(!k){h.innerHTML='';return}
         if(t==='item'){const sc=x=>bScSt(x,q.value);
           const m=S.estoque.map(x=>[sc(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,6).map(a=>a[1]);
           h.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-pk="${esc(x.id)}"`})).join('')}</div>`:'<div class="eqs-v">Nenhum item encontrado.</div>';
           h.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>add({t:'item',id:b.dataset.pk}))}
         else{const nm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();const t2=nm(q.value.trim());
-          const m=S.equips.filter(e=>nzCod(e.codigo).includes(k)||nm([e.tipo,e.marca,e.modelo,e.placa].join(' ')).includes(t2)).sort((a,b)=>(nzCod(a.codigo).startsWith(k)?0:1)-(nzCod(b.codigo).startsWith(k)?0:1)||byCode(a,b)).slice(0,8);
+          const m=S.equips.filter(e=>nzB(e.codigo).includes(k)||nm([e.tipo,e.marca,e.modelo,e.placa].join(' ')).includes(t2)).sort((a,b)=>(nzB(a.codigo).startsWith(k)?0:1)-(nzB(b.codigo).startsWith(k)?0:1)||byCode(a,b)).slice(0,8);
           h.innerHTML=m.length?m.map(e=>`<button type="button" class="tq eqs-o" data-pe="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc([e.tipo,e.modelo].filter(Boolean).join(' · '))}</span></button>`).join(''):'<div class="eqs-v">Nenhum equipamento encontrado.</div>';
           h.querySelectorAll('[data-pe]').forEach(b=>b.onclick=()=>add({t:'eq',id:b.dataset.pe}))}};
       const cm=sb.querySelector('#avn-cam');if(cm)cm.onclick=()=>rdOpen({mode:'item',use:v=>{if(v.item)add({t:'item',id:v.item.id});else toast('Item nao encontrado no estoque.')}})});
@@ -5882,7 +5893,7 @@ function formAviso(pre){
   show();
 }
 /* item do estoque pelo codigo exato (codigo, referencia ou codigo de barras) */
-function stFind(v){const t=nzCod(v);if(t.length<3)return null;const l=S.estoque.filter(x=>[stCod(x),x.alm,...(x.almAnt||[]),x.codigo,x.ref,...(x.eans||[])].some(c=>c&&nzCod(c)===t));return l.length===1?l[0]:null}
+function stFind(v){const t=nzB(v);if(t.length<3)return null;const l=S.estoque.filter(x=>[stCod(x),x.alm,...(x.almAnt||[]),x.codigo,x.ref,...(x.eans||[])].some(c=>c&&nzB(c)===t));return l.length===1?l[0]:null}
 /* tela: preventivas realizadas de um equipamento (cada linha abre o detalhamento) */
 /* selo de ajuste: lancamento feito com o modo Ajuste ligado (sem mexer no estoque).
    Um toque no selo mostra o significado num balao pequeno, sem abrir a linha. */
@@ -5956,13 +5967,13 @@ function formStock(id,preset,onSaved){
     let refOk=id?nzCod(s.ref||s.codigo):'';
     if(idStep){const ft=sh.querySelector('.sh-foot');if(ft)ft.hidden=true;const iq=sh.querySelector('#s-idq'),ih=sh.querySelector('#s-idh');
       const seguir=v=>{const V=v.trim().toUpperCase();if(V)sh.querySelector('#s-ref').value=V;sh.querySelector('#s-idf').remove();sh.querySelector('#fs').hidden=false;if(ft)ft.hidden=false;setTimeout(()=>sh.querySelector('#s-desc').focus(),60)};
-      const busca=()=>{const v=iq.value.trim(),k=nzCod(v);if(!k){ih.innerHTML='';return}
+      const busca=()=>{const v=iq.value.trim(),k=nzB(v);if(!k){ih.innerHTML='';return}
         /* item 26: referencia (ou codigo) IGUAL a de itens ja cadastrados: aviso ja aqui, com marca e saldo */
         const ig=stRefIguais(v,null);
         if(ig.length){ih.innerHTML=`<div class="rf-av"><b>Referencia ja cadastrada</b>${stRefLista(ig)}<div class="rf-bt"><button type="button" class="btn" id="s-rfx">Cancelar</button><button type="button" class="btn pri" id="s-go">Cadastrar</button></div></div>`;
           ih.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));
           ih.querySelector('#s-rfx').onclick=()=>{iq.value='';ih.innerHTML='';iq.focus()};ih.querySelector('#s-go').onclick=()=>{refOk=nzCod(v);seguir(v)};return}
-        const m=S.estoque.filter(x=>nzCod(x.alm).includes(k)||(x.almAnt||[]).some(a=>nzCod(a)===k)||nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||(x.eans||[]).some(e=>nzCod(e)===k)||nzCod(x.desc).includes(k)||bTodas(v,[x.desc,x.alm,x.codigo,x.ref])).sort(bCmpSt(v)).slice(0,6);
+        const m=S.estoque.filter(x=>nzB(x.alm).includes(k)||(x.almAnt||[]).some(a=>nzB(a)===k)||nzB(x.codigo).includes(k)||nzB(x.ref).includes(k)||(x.eans||[]).some(e=>nzB(e)===k)||nzB(x.desc).includes(k)||bTodas(v,[x.desc,x.alm,x.codigo,x.ref])).sort(bCmpSt(v)).slice(0,6);
         ih.innerHTML=(m.length?`<p class="note" style="margin:4px 4px 6px">Ja cadastrado${m.length>1?'s':''}: toque para ver o cadastro</p><div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-sx="${esc(x.id)}"`})).join('')}</div>`:'')
           +`<button type="button" class="btn ${m.length?'':'pri '}block" id="s-go" style="margin-top:${m.length?8:0}px">Cadastrar ${esc(v.toUpperCase())}${m.length?' como novo':''}</button>`;
         ih.querySelectorAll('[data-sx]').forEach(b=>b.onclick=()=>formMov(b.dataset.sx));ih.querySelector('#s-go').onclick=()=>seguir(v)};
@@ -5981,7 +5992,7 @@ function formStock(id,preset,onSaved){
     const drawEnc=()=>{encBox.innerHTML=enc.map(id=>{const e=eqById(id);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(id)}">Remover</button></div>`}).join('');encBox.hidden=!enc.length;
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);delete encIv[b.dataset.encrm];drawEnc()});
       encBox.querySelectorAll('[data-enciv]').forEach(v=>v.onchange=()=>{encIv[v.dataset.enciv]=v.value})};drawEnc();
-    const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[\s-]/g,'');
+    const nz=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
     encQ.oninput=()=>{const q=nz(encQ.value);if(!q){encR.hidden=true;return}
       const hits=bOrdEq(S.eqCtl.filter(e=>!enc.includes(e.id)&&(nz([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(q)||bTodas(encQ.value,[e.codigo,e.marca,e.modelo,e.serie,e.tipo]))).sort(byCode),encQ.value).slice(0,8);
       encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><span class="btn sm pri enc-add">+ Adicionar</span></button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
@@ -6047,7 +6058,7 @@ function formMov(id){
 async function eqvSalvar(pares,msg){if(!await safe(()=>S.db.doc('config/equivalencias').set({pares}),msg))return false;S.equiv=pares;return true}
 function eqvBusca(box,excl,onPick){box.innerHTML=`<div class="sug-w"><input class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="Codigo, referencia ou nome" aria-label="Buscar item"><div class="ct-hit sug"></div></div>`;
   const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');setTimeout(()=>c.focus(),60);
-  c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
+  c.oninput=()=>{const k=nzB(c.value);if(!k){hit.innerHTML='';return}
     const m=S.estoque.filter(x=>!isKit(x)&&!excl.has(x.id)&&eqvK1(x)&&bScSt(x,c.value)<9).sort(bCmpSt(c.value)).slice(0,8);
     hit.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-eqp="${esc(x.id)}"`,noEqv:true})).join('')}</div>`:'<p class="note" style="margin:6px 2px">Nenhum item encontrado.</p>';
     hit.querySelectorAll('[data-eqp]').forEach(b=>b.onclick=()=>onPick(stById(b.dataset.eqp)))}}
@@ -6076,7 +6087,7 @@ function openEqv(id){
 }
 /* + › Entrada / Saida: informa so o codigo ou a referencia; o item e localizado sozinho */
 const nzCod=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s.\-\/]/g,'');
-const findSt=v=>{const k=nzCod(v);return k?S.estoque.find(x=>!isKit(x)&&(nzCod(x.alm)===k||nzCod(x.codigo)===k||nzCod(x.ref)===k||(x.almAnt||[]).some(a=>nzCod(a)===k))):null};
+const findSt=v=>{const k=nzB(v);return k?S.estoque.find(x=>!isKit(x)&&(nzB(x.alm)===k||nzB(x.codigo)===k||nzB(x.ref)===k||(x.almAnt||[]).some(a=>nzB(a)===k))):null};
 function formMovEst(dir){
   nav('mve:'+dir,()=>formMovEst(dir));
   const ent=dir==='entrada',D=formMovEst.d=formMovEst.d||{};D.dt=D.dt||today();
@@ -6115,9 +6126,9 @@ function formMovEst(dir){
       selb.querySelector('#mv-card').onclick=()=>formMov(x.id);
       selb.querySelector('#mv-tr').onclick=()=>{cur=null;D.cur=null;c.value='';selb.innerHTML='';step(false);prev();c.focus()};
       step(true);go.textContent='Lancar';q.value=keepQ?(D.q||''):'';if(!keepQ)D.q='';prev();if(!keepQ)setTimeout(()=>q.focus(),60)};
-    const search=()=>{cur=null;prev();const k=nzCod(c.value);go.textContent='Lancar';
+    const search=()=>{cur=null;prev();const k=nzB(c.value);go.textContent='Lancar';
       if(!k){hit.innerHTML='';return}
-      const its=S.estoque.filter(x=>!isKit(x)),score=x=>{const a=nzCod(x.codigo),b=nzCod(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzCod(x.desc).includes(k)?2:9};
+      const its=S.estoque.filter(x=>!isKit(x)),score=x=>{const a=nzB(x.codigo),b=nzB(x.ref);return a===k||b===k?0:a.startsWith(k)||b.startsWith(k)?1:a.includes(k)||b.includes(k)||nzB(x.desc).includes(k)?2:bTodas(c.value,[x.desc,x.codigo,x.ref])?3:9};
       const m=its.map(x=>[score(x),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,5).map(a=>a[1]);
       if(m.length){hit.innerHTML=`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-pk="${esc(x.id)}"`})).join('')}</div>`;
         hit.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>pick(stById(b.dataset.pk)))}
@@ -6268,10 +6279,10 @@ function addPicker(box,has,onPick,onAvulso){
   box.querySelector('.ct-add').onclick=ev=>{ev.stopPropagation();box.innerHTML=`<div class="ct-pk"><div class="sug-w"><input class="ct-c" autocomplete="off" autocapitalize="characters" placeholder="TAG, codigo, referencia ou nome"><div class="ct-hit sug"></div></div>${rdBtn('ct-cam')}</div>`;
     const c=box.querySelector('.ct-c'),hit=box.querySelector('.ct-hit');c.focus();
     const cc=box.querySelector('#ct-cam');if(cc)cc.onclick=e2=>{e2.stopPropagation();rdOpen({mode:'item',use:v=>{if(v.item)onPick(v.item);else if(v.text){c.value=v.text;c.oninput()}}})};
-    c.oninput=()=>{const k=nzCod(c.value);if(!k){hit.innerHTML='';return}
+    c.oninput=()=>{const k=nzB(c.value);if(!k){hit.innerHTML='';return}
       /* TAG de equipamento: mostra o kit dele e os filtros compativeis */
-      const eq=S.equips.find(e=>nzCod(e.codigo)===k),cp=eq?eqCompat(eq):{kits:[],its:[]},shown=new Set([...cp.kits,...cp.its].map(x=>x.id));
-      const m=S.estoque.filter(x=>!shown.has(x.id)&&(nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||nzCod(x.desc).includes(k)||bTodas(c.value,[x.desc,x.codigo,x.ref]))).sort(bCmpSt(c.value)).slice(0,5);
+      const eq=S.equips.find(e=>nzB(e.codigo)===k),cp=eq?eqCompat(eq):{kits:[],its:[]},shown=new Set([...cp.kits,...cp.its].map(x=>x.id));
+      const m=S.estoque.filter(x=>!shown.has(x.id)&&(nzB(x.codigo).includes(k)||nzB(x.ref).includes(k)||nzB(x.desc).includes(k)||bTodas(c.value,[x.desc,x.codigo,x.ref]))).sort(bCmpSt(c.value)).slice(0,5);
       const rows=l=>`<div class="tsec-l">${l.map(x=>esRow(x,{attr:`data-ad="${esc(x.id)}"`,end:has(x)?'<span class="es-e">na lista</span>':`<span class="es-e">${I.plus}</span>`})).join('')}</div>`;
       hit.innerHTML=(eq?`<div class="ct-eq"><b class="num">${esc(eq.codigo)}</b> ${esc(eq.tipo||'')}</div>${cp.kits.length?`<div class="ig-h">${cp.kits.length>1?'Kits':'Kit'}</div>${rows(cp.kits)}`:''}${cp.its.length?`<div class="ig-h">Filtros compativeis</div>${rows(cp.its)}`:''}${!cp.kits.length&&!cp.its.length?'<p class="note" style="margin:0 2px">Nenhum kit ou filtro ligado a este equipamento.</p>':''}`:'')
         +(m.length?(eq?'<div class="ig-h">Outros resultados</div>':'')+rows(m):'')
@@ -6736,7 +6747,7 @@ function formKit(id,pre){
     const eqLine=e=>[e.marca,e.modelo].filter(Boolean).join(' ');
     const drawEnc=()=>{encBox.innerHTML=enc.slice().sort((a,b)=>byCode(eqById(a),eqById(b))).map(i=>{const e=eqById(i);return `<div class="tq"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><button type="button" class="btn sm" data-encrm="${esc(i)}">Remover</button></div>`}).join('');encBox.hidden=!enc.length;
       encBox.querySelectorAll('[data-encrm]').forEach(b=>b.onclick=()=>{enc=enc.filter(x=>x!==b.dataset.encrm);drawEnc()});nome()};drawEnc();apD();
-    const nzE=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[\s-]/g,'');
+    const nzE=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
     encQ.oninput=()=>{const qq=nzE(encQ.value);if(!qq){encR.hidden=true;return}
       const hits=bOrdEq(S.eqCtl.filter(e=>!enc.includes(e.id)&&(nzE([e.codigo,e.marca,e.modelo,e.serie,e.tipo].join(' ')).includes(qq)||bTodas(encQ.value,[e.codigo,e.marca,e.modelo,e.serie,e.tipo]))).sort(byCode),encQ.value).slice(0,8);
       encR.hidden=false;encR.innerHTML=hits.map(e=>`<button type="button" class="tq" data-encadd="${esc(e.id)}"><span class="tq-c">${esc(e.codigo)}</span><span class="tq-m">${esc(eqLine(e))}</span><span class="btn sm pri enc-add">+ Adicionar</span></button>`).join('')||'<div class="empty">Nenhum equipamento encontrado.</div>';
@@ -6749,9 +6760,9 @@ function formKit(id,pre){
       if(C.some(c=>!stById(c.id))&&(draw.n=(draw.n||0)+1)<10)setTimeout(()=>{if(document.body.contains(box))draw()},500)};
     const add=x=>{if(!x||isKit(x)){toast('Escolha um filtro ou oleo do estoque.');return}if(C.some(c=>c.id===x.id)){toast(`${x.desc} ja esta no kit`);return}C.push({id:x.id,qtd:1});draw()};
     const q=sh.querySelector('#k-q'),qh=sh.querySelector('#k-qh');
-    q.oninput=()=>{const kk=nzCod(q.value);if(!kk){qh.innerHTML='';return}
+    q.oninput=()=>{const kk=nzB(q.value);if(!kk){qh.innerHTML='';return}
       /* TAG de equipamento: mostra os itens com encaixe de fabrica nele */
-      const eqT=S.equips.find(e=>nzCod(e.codigo)===kk);
+      const eqT=S.equips.find(e=>nzB(e.codigo)===kk);
       if(eqT){const l=encaixeDe(eqT.id).filter(x=>!isKit(x));
         qh.innerHTML=`<div class="ti-g k-tg">Encaixe em ${esc(eqT.codigo)} · ${l.length} ${l.length===1?'item':'itens'}</div>`+(l.length?`<div class="tsec-l">${l.map(x=>esRow(x,{attr:`data-kp="${esc(x.id)}"`,cls2:C.some(c=>c.id===x.id)?'k-in':'',end:C.some(c=>c.id===x.id)?'<span class="k-ok">no kit</span>':''})).join('')}</div>`:'<div class="eqs-v">Nenhum item com encaixe neste equipamento.</div>');
         qh.querySelectorAll('[data-kp]').forEach(b=>b.onclick=()=>{add(stById(b.dataset.kp));q.oninput()});return}
@@ -6872,7 +6883,7 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
     const cb=async id=>{setTimeout(()=>{const x=stById(id);if(x)u({item:x})},350)};cb.msg='Item cadastrado';formStock(null,pre,cb)};
   const l=box.querySelector('[data-l]');if(l)l.onclick=()=>{
     box.innerHTML=`<div class="rdr-c"><span class="rdr-k">Ligar ${esc(code.length>24?code.slice(0,24)+'…':code)} a qual item?</span><div class="search">${I.search}<input type="search" data-q placeholder="Codigo, referencia ou descricao" autocomplete="off"></div><div class="rdr-l" data-ll></div></div><button type="button" class="btn ghost" data-a>Cancelar</button>`;
-    const q=box.querySelector('[data-q]'),ll=box.querySelector('[data-ll]');const draw=()=>{const k=nzCod(q.value);ll.innerHTML=S.estoque.filter(x=>!isKit(x)&&(!k||nzCod(x.codigo).includes(k)||nzCod(x.ref).includes(k)||nzCod(x.desc).includes(k)||bTodas(q.value,[x.desc,x.codigo,x.ref]))).sort(bCmpSt(q.value)).slice(0,30).map(row).join('')||'<p class="note" style="margin:6px 2px">Nenhum item.</p>';
+    const q=box.querySelector('[data-q]'),ll=box.querySelector('[data-ll]');const draw=()=>{const k=nzB(q.value);ll.innerHTML=S.estoque.filter(x=>!isKit(x)&&(!k||nzB(x.codigo).includes(k)||nzB(x.ref).includes(k)||nzB(x.desc).includes(k)||bTodas(q.value,[x.desc,x.codigo,x.ref]))).sort(bCmpSt(q.value)).slice(0,30).map(row).join('')||'<p class="note" style="margin:6px 2px">Nenhum item.</p>';
       ll.querySelectorAll('[data-rit]').forEach(b=>b.onclick=async()=>{const x=stById(b.dataset.rit);const eans=[...new Set([...(x.eans||[]),code])];
         if(await safe(()=>S.db.doc('estoque/'+x.id).update({eans}),'Codigo ligado a '+stCod(x)))done({item:{...x,eans}})})};
     q.oninput=draw;draw();box.querySelector('[data-a]').onclick=again}}
@@ -7059,8 +7070,8 @@ function osKitHTML(d){const e=eqById(d.eq);if(!e)return '';const ks=eqCompat(e).
 /* Adicionar item: demais itens do plano e busca no estoque (nome, codigo, referencia e camera) */
 function osPickPrev(d,cb){const e=eqById(d.eq)||{},noL=new Set(d.pecas.map(p=>p.pid).filter(Boolean));
   const plan=(e.itens||[]).filter(i=>!i.virt&&!noL.has(i.pid)).sort((a,b)=>_an(itNome(a),itNome(b)));
-  const lst=q=>{const k=nzM(q||''),P=plan.filter(i=>!k||nzM([itNome(i),i.desc,i.espec,itCod(i)].join(' ')).includes(k));
-    const Sx=k?S.estoque.filter(s=>!isKit(s)&&!s.inativo&&!P.some(i=>itMatchSt(i,s))&&nzM([s.desc,s.alm,s.codigo,s.ref,s.marca].join(' ')).includes(k)).sort(byCode).slice(0,40):[];
+  const lst=q=>{const k=nzM(q||''),P=plan.filter(i=>!k||nzM([itNome(i),i.desc,i.espec,itCod(i)].join(' ')).includes(k)||bTodas(q,[itNome(i),i.desc,i.espec,itCod(i)]));
+    const Sx=k?S.estoque.filter(s=>!isKit(s)&&!s.inativo&&!P.some(i=>itMatchSt(i,s))&&(nzM([s.desc,s.alm,s.codigo,s.ref,s.marca].join(' ')).includes(k)||bTodas(q,[s.desc,s.alm,s.codigo,s.ref,s.marca]))).sort(byCode).slice(0,40):[];
     const h=(P.length?`<div class="os-lb3">Demais itens do plano</div>${P.map(i=>{const s=itemStatus(e,i);return `<button type="button" class="os-lk" data-ppi="${esc(i.pid)}"><span class="os-st"><b>${esc(itNome(i))}</b><small>${esc([itCod(i)||i.espec||'',s.label].filter(Boolean).join(' · '))}</small></span></button>`}).join('')}`:'')
       +(Sx.length?`<div class="os-lb3">No estoque</div>${Sx.map(s=>`<button type="button" class="os-lk" data-st="${esc(s.id)}"><span class="os-st"><b>${esc(s.desc)}</b><small>${esc(stCod(s))} · saldo ${nf(stQtd(s),2)} ${esc(s.un||'')}</small>${eqvAv(s)}</span></button>`).join('')}`:'');
     return h||`<div class="os-vz">${k?'Nada encontrado. Use "Sem cadastro".':'Todos os itens do plano ja estao na lista. Digite para buscar no estoque.'}</div>`};

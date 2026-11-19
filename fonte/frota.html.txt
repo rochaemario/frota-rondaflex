@@ -368,6 +368,7 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-msg svg{width:16px;height:16px;flex:none;margin-top:1px}
 .cbx-msg.bad{background:var(--bad-bg);color:var(--bad)}
 .cbx-msg.warn{background:var(--warn-bg);color:var(--warn)}
+.cbx-msg.ja{background:var(--surface);color:var(--muted);border:1px solid var(--line)}
 .cbx-msg.info{background:var(--accent-soft);color:var(--accent-tx)}
 .cbx-rl{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:-2px}
 .cbx-rl button{min-height:42px;border-radius:10px;border:1px solid var(--bad);background:var(--surface);color:var(--bad);font:700 14px var(--body);cursor:pointer}
@@ -382,6 +383,9 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cpl-r.ab{display:flex;flex-direction:column;align-items:stretch;gap:9px;cursor:default;border-left:3px solid var(--accent)}
 .cpl-r.ti{cursor:default;opacity:.75}
 .cpl-ac{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cpl-r.ja{background:var(--sunk);border-color:var(--line)}.cpl-r.ja .l,.cpl-r.ja>b{color:var(--muted)}
+.cpl-bt{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px}
+.cpl-cmp{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;margin:6px 0;font-variant-numeric:tabular-nums}.cpl-cmp i{font-style:normal;opacity:.8;font-size:12px}
 .cpl-vt{border:0;background:none;color:var(--accent-tx);font:700 13px var(--body);cursor:pointer;grid-column:4/5;white-space:nowrap}
 .cpl-sm{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cbx-tag.am{background:var(--warn-bg);color:var(--warn)}
 .cpl-fb{margin-left:auto;border:0;background:none;color:var(--accent-tx);font:700 14px var(--body);cursor:pointer;min-height:36px}
@@ -2561,21 +2565,42 @@ async function cbxImportAoa(aoa){const c=await cbxCfg(),cb=cbxCur(c);const N=v=>
    uma linha da planilha = uma linha na tela (nunca junta nem descarta); guardada no aparelho ate lancar ou descartar */
 const cplK=cb=>'pl:'+cb,cplGet=cb=>cbxLS.get(cplK(cb)),cplSet=(cb,v)=>cbxLS.set(cplK(cb),v&&v.rows&&v.rows.length?v:null);
 const cplF={q:'',sit:[],ab:''};
+const cplCmp=(L,un)=>`<span class="cpl-cmp">${L.map(([t,dt,h,l,o])=>`<span>${esc(t)}</span><span>${dt?fdate(dt).slice(0,5):'—'} · ${h!=null&&h!==''?nf(h,1)+' '+un:'sem horimetro'}${o?` <i>${esc(o)}</i>`:''}</span><span>${l!=null&&l!==''?nf(l,1)+' L':''}</span>`).join('')}</span>`;
 async function cplConf(c,cb,P){
   const rows=P.rows.filter(r=>!r.out),D={},MD={},res={};
   const ord=rows.slice().sort((a,b)=>a.dt.localeCompare(b.dt)||(a.h??1e12)-(b.h??1e12)||_an(a.tag,b.tag));
   for(const r of ord){const k=mesKey(r.dt);if(!D[k])D[k]=await abDupCarga(r.dt).catch(()=>null)}
-  const sim={},vistos=[];
-  for(const r of ord){const o={msg:[],bad:false,av:false};res[r.id]=o;const e=eqById(r.eq);
+  const sim={},vistos=[],R1=x=>Math.round(Number(x)*10);
+  /* abastecimentos ja lancados no app, por equipamento (meses carregados), para comparar */
+  const AP={};Object.values(D).forEach(DD=>{if(!DD)return;Object.entries(DD.E).forEach(([k,l])=>{const a=AP[k]=AP[k]||[];l.forEach(x=>{if(!a.some(y=>y.data===x.data&&y.h===x.h&&y.l===x.l))a.push(x)})})});
+  for(const r of ord){const o={msg:[],bad:false,av:false,bt:''};res[r.id]=o;const e=eqById(r.eq);
     const ruim=t=>{o.bad=true;o.msg.push(['bad',t])},aten=t=>{o.av=true;o.msg.push(['warn',t])};
-    if(!e){ruim('Equipamento nao encontrado.');continue}
-    const tv=cbxTrava(cb.id,r.dt);if(tv){ruim(`Periodo fechado ate ${fdate(tv)}.`);continue}
-    if(!cbxNaObra(e)){ruim(`<b>Em ${esc(e.alocacao||'nenhum local')} nao recebe diesel da DM1.</b>`);continue}
-    if(r.h==null){ruim('Sem horimetro.');continue}
-    if(!(Number(r.l)>0)){ruim('Sem litros.');continue}
+    if(!e){ruim('Equipamento nao encontrado no app.');o.bt='t';continue}
+    const un=ehVL(e)?'km':'h';
+    const tv=cbxTrava(cb.id,r.dt);if(tv){ruim(`<b>Periodo fechado ate ${fdate(tv)} no comboio.</b> Esta data nao pode receber lancamento.`);o.bt='t';continue}
+    if(!cbxNaObra(e)){ruim(`<b>${esc(e.codigo)} esta em ${esc(e.alocacao||'nenhum local')} no cadastro</b> (fora da obra) e nao recebe diesel da DM1. Se voltou para a obra, mude a alocacao.`);o.bt='e';continue}
+    if(r.h==null){ruim('<b>A planilha nao tem horimetro nesta linha.</b> Digite o horimetro.');o.bt='c';continue}
+    if(!(Number(r.l)>0)){ruim('<b>A planilha nao tem litros nesta linha.</b> Digite os litros.');o.bt='c';continue}
     o.cu=r.c||cbxCustoR(e,c);if(!o.cu){ruim('Escolha o custo.');continue}
+    /* item 38: ja lancado (mesmo horimetro e mesmos litros) fica cinza e nao entra; mesmo horimetro com outros litros e vermelho */
+    {const A=AP[e.id]||[],ig=A.find(x=>x.h!=null&&R1(x.h)===R1(r.h)&&x.l!=null&&R1(x.l)===R1(r.l));
+      if(ig){o.ja=ig;o.msg.push(['ja',`<b>Ja lancado no app</b> · nao sera lancado de novo${cplCmp([['Planilha',r.dt,r.h,r.l],['No app',ig.data,ig.h,ig.l]],un)}`]);continue}
+      const ih=A.find(x=>x.h!=null&&R1(x.h)===R1(r.h));
+      if(ih){ruim(`<b>Horimetro igual ao de um abastecimento ja lancado, com litros diferentes.</b>${cplCmp([['Planilha',r.dt,r.h,r.l],['No app',ih.data,ih.h,ih.l]],un)}Se for o mesmo abastecimento, tire da lista. Se nao, corrija o horimetro.`);o.bt='tc';continue}}
     const e0=sim[e.id]||{...e},cc=calcAbast(e0,r.dt,Number(r.h),Number(r.l),true);o.cc=cc;
-    if(cc.erro){ruim(esc(cc.erro)+'.');continue}
+    if(cc.erro){o.bt='tc';
+      /* registros conhecidos do equipamento: lancados no app + linhas da planilha ja conferidas e as que vem depois */
+      const K=[...(AP[e.id]||[]).filter(x=>x.h!=null).map(x=>({dt:x.data,h:x.h,l:x.l,o:'no app'})),...vistos.filter(z=>z.eq===e.id).map(z=>({dt:z.dt,h:z.h,l:z.l,o:'linha da planilha'})),
+        ...ord.filter(z=>z.eq===e.id&&z!==r&&z.h!=null&&z.dt>r.dt&&!vistos.some(v=>v.id===z.id)).map(z=>({dt:z.dt,h:Number(z.h),l:Number(z.l),o:'linha da planilha'}))];
+      let ant=null;const lei=/ultima leitura/.test(cc.erro);
+      if(lei)ant=K.filter(x=>x.dt<=r.dt).find(x=>R1(x.h)===R1(e0.horimetro))||{dt:e0.horimetroData,h:Number(e0.horimetro),l:null,o:'leitura do horimetro'};
+      else if(cc.b&&cc.b.h!=null)ant=K.filter(x=>x.dt<=r.dt).find(x=>R1(x.h)===R1(cc.b.h))||{dt:cc.b.data,h:cc.b.h,l:null,o:'no app'};
+      if(!ant)ant=K.filter(x=>x.dt<=r.dt).sort((a,b)=>b.dt.localeCompare(a.dt)||b.h-a.h)[0]||null;
+      const prx=K.filter(x=>x.dt>r.dt).sort((a,b)=>a.dt.localeCompare(b.dt)||a.h-b.h)[0]||null;
+      if(ant&&R1(ant.h)===R1(r.h)){ruim(`<b>Horimetro igual ao anterior</b> (${esc(ant.o)}): zero ${un==='km'?'km rodados':'horas trabalhadas'}.${cplCmp([['Esta linha',r.dt,r.h,r.l],['Anterior',ant.dt,ant.h,ant.l,ant.o]],un)}Se for o mesmo abastecimento, tire da lista. Se nao, corrija o horimetro.`);continue}
+      if(ant&&Number(r.h)<ant.h){const lin=[['Esta linha',r.dt,r.h,r.l],['Anterior',ant.dt,ant.h,ant.l,ant.o]];if(prx)lin.push(['Proxima',prx.dt,prx.h,prx.l,prx.o]);
+        ruim(`<b>Horimetro menor que o anterior.</b>${cplCmp(lin,un)}${prx&&prx.h>ant.h?`Esperado entre ${nf(ant.h,1)} e ${nf(prx.h,1)} ${un}.`:`Esperado a partir de ${nf(ant.h,1)} ${un}.`} Confira o numero na folha.`);continue}
+      ruim(esc(cc.erro)+'.'+(ant?cplCmp([['Esta linha',r.dt,r.h,r.l],['Anterior',ant.dt,ant.h,ant.l,ant.o]],un):''));continue}
     if(cc.retro)o.msg.push(['info',`Anterior ao ultimo abastecimento (${fdate(e0.combUltData).slice(0,5)}): o consumo e recalculado ao lancar.`]);
     const DD=D[mesKey(r.dt)],dp=abDupEq(DD,e.id,r.h),dl=!dp&&abDupLt(DD,e.id,r.l,r.dt);
     const rp=vistos.find(z=>z.eq===e.id&&(z.h===Number(r.h)||(z.dt===r.dt&&Math.round(z.l*10)===Math.round(Number(r.l)*10))));
@@ -2587,7 +2612,7 @@ async function cplConf(c,cb,P){
     if(hmAtras(e0,cc.h,r.dt))aten(`Horimetro maior que a leitura mais nova (${nf(e0.horimetro,1)} h em ${fdate(e0.horimetroData)}). Confira.`);
     if(cc.lh!=null){const mk=e.id+'|'+mesKey(r.dt);if(!(mk in MD))MD[mk]=await combMedia(e.id,r.dt).catch(()=>null);const md=MD[mk];
       if(md&&(cc.lh>md*1.5||cc.lh<md*.5))aten(`Consumo ${consTxt(e,cc.lh)}, media ${consTxt(e,md)}.`)}
-    vistos.push({eq:e.id,h:Number(r.h),l:Number(r.l),dt:r.dt});
+    vistos.push({id:r.id,eq:e.id,h:Number(r.h),l:Number(r.l),dt:r.dt});
     if(!cc.retro)sim[e.id]={...e0,combBase:cc.nb,combUltData:r.dt,...(cc.h>(Number(e0.horimetro)||0)?{horimetro:cc.h,horimetroData:r.dt}:{})}}
   return {res,ord}}
 async function cbxPlan(){
@@ -2595,11 +2620,12 @@ async function cbxPlan(){
   const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),cus=cbxCustosAb(c);
   let P=cplGet(cb.id);if(!P){toast('Nenhuma planilha em conferencia.');goBack();return}
   let R={res:{},ord:[]},aberta='';
-  const fil=(r,F=cplF)=>{const o=R.res[r.id]||{};if(F.q&&!nzB(r.tag).includes(nzB(F.q)))return false;if(F.sit.length&&!F.sit.some(s=>s==='am'?o.av&&!o.bad:o.bad))return false;return true};
+  const fil=(r,F=cplF)=>{const o=R.res[r.id]||{};if(F.q&&!nzB(r.tag).includes(nzB(F.q)))return false;if(F.sit.length&&!F.sit.some(s=>s==='am'?o.av&&!o.bad&&!o.ja:s==='ja'?!!o.ja:o.bad))return false;return true};
   const cuNm=id=>id?cbxCuCurto(cbxCuNome(id)):'—';
-  const linha=r=>{const o=R.res[r.id]||{msg:[]},e=eqById(r.eq),cls=o.bad?' er':o.av?' av':'',un=e&&ehVL(e)?'km':'h';
-    const ms=o.msg.filter(m=>m[0]!=='info'||aberta===r.id).map(([l,t])=>cbxMsg(l,t)).join('');
-    if(aberta!==r.id)return `<div class="cpl-r${cls}" data-pr="${r.id}" role="button" tabindex="0"><b>${esc(r.tag)}</b><span class="h">${r.h!=null?nf(r.h,1)+' '+un:'sem horimetro'}</span><span class="l">${nf(r.l,1)} L</span><span class="cu">${esc(cuNm(o.cu||r.c))}</span>${ms?`<div class="ms">${ms}</div>`:''}</div>`;
+  const linha=r=>{const o=R.res[r.id]||{msg:[]},e=eqById(r.eq),cls=o.ja?' ja':o.bad?' er':o.av?' av':'',un=e&&ehVL(e)?'km':'h';
+    const ms=o.msg.filter(m=>m[0]!=='info'||aberta===r.id||o.ja).map(([l,t])=>cbxMsg(l,t)).join('');
+    const bt=o.bt&&aberta!==r.id?`<div class="cpl-bt">${o.bt.includes('t')?'<button type="button" class="btn sm" data-bt="t">Tirar da lista</button>':''}${o.bt.includes('c')?'<button type="button" class="btn sm" data-bt="c">Corrigir horimetro</button>':''}${o.bt.includes('e')?'<button type="button" class="btn sm" data-bt="t">Tirar da lista</button><button type="button" class="btn sm" data-bt="e">Abrir equipamento</button>':''}</div>`:'';
+    if(aberta!==r.id)return `<div class="cpl-r${cls}" data-pr="${r.id}" role="button" tabindex="0"><b>${esc(r.tag)}</b><span class="h">${r.h!=null?nf(r.h,1)+' '+un:'sem horimetro'}</span><span class="l">${nf(r.l,1)} L</span><span class="cu">${esc(cuNm(o.cu||r.c))}</span>${ms?`<div class="ms">${ms}</div>`:''}${bt}</div>`;
     const cu=r.c||o.cu||'';
     return `<div class="cpl-r ab${cls}" data-pr="${r.id}"><div class="cbx-rh"><b>${esc(r.tag)}</b><span class="cbx-tag">${esc(fdate(r.dt).slice(0,5))}</span></div>
       <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" data-ph aria-label="Horimetro" placeholder="Horimetro" value="${r.h??''}"><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="done" class="l" data-pl aria-label="Litros" placeholder="Litros" value="${r.l??''}">
@@ -2614,10 +2640,10 @@ async function cbxPlan(){
     if(fo.length)h+=`<div class="lbl" style="margin-top:16px">TAG nao encontrada · nao sera lancada</div><div class="cpl-fo">${fo.map(t=>`<span>${esc(t.tag)} · ${fdate(t.dt).slice(0,5)} · ${nf(t.l,1)} L</span>`).join('')}</div>`;
     if(ti.length)h+=`<div class="lbl" style="margin-top:16px">Tiradas da lista</div>${ti.map(r=>`<div class="cpl-r ti"><b>${esc(r.tag)}</b><span class="h">${fdate(r.dt).slice(0,5)}</span><span class="l">${nf(r.l,1)} L</span><button type="button" class="cpl-vt" data-pv="${r.id}">Voltar</button></div>`).join('')}`;
     return h};
-  const ok=()=>R.ord.filter(r=>R.res[r.id]&&!R.res[r.id].bad);
-  const resumo=()=>{const at=P.rows.filter(r=>!r.out),ds=at.map(r=>r.dt).sort(),na=at.filter(r=>R.res[r.id]&&R.res[r.id].av&&!R.res[r.id].bad).length,nb=at.filter(r=>R.res[r.id]&&R.res[r.id].bad).length;
-    const pil=[...cplF.sit.map(s=>[s,s==='am'?'Amarelos':'Vermelhos']),...(cplF.q?[['q',cplF.q]]:[])];
-    return `<div class="cpl-sm">${ds.length?`<span class="cbx-tag">${fdate(ds[0]).slice(0,5)}${ds[0]!==ds[ds.length-1]?' a '+fdate(ds[ds.length-1]).slice(0,5):''}</span>`:''}<span class="cbx-tag">${at.length} linha${at.length===1?'':'s'} · ${nf(at.reduce((a,r)=>a+Number(r.l||0),0),1)} L</span>${na?`<span class="cbx-tag am">${na} amarelo${na===1?'':'s'}</span>`:''}${nb?`<span class="cbx-tag pq">${nb} vermelho${nb===1?'':'s'}</span>`:''}
+  const ok=()=>R.ord.filter(r=>R.res[r.id]&&!R.res[r.id].bad&&!R.res[r.id].ja);
+  const resumo=()=>{const at=P.rows.filter(r=>!r.out),ds=at.map(r=>r.dt).sort(),na=at.filter(r=>R.res[r.id]&&R.res[r.id].av&&!R.res[r.id].bad&&!R.res[r.id].ja).length,nb=at.filter(r=>R.res[r.id]&&R.res[r.id].bad).length,nj=at.filter(r=>R.res[r.id]&&R.res[r.id].ja).length;
+    const pil=[...cplF.sit.map(s=>[s,s==='am'?'Amarelos':s==='ja'?'Ja lancados':'Vermelhos']),...(cplF.q?[['q',cplF.q]]:[])];
+    return `<div class="cpl-sm">${ds.length?`<span class="cbx-tag">${fdate(ds[0]).slice(0,5)}${ds[0]!==ds[ds.length-1]?' a '+fdate(ds[ds.length-1]).slice(0,5):''}</span>`:''}<span class="cbx-tag">${at.length} linha${at.length===1?'':'s'} · ${nf(at.reduce((a,r)=>a+Number(r.l||0),0),1)} L</span>${nj?`<span class="cbx-tag">${nj} ja lancado${nj===1?'':'s'}</span>`:''}${na?`<span class="cbx-tag am">${na} amarelo${na===1?'':'s'}</span>`:''}${nb?`<span class="cbx-tag pq">${nb} vermelho${nb===1?'':'s'}</span>`:''}
       <button type="button" class="cpl-fb" data-pf>Filtrar${pil.length?` (${pil.length})`:''}</button></div>${pil.length?`<div class="cpl-pl">${pil.map(([k,t])=>`<button type="button" data-px="${esc(k)}">${esc(t)} ✕</button>`).join('')}</div>`:''}`};
   openSheet({title:'Conferir planilha',sub:cbxAtivos(c).length>1?esc(cb.nome):'',
     body:`<div id="cpl-sm"></div><div id="cpl-ask"></div><div class="cpl-rows" id="cpl-rows"><div class="card-wait" style="min-height:120px">Conferindo…</div></div><div id="cpl-st"></div>`,
@@ -2636,11 +2662,14 @@ async function cbxPlan(){
       const troca=id=>{const el=box.querySelector(`[data-pr="${id}"]`);const r=P.rows.find(z=>z.id===id);if(!el||!r)return;const t=document.createElement('div');t.innerHTML=linha(r);el.replaceWith(t.firstElementChild);liga()};
       /* depois de corrigir: confere de novo tudo e troca so as mensagens e cores (os campos abertos ficam; o teclado nao fecha) */
       const reconf=async()=>{await conf();box.querySelectorAll('[data-pr]').forEach(el=>{const id=el.dataset.pr,r=P.rows.find(z=>z.id===id);if(!r)return;
-          if(id===aberta){const o=R.res[id]||{msg:[]};el.classList.toggle('er',!!o.bad);el.classList.toggle('av',!!o.av&&!o.bad);el.querySelector('.ms').innerHTML=o.msg.map(([l,t])=>cbxMsg(l,t)).join('');
+          if(id===aberta){const o=R.res[id]||{msg:[]};el.classList.toggle('er',!!o.bad);el.classList.toggle('av',!!o.av&&!o.bad&&!o.ja);el.classList.toggle('ja',!!o.ja);el.querySelector('.ms').innerHTML=o.msg.map(([l,t])=>cbxMsg(l,t)).join('');
             el.querySelectorAll('[data-pc]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pc===(r.c||o.cu||'')))}
           else troca(id)});
         box.querySelectorAll('[data-pd]').forEach(el=>{const d=el.dataset.pd,L=P.rows.filter(r=>!r.out&&r.dt===d);el.lastElementChild.textContent=`${L.length} · ${nf(L.reduce((a,r)=>a+Number(r.l||0),0),1)} L`});topo()};
-      const liga=()=>{box.querySelectorAll('.cpl-r[data-pr]:not(.ab)').forEach(el=>{const abre=()=>{const ant=aberta;aberta=el.dataset.pr;if(ant)troca(ant);troca(aberta);
+      const tira=async id=>{const r=P.rows.find(z=>z.id===id);if(!r)return;r.out=true;if(aberta===id)aberta='';salva();await conf();desenha();toast(`${r.tag} tirado da lista`)};
+      const liga=()=>{box.querySelectorAll('.cpl-r[data-pr]:not(.ab) [data-bt]').forEach(b=>{if(b._b)return;b._b=1;b.onclick=ev=>{ev.stopPropagation();const id=b.closest('[data-pr]').dataset.pr,k=b.dataset.bt;
+          if(k==='t')tira(id);else if(k==='e'){const r=P.rows.find(z=>z.id===id);if(r)openEq(r.eq)}else b.closest('[data-pr]').click()}});
+        box.querySelectorAll('.cpl-r[data-pr]:not(.ab)').forEach(el=>{const abre=()=>{const ant=aberta;aberta=el.dataset.pr;if(ant)troca(ant);troca(aberta);
           const nw=box.querySelector(`[data-pr="${aberta}"]`);if(nw){const i=nw.querySelector('[data-ph]');setTimeout(()=>{i.focus({preventScroll:true});nw.scrollIntoView({block:'nearest'})},30)}};
           el.onclick=abre;el.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();abre()}}});
         const ab=box.querySelector('.cpl-r.ab');if(ab&&!ab._b){ab._b=1;const id=ab.dataset.pr,r=P.rows.find(z=>z.id===id);let t;
@@ -2649,7 +2678,7 @@ async function cbxPlan(){
           ab.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;ev.preventDefault();if(ev.target.matches('[data-ph]'))ab.querySelector('[data-pl]').focus();else ev.target.blur()});
           ab.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{r.c=b.dataset.pc;salva();reconf()});
           ab.querySelector('[data-pok]').onclick=async()=>{clearTimeout(t);aberta='';await reconf()};
-          ab.querySelector('[data-pt]').onclick=async()=>{clearTimeout(t);r.out=true;aberta='';salva();await conf();desenha();toast(`${r.tag} tirado da lista`)}}
+          ab.querySelector('[data-pt]').onclick=()=>{clearTimeout(t);tira(id)}}
         box.querySelectorAll('[data-pv]').forEach(b=>b.onclick=async()=>{const r=P.rows.find(z=>z.id===b.dataset.pv);if(r){r.out=false;salva();await conf();desenha()}})};
       go.onclick=async()=>{const L=ok();if(!L.length)return;const st=sh.querySelector('#cpl-st');st.innerHTML='';
         /* sem saldo no comboio: nao lanca nada */
@@ -2661,7 +2690,7 @@ async function cbxPlan(){
             if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.dt,h0:Number(r.h),litros:Number(r.l),cheio:true,custo:o.cu,cb:cb.id}});if(rr.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(rr.erro)}.`);continue}}
             else await abastGravar(e,{...cc,custo:o.cu,cb:cb.id});
             n++;P.rows=P.rows.filter(z=>z.id!==r.id);salva()}catch(er){console.error(er);f++}}
-        go.disabled=false;const sobra=P.rows.filter(r=>!r.out).length;
+        go.disabled=false;const sobra=P.rows.filter(r=>!r.out&&!(R.res[r.id]&&R.res[r.id].ja)).length;
         toast(`${n} abastecimento${n===1?' lancado':'s lancados'}${sobra?` · ${sobra} ficar${sobra===1?'a':'am'}`:''}`);
         if(!P.rows.length||!sobra){cplSet(cb.id,null);goBack();return}
         aberta='';await conf();desenha();if(fe.length)st.innerHTML=cbxMsg('bad',`<b>Nao lancados:</b><br>${fe.join('<br>')}`)};
@@ -2671,10 +2700,10 @@ async function cbxPlan(){
 function cplFiltrar(cnt){
   nav('cbx:plf',()=>cplFiltrar(cnt));const tmp={q:cplF.q,sit:cplF.sit.slice()};let aberto=false;
   openSheet({title:'Filtrar',body:`<form id="cplf"><label class="cbx-q" style="display:flex">${CBX_IC.q}<input id="cplf-q" type="search" data-nodeb placeholder="TAG" autocomplete="off" value="${esc(tmp.q)}" aria-label="TAG"></label>
-      <div class="cpl-fl"><button type="button" class="cpl-fr" data-fs><span>Situacao</span><span class="v"></span></button><div class="cpl-fo2" hidden>${[['am','Amarelos'],['vm','Vermelhos']].map(([k,t])=>`<button type="button" data-fv="${k}"><span>${t}</span><span class="ck">✓</span></button>`).join('')}</div></div></form>
+      <div class="cpl-fl"><button type="button" class="cpl-fr" data-fs><span>Situacao</span><span class="v"></span></button><div class="cpl-fo2" hidden>${[['am','Amarelos'],['vm','Vermelhos'],['ja','Ja lancados']].map(([k,t])=>`<button type="button" data-fv="${k}"><span>${t}</span><span class="ck">✓</span></button>`).join('')}</div></div></form>
       <div class="cpl-ff"><span id="cplf-n"></span><button type="button" class="btn sm" data-fl>Limpar</button></div>`,
     foot:`<button class="btn pri" form="cplf">Aplicar</button>`,
-    mount:sh=>{const v=sh.querySelector('.cpl-fr .v'),op=sh.querySelector('.cpl-fo2'),pin=()=>{v.textContent=tmp.sit.length?tmp.sit.map(s=>s==='am'?'Amarelos':'Vermelhos').join(', ')+' ›':'Todas ›';v.classList.toggle('on',!!tmp.sit.length);
+    mount:sh=>{const v=sh.querySelector('.cpl-fr .v'),op=sh.querySelector('.cpl-fo2'),pin=()=>{v.textContent=tmp.sit.length?tmp.sit.map(s=>s==='am'?'Amarelos':s==='ja'?'Ja lancados':'Vermelhos').join(', ')+' ›':'Todas ›';v.classList.toggle('on',!!tmp.sit.length);
         op.querySelectorAll('[data-fv]').forEach(b=>b.classList.toggle('on',tmp.sit.includes(b.dataset.fv)));sh.querySelector('#cplf-n').textContent=cnt?(n=>`${n} linha${n===1?'':'s'}`)(cnt(tmp)):''};pin();
       sh.querySelector('[data-fs]').onclick=()=>{aberto=!aberto;op.hidden=!aberto};
       op.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>{const k=b.dataset.fv;tmp.sit=tmp.sit.includes(k)?tmp.sit.filter(s=>s!==k):[...tmp.sit,k];pin()});

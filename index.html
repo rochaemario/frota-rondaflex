@@ -1292,6 +1292,7 @@ body.kb .sh-foot{display:none}
 .et-fora{display:flex;flex-direction:column;gap:1px;width:100%;border:0;background:none;font:inherit;text-align:left;padding:10px 12px;border-radius:10px;font-weight:600;color:var(--fg);cursor:pointer}.et-fora span{font-weight:400;font-size:12.5px;color:var(--muted)}.et-fora:active{background:var(--line)}
 .note{font-size:13px;color:var(--muted)}
 .warnline{font-size:13px;color:var(--warn);min-height:1em;margin:0}
+.dup-r{margin-top:10px;padding:9px 10px 9px 12px;border-radius:12px;background:var(--bad-bg);color:var(--bad);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}.dup-r span{flex:1;min-width:0}.dup-r .btn{flex:none}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:12px 18px;border-radius:14px;z-index:40;font-weight:500;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 #scrim:not([hidden])~.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}.card{padding:20px}}
@@ -1574,8 +1575,8 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cbx-rcb svg{width:17px;height:17px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=4a2b44b8ee"></script>
-<script src="shim.js?v=4a2b44b8ee"></script>
+<script src="config.js?v=457c27a56f"></script>
+<script src="shim.js?v=457c27a56f"></script>
 </head>
 <body>
 
@@ -5061,6 +5062,16 @@ function formEq(id,mais){
   }});
 }
 
+/* item 23: nunca dois registros do mesmo equipamento, mesmo tipo e mesmo horimetro (preventiva com preventiva; filtro de ar com filtro de ar do mesmo filtro).
+   Confere os dados do celular (funciona sem internet). Registros repetidos que ja existem nao sao mexidos. */
+const trGrp=t=>t.tipo==='filtro_ar'?'ar:'+(t.sub||''):(t.tipo==='reprog'||t.tipo==='hmtroca')?'':'prev';
+const trDup=(eqId,grp,h0,exc)=>{if(!eqId||!grp||h0===''||h0==null)return null;const h=Math.round(Number(h0)*10);if(!isFinite(h))return null;
+  return S.trocas.find(t=>t.id!==exc&&t.equipId===eqId&&trGrp(t)===grp&&t.horimetro!==''&&t.horimetro!=null&&Math.round(Number(t.horimetro)*10)===h)||null};
+function dupShow(box,eqId,grp,h0,exc){if(!box)return null;const t=trDup(eqId,grp,h0,exc),e=t&&eqById(eqId);
+  box.innerHTML=t&&e?`<div class="dup-r" role="alert"><span>Ja registrada: ${t.tipo==='filtro_ar'?'filtro de ar':'preventiva'} <span style="white-space:nowrap">${esc(e.codigo)} · ${nf(t.horimetro,1)} h</span> · ${esc(fdate(t.data).slice(0,5))}</span><button type="button" class="btn sm" data-dupab>Abrir registro</button></div>`:'';
+  const b=box.querySelector('[data-dupab]');if(b)b.onclick=()=>formEditTroca(t.id);return t&&e?t:null}
+const dupStop=box=>{box.scrollIntoView({block:'center',behavior:'smooth'});toast('Preventiva ja registrada neste horimetro.')};
+
 /* ---------- registrar preventiva: escolha ---------- */
 function formRegistrar(eqId,menu){
   nav('reg',()=>formRegistrar(eqId,menu));
@@ -5087,7 +5098,7 @@ function formFiltroAr(eqId,sub){
     <label class="f">Equipamento<select id="a-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     ${sub==='Motor'?'':`<div class="f">Servico <span class="hint">marque um ou os dois</span><div class="seg ar-seg" role="group" aria-label="Servico: marque um ou os dois"><button type="button" data-sv="Troca" aria-pressed="true">Troca</button><button type="button" data-sv="Limpeza" aria-pressed="false">Limpeza</button></div></div>`}
     <div class="grid"><label class="f">Data<input id="a-dt" type="date" required value="${today()}"></label>
-    <label class="f">Horimetro (h)<input id="a-hm" type="number" step="0.1" inputmode="decimal" required></label></div></div>
+    <label class="f">Horimetro (h)<input id="a-hm" type="number" step="0.1" inputmode="decimal" required></label></div><div id="a-dup"></div></div>
     <div class="fset" id="a-stw" style="margin-top:12px"><h3>Filtros trocados</h3>
       <div id="a-sug"></div>
       <div class="sug-w t-add"><div class="search">${I.search}<input id="a-q" type="search" placeholder="Adicionar filtro por codigo ou nome" autocomplete="off" aria-label="Adicionar filtro"></div><div class="sug" id="a-qh"></div></div>
@@ -5128,8 +5139,10 @@ function formFiltroAr(eqId,sub){
     sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{const k=b.dataset.sv;if(SV[k]&&!SV[k==='Troca'?'Limpeza':'Troca'])return;SV[k]=!SV[k];b.setAttribute('aria-pressed',SV[k]);
       sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelector('#a-stw').hidden=!tr();fillPlan()});
     const hmSt={ok:false};[hm,sh.querySelector('#a-dt')].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false}));sel.addEventListener('change',()=>{hmSt.ok=false;hmSt.salto=false});
+    const dupB=sh.querySelector('#a-dup'),dupC=()=>dupShow(dupB,sel.value,'ar:'+sub,hm.value);hm.addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();
     sh.querySelector('#fa').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;
+      if(dupC()){dupStop(dupB);return}
       const h0=Number(hm.value),dt0=sh.querySelector('#a-dt').value,g=hmGuard(sh.querySelector('#a-hmg'),e,h0,dt0,hmSt,()=>sh.querySelector('#fa').onsubmit({preventDefault(){}}));if(!g)return;
       const h=g.h,dl=g.dl,dt=dt0,nome=`Filtro de ar ${sub==='Motor'?'do motor':'do ar condicionado'}`;
       const lst=tr()?L.map(c=>({st:stById(c.id),q:Number(c.q)||0})).filter(x=>x.st):[];
@@ -5165,7 +5178,7 @@ function formTroca(eqId){
   body:`${S.ajuste?AJ_BANNER:''}<form id="ft"><div class="fset">
     <label class="f">Equipamento<select id="t-eq" required data-eqs><option value="">Escolha…</option>${eqs.map(e=>`<option value="${esc(e.id)}"${cur===e.id?' selected':''}>${esc(e.codigo)} · ${esc(e.tipo)}</option>`).join('')}</select></label>
     <div class="grid"><label class="f">Data<input id="t-dt" type="date" required value="${today()}"></label>
-    <label class="f">Horimetro (h)<input id="t-hm" type="number" step="0.1" inputmode="decimal" required></label></div>
+    <label class="f">Horimetro (h)<input id="t-hm" type="number" step="0.1" inputmode="decimal" required></label></div><div id="t-dup"></div>
     <label class="f">Responsavel<input id="t-resp" placeholder="Mecanico ou oficina"></label></div>
     <div class="fset" style="margin-top:12px"><div class="f">Intervalo <span class="hint">opcional</span><div class="seg iv-seg" role="group" aria-label="Intervalo">${[250,300,350,400,500].map(v=>`<button type="button" data-iv="${v}" aria-pressed="false">${nf(v)} h</button>`).join('')}</div></div>
     <label class="f">Proxima (h) <span class="hint">opcional</span><input id="t-prox" type="number" step="0.1" inputmode="decimal" placeholder="Automatico"></label>
@@ -5272,12 +5285,14 @@ function formTroca(eqId){
     pin.oninput=hint;hm.addEventListener('input',hint);box.addEventListener('change',hint);
     sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
+    const dupB=sh.querySelector('#t-dup'),dupC=()=>dupShow(dupB,sel.value,'prev',hm.value);hm.addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;
       const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();const ivI=box.querySelector(`[data-ivp="${CSS.escape(it.pid)}"]`);/* item do plano sem ligacao com o estoque: liga pelo codigo (mesmo item mesmo com prefixo diferente) para dar baixa */
         const lig=it.estoqueId||c.dataset.sid||(S.estoque.find(s=>!isKit(s)&&itMatchSt({...it,estoqueId:'',espec:cd||it.espec},s))||{}).id||'';
         return {...it,estoqueId:lig,usado:q===''?0:Number(q),espec:cd||it.espec||'',ivEsc:ivI?ivVal(ivI.value):undefined}});
       const avul=extras.map(x=>({pid:isKit(x.s)||x.kit||ehFiltroAr(x.s.desc)?'':novoPid(),desc:x.s.desc,espec:stCod(x.s),usado:Number(x.q)||0,un:isKit(x.s)?'kit':x.s.un||'un',estoqueId:x.s.id,tipo:x.s.tipo||'',ivEsc:isKit(x.s)||x.kit||ehFiltroAr(x.s.desc)?undefined:ivVal(x.iv??((e.ivEnc||{})[x.s.id]??''))}));
+      if(dupC()){dupStop(dupB);return}
       if(!picked.length&&!avul.length){toast('Marque pelo menos um item.');return}
       const h0=Number(hm.value),dt=sh.querySelector('#t-dt').value;
       const g=hmGuard(sh.querySelector('#t-eqv'),e,h0,dt,hmSt,()=>sh.querySelector('#ft').onsubmit({preventDefault(){},eqvOk:ev.eqvOk,rpOk:ev.rpOk,rp:ev.rp}));if(!g)return;
@@ -5372,7 +5387,7 @@ function formEditTroca(id){
   if(t.tipo==='informada'){NAV.pop();formUltPrev(t.equipId,t.id);return}
   const ar=t.tipo==='filtro_ar',its=[...(t.itens||[])];
   openSheet({title:'Editar '+(ar?'filtro de ar':'preventiva'),sub:`${esc(e.codigo)} · ${fdate(t.data)}`,
-  body:`<div class="nv-b${t.ajuste?' on':''}" id="et-ajb" style="margin:0 0 12px"><div><b>${t.ajuste?`Lancada em ajuste ${AJS}`:'Lancamento normal'}</b><span>${t.ajuste?'Nao mexeu no estoque; alterar pecas tambem nao mexe.':'As pecas foram baixadas do estoque.'}</span></div>${podeEscrever()?`<button type="button" class="btn sm" id="et-aj">${t.ajuste?'Desmarcar ajuste':'Marcar como ajuste'}</button>`:''}</div><div id="et-ajq"></div><form id="fet"><div class="list" id="et-fs"></div>
+  body:`<div class="nv-b${t.ajuste?' on':''}" id="et-ajb" style="margin:0 0 12px"><div><b>${t.ajuste?`Lancada em ajuste ${AJS}`:'Lancamento normal'}</b><span>${t.ajuste?'Nao mexeu no estoque; alterar pecas tambem nao mexe.':'As pecas foram baixadas do estoque.'}</span></div>${podeEscrever()?`<button type="button" class="btn sm" id="et-aj">${t.ajuste?'Desmarcar ajuste':'Marcar como ajuste'}</button>`:''}</div><div id="et-ajq"></div><form id="fet"><div class="list" id="et-fs"></div><div id="et-dup"></div>
     <div class="lbl" style="margin-top:16px">Pecas usadas <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">toque para editar ou substituir</span></div><div class="list" id="et-l"></div>
     <div class="sug-w t-add" style="margin-top:10px"><div class="search">${I.search}<input id="et-add" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="et-addh"></div></div>${rdBtn('et-addcam','Adicionar item pela camera')}
     <div id="et-conf"></div></form>`,
@@ -5433,7 +5448,7 @@ function formEditTroca(id){
     const FD=[['data','Data','date',v=>v?fdate(v):'—'],['hm','Horimetro','number',v=>v===''?'—':nf(v,2)+' h'],['resp','Responsavel','text',v=>v||'—'],['obs','Observacoes','textarea',v=>v||'—']];
     const FS=sh.querySelector('#et-fs');
     let fAb='';
-    const drawF=()=>{FS.innerHTML=FD.map(([k,l,tp,fmt])=>{const op=fAb===k,orig=k==='data'?t.data||'':k==='hm'?t.horimetro??'':t[k]||'';
+    let drawF=()=>{FS.innerHTML=FD.map(([k,l,tp,fmt])=>{const op=fAb===k,orig=k==='data'?t.data||'':k==='hm'?t.horimetro??'':t[k]||'';
         const inp=tp==='textarea'?`<textarea id="ef-v" rows="3">${esc(V[k])}</textarea>`:`<input id="ef-v" type="${tp}"${tp==='number'?' step="0.1" inputmode="decimal"':''} value="${esc(V[k])}"${k==='resp'?' placeholder="Mecanico ou oficina"':''} autocomplete="off">`;
         return `<div class="et-i${op?' op':''}"><button type="button" class="et-h" data-fd="${k}" aria-expanded="${op}"><span class="et-l">${l}</span><span class="et-v${String(V[k])!==String(orig)?' mud':''}">${esc(fmt(V[k]))}</span>${I.chev}</button>
         ${op?`<div class="et-b"><div class="et-qw">${inp}${k==='hm'?'<span class="u">h</span>':''}</div><div class="et-a" style="display:flex;gap:8px"><button type="button" class="btn" id="ef-x">Cancelar</button><button type="button" class="btn pri" id="ef-ok">Confirmar</button></div></div>`:''}</div>`}).join('');
@@ -5443,10 +5458,13 @@ function formEditTroca(id){
         V[k]=k==='hm'?Number(v):v;fAb='';cf.innerHTML='';drawF()};
       FS.querySelector('#ef-ok').onclick=ok;FS.querySelector('#ef-x').onclick=()=>{fAb='';drawF()};
       if(tp!=='textarea')fi.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();ok()}}};
+    const dupB=sh.querySelector('#et-dup'),dupC=()=>Number(V.hm)!==Number(t.horimetro)?dupShow(dupB,e.id,trGrp(t),V.hm,id):(dupB.innerHTML='',null);
+    const drawF0=drawF;drawF=()=>{drawF0();dupC()};
     drawF();
     f.onsubmit=ev=>{ev.preventDefault();
       const dt=V.data,h0=Number(V.hm);
       if(!dt||isNaN(h0)||h0<0){toast('Confira a data e o horimetro.');return}
+      if(dupC()){dupStop(dupB);return}
       const novos=its.map((i,k)=>{const {novo,...r}=i;return {...r,qtd:cur[k].qtd,espec:cur[k].espec,estoqueId:cur[k].sid}});
       const A=pecasUsadas(t),B=pecasUsadas(t,novos),mais={},menos={};
       new Set([...Object.keys(A),...Object.keys(B)]).forEach(k=>{const d=Math.round(((B[k]||0)-(A[k]||0))*10)/10;if(d>0)mais[k]=d;else if(d<0)menos[k]=-d});
@@ -5536,9 +5554,11 @@ function formUltPrev(eqId,trId){
   openSheet({title:trId?'Corrigir preventiva informada':'Informar ultima preventiva',sub:`${esc(e.codigo)} · ${esc(e.tipo||'')}`,
   body:`<form id="fup" class="fset"><p class="note" style="margin:0 0 10px">Use quando o equipamento ja teve preventiva antes do app e so se sabe a data e o horimetro. A proxima fica programada a partir dela${Number(e.intervaloPrev)?` (intervalo de ${nf(e.intervaloPrev)} h)`:''}.</p>
     <div class="grid"><label class="f">Data<input id="up-dt" type="date" required max="${today()}" value="${esc(t0?t0.data:'')}"></label>
-    <label class="f">Horimetro (h)<input id="up-hm" type="number" step="0.1" min="0" inputmode="decimal" required value="${esc(t0?t0.horimetro:'')}" placeholder="${hAt?'Ate '+nf(hAt,2):''}"></label></div></form>`,
+    <label class="f">Horimetro (h)<input id="up-hm" type="number" step="0.1" min="0" inputmode="decimal" required value="${esc(t0?t0.horimetro:'')}" placeholder="${hAt?'Ate '+nf(hAt,2):''}"></label></div><div id="up-dup"></div></form>`,
   foot:`<button class="btn pri" form="fup">Salvar</button>`,
-  mount:sh=>{sh.querySelector('#fup').onsubmit=async ev=>{ev.preventDefault();const dt=sh.querySelector('#up-dt').value,hv=Number(sh.querySelector('#up-hm').value);
+  mount:sh=>{const dupB=sh.querySelector('#up-dup'),upH=sh.querySelector('#up-hm'),dupC=()=>t0&&Number(upH.value)===Number(t0.horimetro)?(dupB.innerHTML='',null):dupShow(dupB,e.id,'prev',upH.value,t0&&t0.id);upH.addEventListener('input',dupC);
+    sh.querySelector('#fup').onsubmit=async ev=>{ev.preventDefault();const dt=sh.querySelector('#up-dt').value,hv=Number(sh.querySelector('#up-hm').value);
+    if(dupC()){dupStop(dupB);return}
     if(!dt||dt>today()){toast('A data nao pode ser futura.');return}
     if(!(hv>=0)||sh.querySelector('#up-hm').value===''){toast('Informe o horimetro.');return}
     if(hAt&&hv>hAt){toast(`O horimetro nao pode ser maior que a leitura atual (${nf(hAt,2)} h).`);return}

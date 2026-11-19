@@ -6668,17 +6668,29 @@ function rdOpen(o){if(RD)return;RD={...o,last:'',lastCode:0,busy:false,stopped:f
     <div class="rdr-r" hidden></div><div class="rdr-a"><button type="button" class="btn ghost" data-x>Digitar em vez de ler</button></div></div>`;
   document.body.appendChild(d);RD.el=d;d.querySelectorAll('[data-x]').forEach(b=>b.onclick=rdClose);
   rdStart()}
+/* leitor proprio do app (item 29): ZXing, guardado no app; so carrega quando o celular nao tem o leitor do navegador (iPhone) */
+let _zxP=null;
+function zxCarrega(){if(window.ZXing)return Promise.resolve(window.ZXing);if(_zxP)return _zxP;
+  _zxP=new Promise((ok,no)=>{const s=document.createElement('script');s.src='lib/zxing-0.21.3.min.js';s.async=true;s.onload=()=>window.ZXing?ok(window.ZXing):(_zxP=null,no(new Error('zxing')));s.onerror=()=>{_zxP=null;s.remove();no(new Error('zxing'))};document.head.appendChild(s)});return _zxP}
+function zxDetector(Z){const F=Z.BarcodeFormat,H=new Map();H.set(Z.DecodeHintType.POSSIBLE_FORMATS,[F.QR_CODE,F.EAN_13,F.EAN_8,F.UPC_A,F.UPC_E,F.CODE_128,F.CODE_39]);H.set(Z.DecodeHintType.TRY_HARDER,true);
+  const rd=new Z.MultiFormatReader();rd.setHints(H);const cv=document.createElement('canvas'),cx=cv.getContext('2d',{willReadFrequently:true});
+  return{detect:async v=>{const w=v.videoWidth||v.naturalWidth||v.width,h=v.videoHeight||v.naturalHeight||v.height;if(!w||!h)return[];const k=Math.min(1,1000/Math.max(w,h));
+    cv.width=Math.round(w*k);cv.height=Math.round(h*k);cx.drawImage(v,0,0,cv.width,cv.height);
+    try{const r=rd.decodeWithState(new Z.BinaryBitmap(new Z.HybridBinarizer(new Z.HTMLCanvasElementLuminanceSource(cv))));return[{rawValue:r.getText(),format:r.getBarcodeFormat()===F.QR_CODE?'qr_code':'barcode'}]}
+    catch(e){return[]}finally{try{rd.reset()}catch(e){}}}}}
+async function rdDetector(){try{if('BarcodeDetector' in window){const f=await BarcodeDetector.getSupportedFormats();if(f&&f.length)return new BarcodeDetector({formats:f})}}catch(e){}
+  return zxDetector(await zxCarrega())}
 function rdClose(){if(!RD)return;RD.stopped=true;cancelAnimationFrame(RD.raf);clearTimeout(RD.t);if(RD.stream)RD.stream.getTracks().forEach(t=>t.stop());RD.el.remove();RD=null}
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&RD)rdClose()});
 async function rdStart(){const r=RD,v=r.el.querySelector('video'),st=r.el.querySelector('.rdr-st');
   try{r.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false})}
-  catch(e){st.textContent='Sem acesso a camera. Libere a camera para o app nas configuracoes do celular.';return}
+  catch(e){st.textContent=e&&(e.name==='NotAllowedError'||e.name==='SecurityError')?'Permita o uso da camera':'Sem acesso a camera. Libere a camera para o app nas configuracoes do celular.';return}
   if(r.stopped){r.stream.getTracks().forEach(t=>t.stop());return}
   const tr=r.stream.getVideoTracks()[0];r.track=tr;
   try{const c=tr.getCapabilities?tr.getCapabilities():{};if(c.focusMode&&c.focusMode.includes('continuous'))await tr.applyConstraints({advanced:[{focusMode:'continuous'}]});
     if(c.torch){const lz=r.el.querySelector('.rdr-lz');lz.hidden=false;let on=false;lz.onclick=async()=>{on=!on;try{await tr.applyConstraints({advanced:[{torch:on}]})}catch(e){}}}}catch(e){}
   v.srcObject=r.stream;await v.play().catch(()=>{});st.textContent='Aponte para o codigo';r.lastCode=performance.now();
-  try{if('BarcodeDetector' in window)r.det=new BarcodeDetector({formats:await BarcodeDetector.getSupportedFormats()})}catch(e){}
+  if(!('BarcodeDetector' in window))st.textContent='Abrindo o leitor…';try{r.det=await rdDetector()}catch(e){r.det=null}if(r.stopped)return;if(r.det)st.textContent='Aponte para o codigo';
   let lt=0;const loop=()=>{r.raf=requestAnimationFrame(async ts=>{if(r.stopped)return;loop();if(!r.det||r.busy||r.paused||ts-lt<180||v.readyState<2)return;r.busy=true;lt=ts;
     try{const c=(await r.det.detect(v))[0];if(c){r.lastCode=performance.now();if(c.rawValue!==r.last){r.last=c.rawValue;rdShow(c.rawValue,c.format==='qr_code'?'QR code':'codigo de barras')}}}catch(e){}r.busy=false})};loop();
   if(!r.det)st.textContent='Este celular nao le codigos pela camera. Use Digitar em vez de ler.'}

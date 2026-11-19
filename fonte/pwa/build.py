@@ -64,6 +64,8 @@ def main():
     open(os.path.join(DIST, '.nojekyll'), 'w').close()
     if os.path.exists(os.path.join(ROOT, 'src', 'leitor.html')):
         shutil.copy(os.path.join(ROOT, 'src', 'leitor.html'), DIST)
+    if os.path.isdir(os.path.join(ROOT, 'src', 'lib')):
+        shutil.copytree(os.path.join(ROOT, 'src', 'lib'), os.path.join(DIST, 'lib'))
     # versao de teste (/teste): mesmo app, dados com prefixo teste/, cache e banco do aparelho separados
     T = os.path.join(DIST, 'teste'); os.makedirs(T, exist_ok=True)
     open(os.path.join(T, 'index.html'), 'w', encoding='utf-8').write(page.replace('<title>', '<title>TESTE · ', 1) if '<title>' in page else page)

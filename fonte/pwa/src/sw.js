@@ -3,11 +3,13 @@
 const PFX='frota-__PFX__',VER=PFX+'__VER__';
 const SHELL=['./','index.html','shim.js','config.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VER).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VER&&k.startsWith(PFX)&&(PFX!=='frota-'||!k.startsWith('frota-teste-'))&&k!=='frota-arquivos').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VER&&k.startsWith(PFX)&&(PFX!=='frota-'||!k.startsWith('frota-teste-'))&&k!=='frota-arquivos'&&k!=='frota-libs').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
   const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
   /* dados e login: sempre direto no servidor */
   if(/supabase\.co$/.test(u.hostname)&&!u.pathname.includes('/storage/v1/object/public/'))return;
+  /* bibliotecas do app (ex.: leitor de codigos): baixadas na 1a vez que forem usadas e guardadas entre versoes (o nome do arquivo tem a versao) */
+  if(u.origin===location.origin&&/\/lib\/[^/]+$/.test(u.pathname)){e.respondWith(caches.open('frota-libs').then(async c=>{const hit=await c.match(r);if(hit)return hit;const res=await fetch(r);if(res.ok)c.put(r,res.clone());return res}));return}
   /* fotos e documentos: guardados depois da primeira vez (nunca mudam) */
   if(u.pathname.includes('/storage/v1/object/public/')){e.respondWith(caches.open('frota-arquivos').then(async c=>{const hit=await c.match(r);if(hit)return hit;const res=await fetch(r);if(res.ok)c.put(r,res.clone());return res}));return}
   /* paginas do app: tenta a versao nova por ate 1,5 s; com rede lenta abre na hora a guardada e atualiza em segundo plano (vale na proxima abertura) */

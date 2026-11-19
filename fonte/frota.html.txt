@@ -1281,7 +1281,7 @@ body.kb .sh-foot{display:none}
 .et-fora{display:flex;flex-direction:column;gap:1px;width:100%;border:0;background:none;font:inherit;text-align:left;padding:10px 12px;border-radius:10px;font-weight:600;color:var(--fg);cursor:pointer}.et-fora span{font-weight:400;font-size:12.5px;color:var(--muted)}.et-fora:active{background:var(--line)}
 .note{font-size:13px;color:var(--muted)}
 .warnline{font-size:13px;color:var(--warn);min-height:1em;margin:0}
-.dup-r{margin-top:10px;padding:9px 10px 9px 12px;border-radius:12px;background:var(--bad-bg);color:var(--bad);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}.dup-r span{flex:1;min-width:0}.dup-r .btn{flex:none}
+.dup-r{margin-top:10px;padding:9px 10px 9px 12px;border-radius:12px;background:var(--bad-bg);color:var(--bad);display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600}.dup-r span{flex:1;min-width:0}.dup-r .btn{flex:none}.dup-y{margin-top:10px;padding:9px 12px;border-radius:12px;background:var(--warn-bg);color:var(--warn);font-size:13px;font-weight:600}
 .toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ink-fg);padding:12px 18px;border-radius:14px;z-index:40;font-weight:500;font-size:14px;max-width:calc(100% - 32px);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 #scrim:not([hidden])~.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
 @media (min-width:600px){.kpis{grid-template-columns:repeat(4,1fr)}.card{padding:20px}}
@@ -4155,11 +4155,12 @@ function openMenu(mode){
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
       const A={mecs:()=>openMecs(),'os-nova':()=>osNova(),'os-ed':()=>osMenuPick('ed'),'os-ad':()=>osMenuPick('ad'),'os-cf':()=>osMenuPick('cf'),'os-cx':()=>osMenuPick('cx'),'os-ab':()=>osMenuPick('ab'),cfe:()=>{confEst.d=null;confEst()},acat:()=>formACats(),backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,etq:()=>openEtq(),eqv:()=>openEqv(),far:()=>formFiltroAr(''),prev:()=>formTroca(''),'ed-tr':()=>formPickTr(),'dl-ab':openDelAbast,eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
-        'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-tr':()=>formPickDel('tr'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
+        'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }
 /* ---------- + › Excluir cadastro ---------- */
 function formPickDel(kind){
+  if(kind==='tr')return formPickTr();
   nav('pkd:'+kind,()=>formPickDel(kind));
   const norm=v=>String(v||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   let all,row,title,ph,match;
@@ -4229,6 +4230,7 @@ function openDelete(kind,id){
       if(S.cart.some(c=>c.estoqueId===id))await saveCart(S.cart.filter(c=>c.estoqueId!==id));
       await S.db.doc('estoque/'+id).delete();(s.fotos||[]).forEach(dropAsset)}}
   else{const t=S.trocas.find(x=>x.id===id);if(!t){goBack();return}const e=eqById(t.equipId);
+    if(t.tipo!=='reprog'&&t.tipo!=='hmtroca'){NAV.pop();formEditTroca(id);return}
     title=t.tipo==='informada'?`Preventiva informada de ${fdate(t.data)}`:t.tipo==='filtro_ar'?`Filtro de ar · ${esc(t.sub)}`:t.tipo==='reprog'?`Reprogramacao de ${fdate(t.data)}`:t.tipo==='hmtroca'?`Troca de horimetro de ${fdate(t.data)}`:`Preventiva de ${fdate(t.data)}`;
     info=`<div class="spec"><div class="r"><span>Equipamento</span><b>${esc(e?e.codigo:'—')}</b></div><div class="r"><span>Data</span><b>${fdate(t.data)}</b></div><div class="r"><span>Horimetro</span><b>${nf(t.horimetro,2)} h</b></div>${specList('Itens trocados',(t.itens||[]).map(i=>[itNome(i),itCod(i),i.qtd?nf(i.qtd,2)+' '+(i.un||''):'']))}</div>`;
     warn=t.tipo==='reprog'?'Excluir esta reprogramacao? O item volta ao vencimento anterior. Nao da para desfazer.':'Excluir este registro? O plano do equipamento e o estoque nao voltam sozinhos. Nao da para desfazer.';
@@ -5066,12 +5068,18 @@ function formEq(id,mais){
 /* item 23: nunca dois registros do mesmo equipamento, mesmo tipo e mesmo horimetro (preventiva com preventiva; filtro de ar com filtro de ar do mesmo filtro).
    Confere os dados do celular (funciona sem internet). Registros repetidos que ja existem nao sao mexidos. */
 const trGrp=t=>t.tipo==='filtro_ar'?'ar:'+(t.sub||''):(t.tipo==='reprog'||t.tipo==='hmtroca')?'':'prev';
-const trDup=(eqId,grp,h0,exc)=>{if(!eqId||!grp||h0===''||h0==null)return null;const h=Math.round(Number(h0)*10);if(!isFinite(h))return null;
-  return S.trocas.find(t=>t.id!==exc&&t.equipId===eqId&&trGrp(t)===grp&&t.horimetro!==''&&t.horimetro!=null&&Math.round(Number(t.horimetro)*10)===h)||null};
-function dupShow(box,eqId,grp,h0,exc){if(!box)return null;const t=trDup(eqId,grp,h0,exc),e=t&&eqById(eqId);
-  box.innerHTML=t&&e?`<div class="dup-r" role="alert"><span>Ja registrada: ${t.tipo==='filtro_ar'?'filtro de ar':'preventiva'} <span style="white-space:nowrap">${esc(e.codigo)} · ${nf(t.horimetro,1)} h</span> · ${esc(fdate(t.data).slice(0,5))}</span><button type="button" class="btn sm" data-dupab>Abrir registro</button></div>`:'';
-  const b=box.querySelector('[data-dupab]');if(b)b.onclick=()=>formEditTroca(t.id);return t&&e?t:null}
-const dupStop=box=>{box.scrollIntoView({block:'center',behavior:'smooth'});toast('Preventiva ja registrada neste horimetro.')};
+const trHm=v=>v===''||v==null||!isFinite(Number(v))?null:Math.round(Number(v)*10);
+/* item 32 (2 de 3): mesmo tipo e mesma TAG com o mesmo horimetro OU o mesmo dia = ja registrada (trava) */
+const trDup=(eqId,grp,h0,exc,dt)=>{if(!eqId||!grp)return null;const h=trHm(h0),L=S.trocas.filter(t=>t.id!==exc&&t.equipId===eqId&&trGrp(t)===grp);
+  return (h!=null&&L.find(t=>trHm(t.horimetro)===h))||(dt&&L.find(t=>t.data===dt))||null};
+/* mesmo tipo, mesmo dia e mesmo horimetro em outra TAG: so avisa para conferir a TAG */
+const trDupY=(eqId,grp,h0,exc,dt)=>{const h=trHm(h0);if(!eqId||!grp||!dt||h==null)return [];
+  return [...new Set(S.trocas.filter(t=>t.id!==exc&&t.equipId!==eqId&&trGrp(t)===grp&&t.data===dt&&trHm(t.horimetro)===h).map(t=>(eqById(t.equipId)||{}).codigo).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt',{numeric:true}))};
+function dupShow(box,eqId,grp,h0,exc,dt){if(!box)return null;const t=trDup(eqId,grp,h0,exc,dt),e=t&&eqById(eqId);
+  if(t&&e){box.innerHTML=`<div class="dup-r" role="alert"><span>Ja registrada: ${t.tipo==='filtro_ar'?'filtro de ar':'preventiva'} <span style="white-space:nowrap">${esc(e.codigo)} · ${nf(t.horimetro,1)} h</span> · ${esc(fdate(t.data).slice(0,5))}</span><button type="button" class="btn sm" data-dupab>Abrir registro</button></div>`;
+    box.querySelector('[data-dupab]').onclick=()=>formEditTroca(t.id);return t}
+  const y=trDupY(eqId,grp,h0,exc,dt);box.innerHTML=y.length?`<div class="dup-y" role="status">Mesma data e horimetro de ${esc(y.join(', '))} · conferir a TAG</div>`:'';return null}
+const dupStop=box=>{box.scrollIntoView({block:'center',behavior:'smooth'});toast('Preventiva ja registrada.')};
 
 /* ---------- registrar preventiva: escolha ---------- */
 function formRegistrar(eqId,menu){
@@ -5169,7 +5177,7 @@ function formFiltroAr(eqId,sub,osId){
     sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{const k=b.dataset.sv;if(SV[k]&&!SV[k==='Troca'?'Limpeza':'Troca'])return;SV[k]=!SV[k];b.setAttribute('aria-pressed',SV[k]);
       sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelector('#a-stw').hidden=!tr();fillPlan()});
     const hmSt={ok:false};[hm,sh.querySelector('#a-dt')].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false}));sel.addEventListener('change',()=>{hmSt.ok=false;hmSt.salto=false});
-    const dupB=sh.querySelector('#a-dup'),dupC=()=>dupShow(dupB,sel.value,'ar:'+sub,hm.value);hm.addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();setTimeout(dupC,0);
+    const dupB=sh.querySelector('#a-dup'),dupC=()=>dupShow(dupB,sel.value,'ar:'+sub,hm.value,'',sh.querySelector('#a-dt').value);hm.addEventListener('input',dupC);sh.querySelector('#a-dt').addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();setTimeout(dupC,0);
     sh.querySelector('#fa').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
       if(dupC()){dupStop(dupB);return}
@@ -5358,7 +5366,7 @@ function formTroca(eqId,osId){
     pin.oninput=hint;hm.addEventListener('input',hint);box.addEventListener('change',hint);
     sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
-    const dupB=sh.querySelector('#t-dup'),dupC=()=>dupShow(dupB,sel.value,'prev',hm.value);hm.addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();setTimeout(dupC,0);
+    const dupB=sh.querySelector('#t-dup'),dupC=()=>dupShow(dupB,sel.value,'prev',hm.value,'',sh.querySelector('#t-dt').value);hm.addEventListener('input',dupC);sh.querySelector('#t-dt').addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();setTimeout(dupC,0);
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
       if(vOS&&osNaoPrev(vOS,e).length){toast('Retire pelo Editar OS o que nao e preventiva');const c=sh.querySelector('#t-conc');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
@@ -5456,6 +5464,23 @@ function pecasUsadas(t,itens){const acc={};if(t.ajuste)return acc;(itens||t.iten
   Object.keys(acc).forEach(k=>{acc[k]=Math.round(acc[k]*10)/10;if(!stById(k))delete acc[k]});return acc}
 /* editar preventiva: data, horimetro, responsavel, observacoes, codigo e quantidade de cada peca.
    Peca a mais sai do estoque; peca a menos pode voltar ao estoque (pergunta antes). */
+/* item 24: excluir preventiva / filtro de ar / preventiva informada. O plano volta ao estado de antes deste registro
+   (so nos itens que ainda apontam para ele; troca mais nova continua valendo); registro normal devolve as pecas ao estoque;
+   registro ligado a uma OS: a OS volta para "Preventivas a registrar" (deixa de existir troca com o campo os). docs_hist guarda o apagado. */
+async function trExcluir(t){const e=eqById(t.equipId);
+  if(e&&t.tipo!=='informada'){const effO=t.hmConv??t.horimetro,grp=trGrp(t),pids=new Set((t.itens||[]).map(i=>i.pid).filter(Boolean));
+    const outras=S.trocas.filter(x=>x.id!==t.id&&x.equipId===e.id&&x.tipo!=='hmtroca'&&x.tipo!=='reprog').sort((a,b)=>(b.data||'').localeCompare(a.data||'')||(b.ts||0)-(a.ts||0));
+    let mud=false;const its=(e.itens||[]).map(i=>{const liga=pids.has(i.pid)||(t.tipo==='filtro_ar'&&ehFiltroAr(itNome(i)+' '+(i.desc||'')));
+      if(!liga||i.ultimaH===''||i.ultimaH==null||Number(i.ultimaH)!==Number(effO))return i;
+      const ant=outras.find(x=>(x.data||'')<=(t.data||'')&&(pids.has(i.pid)?(x.itens||[]).some(j=>j.pid===i.pid):trGrp(x)===grp));
+      mud=true;if(!ant)return {...i,ultimaH:'',ultimaData:'',proxH:''};const h2=Number(ant.hmConv??ant.horimetro);return {...i,ultimaH:h2,ultimaData:ant.data||'',proxH:ivProx(i.ivSel,h2,'')}});
+    if(mud)await S.db.doc('equipamentos/'+e.id).update({itens:its})}
+  if(!t.ajuste)for(const[sid,q]of Object.entries(pecasUsadas(t))){const x=stById(sid);if(!x||!(q>0))continue;const saldo=Math.round(((Number(x.qtd)||0)+q)*10)/10;
+    await S.db.doc('estoque/'+sid).update({qtd:saldo});try{await S.db.collection('movs').add({estoqueId:sid,tipo:'entrada',qtd:q,data:today(),obs:'Preventiva excluida',equipId:t.equipId,origem:'estorno',saldo,ts:Date.now()})}catch(er){console.error(er)}}
+  await S.db.doc('trocas/'+t.id).delete()}
+const trDelPode=()=>{const u=EU();return !!u&&u.papel==='admin'};
+function trDelAsk(box,t){const e=eqById(t.equipId);if(!box||!e)return;
+  askDelete(box,`Excluir ${t.tipo==='filtro_ar'?'filtro de ar':'preventiva'} ${esc(e.codigo)} · ${nf(t.horimetro,1)} h · ${esc(fdate(t.data))}?`,async()=>{if(await safe(()=>trExcluir(t),'Preventiva excluida'))goBack()})}
 function formEditTroca(id){
   nav('edtr:'+id,()=>formEditTroca(id));
   const t=S.trocas.find(x=>x.id===id),e=t&&eqById(t.equipId);if(!e){goBack();return}
@@ -5465,9 +5490,9 @@ function formEditTroca(id){
   body:`<div class="nv-b${t.ajuste?' on':''}" id="et-ajb" style="margin:0 0 12px"><div><b>${t.ajuste?`Lancada em ajuste ${AJS}`:'Lancamento normal'}</b><span>${t.ajuste?'Nao mexeu no estoque; alterar pecas tambem nao mexe.':'As pecas foram baixadas do estoque.'}</span></div>${podeEscrever()?`<button type="button" class="btn sm" id="et-aj">${t.ajuste?'Desmarcar ajuste':'Marcar como ajuste'}</button>`:''}</div><div id="et-ajq"></div><form id="fet"><div class="list" id="et-fs"></div><div id="et-dup"></div>
     <div class="lbl" style="margin-top:16px">Pecas usadas <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">toque para editar ou substituir</span></div><div class="list" id="et-l"></div>
     <div class="sug-w t-add" style="margin-top:10px"><div class="search">${I.search}<input id="et-add" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="et-addh"></div></div>${rdBtn('et-addcam','Adicionar item pela camera')}
-    <div id="et-conf"></div></form>`,
-  foot:`<button class="btn pri" form="fet">Salvar alteracoes</button>`,
-  mount:sh=>{const f=sh.querySelector('#fet'),cf=sh.querySelector('#et-conf');
+    <div id="et-conf"></div><div id="et-delc"></div></form>`,
+  foot:`<button class="btn pri" form="fet">Salvar alteracoes</button>${trDelPode()?'<button type="button" class="btn danger" id="et-del" style="flex:1">Excluir</button>':''}`,
+  mount:sh=>{const f=sh.querySelector('#fet'),cf=sh.querySelector('#et-conf');{const d=sh.querySelector('#et-del');if(d)d.onclick=()=>trDelAsk(sh.querySelector('#et-delc'),S.trocas.find(x=>x.id===id)||t)}
     /* marcar/desmarcar ajuste depois do registro: corrige o estoque (devolve ou baixa as pecas) */
     const ajB=sh.querySelector('#et-aj');if(ajB)ajB.onclick=()=>{const t1=S.trocas.find(x=>x.id===id)||t,vira=!t1.ajuste,acc={};(t1.itens||[]).forEach(i=>{if(i.estoqueId)addBaixa(acc,i.estoqueId,Number(i.qtd)||0)});
       const l=Object.entries(acc).filter(([sid,q])=>q&&stById(sid)),q=sh.querySelector('#et-ajq');
@@ -5533,7 +5558,7 @@ function formEditTroca(id){
         V[k]=k==='hm'?Number(v):v;fAb='';cf.innerHTML='';drawF()};
       FS.querySelector('#ef-ok').onclick=ok;FS.querySelector('#ef-x').onclick=()=>{fAb='';drawF()};
       if(tp!=='textarea')fi.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();ok()}}};
-    const dupB=sh.querySelector('#et-dup'),dupC=()=>Number(V.hm)!==Number(t.horimetro)?dupShow(dupB,e.id,trGrp(t),V.hm,id):(dupB.innerHTML='',null);
+    const dupB=sh.querySelector('#et-dup'),dupC=()=>Number(V.hm)!==Number(t.horimetro)||V.data!==(t.data||'')?dupShow(dupB,e.id,trGrp(t),V.hm,id,V.data):(dupB.innerHTML='',null);
     const drawF0=drawF;drawF=()=>{drawF0();dupC()};
     drawF();
     f.onsubmit=ev=>{ev.preventDefault();
@@ -5629,9 +5654,9 @@ function formUltPrev(eqId,trId){
   openSheet({title:trId?'Corrigir preventiva informada':'Informar ultima preventiva',sub:`${esc(e.codigo)} · ${esc(e.tipo||'')}`,
   body:`<form id="fup" class="fset"><p class="note" style="margin:0 0 10px">Use quando o equipamento ja teve preventiva antes do app e so se sabe a data e o horimetro. A proxima fica programada a partir dela${Number(e.intervaloPrev)?` (intervalo de ${nf(e.intervaloPrev)} h)`:''}.</p>
     <div class="grid"><label class="f">Data<input id="up-dt" type="date" required max="${today()}" value="${esc(t0?t0.data:'')}"></label>
-    <label class="f">Horimetro (h)<input id="up-hm" type="number" step="0.1" min="0" inputmode="decimal" required value="${esc(t0?t0.horimetro:'')}" placeholder="${hAt?'Ate '+nf(hAt,2):''}"></label></div><div id="up-dup"></div></form>`,
-  foot:`<button class="btn pri" form="fup">Salvar</button>`,
-  mount:sh=>{const dupB=sh.querySelector('#up-dup'),upH=sh.querySelector('#up-hm'),dupC=()=>t0&&Number(upH.value)===Number(t0.horimetro)?(dupB.innerHTML='',null):dupShow(dupB,e.id,'prev',upH.value,t0&&t0.id);upH.addEventListener('input',dupC);
+    <label class="f">Horimetro (h)<input id="up-hm" type="number" step="0.1" min="0" inputmode="decimal" required value="${esc(t0?t0.horimetro:'')}" placeholder="${hAt?'Ate '+nf(hAt,2):''}"></label></div><div id="up-dup"></div><div id="up-delc"></div></form>`,
+  foot:`<button class="btn pri" form="fup">Salvar</button>${t0&&trDelPode()?'<button type="button" class="btn danger" id="up-del" style="flex:1">Excluir</button>':''}`,
+  mount:sh=>{{const d=sh.querySelector('#up-del');if(d)d.onclick=()=>trDelAsk(sh.querySelector('#up-delc'),t0)}const dupB=sh.querySelector('#up-dup'),upH=sh.querySelector('#up-hm'),upD=sh.querySelector('#up-dt'),dupC=()=>t0&&Number(upH.value)===Number(t0.horimetro)&&upD.value===(t0.data||'')?(dupB.innerHTML='',null):dupShow(dupB,e.id,'prev',upH.value,t0&&t0.id,upD.value);upH.addEventListener('input',dupC);upD.addEventListener('input',dupC);
     sh.querySelector('#fup').onsubmit=async ev=>{ev.preventDefault();const dt=sh.querySelector('#up-dt').value,hv=Number(sh.querySelector('#up-hm').value);
     if(dupC()){dupStop(dupB);return}
     if(!dt||dt>today()){toast('A data nao pode ser futura.');return}

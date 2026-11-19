@@ -371,6 +371,27 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cbx-msg.info{background:var(--accent-soft);color:var(--accent-tx)}
 .cbx-rl{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:8px;margin-top:-2px}
 .cbx-rl button{min-height:42px;border-radius:10px;border:1px solid var(--bad);background:var(--surface);color:var(--bad);font:700 14px var(--body);cursor:pointer}
+.cpl-rows{display:flex;flex-direction:column;gap:6px;margin-top:4px}
+.cpl-d{display:flex;justify-content:space-between;padding:10px 4px 4px;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.04em}
+.cpl-r{display:grid;grid-template-columns:62px minmax(0,1fr) 72px 30px;gap:8px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:9px 11px;cursor:pointer;font-size:14px}
+.cpl-r>b{font-family:var(--mono);font-size:13.5px;font-weight:600}
+.cpl-r .h{color:var(--muted);font-variant-numeric:tabular-nums}.cpl-r .l{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+.cpl-r .cu{font-size:11px;font-weight:700;text-align:center;border-radius:6px;background:var(--accent-soft);color:var(--accent-tx);padding:3px 0}
+.cpl-r .ms{grid-column:1/-1;display:flex;flex-direction:column;gap:6px}.cpl-r .ms:empty{display:none}
+.cpl-r.av{border-color:var(--warn);background:var(--warn-bg)}.cpl-r.er{border:2px solid var(--bad);padding:8px 10px}
+.cpl-r.ab{display:flex;flex-direction:column;align-items:stretch;gap:9px;cursor:default;border-left:3px solid var(--accent)}
+.cpl-r.ti{cursor:default;opacity:.75}
+.cpl-ac{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cpl-vt{border:0;background:none;color:var(--accent-tx);font:700 13px var(--body);cursor:pointer;grid-column:4/5;white-space:nowrap}
+.cpl-sm{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cbx-tag.am{background:var(--warn-bg);color:var(--warn)}
+.cpl-fb{margin-left:auto;border:0;background:none;color:var(--accent-tx);font:700 14px var(--body);cursor:pointer;min-height:36px}
+.cpl-pl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.cpl-pl button{border:0;border-radius:15px;background:var(--accent);color:#fff;font:600 13px var(--body);padding:5px 12px;cursor:pointer}
+.cpl-fo{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);padding:0 4px}
+.cpl-fl{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
+.cpl-fr,.cpl-fo2 button{display:flex;justify-content:space-between;width:100%;min-height:48px;padding:0 14px;border:0;background:none;font:600 15px var(--body);color:var(--fg);cursor:pointer;align-items:center}
+.cpl-fr .v{color:var(--muted);font-weight:600}.cpl-fr .v.on{color:var(--accent-tx)}
+.cpl-fo2 button{border-top:1px solid var(--line);font-weight:500}.cpl-fo2 .ck{color:var(--accent);visibility:hidden}.cpl-fo2 button.on .ck{visibility:visible}
+.cpl-ff{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--muted);font-size:14px}
 .cbx-mse{background:var(--surface);border:1px dashed var(--line-2);border-radius:14px;padding:11px 12px;display:flex;flex-direction:column;gap:10px;margin-top:8px}
 .cbx-madd{margin-left:auto;display:inline-flex;align-items:center;gap:4px;height:34px;padding:0 12px;border-radius:17px;border:1px solid var(--accent);background:var(--surface);color:var(--accent-tx);font:600 14px var(--body);cursor:pointer}
 .cbx-madd svg{width:16px;height:16px}
@@ -2453,7 +2474,7 @@ async function cbxLote(dt0){
       go.textContent=n?`Lancar ${n}`:'Lancar';go.disabled=!n||sem;go.title=go.textContent;go.setAttribute('aria-label',sem?'Sem saldo no comboio':n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada para lancar');
       sh.querySelector('#cbx-tot').innerHTML=(n||b?`<span><b>${n}</b> pronto${n===1?'':'s'}</span>${b?`<span class="pb"><b>${b}</b> pendente${b===1?'':'s'}</span>`:''}<span class="r">${nf(L,1)} L</span>`:'');sh.querySelector('#cbx-ss').innerHTML=(sem?cbxMsg('bad',`<b>Sem saldo no comboio.</b> Disponivel ${nf(Math.max(0,disp.min),1)} L em ${fdate(st.dt).slice(0,5)}, faltam ${nf(Math.round(L*10)/10-disp.min,1)} L. Lance antes a entrada de diesel.`):'')};
     const dsp=()=>{const dt=st.dt;cbxRun(c,cb.id,dt,{}).then(r=>{if(dt!==st.dt)return;disp=r;dispDt=dt;tot()}).catch(()=>{})};
-    const pd=()=>{const l=pend();sh.querySelector('#cbx-pd').innerHTML=l.length?`<div class="cbx-pend">${CBX_IC.info}<span>${l.map(p=>`${p.n} nao lancado${p.n===1?'':'s'} de ${fdate(p.dt).slice(0,5)}`).join(' · ')}</span><button type="button" data-pv="${l[0].dt}">Ver</button></div>`:'';
+    const pd=()=>{const l=pend(),pp=cplGet(cb.id),pn=pp?pp.rows.filter(z=>!z.out).length:0;sh.querySelector('#cbx-pd').innerHTML=(pn?`<div class="cbx-pend">${CBX_IC.file}<span>Planilha em conferencia · ${pn} linha${pn===1?'':'s'}</span><button type="button" data-ppl>Abrir</button></div>`:'')+(l.length?`<div class="cbx-pend">${CBX_IC.info}<span>${l.map(p=>`${p.n} nao lancado${p.n===1?'':'s'} de ${fdate(p.dt).slice(0,5)}`).join(' · ')}</span><button type="button" data-pv="${l[0].dt}">Ver</button></div>`:'');{const a=sh.querySelector('[data-ppl]');if(a)a.onclick=()=>cbxPlan()}
       const v=sh.querySelector('[data-pv]');if(v)v.onclick=()=>{st.dt=v.dataset.pv;sh.querySelector('#cbx-dt').value=st.dt;all()}};
     const one=id=>{const e=eqById(id),el=rows.querySelector(`[data-r="${CSS.escape(id)}"]`);if(!e||!el)return;const ae=document.activeElement,f=ae&&el.contains(ae)?(ae.dataset.h!=null?'h':ae.dataset.l!=null?'l':''):'';
       const tmp=document.createElement('div');tmp.innerHTML=linha(e,dr()[id]||{});const nw=tmp.firstElementChild;
@@ -2506,15 +2527,17 @@ async function cbxLote(dt0){
   }});
 }
 
-/* ---------- Importar planilha (xlsx ou csv) para o rascunho do lote ---------- */
+/* ---------- Importar planilha (xlsx ou csv) para a conferencia da planilha inteira (item 37) ---------- */
 function cbxImport(){const inp=document.createElement('input');inp.type='file';inp.accept='.xlsx,.xls,.csv,text/csv';
   inp.onchange=async()=>{const fl=inp.files&&inp.files[0];if(!fl)return;toast('Lendo a planilha…');
     try{let aoa;if(/\.csv$/i.test(fl.name)||fl.type==='text/csv'){const t=await fl.text(),sep=(t.split('\n')[0].match(/;/g)||[]).length>=(t.split('\n')[0].match(/,/g)||[]).length?';':',';aoa=t.split(/\r?\n/).map(l=>l.split(sep).map(v=>v.replace(/^"|"$/g,'').trim()))}
       else{if(!window.XLSX)await new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';s.onload=ok;s.onerror=()=>no(new Error('xlsx'));document.head.appendChild(s)});
         const wb=XLSX.read(await fl.arrayBuffer(),{type:'array',cellDates:false});aoa=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,raw:true,defval:''})}
       const r=await cbxImportAoa(aoa);if(!r)return;
-      toast(`${r.n} abastecimento${r.n===1?'':'s'} na tela para conferir${r.fora.length?` · ${r.fora.length} TAG nao encontrada${r.fora.length===1?'':'s'}: ${r.fora.slice(0,4).join(', ')}`:''}`);
-      cbxLote.st&&(cbxLote.st.q='',cbxLote.st.f='todos');NAV.pop();cbxLote(r.dt)}
+      const vai=()=>{cplSet(r.cb,{rows:r.rows,fora:r.foraL,arq:fl.name,ts:Date.now()});cplF.q='';cplF.sit=[];
+        toast(`${r.n} abastecimento${r.n===1?'':'s'} para conferir${r.fora.length?` · ${r.fora.length} TAG nao encontrada${r.fora.length===1?'':'s'}`:''}`);cbxPlan()};
+      const ex=cplGet(r.cb),nx=ex?ex.rows.filter(z=>!z.out).length:0,bx=document.querySelector('#sheet #cbx-ask');
+      if(nx&&bx)askConfirm(bx,'Substituir',`Ja tem uma planilha em conferencia (${nx} linha${nx===1?'':'s'} nao lancada${nx===1?'':'s'}). Substituir pela nova?`,()=>{bx.innerHTML='';vai()});else vai()}
     catch(e){console.error(e);toast(e&&e.message==='xlsx'?'Para ler .xlsx precisa de internet na primeira vez. Ou salve como .csv.':'Nao foi possivel ler a planilha.')}};
   inp.click()}
 async function cbxImportAoa(aoa){const c=await cbxCfg(),cb=cbxCur(c);const N=v=>nzCod(String(v||''));
@@ -2526,14 +2549,140 @@ async function cbxImportAoa(aoa){const c=await cbxCfg(),cb=cbxCur(c);const N=v=>
     const s=String(v||'').trim();let m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/);if(m){const y=m[3].length===2?'20'+m[3]:m[3];return `${y}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`}
     m=s.match(/^(\d{4})-(\d{2})-(\d{2})/);return m?m[0]:''};
   const num=v=>{if(typeof v==='number')return v;let s=String(v||'').trim().replace(/\s/g,'');if(!s)return NaN;if(/,\d{1,2}$/.test(s))s=s.replace(/\./g,'').replace(',','.');else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');return Number(s)};
-  const cus=cbxCustosAb(c),fora=[],by={};let n=0;
+  const cus=cbxCustosAb(c),fora=[],foraL=[],rows=[];let n=0;
   aoa.slice(hi+1).forEach(r=>{const tg=String(r[ci.eq]||'').trim();const l=num(r[ci.l]);if(!tg||!(l>0))return;
-    const EL=eqComb(),e=EL.find(x=>N(x.codigo)===N(tg))||EL.find(x=>x.placa&&N(x.placa)===N(tg));if(!e){if(!fora.includes(tg))fora.push(tg);return}
+    const EL=eqComb(),e=EL.find(x=>N(x.codigo)===N(tg))||EL.find(x=>x.placa&&N(x.placa)===N(tg));if(!e){if(!fora.includes(tg))fora.push(tg);foraL.push({tag:tg,dt:ci.dt>=0?dtOf(r[ci.dt])||today():today(),l:Math.round(l*10)/10});return}
     const dt=ci.dt>=0?dtOf(r[ci.dt])||today():today(),h=ci.h>=0?num(r[ci.h]):NaN,cn=ci.c>=0?N(r[ci.c]):'',cu=cn?(cus.find(k=>N(k.nome)===cn||N(k.id)===cn)||{}).id||'':'';
-    const k='r:'+cb.id+':'+dt;by[k]=by[k]||cbxLS.get(k)||{};by[k][e.id]={...(by[k][e.id]||{}),l:String(l),...(isFinite(h)?{h:String(h)}:{}),...(cu?{c:cu}:{})};n++});
-  Object.entries(by).forEach(([k,v])=>cbxLS.set(k,v));const dts=Object.keys(by).map(k=>k.split(':').pop()).sort();
+    rows.push({id:'p'+(++n),tag:e.codigo,eq:e.id,dt,h:isFinite(h)?h:null,l:Math.round(l*10)/10,c:cu||''})});
   if(!n){toast(fora.length?`Nenhuma TAG encontrada (${fora.slice(0,4).join(', ')}).`:'Nenhuma linha com litros.');return null}
-  return {n,fora,dt:dts[0]}}
+  return {n,fora,foraL,rows,cb:cb.id}}
+
+/* ---------- item 37: conferir a planilha inteira (todos os dias) e lancar de uma vez ----------
+   uma linha da planilha = uma linha na tela (nunca junta nem descarta); guardada no aparelho ate lancar ou descartar */
+const cplK=cb=>'pl:'+cb,cplGet=cb=>cbxLS.get(cplK(cb)),cplSet=(cb,v)=>cbxLS.set(cplK(cb),v&&v.rows&&v.rows.length?v:null);
+const cplF={q:'',sit:[],ab:''};
+async function cplConf(c,cb,P){
+  const rows=P.rows.filter(r=>!r.out),D={},MD={},res={};
+  const ord=rows.slice().sort((a,b)=>a.dt.localeCompare(b.dt)||(a.h??1e12)-(b.h??1e12)||_an(a.tag,b.tag));
+  for(const r of ord){const k=mesKey(r.dt);if(!D[k])D[k]=await abDupCarga(r.dt).catch(()=>null)}
+  const sim={},vistos=[];
+  for(const r of ord){const o={msg:[],bad:false,av:false};res[r.id]=o;const e=eqById(r.eq);
+    const ruim=t=>{o.bad=true;o.msg.push(['bad',t])},aten=t=>{o.av=true;o.msg.push(['warn',t])};
+    if(!e){ruim('Equipamento nao encontrado.');continue}
+    const tv=cbxTrava(cb.id,r.dt);if(tv){ruim(`Periodo fechado ate ${fdate(tv)}.`);continue}
+    if(!cbxNaObra(e)){ruim(`<b>Em ${esc(e.alocacao||'nenhum local')} nao recebe diesel da DM1.</b>`);continue}
+    if(r.h==null){ruim('Sem horimetro.');continue}
+    if(!(Number(r.l)>0)){ruim('Sem litros.');continue}
+    o.cu=r.c||cbxCustoR(e,c);if(!o.cu){ruim('Escolha o custo.');continue}
+    const e0=sim[e.id]||{...e},cc=calcAbast(e0,r.dt,Number(r.h),Number(r.l),true);o.cc=cc;
+    if(cc.erro){ruim(esc(cc.erro)+'.');continue}
+    if(cc.retro)o.msg.push(['info',`Anterior ao ultimo abastecimento (${fdate(e0.combUltData).slice(0,5)}): o consumo e recalculado ao lancar.`]);
+    const DD=D[mesKey(r.dt)],dp=abDupEq(DD,e.id,r.h),dl=!dp&&abDupLt(DD,e.id,r.l,r.dt);
+    const rp=vistos.find(z=>z.eq===e.id&&(z.h===Number(r.h)||(z.dt===r.dt&&Math.round(z.l*10)===Math.round(Number(r.l)*10))));
+    if(dp)aten(abDupTxt({v:Number(r.h),data:dp.data},ehVL(e)?'km':'horimetro'));
+    else if(dl)aten(abDupTxtL(dl));
+    else if(rp)aten(`<b>Repetido na planilha</b> (${rp.h===Number(r.h)?`${ehVL(e)?'km':'horimetro'} ${nf(rp.h,1)}`:`${nf(rp.l,1)} L`} em ${fdate(rp.dt).slice(0,5)}).`);
+    else if(e0.horimetro!==''&&e0.horimetro!=null&&Number(r.h)===Number(e0.horimetro))aten('Horimetro igual ao ultimo: abasteceu sem trabalhar?');
+    const sj=hmSalto(e0,cc.h,r.dt);if(sj)aten(`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`);
+    if(hmAtras(e0,cc.h,r.dt))aten(`Horimetro maior que a leitura mais nova (${nf(e0.horimetro,1)} h em ${fdate(e0.horimetroData)}). Confira.`);
+    if(cc.lh!=null){const mk=e.id+'|'+mesKey(r.dt);if(!(mk in MD))MD[mk]=await combMedia(e.id,r.dt).catch(()=>null);const md=MD[mk];
+      if(md&&(cc.lh>md*1.5||cc.lh<md*.5))aten(`Consumo ${consTxt(e,cc.lh)}, media ${consTxt(e,md)}.`)}
+    vistos.push({eq:e.id,h:Number(r.h),l:Number(r.l),dt:r.dt});
+    if(!cc.retro)sim[e.id]={...e0,combBase:cc.nb,combUltData:r.dt,...(cc.h>(Number(e0.horimetro)||0)?{horimetro:cc.h,horimetroData:r.dt}:{})}}
+  return {res,ord}}
+async function cbxPlan(){
+  nav('cbx:pl',()=>cbxPlan());
+  const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),cus=cbxCustosAb(c);
+  let P=cplGet(cb.id);if(!P){toast('Nenhuma planilha em conferencia.');goBack();return}
+  let R={res:{},ord:[]},aberta='';
+  const fil=(r,F=cplF)=>{const o=R.res[r.id]||{};if(F.q&&!nzB(r.tag).includes(nzB(F.q)))return false;if(F.sit.length&&!F.sit.some(s=>s==='am'?o.av&&!o.bad:o.bad))return false;return true};
+  const cuNm=id=>id?cbxCuCurto(cbxCuNome(id)):'—';
+  const linha=r=>{const o=R.res[r.id]||{msg:[]},e=eqById(r.eq),cls=o.bad?' er':o.av?' av':'',un=e&&ehVL(e)?'km':'h';
+    const ms=o.msg.filter(m=>m[0]!=='info'||aberta===r.id).map(([l,t])=>cbxMsg(l,t)).join('');
+    if(aberta!==r.id)return `<div class="cpl-r${cls}" data-pr="${r.id}" role="button" tabindex="0"><b>${esc(r.tag)}</b><span class="h">${r.h!=null?nf(r.h,1)+' '+un:'sem horimetro'}</span><span class="l">${nf(r.l,1)} L</span><span class="cu">${esc(cuNm(o.cu||r.c))}</span>${ms?`<div class="ms">${ms}</div>`:''}</div>`;
+    const cu=r.c||o.cu||'';
+    return `<div class="cpl-r ab${cls}" data-pr="${r.id}"><div class="cbx-rh"><b>${esc(r.tag)}</b><span class="cbx-tag">${esc(fdate(r.dt).slice(0,5))}</span></div>
+      <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" data-ph aria-label="Horimetro" placeholder="Horimetro" value="${r.h??''}"><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="done" class="l" data-pl aria-label="Litros" placeholder="Litros" value="${r.l??''}">
+      <div class="cbx-cu" role="group" aria-label="Custo" style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-pc="${esc(k.id)}" aria-pressed="${cu===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div></div>
+      <div class="ms">${ms}</div><div class="cpl-ac"><button type="button" class="btn" data-pt>Tirar da lista</button><button type="button" class="btn pri" data-pok>OK</button></div></div>`};
+  const lista=()=>{const vis=P.rows.filter(r=>!r.out&&fil(r)),dias=[...new Set(vis.map(r=>r.dt))].sort();
+    const od=(a,b)=>_an(a.tag,b.tag)||(a.h??1e12)-(b.h??1e12);
+    let h=dias.map(d=>{const l=vis.filter(r=>r.dt===d).sort(od),L=P.rows.filter(r=>!r.out&&r.dt===d);
+      return `<div class="cpl-d" data-pd="${d}"><span>${fdate(d).slice(0,5)} · ${DSEM[new Date(d+'T12:00:00').getDay()]}</span><span>${L.length} · ${nf(L.reduce((a,r)=>a+Number(r.l||0),0),1)} L</span></div>${l.map(linha).join('')}`}).join('');
+    if(!vis.length)h=`<div class="empty"><b>Nenhuma linha</b>${cplF.q||cplF.sit.length?'Nada com este Filtrar.':'Tudo lancado.'}</div>`;
+    const fo=P.fora||[],ti=P.rows.filter(r=>r.out);
+    if(fo.length)h+=`<div class="lbl" style="margin-top:16px">TAG nao encontrada · nao sera lancada</div><div class="cpl-fo">${fo.map(t=>`<span>${esc(t.tag)} · ${fdate(t.dt).slice(0,5)} · ${nf(t.l,1)} L</span>`).join('')}</div>`;
+    if(ti.length)h+=`<div class="lbl" style="margin-top:16px">Tiradas da lista</div>${ti.map(r=>`<div class="cpl-r ti"><b>${esc(r.tag)}</b><span class="h">${fdate(r.dt).slice(0,5)}</span><span class="l">${nf(r.l,1)} L</span><button type="button" class="cpl-vt" data-pv="${r.id}">Voltar</button></div>`).join('')}`;
+    return h};
+  const ok=()=>R.ord.filter(r=>R.res[r.id]&&!R.res[r.id].bad);
+  const resumo=()=>{const at=P.rows.filter(r=>!r.out),ds=at.map(r=>r.dt).sort(),na=at.filter(r=>R.res[r.id]&&R.res[r.id].av&&!R.res[r.id].bad).length,nb=at.filter(r=>R.res[r.id]&&R.res[r.id].bad).length;
+    const pil=[...cplF.sit.map(s=>[s,s==='am'?'Amarelos':'Vermelhos']),...(cplF.q?[['q',cplF.q]]:[])];
+    return `<div class="cpl-sm">${ds.length?`<span class="cbx-tag">${fdate(ds[0]).slice(0,5)}${ds[0]!==ds[ds.length-1]?' a '+fdate(ds[ds.length-1]).slice(0,5):''}</span>`:''}<span class="cbx-tag">${at.length} linha${at.length===1?'':'s'} · ${nf(at.reduce((a,r)=>a+Number(r.l||0),0),1)} L</span>${na?`<span class="cbx-tag am">${na} amarelo${na===1?'':'s'}</span>`:''}${nb?`<span class="cbx-tag pq">${nb} vermelho${nb===1?'':'s'}</span>`:''}
+      <button type="button" class="cpl-fb" data-pf>Filtrar${pil.length?` (${pil.length})`:''}</button></div>${pil.length?`<div class="cpl-pl">${pil.map(([k,t])=>`<button type="button" data-px="${esc(k)}">${esc(t)} ✕</button>`).join('')}</div>`:''}`};
+  openSheet({title:'Conferir planilha',sub:cbxAtivos(c).length>1?esc(cb.nome):'',
+    body:`<div id="cpl-sm"></div><div id="cpl-ask"></div><div class="cpl-rows" id="cpl-rows"><div class="card-wait" style="min-height:120px">Conferindo…</div></div><div id="cpl-st"></div>`,
+    foot:`<button type="button" class="btn pri" id="lt-go">Lancar</button>`,
+    mount:async sh=>{const go=sh.querySelector('#lt-go'),box=sh.querySelector('#cpl-rows'),bd=sh.querySelector('.sh-body');
+      cbxMore(sh,[{ic:CBX_IC.bad,t:'Descartar planilha',fn:()=>{const a=sh.querySelector('#cpl-ask'),n=P.rows.filter(r=>!r.out).length;
+        a.innerHTML=`<div class="confirm"><span>Descartar a planilha? ${n} linha${n===1?'':'s'} nao lancada${n===1?'':'s'} se perde${n===1?'':'m'}.</span><div class="b"><button class="btn sm" data-no>Cancelar</button><button class="btn sm danger" data-yes>Descartar</button></div></div>`;
+        a.querySelector('[data-no]').onclick=()=>a.innerHTML='';a.querySelector('[data-yes]').onclick=()=>{cplSet(cb.id,null);toast('Planilha descartada');goBack()};a.scrollIntoView({block:'nearest',behavior:'smooth'})}}]);
+      const topo=()=>{const n=ok().length;go.textContent=n?`Lancar ${n}`:'Lancar';go.disabled=!n;go.title=go.textContent;go.setAttribute('aria-label',n?`Lancar ${n} abastecimento${n===1?'':'s'}`:'Nada para lancar');
+        sh.querySelector('#cpl-sm').innerHTML=resumo();
+        sh.querySelector('[data-pf]').onclick=()=>cplFiltrar(F=>P.rows.filter(r=>!r.out&&fil(r,F)).length);
+        sh.querySelectorAll('[data-px]').forEach(b=>b.onclick=()=>{const k=b.dataset.px;if(k==='q')cplF.q='';else cplF.sit=cplF.sit.filter(s=>s!==k);desenha()})};
+      const desenha=()=>{const y=bd.scrollTop;box.innerHTML=lista();liga();topo();bd.scrollTop=y};
+      const conf=async()=>{R=await cplConf(c,cb,P)};
+      const salva=()=>cplSet(cb.id,P);
+      const troca=id=>{const el=box.querySelector(`[data-pr="${id}"]`);const r=P.rows.find(z=>z.id===id);if(!el||!r)return;const t=document.createElement('div');t.innerHTML=linha(r);el.replaceWith(t.firstElementChild);liga()};
+      /* depois de corrigir: confere de novo tudo e troca so as mensagens e cores (os campos abertos ficam; o teclado nao fecha) */
+      const reconf=async()=>{await conf();box.querySelectorAll('[data-pr]').forEach(el=>{const id=el.dataset.pr,r=P.rows.find(z=>z.id===id);if(!r)return;
+          if(id===aberta){const o=R.res[id]||{msg:[]};el.classList.toggle('er',!!o.bad);el.classList.toggle('av',!!o.av&&!o.bad);el.querySelector('.ms').innerHTML=o.msg.map(([l,t])=>cbxMsg(l,t)).join('');
+            el.querySelectorAll('[data-pc]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.pc===(r.c||o.cu||'')))}
+          else troca(id)});
+        box.querySelectorAll('[data-pd]').forEach(el=>{const d=el.dataset.pd,L=P.rows.filter(r=>!r.out&&r.dt===d);el.lastElementChild.textContent=`${L.length} · ${nf(L.reduce((a,r)=>a+Number(r.l||0),0),1)} L`});topo()};
+      const liga=()=>{box.querySelectorAll('.cpl-r[data-pr]:not(.ab)').forEach(el=>{const abre=()=>{const ant=aberta;aberta=el.dataset.pr;if(ant)troca(ant);troca(aberta);
+          const nw=box.querySelector(`[data-pr="${aberta}"]`);if(nw){const i=nw.querySelector('[data-ph]');setTimeout(()=>{i.focus({preventScroll:true});nw.scrollIntoView({block:'nearest'})},30)}};
+          el.onclick=abre;el.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();abre()}}});
+        const ab=box.querySelector('.cpl-r.ab');if(ab&&!ab._b){ab._b=1;const id=ab.dataset.pr,r=P.rows.find(z=>z.id===id);let t;
+          const muda=(k,v)=>{r[k]=v===''?null:Number(v);salva();clearTimeout(t);t=setTimeout(reconf,350)};
+          ab.querySelector('[data-ph]').addEventListener('input',ev=>muda('h',ev.target.value));ab.querySelector('[data-pl]').addEventListener('input',ev=>muda('l',ev.target.value));
+          ab.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;ev.preventDefault();if(ev.target.matches('[data-ph]'))ab.querySelector('[data-pl]').focus();else ev.target.blur()});
+          ab.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{r.c=b.dataset.pc;salva();reconf()});
+          ab.querySelector('[data-pok]').onclick=async()=>{clearTimeout(t);aberta='';await reconf()};
+          ab.querySelector('[data-pt]').onclick=async()=>{clearTimeout(t);r.out=true;aberta='';salva();await conf();desenha();toast(`${r.tag} tirado da lista`)}}
+        box.querySelectorAll('[data-pv]').forEach(b=>b.onclick=async()=>{const r=P.rows.find(z=>z.id===b.dataset.pv);if(r){r.out=false;salva();await conf();desenha()}})};
+      go.onclick=async()=>{const L=ok();if(!L.length)return;const st=sh.querySelector('#cpl-st');st.innerHTML='';
+        /* sem saldo no comboio: nao lanca nada */
+        const aj={};L.forEach(r=>aj[r.dt]=Math.round(((aj[r.dt]||0)-Number(r.l))*10)/10);const tot=Math.round(L.reduce((a,r)=>a+Number(r.l),0)*10)/10;
+        const rs=await cbxRun(c,cb.id,Object.keys(aj).sort()[0],aj).catch(()=>null);if(rs&&rs.min<0){st.innerHTML=cbxMsg('bad',cbxSemSaldo(rs,tot));st.scrollIntoView({block:'center',behavior:'smooth'});return}
+        go.disabled=true;let n=0,f=0;const fe=[];
+        for(const r of L){go.textContent=`${n+f+1}/${L.length}`;const e=eqById(r.eq),o=R.res[r.id];
+          try{const cc=calcAbast(e,r.dt,Number(r.h),Number(r.l),true);if(cc.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(cc.erro)}.`);continue}
+            if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.dt,h0:Number(r.h),litros:Number(r.l),cheio:true,custo:o.cu,cb:cb.id}});if(rr.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(rr.erro)}.`);continue}}
+            else await abastGravar(e,{...cc,custo:o.cu,cb:cb.id});
+            n++;P.rows=P.rows.filter(z=>z.id!==r.id);salva()}catch(er){console.error(er);f++}}
+        go.disabled=false;const sobra=P.rows.filter(r=>!r.out).length;
+        toast(`${n} abastecimento${n===1?' lancado':'s lancados'}${sobra?` · ${sobra} ficar${sobra===1?'a':'am'}`:''}`);
+        if(!P.rows.length||!sobra){cplSet(cb.id,null);goBack();return}
+        aberta='';await conf();desenha();if(fe.length)st.innerHTML=cbxMsg('bad',`<b>Nao lancados:</b><br>${fe.join('<br>')}`)};
+      await conf();desenha()}});
+}
+/* Filtrar da conferencia (padrao do Filtrar: busca + Situacao) */
+function cplFiltrar(cnt){
+  nav('cbx:plf',()=>cplFiltrar(cnt));const tmp={q:cplF.q,sit:cplF.sit.slice()};let aberto=false;
+  openSheet({title:'Filtrar',body:`<form id="cplf"><label class="cbx-q" style="display:flex">${CBX_IC.q}<input id="cplf-q" type="search" data-nodeb placeholder="TAG" autocomplete="off" value="${esc(tmp.q)}" aria-label="TAG"></label>
+      <div class="cpl-fl"><button type="button" class="cpl-fr" data-fs><span>Situacao</span><span class="v"></span></button><div class="cpl-fo2" hidden>${[['am','Amarelos'],['vm','Vermelhos']].map(([k,t])=>`<button type="button" data-fv="${k}"><span>${t}</span><span class="ck">✓</span></button>`).join('')}</div></div></form>
+      <div class="cpl-ff"><span id="cplf-n"></span><button type="button" class="btn sm" data-fl>Limpar</button></div>`,
+    foot:`<button class="btn pri" form="cplf">Aplicar</button>`,
+    mount:sh=>{const v=sh.querySelector('.cpl-fr .v'),op=sh.querySelector('.cpl-fo2'),pin=()=>{v.textContent=tmp.sit.length?tmp.sit.map(s=>s==='am'?'Amarelos':'Vermelhos').join(', ')+' ›':'Todas ›';v.classList.toggle('on',!!tmp.sit.length);
+        op.querySelectorAll('[data-fv]').forEach(b=>b.classList.toggle('on',tmp.sit.includes(b.dataset.fv)));sh.querySelector('#cplf-n').textContent=cnt?(n=>`${n} linha${n===1?'':'s'}`)(cnt(tmp)):''};pin();
+      sh.querySelector('[data-fs]').onclick=()=>{aberto=!aberto;op.hidden=!aberto};
+      op.querySelectorAll('[data-fv]').forEach(b=>b.onclick=()=>{const k=b.dataset.fv;tmp.sit=tmp.sit.includes(k)?tmp.sit.filter(s=>s!==k):[...tmp.sit,k];pin()});
+      sh.querySelector('#cplf-q').addEventListener('input',ev=>{tmp.q=ev.target.value.trim();pin()});
+      sh.querySelector('#cplf-q').addEventListener('keydown',ev=>{if(ev.key==='Enter')ev.preventDefault()});
+      sh.querySelector('[data-fl]').onclick=()=>{tmp.q='';tmp.sit=[];sh.querySelector('#cplf-q').value='';pin()};
+      sh.querySelector('#cplf').onsubmit=ev=>{ev.preventDefault();cplF.q=tmp.q;cplF.sit=tmp.sit;goBack()}}});
+}
 
 /* ---------- Entrada de diesel no tanque ---------- */
 async function cbxEntrada(){

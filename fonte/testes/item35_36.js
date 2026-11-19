@@ -38,10 +38,11 @@ await setDt('2026-11-15');t=await msg('EH-06');R('35 volta para 15/11 (rascunho 
 await p.evaluate(()=>{for(const k of Object.keys(localStorage))if(k.includes('r:'))localStorage.removeItem(k)});
 await p.click('.cbx-mb');await W(200);
 const [fc]=await Promise.all([p.waitForEvent('filechooser'),p.click('.cbx-pop [data-cm="0"]')]);await fc.setFiles('/tmp/i35.csv');await W(1800);
-R('35 importar: data do lote',await p.inputValue('#cbx-dt'));
-t=await msg('EH-06');R('35 importar EH-06 15/11 6820 226 L',tem(t,'(226 L em 15/11)')?'AMARELO litros':t);
-t=await msg('EH-08');R('35 importar EH-08 15/11 226 L',tem(t,'Ja existe')?'AVISO: '+t:'nada');
-await p.evaluate(()=>document.querySelector('[data-r="EH-06"]').scrollIntoView({block:'center'}));await p.screenshot({path:'/tmp/i35_importar.png'});
+const cpl=t=>p.evaluate(t=>{const el=[...document.querySelectorAll('.cpl-r[data-pr]')].find(x=>x.innerText.includes(t));return el?(el.classList.contains('av')?'AMARELO ':'')+el.innerText.replace(/\s+/g,' ').trim():'(sem linha)'},t);
+R('35 importar abre',await p.evaluate(()=>document.querySelector('#sheet h2')?.innerText));
+t=await cpl('6.820');R('35 importar EH-06 15/11 6820 226 L',tem(t,'(226 L em 15/11)')?'AMARELO litros':t);
+t=await cpl('650');R('35 importar EH-08 15/11 226 L',tem(t,'Ja existe')?'AVISO: '+t:'nada');
+await p.screenshot({path:'/tmp/i35_importar.png'});
 // item 36: Importar dados
 const nAb=()=>p.evaluate(async()=>{const r=await window.supabase&&null;return document.title});
 await p.goto('http://frota.test/');await W(1500);

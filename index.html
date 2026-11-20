@@ -1615,9 +1615,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v426'</script>
-<script src="config.js?v=85b1644225"></script>
-<script src="shim.js?v=85b1644225"></script>
+<script>window.__APPV='v427'</script>
+<script src="config.js?v=558a3a2235"></script>
+<script src="shim.js?v=558a3a2235"></script>
 </head>
 <body>
 
@@ -2180,11 +2180,13 @@ async function abastOp(e,op){
   if(alvo){if(!(alvo.litros>0))return {erro:'Informe os litros'};if(!(alvo.horimetro>=0)||alvo.horimetro==null||isNaN(alvo.horimetro))return {erro:'Informe o horimetro'};if(alvo.data>today())return {erro:'Data no futuro'};L.push(alvo);L.sort(abOrd)}
   /* periodo fechado */
   const cbF=(alvo||velho).comboio||(c.comboios[0]&&c.comboios[0].id);
-  let fech='';
-  for(const r of [velho,alvo])if(r){const tv=cbxTrava(cbF,r.data);if(!tv)continue;
-    /* item 41: abastecimento esquecido entra em periodo fechado (admin e editor); editar ou excluir continua travado */
-    if(op.tipo==='add'&&['admin','editor'].includes((EU()||{}).papel)){fech=tv;alvo.posFech={corte:tv,em:Date.now(),por:(EU()||{}).nome||''};continue}
-    return {erro:`Periodo fechado ate ${fdate(tv)}`}}
+  let fech='',desf=false;const pode=['admin','editor'].includes((EU()||{}).papel);
+  /* item 41: abastecimento esquecido entra em periodo fechado (admin e editor).
+     item 42: o esquecido (posFech) tambem pode ser editado ou excluido; os outros do periodo fechado continuam travados */
+  if(velho){const tv=cbxTrava(cbF,velho.data);if(tv){if(velho.posFech&&pode)desf=true;else return {erro:`Periodo fechado ate ${fdate(tv)}`}}}
+  if(alvo){const tv=cbxTrava(cbF,alvo.data);
+    if(tv){if(pode&&(op.tipo==='add'||(velho&&velho.posFech))){fech=tv;alvo.posFech={corte:tv,em:Date.now(),por:(EU()||{}).nome||''}}else return {erro:`Periodo fechado ate ${fdate(tv)}`}}
+    else delete alvo.posFech}
   /* horimetro entre o anterior e o seguinte do mesmo equipamento */
   if(alvo){const i=L.indexOf(alvo),a=L[i-1],p=L[i+1],h=abH(alvo),u=lhU(e);
     if(a&&abH(a)>=h)return {erro:`O horimetro precisa ser maior que o de ${fdate(a.data)} (${nf(abH(a),1)} ${u})`};
@@ -2220,10 +2222,13 @@ async function abastOp(e,op){
     if((h>(Number(e.horimetro)||0)&&alvo.data>=(e.horimetroData||''))||(fonte&&ul===alvo)){up.horimetro=h;up.horimetroData=alvo.data;up.horimetroReg=today()}}
   await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up);
   /* item 41: periodo fechado: refaz o saldo calculado do fechamento da data (o saldo conferido nao muda) e guarda o que entrou depois */
-  if(fech&&cbF){try{const all=await cbxFechAll(),l=(all[cbF]||[]).map(x=>({...x})),k=l.findIndex(x=>alvo.data<=x.corte);
-    if(k>=0){const F=l[k];if(k>0&&F.calc!=null)F.calc=abR1(Number(F.calc)-alvo.litros);
-      F.pos=[...(F.pos||[]),{eq:e.codigo||'',equipId:e.id,data:alvo.data,litros:alvo.litros,mes:alvo.mes,id:alvo.id,por:(EU()||{}).nome||'',em:Date.now()}];
-      await S.db.doc('config/combFech').set({...all,[cbF]:l});S.cbxFech={...all,[cbF]:l}}}catch(er){console.error(er)}}
+  if((fech||desf)&&cbF){try{const all=await cbxFechAll(),l=(all[cbF]||[]).map(x=>({...x,pos:(x.pos||[]).slice()}));
+    /* item 42: tira o esquecido antigo do fechamento (o saldo calculado volta) */
+    if(desf){const k=l.findIndex(x=>velho.data<=x.corte);if(k>=0){const F=l[k],tem=F.pos.some(z=>z.id===velho.id);F.pos=F.pos.filter(z=>z.id!==velho.id);if(tem&&k>0&&F.calc!=null)F.calc=abR1(Number(F.calc)+Number(velho.litros))}}
+    if(fech){const k=l.findIndex(x=>alvo.data<=x.corte);if(k>=0){const F=l[k];if(k>0&&F.calc!=null)F.calc=abR1(Number(F.calc)-alvo.litros);
+      F.pos=[...F.pos,{eq:e.codigo||'',equipId:e.id,data:alvo.data,litros:alvo.litros,mes:alvo.mes,id:alvo.id,por:(EU()||{}).nome||'',em:Date.now()}]}}
+    l.forEach(x=>{if(!x.pos.length)delete x.pos});
+    await S.db.doc('config/combFech').set({...all,[cbF]:l});S.cbxFech={...all,[cbF]:l}}catch(er){console.error(er)}}
   return {ok:1,alvo,fech}}
 
 /* + › Combustivel › Abastecimentos: editar ou excluir (periodo aberto) */
@@ -2235,14 +2240,22 @@ async function openDelAbast(){
   const l=[];for(let m=de.slice(0,7);m<=t.slice(0,7);m=mesSeg(m)){try{const q=await S.db.collection('comb/'+m+'/abast').get();q.docs.forEach(d=>{const x=d.data();if(x.data>=de&&!cbxTrava(x.comboio||cb0,x.data))l.push({...x,id:d.id,mes:m})})}catch(e){}}
   l.sort((a,b)=>(b.data||'').localeCompare(a.data||'')||String((eqById(a.equipId)||{}).codigo||'').localeCompare(String((eqById(b.equipId)||{}).codigo||''),'pt',{numeric:true}));
   if(NAV[NAV.length-1]?.key!=='dl:ab')return;
-  const cus=cbxCustosAb(c),item=f=>{const e=eqById(f.equipId),k=esc(f.mes+'/'+f.id);return `<div class="ia" data-ab="${k}" data-tag="${esc(nzB(e?e.codigo:''))}"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
-    <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} ${e?lhU(e):'h'}</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Centro de custo</span><b>${esc(f.custo?cbxCuNome(f.custo):'—')}</b></div><div class="r"><span>Consumo</span><b>${e?consTxt(e,f.lh):lhTxt(f.lh)}</b></div>${(f.hist||[]).length?`<div class="r"><span>Editado</span><b>${f.hist.length}x · ${esc(f.hist[f.hist.length-1].por||'')}</b></div>`:''}</div>
-    <div class="pn-bt ab-bt"><button type="button" class="btn sm" data-abe>Editar</button>${(f.hist||[]).length?'<button type="button" class="btn sm" data-abu>Desfazer edicao</button>':''}<button type="button" class="btn sm danger" data-abx>Excluir</button></div><div data-abf></div><div data-abc></div></div></div>`};
+  const cus=cbxCustosAb(c),pode=['admin','editor'].includes((EU()||{}).papel),item=f=>{const e=eqById(f.equipId),k=esc(f.mes+'/'+f.id),ro=!!cbxTrava(f.comboio||cb0,f.data)&&!(f.posFech&&pode);return `<div class="ia${ro?' ro':''}" data-ab="${k}" data-tag="${esc(nzB(e?e.codigo:''))}"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="tq-c">${esc(e?e.codigo:'—')}</span><span class="ia-t cb-dd">${fdate(f.data)}</span><span class="cb-lt">${nf(f.litros,2)} L</span>${I.chev}</button>
+    <div class="ia-b" hidden><div class="spec cb-sp"><div class="r"><span>Horimetro</span><b>${nf(f.horimetro,2)} ${e?lhU(e):'h'}</b></div><div class="r"><span>Litros</span><b>${nf(f.litros,2)} L</b></div><div class="r"><span>Centro de custo</span><b>${esc(f.custo?cbxCuNome(f.custo):'—')}</b></div><div class="r"><span>Consumo</span><b>${e?consTxt(e,f.lh):lhTxt(f.lh)}</b></div>${(f.hist||[]).length?`<div class="r"><span>Editado</span><b>${f.hist.length}x · ${esc(f.hist[f.hist.length-1].por||'')}</b></div>`:''}${f.posFech?`<div class="r"><span>Esquecido</span><b>lancado depois do fechamento</b></div>`:''}</div>
+    ${ro?`<p class="note" style="margin:6px 2px 0">Periodo fechado · so consulta</p>`:''}<div class="pn-bt ab-bt"${ro?' hidden':''}><button type="button" class="btn sm" data-abe>Editar</button>${(f.hist||[]).length?'<button type="button" class="btn sm" data-abu>Desfazer edicao</button>':''}<button type="button" class="btn sm danger" data-abx>Excluir</button></div><div data-abf></div><div data-abc></div></div></div>`};
   openSheet({title:'Abastecimentos',sub:'Editar ou excluir',
-  body:`<label class="cbx-q" style="margin-bottom:12px">${CBX_IC.q}<input id="ab-q" type="search" placeholder="Buscar TAG" autocomplete="off" aria-label="Buscar TAG"></label>${l.length?`<div class="ilist" id="ab-l">${l.map(item).join('')}</div><div class="empty" id="ab-0" hidden><b>Nenhuma TAG encontrada</b>Confira o codigo.</div>`:'<div class="empty">Nenhum abastecimento no periodo aberto.</div>'}`,
-  mount:sh=>{const q=sh.querySelector('#ab-q');q.addEventListener('input',()=>{const v=nzB(q.value);let n=0;sh.querySelectorAll('[data-ab]').forEach(x=>{const ok=!v||x.dataset.tag.includes(v);x.hidden=!ok;if(ok)n++});{const al=sh.querySelector('#ab-l');if(al)bDom(al,q.value,x=>x.hasAttribute('data-ab'),x=>[x.dataset.tag],x=>x.dataset.tag)}const z=sh.querySelector('#ab-0');if(z)z.hidden=!!n||!l.length});
+  body:`<label class="cbx-q" style="margin-bottom:12px">${CBX_IC.q}<input id="ab-q" type="search" placeholder="Buscar TAG" autocomplete="off" aria-label="Buscar TAG"></label>${l.length?`<div class="ilist" id="ab-l">${l.map(item).join('')}</div><div class="empty" id="ab-0" hidden><b>Nenhuma TAG encontrada</b>Confira o codigo.</div>`:'<div class="empty">Nenhum abastecimento no periodo aberto.</div>'}<div id="ab-ant"></div>`,
+  mount:sh=>{const q=sh.querySelector('#ab-q'),todos=l.slice();
+    /* item 42: TAG digitada inteira traz tambem os abastecimentos dela de antes da lista (qualquer mes) */
+    let antT='',antSeq=0;const antes=async()=>{const v=nzB(q.value),e=v&&(S.equipsAll||[]).find(x=>nzB(x.codigo)===v),box=sh.querySelector('#ab-ant');if(!box)return;
+      if(!e){if(antT){antT='';box.innerHTML=''}return}if(antT===e.id)return;antT=e.id;const sq=++antSeq;box.innerHTML='';
+      const R=(await abastDoEq(e.id)).filter(f=>f.data<de).sort((a,b)=>b.data.localeCompare(a.data)||abH(b)-abH(a));if(sq!==antSeq)return;
+      R.forEach(f=>{if(!todos.some(x=>x.mes===f.mes&&x.id===f.id))todos.push(f)});
+      box.innerHTML=R.length?`<div class="lbl" style="margin-top:14px">Antes de ${fdate(de).slice(0,5)} · ${esc(e.codigo)}</div><div class="ilist">${R.map(item).join('')}</div>`:'';box.querySelectorAll('[data-ab]').forEach(liga)};
+    q.addEventListener('input',()=>{clearTimeout(q._t);q._t=setTimeout(antes,250)});
+    q.addEventListener('input',()=>{const v=nzB(q.value);let n=0;sh.querySelectorAll('[data-ab]').forEach(x=>{const ok=!v||x.dataset.tag.includes(v);x.hidden=!ok;if(ok)n++});{const al=sh.querySelector('#ab-l');if(al)bDom(al,q.value,x=>x.hasAttribute('data-ab'),x=>[x.dataset.tag],x=>x.dataset.tag)}const z=sh.querySelector('#ab-0');if(z)z.hidden=!!n||!l.length});
     const fim=(ok,msg)=>{if(ok){toast(msg);NAV.pop();openDelAbast()}};
-    sh.querySelectorAll('[data-ab]').forEach(el=>{const f=l.find(x=>x.mes+'/'+x.id===el.dataset.ab),e=f&&eqById(f.equipId);if(!e)return;const box=el.querySelector('[data-abf]'),cx=el.querySelector('[data-abc]');
+    const liga=el=>{const f=todos.find(x=>x.mes+'/'+x.id===el.dataset.ab),e=f&&eqById(f.equipId);if(!e)return;const box=el.querySelector('[data-abf]'),cx=el.querySelector('[data-abc]');
       const run=async op=>{let r;const ok=await safe(async()=>{r=await abastOp(e,op)});if(r&&r.erro){cx.innerHTML=cbxMsg('bad',esc(r.erro)+'.');return false}return ok};
       el.querySelector('[data-abx]').onclick=()=>askDelete(cx,`Excluir o abastecimento de ${esc(e.codigo)} de ${fdate(f.data)}? O consumo dos abastecimentos seguintes e recalculado.`,async()=>fim(await run({tipo:'del',id:f.id},'Abastecimento excluido'),'Abastecimento excluido'));
       const u=el.querySelector('[data-abu]');if(u)u.onclick=()=>{const h=f.hist[f.hist.length-1];askConfirm(cx,'Desfazer',`Voltar para ${fdate(h.data)} · ${nf(h.horimetro,2)} ${lhU(e)} · ${nf(h.litros,2)} L${h.custo?' · '+esc(cbxCuNome(h.custo)):''}?`,async()=>fim(await run({tipo:'ed',id:f.id,x:{data:h.data,h0:Number(h.horimetro),litros:Number(h.litros),custo:h.custo||''},desfaz:1},'Edicao desfeita'),'Edicao desfeita'))};
@@ -2256,7 +2269,8 @@ async function openDelAbast(){
         box.querySelector('[data-eds]').onclick=async ev=>{const g=k=>box.querySelector(`[data-ed="${k}"]`).value,d=g('d'),h=g('h'),lt=g('l');
           if(!d||h===''||lt===''){cx.innerHTML=cbxMsg('bad','Preencha data, horimetro e litros.');return}
           if(d===f.data&&Number(h)===Number(f.horimetro)&&Number(lt)===Number(f.litros)&&cu===(f.custo||'')){box.innerHTML='';return}
-          ev.target.disabled=true;const ok=await run({tipo:'ed',id:f.id,x:{data:d,h0:Number(h),litros:Number(lt),custo:cu}},'Abastecimento editado');ev.target.disabled=false;fim(ok,'Abastecimento editado')}}})}});
+          ev.target.disabled=true;const ok=await run({tipo:'ed',id:f.id,x:{data:d,h0:Number(h),litros:Number(lt),custo:cu}},'Abastecimento editado');ev.target.disabled=false;fim(ok,'Abastecimento editado')}}};
+    sh.querySelectorAll('[data-ab]').forEach(liga)}});
 }
 
 /* =====================================================================
@@ -2617,12 +2631,18 @@ async function cplConf(c,cb,P){
   const ord=rows.slice().sort((a,b)=>a.dt.localeCompare(b.dt)||(a.h??1e12)-(b.h??1e12)||_an(a.tag,b.tag));
   for(const r of ord){const k=mesKey(r.dt);if(!D[k])D[k]=await abDupCarga(r.dt).catch(()=>null)}
   const sim={},vistos=[],R1=x=>Math.round(Number(x)*10);
+  /* item 42: periodo da planilha = maior grupo de datas sem buraco de mais de 20 dias (pelo numero de linhas) */
+  let pPer=null;{const ds=[...new Set(rows.map(z=>z.dt))].sort(),G=[];ds.forEach(d=>{const g=G[G.length-1];if(g&&(Date.parse(d)-Date.parse(g[g.length-1]))/864e5<=20)g.push(d);else G.push([d])});
+    if(G.length>1){const n=g=>rows.filter(z=>g.includes(z.dt)).length,M=G.reduce((a,g)=>n(g)>n(a)?g:a);pPer=[M[0],M[M.length-1]]}}
   /* abastecimentos ja lancados no app, por equipamento (meses carregados), para comparar */
   const AP={};Object.values(D).forEach(DD=>{if(!DD)return;Object.entries(DD.E).forEach(([k,l])=>{const a=AP[k]=AP[k]||[];l.forEach(x=>{if(!a.some(y=>y.data===x.data&&y.h===x.h&&y.l===x.l))a.push(x)})})});
   for(const r of ord){const o={msg:[],bad:false,av:false,bt:''};res[r.id]=o;const e=eqById(r.eq);
     const ruim=t=>{o.bad=true;o.msg.push(['bad',t])},aten=t=>{o.av=true;o.msg.push(['warn',t])};
     if(!e){ruim('Equipamento nao encontrado no app.');o.bt='t';continue}
     const un=ehVL(e)?'km':'h';
+    /* item 42: data muito longe das outras linhas da planilha (mais de 15 dias da data mais proxima) e vermelha ate corrigir ou confirmar */
+    if(!r.dtOk&&pPer&&(r.dt<pPer[0]||r.dt>pPer[1])){const ou=pPer;{o.bt='tdk';
+        ruim(`<b>Data fora do periodo da planilha</b> (${fdate(r.dt)}; demais linhas ${fdate(ou[0]).slice(0,5)}${ou[1]!==ou[0]?' a '+fdate(ou[1]).slice(0,5):''}). Corrija a data ou confirme que esta certa.`);continue}}
     /* item 41: falha no ultimo Lancar fica vermelha com o motivo ate a linha ser corrigida ou confirmada (OK) */
     if(r.falha){ruim(`<b>Nao lancado:</b> ${esc(r.falha)}`);o.bt='tc';continue}
     /* item 41: periodo fechado: esquecido entra (admin e editor), amarelo; os outros continuam travados */
@@ -2694,10 +2714,10 @@ async function cbxPlan(){
   const cuNm=id=>id?cbxCuCurto(cbxCuNome(id)):'—';
   const linha=r=>{const o=R.res[r.id]||{msg:[]},e=eqById(r.eq),cls=o.ja?' ja':o.bad?' er':o.av?' av':'',un=e&&ehVL(e)?'km':'h';
     const ms=o.msg.filter(m=>m[0]!=='info'||aberta===r.id||o.ja).map(([l,t])=>cbxMsg(l,t)).join('');
-    const bt=o.bt&&aberta!==r.id?`<div class="cpl-bt">${o.bt.includes('t')?(P.lancou?'<button type="button" class="btn sm danger-o" data-bt="x">Excluir</button>':'<button type="button" class="btn sm" data-bt="t">Tirar da lista</button>'):''}${o.bt.includes('c')?'<button type="button" class="btn sm" data-bt="c">Corrigir horimetro</button>':''}${o.bt.includes('e')?(P.lancou?'<button type="button" class="btn sm danger-o" data-bt="x">Excluir</button>':'<button type="button" class="btn sm" data-bt="t">Tirar da lista</button>')+'<button type="button" class="btn sm" data-bt="e">Abrir equipamento</button>':''}</div><div class="cpl-dc"></div>`:'';
+    const bt=o.bt&&aberta!==r.id?`<div class="cpl-bt">${o.bt.includes('t')?(P.lancou?'<button type="button" class="btn sm danger-o" data-bt="x">Excluir</button>':'<button type="button" class="btn sm" data-bt="t">Tirar da lista</button>'):''}${o.bt.includes('c')?'<button type="button" class="btn sm" data-bt="c">Corrigir horimetro</button>':''}${o.bt.includes('d')?'<button type="button" class="btn sm" data-bt="d">Corrigir data</button>':''}${o.bt.includes('k')?'<button type="button" class="btn sm" data-bt="k">Data certa</button>':''}${o.bt.includes('e')?(P.lancou?'<button type="button" class="btn sm danger-o" data-bt="x">Excluir</button>':'<button type="button" class="btn sm" data-bt="t">Tirar da lista</button>')+'<button type="button" class="btn sm" data-bt="e">Abrir equipamento</button>':''}</div><div class="cpl-dc"></div>`:'';
     if(aberta!==r.id)return `<div class="cpl-r${cls}" data-pr="${r.id}" role="button" tabindex="0"><b>${esc(r.tag)}</b><span class="h">${r.h!=null?nf(r.h,1)+' '+un:'sem horimetro'}</span><span class="l">${nf(r.l,1)} L</span><span class="cu">${esc(cuNm(o.cu||r.c))}</span>${ms?`<div class="ms">${ms}</div>`:''}${bt}</div>`;
     const cu=r.c||o.cu||'';
-    return `<div class="cpl-r ab${cls}" data-pr="${r.id}"><div class="cbx-rh"><b>${esc(r.tag)}</b><span class="cbx-tag">${esc(fdate(r.dt).slice(0,5))}</span></div>
+    return `<div class="cpl-r ab${cls}" data-pr="${r.id}"><div class="cbx-rh"><b>${esc(r.tag)}</b><input type="date" data-pdt aria-label="Data" value="${esc(r.dt)}" max="${today()}" style="font:inherit;font-size:13px;padding:4px 6px;border:1px solid #cfd6e4;border-radius:8px;background:#fff;color:inherit"></div>
       <div class="cbx-g"><input type="number" inputmode="decimal" step="0.1" enterkeyhint="next" data-ph aria-label="Horimetro" placeholder="Horimetro" value="${r.h??''}"><input type="number" inputmode="decimal" step="0.1" min="0" enterkeyhint="done" class="l" data-pl aria-label="Litros" placeholder="Litros" value="${r.l??''}">
       <div class="cbx-cu" role="group" aria-label="Custo" style="grid-template-columns:repeat(${cus.length},1fr)">${cus.map(k=>`<button type="button" data-pc="${esc(k.id)}" aria-pressed="${cu===k.id}" aria-label="Custo ${esc(k.nome)}">${esc(cbxCuCurto(k.nome))}</button>`).join('')}</div></div>
       <div class="ms">${ms}</div><div class="cpl-ac"><button type="button" class="btn" data-pt>Tirar da lista</button><button type="button" class="btn pri" data-pok>OK</button></div></div>`};
@@ -2740,13 +2760,19 @@ async function cbxPlan(){
       const exclui=async id=>{P.rows=P.rows.filter(z=>z.id!==id);if(aberta===id)aberta='';salva();await conf();desenha();toast('Linha excluida');if(!cplPend(P)){cplSet(cb.id,null);goBack()}};
       const tira=async id=>{const r=P.rows.find(z=>z.id===id);if(!r)return;r.out=true;if(aberta===id)aberta='';salva();await conf();desenha();toast(`${r.tag} tirado da lista`)};
       const liga=()=>{box.querySelectorAll('.cpl-r[data-pr]:not(.ab) [data-bt]').forEach(b=>{if(b._b)return;b._b=1;b.onclick=ev=>{ev.stopPropagation();const id=b.closest('[data-pr]').dataset.pr,k=b.dataset.bt;
-          if(k==='t')tira(id);else if(k==='x'){const r=P.rows.find(z=>z.id===id);dc(b.closest('[data-pr]'),`Excluir ${esc(r?r.tag:'')} de ${r?fdate(r.dt).slice(0,5):''}? Nao foi lancado.`,()=>exclui(id))}else if(k==='e'){const r=P.rows.find(z=>z.id===id);if(r)openEq(r.eq)}else b.closest('[data-pr]').click()}});
+          if(k==='t')tira(id);else if(k==='x'){const r=P.rows.find(z=>z.id===id);dc(b.closest('[data-pr]'),`Excluir ${esc(r?r.tag:'')} de ${r?fdate(r.dt).slice(0,5):''}? Nao foi lancado.`,()=>exclui(id))}else if(k==='e'){const r=P.rows.find(z=>z.id===id);if(r)openEq(r.eq)}
+          else if(k==='k'){const r=P.rows.find(z=>z.id===id);if(r){r.dtOk=true;salva();conf().then(desenha)}}
+          else if(k==='d'){b.closest('[data-pr]').click();setTimeout(()=>{const i=box.querySelector('.cpl-r.ab [data-pdt]');if(i)i.focus({preventScroll:true})},60)}
+          else b.closest('[data-pr]').click()}});
         box.querySelectorAll('.cpl-r[data-pr]:not(.ab)').forEach(el=>{const abre=()=>{const ant=aberta;aberta=el.dataset.pr;if(ant)troca(ant);troca(aberta);
           const nw=box.querySelector(`[data-pr="${aberta}"]`);if(nw){const i=nw.querySelector('[data-ph]');setTimeout(()=>{i.focus({preventScroll:true});nw.scrollIntoView({block:'nearest'})},30)}};
           el.onclick=abre;el.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();abre()}}});
         const ab=box.querySelector('.cpl-r.ab');if(ab&&!ab._b){ab._b=1;const id=ab.dataset.pr,r=P.rows.find(z=>z.id===id);let t;
           const muda=(k,v)=>{r[k]=v===''?null:Number(v);delete r.falha;salva();clearTimeout(t);t=setTimeout(reconf,350)};
-          ab.querySelector('[data-ph]').addEventListener('input',ev=>muda('h',ev.target.value));ab.querySelector('[data-pl]').addEventListener('input',ev=>muda('l',ev.target.value));
+          ab.querySelector('[data-ph]').addEventListener('input',ev=>muda('h',ev.target.value));
+          /* item 42: data corrigida na propria linha; o grupo do dia muda, entao redesenha a lista com a linha aberta */
+          ab.querySelector('[data-pdt]').addEventListener('change',async ev=>{const v=ev.target.value;if(!v||v===r.dt)return;if(v>today()){ev.target.value=r.dt;toast('Data no futuro.');return}
+            clearTimeout(t);r.dt=v;delete r.falha;delete r.dtOk;salva();await conf();desenha();const nw=box.querySelector(`[data-pr="${id}"]`);if(nw)nw.scrollIntoView({block:'nearest'})});ab.querySelector('[data-pl]').addEventListener('input',ev=>muda('l',ev.target.value));
           ab.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;ev.preventDefault();if(ev.target.matches('[data-ph]'))ab.querySelector('[data-pl]').focus();else ev.target.blur()});
           ab.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{r.c=b.dataset.pc;salva();reconf()});
           ab.querySelector('[data-pok]').onclick=async()=>{clearTimeout(t);if(r.falha){delete r.falha;salva()}aberta='';await reconf()};

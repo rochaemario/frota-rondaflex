@@ -2158,17 +2158,25 @@ async function abastOp(e,op){
   else if(op.tipo==='ed'){const x=op.x,dl=hmDeltaApos(e.id,x.data);alvo={...velho,data:x.data,horimetro:x.h0,litros:abR1(x.litros),mes:mesKey(x.data),_novo:velho.mes!==mesKey(x.data)?1:0};
     delete alvo.hmConv;if(dl)alvo.hmConv=abR1(x.h0+dl);if(x.custo)alvo.custo=x.custo;else delete alvo.custo;
     const h=velho.hist||[];alvo.hist=op.desfaz?h.slice(0,-1):[...h,{data:velho.data,horimetro:velho.horimetro,litros:velho.litros,custo:velho.custo||'',em:Date.now(),por:(EU()||{}).nome||''}];if(!alvo.hist.length)delete alvo.hist}
+  /* item 41: conferencia (seco) com linhas da planilha que serao lancadas antes desta */
+  (op.pre||[]).forEach((p,i)=>{const dl=hmDeltaApos(e.id,p.data);L.push({equipId:e.id,data:p.data,horimetro:p.h0,...(dl?{hmConv:abR1(p.h0+dl)}:{}),litros:abR1(p.litros),cheio:true,id:'pre'+i,mes:mesKey(p.data),ts:0,_pre:1})});
   if(alvo){if(!(alvo.litros>0))return {erro:'Informe os litros'};if(!(alvo.horimetro>=0)||alvo.horimetro==null||isNaN(alvo.horimetro))return {erro:'Informe o horimetro'};if(alvo.data>today())return {erro:'Data no futuro'};L.push(alvo);L.sort(abOrd)}
   /* periodo fechado */
   const cbF=(alvo||velho).comboio||(c.comboios[0]&&c.comboios[0].id);
-  for(const r of [velho,alvo])if(r){const tv=cbxTrava(cbF,r.data);if(tv)return {erro:`Periodo fechado ate ${fdate(tv)}`}}
+  let fech='';
+  for(const r of [velho,alvo])if(r){const tv=cbxTrava(cbF,r.data);if(!tv)continue;
+    /* item 41: abastecimento esquecido entra em periodo fechado (admin e editor); editar ou excluir continua travado */
+    if(op.tipo==='add'&&['admin','editor'].includes((EU()||{}).papel)){fech=tv;alvo.posFech={corte:tv,em:Date.now(),por:(EU()||{}).nome||''};continue}
+    return {erro:`Periodo fechado ate ${fdate(tv)}`}}
   /* horimetro entre o anterior e o seguinte do mesmo equipamento */
   if(alvo){const i=L.indexOf(alvo),a=L[i-1],p=L[i+1],h=abH(alvo),u=lhU(e);
     if(a&&abH(a)>=h)return {erro:`O horimetro precisa ser maior que o de ${fdate(a.data)} (${nf(abH(a),1)} ${u})`};
     if(p&&abH(p)<=h)return {erro:`O horimetro precisa ser menor que o de ${fdate(p.data)} (${nf(abH(p),1)} ${u})`}}
   /* saldo do comboio */
-  if(cbF){const aj={};if(velho)aj[velho.data]=abR1((aj[velho.data]||0)+Number(velho.litros));if(alvo)aj[alvo.data]=abR1((aj[alvo.data]||0)-alvo.litros);
-    const from=Object.keys(aj).sort()[0],rs=from&&Object.values(aj).some(v=>v<0)?await cbxRun(c,cbF,from,aj):null;if(rs&&rs.min<0)return {erro:cbxSemSaldo(rs).replace(/<[^>]+>/g,'')}}
+  if(cbF){const aj={...(op.aj||{})};if(velho)aj[velho.data]=abR1((aj[velho.data]||0)+Number(velho.litros));if(alvo)aj[alvo.data]=abR1((aj[alvo.data]||0)-alvo.litros);
+    /* item 41: so as datas abertas contam no saldo (periodo fechado nao tem saldo a conferir) */
+    Object.keys(aj).forEach(d=>{if(cbxTrava(cbF,d))delete aj[d]});
+    const own=[velho,alvo].filter(r=>r&&!cbxTrava(cbF,r.data)).map(r=>r.data).sort(),from=own[0],rs=from&&Object.values(aj).some(v=>v<0)?await cbxRun(c,cbF,from,aj):null;if(rs&&rs.min<0)return {erro:cbxSemSaldo(rs).replace(/<[^>]+>/g,'')}}
   /* recalcula a corrente */
   let b=base0,ant=null;const eqJ=v=>JSON.stringify(v==null?null:v);
   for(const r of L){const h=abH(r),cheio=r.cheio!==false;let horas=null,lh=null,LM=null,nb;
@@ -2176,6 +2184,8 @@ async function abastOp(e,op){
     else if(cheio)nb={h,data:r.data,pend:0};else nb=b?{...b,pend:abR1((b.pend||0)+Number(r.litros))}:null;
     const nv={horas,lh,litrosMedidos:horas?LM:null,antBase:b||null,antUlt:ant?{mes:ant.mes,id:ant.id,l:ant.litros}:null,antUltData:ant?ant.data:''};
     r._mud=r===alvo||Object.keys(nv).some(k=>eqJ(r[k])!==eqJ(nv[k]));Object.assign(r,nv);b=nb;ant=r}
+  if(op.seco)return {ok:1,alvo,fech};
+  if(L.some(r=>r._pre))return {erro:'Conferencia sem gravacao'};
   const meses=new Set(),limpo=r=>{const o={...r};['id','mes','_novo','_mud'].forEach(k=>delete o[k]);return o};
   if(velho&&(op.tipo==='del'||alvo.mes!==velho.mes)){await S.db.doc(`comb/${velho.mes}/abast/${velho.id}`).delete();meses.add(velho.mes)}
   for(const r of L)if(r._mud){await S.db.doc(`comb/${r.mes}/abast/${r.id}`).set(limpo(r));meses.add(r.mes)}
@@ -2191,7 +2201,13 @@ async function abastOp(e,op){
   const ul=L[L.length-1],up={combBase:b||null,combUlt:ul?{mes:ul.mes,id:ul.id,l:ul.litros}:null,combUltData:ul?ul.data:''};
   if(alvo){const h=abH(alvo),fonte=velho&&Number(e.horimetro)===abH(velho)&&e.horimetroData===velho.data;
     if((h>(Number(e.horimetro)||0)&&alvo.data>=(e.horimetroData||''))||(fonte&&ul===alvo)){up.horimetro=h;up.horimetroData=alvo.data;up.horimetroReg=today()}}
-  await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up);return {ok:1,alvo}}
+  await S.db.doc('equipamentos/'+e.id).update(up);Object.assign(e,up);
+  /* item 41: periodo fechado: refaz o saldo calculado do fechamento da data (o saldo conferido nao muda) e guarda o que entrou depois */
+  if(fech&&cbF){try{const all=await cbxFechAll(),l=(all[cbF]||[]).map(x=>({...x})),k=l.findIndex(x=>alvo.data<=x.corte);
+    if(k>=0){const F=l[k];if(k>0&&F.calc!=null)F.calc=abR1(Number(F.calc)-alvo.litros);
+      F.pos=[...(F.pos||[]),{eq:e.codigo||'',equipId:e.id,data:alvo.data,litros:alvo.litros,mes:alvo.mes,id:alvo.id,por:(EU()||{}).nome||'',em:Date.now()}];
+      await S.db.doc('config/combFech').set({...all,[cbF]:l});S.cbxFech={...all,[cbF]:l}}}catch(er){console.error(er)}}
+  return {ok:1,alvo,fech}}
 
 /* + › Combustivel › Abastecimentos: editar ou excluir (periodo aberto) */
 async function openDelAbast(){
@@ -2590,7 +2606,12 @@ async function cplConf(c,cb,P){
     const ruim=t=>{o.bad=true;o.msg.push(['bad',t])},aten=t=>{o.av=true;o.msg.push(['warn',t])};
     if(!e){ruim('Equipamento nao encontrado no app.');o.bt='t';continue}
     const un=ehVL(e)?'km':'h';
-    const tv=cbxTrava(cb.id,r.dt);if(tv){ruim(`<b>Periodo fechado ate ${fdate(tv)} no comboio.</b> Esta data nao pode receber lancamento.`);o.bt='t';continue}
+    /* item 41: falha no ultimo Lancar fica vermelha com o motivo ate a linha ser corrigida ou confirmada (OK) */
+    if(r.falha){ruim(`<b>Nao lancado:</b> ${esc(r.falha)}`);o.bt='tc';continue}
+    /* item 41: periodo fechado: esquecido entra (admin e editor), amarelo; os outros continuam travados */
+    const tv=cbxTrava(cb.id,r.dt),fe=!!tv&&['admin','editor'].includes((EU()||{}).papel);
+    if(tv&&!fe){ruim(`<b>Periodo fechado ate ${fdate(tv)} no comboio.</b> Esta data nao pode receber lancamento.`);o.bt='t';continue}
+    if(fe)aten(`<b>Periodo fechado ate ${fdate(tv).slice(0,5)}</b> · entra como esquecido.`);
     if(!cbxNaObra(e)){ruim(`<b>${esc(e.codigo)} esta em ${esc(e.alocacao||'nenhum local')} no cadastro</b> (fora da obra) e nao recebe diesel da DM1. Se voltou para a obra, mude a alocacao.`);o.bt='e';continue}
     if(r.h==null){ruim('<b>A planilha nao tem horimetro nesta linha.</b> Digite o horimetro.');o.bt='c';continue}
     if(!(Number(r.l)>0)){ruim('<b>A planilha nao tem litros nesta linha.</b> Digite os litros.');o.bt='c';continue}
@@ -2602,7 +2623,7 @@ async function cplConf(c,cb,P){
       if(ih){ruim(`<b>Horimetro igual ao de um abastecimento ja lancado, com litros diferentes.</b>${cplCmp([['Planilha',r.dt,r.h,r.l],['No app',ih.data,ih.h,ih.l]],un)}Se for o mesmo abastecimento, tire da lista. Se nao, corrija o horimetro.`);o.bt='tc';continue}}
     /* item 40: no mesmo dia, horimetro menor que um lancado ou que a leitura do horimetro entra antes dele (sem alerta); lanca pelo abastOp, que reordena e recalcula */
     const hd=e.horimetro!==''&&e.horimetro!=null&&e.horimetroData?{dt:e.horimetroData,h:Number(e.horimetro),l:null,o:'leitura do horimetro'}:null;
-    o.op=[...(AP[e.id]||[]).filter(x=>x.h!=null&&x.data===r.dt).map(x=>x.h),...(hd&&hd.dt===r.dt?[hd.h]:[])].some(h=>Number(r.h)<h);
+    o.op=fe||[...(AP[e.id]||[]).filter(x=>x.h!=null&&x.data===r.dt).map(x=>x.h),...(hd&&hd.dt===r.dt?[hd.h]:[])].some(h=>Number(r.h)<h);
     const e0=sim[e.id]||{...e},cc=o.op?{retro:true,h:Number(r.h),erro:''}:calcAbast(e0,r.dt,Number(r.h),Number(r.l),true);o.cc=cc;
     if(cc.erro){o.bt='tc';
       /* registros conhecidos do equipamento: lancados no app + linhas da planilha ja conferidas e as que vem depois */
@@ -2628,6 +2649,11 @@ async function cplConf(c,cb,P){
       else{/* consumo na nova ordem: desde o registro anterior (data e horimetro) */
         const B=[...K.filter(x=>x.o!=='leitura do horimetro'),...(AP[e.id]||[]).filter(x=>x.h!=null&&x.data===r.dt).map(x=>({dt:x.data,h:x.h}))].filter(x=>x.dt<r.dt||(x.dt===r.dt&&x.h<Number(r.h))).sort((a,b)=>b.dt.localeCompare(a.dt)||b.h-a.h)[0];
         if(B&&Number(r.h)>B.h)cc.lh=Math.round(Number(r.l)/(Number(r.h)-B.h)*100)/100}}
+    /* item 41: o que vai pelo abastOp e conferido pelo proprio abastOp, sem gravar, com as linhas que serao lancadas antes */
+    if(cc.retro){let rr=null;try{const aj={};vistos.forEach(z=>{aj[z.dt]=Math.round(((aj[z.dt]||0)-z.l)*10)/10});
+        rr=await abastOp(e,{tipo:'add',seco:true,x:{data:r.dt,h0:Number(r.h),litros:Number(r.l),cheio:true,custo:o.cu,cb:cb.id},pre:vistos.filter(z=>z.eq===e.id).map(z=>({data:z.dt,h0:z.h,litros:z.l})),aj})}
+      catch(er){rr={erro:'Falha ao conferir ('+((er&&er.message)||er)+')'}}
+      if(rr&&rr.erro){o.bt='tc';ruim(`<b>Nao vai lancar:</b> ${esc(String(rr.erro).replace(/<[^>]+>/g,'').replace(/\.*$/,''))}.`);continue}}
     const DD=D[mesKey(r.dt)],dp=abDupEq(DD,e.id,r.h),dl=!dp&&abDupLt(DD,e.id,r.l,r.dt);
     const rp=vistos.find(z=>z.eq===e.id&&(z.h===Number(r.h)||(z.dt===r.dt&&Math.round(z.l*10)===Math.round(Number(r.l)*10))));
     if(dp)aten(abDupTxt({v:Number(r.h),data:dp.data},ehVL(e)?'km':'horimetro'));
@@ -2702,29 +2728,30 @@ async function cbxPlan(){
           const nw=box.querySelector(`[data-pr="${aberta}"]`);if(nw){const i=nw.querySelector('[data-ph]');setTimeout(()=>{i.focus({preventScroll:true});nw.scrollIntoView({block:'nearest'})},30)}};
           el.onclick=abre;el.onkeydown=ev=>{if(ev.key==='Enter'){ev.preventDefault();abre()}}});
         const ab=box.querySelector('.cpl-r.ab');if(ab&&!ab._b){ab._b=1;const id=ab.dataset.pr,r=P.rows.find(z=>z.id===id);let t;
-          const muda=(k,v)=>{r[k]=v===''?null:Number(v);salva();clearTimeout(t);t=setTimeout(reconf,350)};
+          const muda=(k,v)=>{r[k]=v===''?null:Number(v);delete r.falha;salva();clearTimeout(t);t=setTimeout(reconf,350)};
           ab.querySelector('[data-ph]').addEventListener('input',ev=>muda('h',ev.target.value));ab.querySelector('[data-pl]').addEventListener('input',ev=>muda('l',ev.target.value));
           ab.addEventListener('keydown',ev=>{if(ev.key!=='Enter')return;ev.preventDefault();if(ev.target.matches('[data-ph]'))ab.querySelector('[data-pl]').focus();else ev.target.blur()});
           ab.querySelectorAll('[data-pc]').forEach(b=>b.onclick=()=>{r.c=b.dataset.pc;salva();reconf()});
-          ab.querySelector('[data-pok]').onclick=async()=>{clearTimeout(t);aberta='';await reconf()};
+          ab.querySelector('[data-pok]').onclick=async()=>{clearTimeout(t);if(r.falha){delete r.falha;salva()}aberta='';await reconf()};
           ab.querySelector('[data-pt]').onclick=()=>{clearTimeout(t);tira(id)}}
         box.querySelectorAll('[data-pv]').forEach(b=>b.onclick=async()=>{const r=P.rows.find(z=>z.id===b.dataset.pv);if(r){r.out=false;salva();await conf();desenha()}});
         box.querySelectorAll('[data-px2]').forEach(b=>b.onclick=()=>{const r=P.rows.find(z=>z.id===b.dataset.px2);dc(b.closest('[data-ti]'),`Excluir ${esc(r?r.tag:'')} de ${r?fdate(r.dt).slice(0,5):''}? Nao foi lancado.`,()=>exclui(b.dataset.px2))});
         box.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.fx),t=(P.fora||[])[i];dc(b.closest('[data-fo]'),`Excluir ${esc(t?t.tag:'')} de ${t?fdate(t.dt).slice(0,5):''}? Nao foi lancado.`,async()=>{P.fora.splice(i,1);salva();desenha();toast('Linha excluida');if(!cplPend(P)){cplSet(cb.id,null);goBack()}})})};
       go.onclick=async()=>{const L=ok();if(!L.length)return;const st=sh.querySelector('#cpl-st');st.innerHTML='';
         /* sem saldo no comboio: nao lanca nada */
-        const aj={};L.forEach(r=>aj[r.dt]=Math.round(((aj[r.dt]||0)-Number(r.l))*10)/10);const tot=Math.round(L.reduce((a,r)=>a+Number(r.l),0)*10)/10;
-        const rs=await cbxRun(c,cb.id,Object.keys(aj).sort()[0],aj).catch(()=>null);if(rs&&rs.min<0){st.innerHTML=cbxMsg('bad',cbxSemSaldo(rs,tot));st.scrollIntoView({block:'center',behavior:'smooth'});return}
+        const aj={};L.filter(r=>!cbxTrava(cb.id,r.dt)).forEach(r=>aj[r.dt]=Math.round(((aj[r.dt]||0)-Number(r.l))*10)/10);const tot=Math.round(L.reduce((a,r)=>a+Number(r.l),0)*10)/10;
+        const rs=Object.keys(aj).length?await cbxRun(c,cb.id,Object.keys(aj).sort()[0],aj).catch(()=>null):null;if(rs&&rs.min<0){st.innerHTML=cbxMsg('bad',cbxSemSaldo(rs,tot));st.scrollIntoView({block:'center',behavior:'smooth'});return}
         go.disabled=true;let n=0,f=0;const fe=[];
         for(const r of L){go.textContent=`${n+f+1}/${L.length}`;const e=eqById(r.eq),o=R.res[r.id];
-          try{const cc=o.op?{retro:true}:calcAbast(e,r.dt,Number(r.h),Number(r.l),true);if(cc.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(cc.erro)}.`);continue}
-            if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.dt,h0:Number(r.h),litros:Number(r.l),cheio:true,custo:o.cu,cb:cb.id}});if(rr.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(rr.erro)}.`);continue}}
+          const falha=t=>{f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(t)}.`);const z=P.rows.find(y=>y.id===r.id);if(z)z.falha=t+'.';salva()};
+          try{const cc=o.op?{retro:true}:calcAbast(e,r.dt,Number(r.h),Number(r.l),true);if(cc.erro){falha(cc.erro);continue}
+            if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.dt,h0:Number(r.h),litros:Number(r.l),cheio:true,custo:o.cu,cb:cb.id}});if(rr.erro){falha(String(rr.erro).replace(/<[^>]+>/g,''));continue}}
             else await abastGravar(e,{...cc,custo:o.cu,cb:cb.id});
-            n++;P.rows=P.rows.filter(z=>z.id!==r.id);salva()}catch(er){console.error(er);f++}}
+            n++;P.rows=P.rows.filter(z=>z.id!==r.id);salva()}catch(er){console.error(er);falha('Falha ao gravar ('+((er&&er.message)||er)+')')}}
         go.disabled=false;
         /* item 39: ja lancados saem; o resto (vermelhos, tirados, TAG nao encontrada) fica guardado como nao lancados; volta para Abastecer */
         P.rows=P.rows.filter(r=>!(R.res[r.id]&&R.res[r.id].ja));P.lancou=true;const sobra=cplPend(P);cplSet(cb.id,P);
-        toast(`${n} abastecimento${n===1?' lancado':'s lancados'}${f?` · ${f} com erro`:''}${sobra?` · ${sobra} nao lancado${sobra===1?'':'s'} em Importar planilha`:''}`);
+        toast(`${n} abastecimento${n===1?' lancado':'s lancados'}${f?` · ${f} com erro (motivo em vermelho)`:''}${sobra?` · ${sobra} nao lancado${sobra===1?'':'s'} em Importar planilha`:''}`);
         goBack()};
       await conf();desenha()}});
 }
@@ -2810,7 +2837,7 @@ async function cbxFechar(){
   const c=await cbxCfg();await cbxFechAll();const cb=cbxCur(c),F=cbxFechUlt(cb.id);let corte=cbxCorteSug(cb);
   const de=F?addDia(F.corte,1):null;
   openSheet({title:'Fechar '+cbxMesNome(corte.slice(0,7)),sub:cbxAtivos(c).length>1?esc(cb.nome):'',
-  body:`<form id="cbx-ff"><div class="fset"><label class="f">Data de corte<input id="fm-c" type="date" required value="${corte}" max="${today()}"${de?` min="${de}"`:''}></label>
+  body:`${(S.cbxFech[cb.id]||[]).filter(x=>(x.pos||[]).length).slice().reverse().map(x=>cbxMsg('warn',`<b>Alterado depois do fechamento de ${fdate(x.corte)}</b>${x.calc!=null?` · saldo calculado agora ${nf(x.calc,1)} L`:''}<br>${x.pos.map(z=>`${esc(z.eq)} · ${fdate(z.data).slice(0,5)} · ${nf(z.litros,1)} L${z.por?' · '+esc(z.por):''}`).join('<br>')}`)).join('')}<form id="cbx-ff"><div class="fset"><label class="f">Data de corte<input id="fm-c" type="date" required value="${corte}" max="${today()}"${de?` min="${de}"`:''}></label>
     <div id="fm-r"><div class="card-wait" style="min-height:120px">Calculando…</div></div>
     <label class="f">Saldo conferido<span class="cbx-big"><input id="fm-s" type="number" inputmode="decimal" step="0.1" min="0" required><i>L</i></span></label><div id="fm-d"></div>
     <div id="fm-i"></div></div></form>${F?`<div class="cbx-reab"><button type="button" class="btn sm ghost" id="fm-x">Reabrir fechamento de ${fdate(F.corte)}</button><div id="fm-xc"></div></div>`:''}`,

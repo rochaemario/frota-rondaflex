@@ -47,14 +47,15 @@ await p.click('[data-px="vm"]');await W(500);R('tirou o Filtrar',(await linhas()
 // tirar TA-02
 await p.click('.cpl-r[data-pr]:has-text("TA-02")');await W(300);await p.click('.cpl-r.ab [data-pt]');await W(700);R('TA-02 tirada',(await linhas()).some(x=>x.includes('TA-02')),false);
 // sair e voltar mantem
-await p.click('#sheet [data-back]');await W(700);R('volta ao Abastecer com aviso',await p.evaluate(()=>document.querySelector('#cbx-pd')?.innerText.replace(/\s+/g,' ')));
-await p.click('[data-ppl]');await W(1500);R('reabre com 9 linhas',(await linhas()).length,9);
+await p.click('#sheet [data-back]');await W(700);R('volta ao Abastecer sem linha da planilha',await p.evaluate(()=>!document.querySelector('[data-ppl]')&&!/Planilha/.test(document.querySelector('#cbx-pd')?.innerText||'')),true);
+await p.click('.cbx-mb');await W(200);R('menu mostra planilha em conferencia',await p.evaluate(()=>document.querySelector('.cbx-pop [data-cm="0"]').innerText.replace(/\s+/g,' ')),'Importar planilha Planilha em conferencia');
+await p.click('.cbx-pop [data-cm="0"]');await W(1500);R('reabre com 9 linhas',(await linhas()).length,9);
 // lancar
 const nAb=()=>p.evaluate(async()=>{const r=await window.__sb.from('docs').select('*').like('path','comb/2026-11/abast/%');return (r.data||[]).map(x=>x.data).filter(x=>x&&x.equipId).map(x=>x.data+' '+x.equipId+' '+x.horimetro+' '+x.litros).sort()});
 const antes=(await nAb()).length;
 await p.click('#lt-go');await W(4000);
 const dep=await nAb();R('lancados no banco',dep.length-antes,8);console.log(dep.join('\n'));
 R('EH-06 13/11: as duas',dep.filter(x=>x.startsWith('2026-11-13 EH-06')),['2026-11-13 EH-06 6720 210','2026-11-13 EH-06 6726 80']);
-R('tela depois de lancar',await tt());R('planilha guardada apagada',await p.evaluate(()=>Object.keys(localStorage).filter(k=>k.includes('pl:')).length),0);
+R('tela depois de lancar',await tt());R('sobra guardada (TA-02 tirada)',await p.evaluate(()=>JSON.parse(localStorage.getItem(Object.keys(localStorage).find(k=>k.includes('pl:')))).rows.map(r=>r.tag)),['TA-02']);
 await p.screenshot({path:'/tmp/i37_fim.png'});
 R('erros',errs,[]);console.log(`\n${ok} ok, ${fa} falhas`);await b.close()})();

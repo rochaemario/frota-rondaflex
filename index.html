@@ -1615,9 +1615,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v424'</script>
-<script src="config.js?v=3ab51f0336"></script>
-<script src="shim.js?v=3ab51f0336"></script>
+<script>window.__APPV='v425'</script>
+<script src="config.js?v=b50e9739fb"></script>
+<script src="shim.js?v=b50e9739fb"></script>
 </head>
 <body>
 
@@ -2617,7 +2617,10 @@ async function cplConf(c,cb,P){
       if(ig){o.ja=ig;o.msg.push(['ja',`<b>Ja lancado no app</b> · nao sera lancado de novo${cplCmp([['Planilha',r.dt,r.h,r.l],['No app',ig.data,ig.h,ig.l]],un)}`]);continue}
       const ih=A.find(x=>x.h!=null&&R1(x.h)===R1(r.h));
       if(ih){ruim(`<b>Horimetro igual ao de um abastecimento ja lancado, com litros diferentes.</b>${cplCmp([['Planilha',r.dt,r.h,r.l],['No app',ih.data,ih.h,ih.l]],un)}Se for o mesmo abastecimento, tire da lista. Se nao, corrija o horimetro.`);o.bt='tc';continue}}
-    const e0=sim[e.id]||{...e},cc=calcAbast(e0,r.dt,Number(r.h),Number(r.l),true);o.cc=cc;
+    /* item 40: no mesmo dia, horimetro menor que um lancado ou que a leitura do horimetro entra antes dele (sem alerta); lanca pelo abastOp, que reordena e recalcula */
+    const hd=e.horimetro!==''&&e.horimetro!=null&&e.horimetroData?{dt:e.horimetroData,h:Number(e.horimetro),l:null,o:'leitura do horimetro'}:null;
+    o.op=[...(AP[e.id]||[]).filter(x=>x.h!=null&&x.data===r.dt).map(x=>x.h),...(hd&&hd.dt===r.dt?[hd.h]:[])].some(h=>Number(r.h)<h);
+    const e0=sim[e.id]||{...e},cc=o.op?{retro:true,h:Number(r.h),erro:''}:calcAbast(e0,r.dt,Number(r.h),Number(r.l),true);o.cc=cc;
     if(cc.erro){o.bt='tc';
       /* registros conhecidos do equipamento: lancados no app + linhas da planilha ja conferidas e as que vem depois */
       const K=[...(AP[e.id]||[]).filter(x=>x.h!=null).map(x=>({dt:x.data,h:x.h,l:x.l,o:'no app'})),...vistos.filter(z=>z.eq===e.id).map(z=>({dt:z.dt,h:z.h,l:z.l,o:'linha da planilha'})),
@@ -2631,24 +2634,30 @@ async function cplConf(c,cb,P){
       if(ant&&Number(r.h)<ant.h){const lin=[['Esta linha',r.dt,r.h,r.l],['Anterior',ant.dt,ant.h,ant.l,ant.o]];if(prx)lin.push(['Proxima',prx.dt,prx.h,prx.l,prx.o]);
         ruim(`<b>Horimetro menor que o anterior.</b>${cplCmp(lin,un)}${prx&&prx.h>ant.h?`Esperado entre ${nf(ant.h,1)} e ${nf(prx.h,1)} ${un}.`:`Esperado a partir de ${nf(ant.h,1)} ${un}.`} Confira o numero na folha.`);continue}
       ruim(esc(cc.erro)+'.'+(ant?cplCmp([['Esta linha',r.dt,r.h,r.l],['Anterior',ant.dt,ant.h,ant.l,ant.o]],un):''));continue}
-    if(cc.retro){const K=[...(AP[e.id]||[]).filter(x=>x.h!=null).map(x=>({dt:x.data,h:x.h,l:x.l,o:'no app'})),...vistos.filter(z=>z.eq===e.id).map(z=>({dt:z.dt,h:z.h,l:z.l,o:'linha da planilha'}))];
-      const ant=K.filter(x=>x.dt<=r.dt).sort((a,b)=>b.dt.localeCompare(a.dt)||b.h-a.h)[0],prx=K.filter(x=>x.dt>r.dt).sort((a,b)=>a.dt.localeCompare(b.dt)||a.h-b.h)[0];
+    if(cc.retro){const K=[...(AP[e.id]||[]).filter(x=>x.h!=null).map(x=>({dt:x.data,h:x.h,l:x.l,o:'no app'})),...vistos.filter(z=>z.eq===e.id).map(z=>({dt:z.dt,h:z.h,l:z.l,o:'linha da planilha'})),
+        ...ord.filter(z=>z.eq===e.id&&z!==r&&z.h!=null&&z.dt>r.dt&&!vistos.some(v=>v.id===z.id)).map(z=>({dt:z.dt,h:Number(z.h),l:Number(z.l),o:'linha da planilha'})),...(hd&&hd.dt<r.dt?[hd]:[])];
+      /* item 40: so conta dia anterior e dia seguinte; no mesmo dia o app ordena pelo horimetro */
+      const ant=K.filter(x=>x.dt<r.dt).sort((a,b)=>b.dt.localeCompare(a.dt)||b.h-a.h)[0],prx=K.filter(x=>x.dt>r.dt).sort((a,b)=>a.dt.localeCompare(b.dt)||a.h-b.h)[0];
       const fora=(ant&&Number(r.h)<ant.h)||(prx&&Number(r.h)>prx.h);
       if(fora){o.bt='tc';const lin=[['Esta linha',r.dt,r.h,r.l]];if(ant)lin.push(['Anterior',ant.dt,ant.h,ant.l,ant.o]);if(prx)lin.push(['Proxima',prx.dt,prx.h,prx.l,prx.o]);
         ruim(`<b>Horimetro fora da ordem${ant&&Number(r.h)<ant.h?' (menor que o anterior)':' (maior que o proximo)'}.</b>${cplCmp(lin,ehVL(e)?'km':'h')}${ant&&prx?`Esperado entre ${nf(ant.h,1)} e ${nf(prx.h,1)} ${ehVL(e)?'km':'h'}.`:ant?`Esperado a partir de ${nf(ant.h,1)}.`:`Esperado ate ${nf(prx.h,1)}.`} Confira o numero na folha.`);continue}
-      o.msg.push(['info',`Anterior ao ultimo abastecimento (${fdate(e0.combUltData).slice(0,5)}): o consumo e recalculado ao lancar.`])}
+      if(!o.op)o.msg.push(['info',`Anterior ao ultimo abastecimento (${fdate(e0.combUltData).slice(0,5)}): o consumo e recalculado ao lancar.`]);
+      else{/* consumo na nova ordem: desde o registro anterior (data e horimetro) */
+        const B=[...K.filter(x=>x.o!=='leitura do horimetro'),...(AP[e.id]||[]).filter(x=>x.h!=null&&x.data===r.dt).map(x=>({dt:x.data,h:x.h}))].filter(x=>x.dt<r.dt||(x.dt===r.dt&&x.h<Number(r.h))).sort((a,b)=>b.dt.localeCompare(a.dt)||b.h-a.h)[0];
+        if(B&&Number(r.h)>B.h)cc.lh=Math.round(Number(r.l)/(Number(r.h)-B.h)*100)/100}}
     const DD=D[mesKey(r.dt)],dp=abDupEq(DD,e.id,r.h),dl=!dp&&abDupLt(DD,e.id,r.l,r.dt);
     const rp=vistos.find(z=>z.eq===e.id&&(z.h===Number(r.h)||(z.dt===r.dt&&Math.round(z.l*10)===Math.round(Number(r.l)*10))));
     if(dp)aten(abDupTxt({v:Number(r.h),data:dp.data},ehVL(e)?'km':'horimetro'));
     else if(dl)aten(abDupTxtL(dl));
     else if(rp)aten(`<b>Repetido na planilha</b> (${rp.h===Number(r.h)?`${ehVL(e)?'km':'horimetro'} ${nf(rp.h,1)}`:`${nf(rp.l,1)} L`} em ${fdate(rp.dt).slice(0,5)}).`);
     else if(e0.horimetro!==''&&e0.horimetro!=null&&Number(r.h)===Number(e0.horimetro))aten('Horimetro igual ao ultimo: abasteceu sem trabalhar?');
-    const sj=hmSalto(e0,cc.h,r.dt);if(sj)aten(`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`);
-    if(hmAtras(e0,cc.h,r.dt))aten(`Horimetro maior que a leitura mais nova (${nf(e0.horimetro,1)} h em ${fdate(e0.horimetroData)}). Confira.`);
+    const sj=!o.op&&hmSalto(e0,cc.h,r.dt);if(sj)aten(`Horimetro ${nf(sj.dif)} h acima do esperado. Confira.`);
+    if(!o.op&&hmAtras(e0,cc.h,r.dt))aten(`Horimetro maior que a leitura mais nova (${nf(e0.horimetro,1)} h em ${fdate(e0.horimetroData)}). Confira.`);
     if(cc.lh!=null){const mk=e.id+'|'+mesKey(r.dt);if(!(mk in MD))MD[mk]=await combMedia(e.id,r.dt).catch(()=>null);const md=MD[mk];
       if(md&&(cc.lh>md*1.5||cc.lh<md*.5))aten(`Consumo ${consTxt(e,cc.lh)}, media ${consTxt(e,md)}.`)}
     vistos.push({id:r.id,eq:e.id,h:Number(r.h),l:Number(r.l),dt:r.dt});
-    if(!cc.retro)sim[e.id]={...e0,combBase:cc.nb,combUltData:r.dt,...(cc.h>(Number(e0.horimetro)||0)?{horimetro:cc.h,horimetroData:r.dt}:{})}}
+    if(o.op){const b0=e0.combBase;if(!b0||b0.h==null||r.dt>(b0.data||'')||(r.dt===b0.data&&Number(r.h)>b0.h))sim[e.id]={...e0,combBase:{h:Number(r.h),data:r.dt,pend:0},combUltData:r.dt>(e0.combUltData||'')?r.dt:e0.combUltData}}
+    else if(!cc.retro)sim[e.id]={...e0,combBase:cc.nb,combUltData:r.dt,...(cc.h>(Number(e0.horimetro)||0)?{horimetro:cc.h,horimetroData:r.dt}:{})}}
   return {res,ord}}
 async function cbxPlan(){
   nav('cbx:pl',()=>cbxPlan());
@@ -2725,7 +2734,7 @@ async function cbxPlan(){
         const rs=await cbxRun(c,cb.id,Object.keys(aj).sort()[0],aj).catch(()=>null);if(rs&&rs.min<0){st.innerHTML=cbxMsg('bad',cbxSemSaldo(rs,tot));st.scrollIntoView({block:'center',behavior:'smooth'});return}
         go.disabled=true;let n=0,f=0;const fe=[];
         for(const r of L){go.textContent=`${n+f+1}/${L.length}`;const e=eqById(r.eq),o=R.res[r.id];
-          try{const cc=calcAbast(e,r.dt,Number(r.h),Number(r.l),true);if(cc.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(cc.erro)}.`);continue}
+          try{const cc=o.op?{retro:true}:calcAbast(e,r.dt,Number(r.h),Number(r.l),true);if(cc.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(cc.erro)}.`);continue}
             if(cc.retro){const rr=await abastOp(e,{tipo:'add',x:{data:r.dt,h0:Number(r.h),litros:Number(r.l),cheio:true,custo:o.cu,cb:cb.id}});if(rr.erro){f++;fe.push(`${esc(r.tag)} ${fdate(r.dt).slice(0,5)}: ${esc(rr.erro)}.`);continue}}
             else await abastGravar(e,{...cc,custo:o.cu,cb:cb.id});
             n++;P.rows=P.rows.filter(z=>z.id!==r.id);salva()}catch(er){console.error(er);f++}}

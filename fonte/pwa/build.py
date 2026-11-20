@@ -8,6 +8,26 @@ SRC = os.path.join(os.path.dirname(ROOT), 'frota.html')
 DIST = os.path.join(ROOT, 'dist')
 SB_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js'
 
+def versao_app():
+    """Numero da versao mostrado no rodape do menu (item 30): o mesmo vNNN do ramo versao-vNNN.
+    Vem de FROTA_V (ex.: v424) ou, sem ele, do repositorio: maior ramo versao-vNNN + 1."""
+    v = os.environ.get('FROTA_V', '').strip()
+    if v:
+        assert re.fullmatch(r'v\d+', v), 'FROTA_V deve ser como v424'
+        return v
+    import subprocess
+    for d in (os.environ.get('FROTA_REPO', ''), ROOT, os.getcwd()):
+        if not d:
+            continue
+        try:
+            out = subprocess.run(['git', '-C', d, 'branch', '-r', '--list', 'origin/versao-v*'], capture_output=True, text=True, timeout=20).stdout
+        except Exception:
+            continue
+        ns = [int(m) for m in re.findall(r'origin/versao-v(\d+)\b', out)]
+        if ns:
+            return 'v%d' % (max(ns) + 1)
+    sys.exit('Sem numero de versao: rode com FROTA_V=vNNN ou FROTA_REPO=<pasta do repositorio>')
+
 def main():
     app = open(SRC, encoding='utf-8').read()
     cut = app.index('</style>') + len('</style>')
@@ -23,6 +43,8 @@ def main():
             h.update(open(fp, 'rb').read())
     for f in sorted(os.listdir(os.path.join(ROOT, 'src', 'icons'))):
         h.update(open(os.path.join(ROOT, 'src', 'icons', f), 'rb').read())
+    appv = versao_app()
+    h.update(appv.encode())  # versao nova = service worker novo (item 30)
     ver = h.hexdigest()[:10]
     page = f'''<!doctype html>
 <html lang="pt-BR">
@@ -38,6 +60,7 @@ def main():
 <style>:root{{color-scheme:light}}body{{margin:0}}[hidden]{{display:none!important}}img{{max-width:100%}}</style>
 {head}
 <script src="{SB_JS}"></script>
+<script>window.__APPV='{appv}'</script>
 <script src="config.js?v={ver}"></script>
 <script src="shim.js?v={ver}"></script>
 </head>

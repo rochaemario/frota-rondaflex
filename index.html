@@ -1615,8 +1615,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=dbcc9d363a"></script>
-<script src="shim.js?v=dbcc9d363a"></script>
+<script>window.__APPV='v424'</script>
+<script src="config.js?v=3ab51f0336"></script>
+<script src="shim.js?v=3ab51f0336"></script>
 </head>
 <body>
 
@@ -4343,8 +4344,8 @@ function openMenu(mode){
   const X=(t,k,n)=>({title:t,sub:'O que voce quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
   T['x:eq']=X('Equipamentos','eq','equipamento');T['x:st']=X('Itens do estoque','st','item do estoque');T['x:kit']=X('Kits','kit','kit');
   const v=T[mode||'']||T[''];
-  openSheet({title:v.title,sub:v.sub,body:`<div class="menu">${v.body}</div>`,
-    mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
+  openSheet({title:v.title,sub:v.sub,body:`<div class="menu">${v.body}</div>${v===T['']&&window.__frotaVer?'<div id="vrl"></div>':''}`,
+    mount:sh=>(window.__frotaVer&&window.__frotaVer.line(sh.querySelector('#vrl')),sh.querySelectorAll('[data-m]')).forEach(b=>b.onclick=()=>{const m=b.dataset.m;
       if(T[m])return openMenu(m);
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));

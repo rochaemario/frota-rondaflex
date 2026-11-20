@@ -1,11 +1,13 @@
 /* Controle de Frota · funcionamento com internet ruim
    Páginas e bibliotecas ficam guardadas no aparelho; os dados sempre vêm do servidor. */
-const PFX='frota-',VER=PFX+'dbcc9d363a';
+const PFX='frota-',VER=PFX+'3ab51f0336';
 const SHELL=['./','index.html','shim.js','config.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(VER).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==VER&&k.startsWith(PFX)&&(PFX!=='frota-'||!k.startsWith('frota-teste-'))&&k!=='frota-arquivos'&&k!=='frota-libs').map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
 self.addEventListener('fetch',e=>{
   const r=e.request;if(r.method!=='GET')return;const u=new URL(r.url);
+  /* item 30: "Procurar atualizacao" confere a versao publicada direto no servidor, sem guardar */
+  if(u.origin===location.origin&&u.searchParams.has('vchk'))return;
   /* dados e login: sempre direto no servidor */
   if(/supabase\.co$/.test(u.hostname)&&!u.pathname.includes('/storage/v1/object/public/'))return;
   /* bibliotecas do app (ex.: leitor de codigos): baixadas na 1a vez que forem usadas e guardadas entre versoes (o nome do arquivo tem a versao) */

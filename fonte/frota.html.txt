@@ -4327,8 +4327,8 @@ function openMenu(mode){
   const X=(t,k,n)=>({title:t,sub:'O que voce quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
   T['x:eq']=X('Equipamentos','eq','equipamento');T['x:st']=X('Itens do estoque','st','item do estoque');T['x:kit']=X('Kits','kit','kit');
   const v=T[mode||'']||T[''];
-  openSheet({title:v.title,sub:v.sub,body:`<div class="menu">${v.body}</div>`,
-    mount:sh=>sh.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const m=b.dataset.m;
+  openSheet({title:v.title,sub:v.sub,body:`<div class="menu">${v.body}</div>${v===T['']&&window.__frotaVer?'<div id="vrl"></div>':''}`,
+    mount:sh=>(window.__frotaVer&&window.__frotaVer.line(sh.querySelector('#vrl')),sh.querySelectorAll('[data-m]')).forEach(b=>b.onclick=()=>{const m=b.dataset.m;
       if(T[m])return openMenu(m);
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));

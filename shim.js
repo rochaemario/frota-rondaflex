@@ -31,7 +31,7 @@
      Gravar muda a copia local na hora e entra numa fila; a fila e enviada quando houver internet.
      O que chega do servidor (tempo real ou recarga) e aplicado por cima, reaplicando o que ainda esta na fila. */
   const DOCS=new Map(),KIDS=new Map();          // path -> data · parent -> Set(path)
-  let OUT=[];                                    // fila de envio [{k,op,path,data,patch,id,type}]
+  let OUT=[];const VRL=new Set();let verManual=false;                                    // fila de envio [{k,op,path,data,patch,id,type}]
   const LOCALBLOB=new Map();                     // fotos ainda nao enviadas: id -> objectURL
   const remoteUrl=id=>`${CFG.url}/storage/v1/object/public/${BUCKET}/${encodeURIComponent(id)}`;
   window.__blobUrl=id=>LOCALBLOB.get(id)||remoteUrl(id);
@@ -142,7 +142,7 @@
     .subscribe(s=>{if(s==='SUBSCRIBED'){if(wasSub)sincronizar();wasSub=true;netOk=true;updSync()}else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED'){netOk=false;updSync()}})}
   function updSync(){const el=document.getElementById('sync');if(!el)return;const n=OUT.length,on=navigator.onLine&&netOk;
     const t=!on?(n?`Sem internet · ${n} pendente${n>1?'s':''}`:'Sem internet'):n?'Sincronizando…':'Sincronizado';
-    if(el.textContent!==t)el.textContent=t;el.className='sync '+(on&&!n?'on':'off')}
+    if(el.textContent!==t)el.textContent=t;el.className='sync '+(on&&!n?'on':'off');verRefresh()}
   addEventListener('offline',()=>{netOk=false;updSync()});addEventListener('online',()=>{netOk=true;updSync();if(semSessao){sb.auth.getSession().then(({data})=>{if(data&&data.session){semSessao=false;sincronizar()}else loginForm('Entre de novo para enviar o que foi lancado sem internet.')}).catch(()=>{});return}sincronizar()});
   let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>60000)sincronizar()});
 
@@ -237,7 +237,16 @@
   .lk{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;margin-top:12vh}
   .lk-i{width:96px;height:96px;border-radius:50%;background:#e4e9f4;color:var(--accent,#0033a0);display:flex;align-items:center;justify-content:center}.lk-i svg{width:54px;height:54px}
   .lk p{max-width:290px}.lk .btn{width:100%;margin-top:6px}
-  .imp-p{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}.imp-p i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}`;
+  .imp-p{height:8px;border-radius:4px;background:var(--sunk);overflow:hidden}.imp-p i{display:block;height:100%;width:0;background:var(--accent);transition:width .2s}
+  .vrl{position:sticky;bottom:0;display:flex;align-items:center;gap:8px;min-height:38px;margin:12px -16px -16px;padding:7px 16px calc(7px + env(safe-area-inset-bottom,0px));background:#f1f3f7;border-top:1px solid #e1e5ec;font:500 12.5px "IBM Plex Sans",sans-serif;color:#5b6475}
+  .acct .vrl{margin:10px -14px -14px;border-radius:0 0 14px 14px}
+  .vrl-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vrl-a{display:inline-flex;align-items:center;gap:5px;border:0;background:none;padding:4px 0;color:#0033a0;font:600 12.5px "IBM Plex Sans",sans-serif;cursor:pointer;white-space:nowrap}
+  .vrl-a svg,.vrl-t svg{width:14px;height:14px;flex:none;vertical-align:-2px}
+  .vrl-p .vrl-t svg{animation:vrlg 1s linear infinite}@keyframes vrlg{to{transform:rotate(360deg)}}
+  .vrl-ok{color:#157f3b;font-weight:600}.vrl-off{color:#c2410c;font-weight:600}
+  .vrl-nv{background:#e8eefc;color:#0033a0;font-weight:600}.vrl-ag{background:#fff6d6;color:#8a6100;font-weight:600}
+  .vrl-u{display:inline-flex;align-items:center;gap:4px;border:0;border-radius:999px;background:#0033a0;color:#fff;padding:6px 12px;font:600 12.5px "IBM Plex Sans",sans-serif;cursor:pointer;white-space:nowrap}`;
   function css(){if(document.getElementById('lg-css'))return;const s=document.createElement('style');s.id='lg-css';s.textContent=CSS;document.head.appendChild(s)}
   const BRAND='<div class="brand"><i></i>Controle de Frota</div>';
   function screen(html,mount,rec){if(recuperando&&!rec)return document.getElementById('lg');css();let o=document.getElementById('lg');if(!o){o=document.createElement('div');o.id='lg';o.className='lg';document.body.appendChild(o)}
@@ -402,8 +411,8 @@
     if(open&&!ev.target.closest('#acct')){open.remove();if(!s)return}
     if(!s||!perfil)return;ev.stopPropagation();ev.preventDefault();if(open)return;css();
     const d=document.createElement('div');d.id='acct';d.className='acct';
-    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${perfil.papel==='mecanico'?'':esc(perfil.email)+' · '}${PAPEL[perfil.papel]||''}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}${perfil.papel==='admin'?'<div class="dg-r" id="ac-nt" hidden><div><b>Notificacoes no celular</b><small>Avisos, vencimentos, estoque e lancamentos</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Notificacoes no celular"></button></div>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>`;
-    document.body.appendChild(d);d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alteracoes ainda nao enviadas',`Ha ${OUT.length} ${OUT.length>1?'alteracoes':'alteracao'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}(saindo=true,sb.auth.signOut())};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
+    d.innerHTML=`<div><b>${esc(perfil.nome||perfil.email)}</b><br><span>${perfil.papel==='mecanico'?'':esc(perfil.email)+' · '}${PAPEL[perfil.papel]||''}</span></div>${perfil.papel==='admin'?'<button type="button" class="btn" id="ac-eq">Equipe</button><button type="button" class="btn" id="ac-imp">Importar dados</button>':''}${perfil.papel==='admin'?'<div class="dg-r" id="ac-nt" hidden><div><b>Notificacoes no celular</b><small>Avisos, vencimentos, estoque e lancamentos</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Notificacoes no celular"></button></div>':''}<div class="dg-r" id="ac-dg" hidden><div><b>Entrar com digital</b><small>Pede a digital ao abrir o app</small></div><button type="button" class="sw" role="switch" aria-checked="false" aria-label="Entrar com digital"></button></div><button type="button" class="btn" id="ac-out">Sair</button>${perfil.papel==='mecanico'?'<div id="vrl-m"></div>':''}`;
+    document.body.appendChild(d);verLinha(d.querySelector('#vrl-m'));d.querySelector('#ac-out').onclick=()=>{if(OUT.length){avisar('Alteracoes ainda nao enviadas',`Ha ${OUT.length} ${OUT.length>1?'alteracoes':'alteracao'} esperando internet. Conecte e aguarde Sincronizado antes de sair.`);return}(saindo=true,sb.auth.signOut())};const eq=d.querySelector('#ac-eq');if(eq)eq.onclick=()=>{d.remove();equipe()};const im=d.querySelector('#ac-imp');if(im)im.onclick=()=>{d.remove();importar()};
     const dr=d.querySelector('#ac-dg'),sw=dr.querySelector('.sw');const pinta=()=>sw.setAttribute('aria-checked',!!dgLer(perfil.user_id));pinta();
     dgPode().then(v=>{dr.hidden=!v});
     const nr=d.querySelector('#ac-nt');if(nr)ntLiga(nr);
@@ -466,9 +475,38 @@
   /* ---------- app instalavel: funciona mesmo com internet ruim ---------- */
   if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
   /* versao nova publicada: avisa e atualiza com um toque (ou sozinho, se nada estiver aberto) */
-  if('serviceWorker' in navigator){let tinha=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!tinha){tinha=true;return}
+  if('serviceWorker' in navigator){let tinha=!!navigator.serviceWorker.controller;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!tinha){tinha=true;return}if(verManual)return;
     const aberto=document.querySelector('#scrim:not([hidden]),.rdr')||[...document.querySelectorAll('.lg input')].some(i=>i.value&&i.type==='password');if(!aberto){location.reload();return}
     if(document.getElementById('upd'))return;const b=document.createElement('button');b.id='upd';b.type='button';b.textContent='Nova versao do app · toque para atualizar';
     b.style.cssText='position:fixed;z-index:120;left:50%;transform:translateX(-50%);top:calc(10px + env(safe-area-inset-top,0px));background:#0033a0;color:#fff;border:0;border-radius:999px;padding:10px 16px;font:600 13.5px "IBM Plex Sans",sans-serif;box-shadow:0 8px 24px rgba(11,36,112,.3)';
     b.onclick=()=>location.reload();document.body.appendChild(b)})}
+
+  /* ---------- item 30: versao do app e "Procurar atualizacao" (rodape do menu) ----------
+     Nada e consultado ao abrir o app; so ao tocar. Nunca reabre com algo ainda nao enviado. */
+  function verRefresh(){VRL.forEach(f=>f())}
+  function verLinha(el){if(!el)return;css();const APPV=window.__APPV||'';let st='n',nova='',tmr=0;
+    const IC_R='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 4v7h-7"/></svg>';
+    const draw=()=>{if(!el.isConnected){VRL.delete(draw);return}const n=OUT.length;let c='',h='';
+      if(st==='p'){c='vrl-p';h=`<span class="vrl-t">${IC_R} Procurando...</span>`}
+      else if(st==='ok'){c='vrl-ok';h='<span class="vrl-t">✓ Atualizado</span>'}
+      else if(st==='off'){c='vrl-off';h='<span class="vrl-t">Sem internet</span>'}
+      else if(st==='nv'){const v=nova?nova+' disponivel':'Versao nova disponivel';
+        if(n){c='vrl-ag';h=`<span class="vrl-t">${v} · aguarde sincronizar</span>`}
+        else{c='vrl-nv';h=`<span class="vrl-t">${v}</span><button type="button" class="vrl-u" data-vu>✓ Atualizar</button>`}}
+      else h=`<span class="vrl-t">${APPV||'v?'} · ${n?n+' a enviar':'Sincronizado'}</span><button type="button" class="vrl-a" data-vp>${IC_R}Procurar atualizacao</button>`;
+      const cls='vrl '+c;if(el.className!==cls)el.className=cls;if(el.innerHTML!==h)el.innerHTML=h};
+    const volta=(s,ms)=>{clearTimeout(tmr);st=s;draw();tmr=setTimeout(()=>{if(st===s){st='n';draw()}},ms||3000)};
+    const procurar=async()=>{if(st==='p')return;if(!navigator.onLine)return volta('off');st='p';draw();
+      let nv=null;try{const r=await fetch('index.html?vchk='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const m=(await r.text()).match(/__APPV='(v\d+)'/);nv=m?m[1]:''}catch(e){return volta('off')}
+      const reg=('serviceWorker' in navigator)?await navigator.serviceWorker.getRegistration().catch(()=>null):null;
+      if(nv&&APPV&&nv===APPV)return volta('ok');
+      verManual=true;let mudou=false;
+      if(reg){mudou=await new Promise(ok=>{let fim=false;const f=v=>{if(fim)return;fim=true;navigator.serviceWorker.removeEventListener('controllerchange',cc);ok(v)};const cc=()=>f(true);
+        navigator.serviceWorker.addEventListener('controllerchange',cc);reg.update().then(()=>{if(!reg.installing&&!reg.waiting&&!nv)f(false)}).catch(()=>f(false));setTimeout(()=>f(false),20000)})}
+      if(!nv&&!mudou){verManual=false;return volta('ok')}
+      const u=document.getElementById('upd');if(u)u.remove();
+      nova=nv||'';st='nv';draw()};
+    el.onclick=ev=>{if(ev.target.closest('[data-vp]'))procurar();else if(ev.target.closest('[data-vu]')){if(OUT.length){draw();return}location.reload()}};
+    VRL.add(draw);draw()}
+  window.__frotaVer={line:verLinha};
 })();

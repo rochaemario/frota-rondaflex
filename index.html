@@ -1615,9 +1615,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v427'</script>
-<script src="config.js?v=558a3a2235"></script>
-<script src="shim.js?v=558a3a2235"></script>
+<script>window.__APPV='v428'</script>
+<script src="config.js?v=c143686a7a"></script>
+<script src="shim.js?v=c143686a7a"></script>
 </head>
 <body>
 
@@ -4401,7 +4401,7 @@ function openMenu(mode){
       +mi('x:st',I.estoque,'Itens do estoque','Novo, editar ou excluir')+mi('x:kit',KIT_IC,'Kits','Novo, editar ou excluir')+(podeEscrever()?mi('eqv',EQV_IC,'Equivalentes','Ligar itens que se substituem'):'')+mi('cart',CART_IC,'Listas de compra','Listas concluidas: compartilhar, excluir ou mesclar')+(podeEscrever()?mi('etq',ETQ_IC,'Etiquetas','Fila de etiquetas: juntar itens e imprimir'):'')+g('Conferencia')+mi('cfe',I.estoque,'Conferencia de estoque','Ajusta o saldo pelo que foi contado')},
     comb:{title:'Combustivel',sub:'Abastecimentos',body:mi('cbx-lt',I.comb,'Abastecer frota','Lancamento de todos os equipamentos de uma vez')+mi('cbx-en',MV_IN,'Entrada de diesel','Litros que entraram no comboio')+g('Correcoes')+mi('dl-ab',DEL,'Abastecimentos','Editar ou excluir um abastecimento')+mi('cbx-de',DEL,'Entradas de diesel','Editar ou excluir uma entrada')},
     aj:{title:'Ajustes do app',sub:'Listas e copia de seguranca',body:g('Listas')+mi('l:donos',ICON_USER,'Proprietarios','Donos dos equipamentos da frota')+mi('l:tipos',ICON_TAG,'Tipos de equipamento','Categorias da frota')+mi('acat',ICON_TAG,'Categorias do estoque','Nome e sigla do codigo')+mi('l:locais',I.aloc,'Locais de alocacao','Ex.: DM1, PQ')+mi('l:areas',I.aloc,'Areas do DM1','Ex.: Planta, Mina')+mi('l:frentes',ICON_FLAG,'Frentes de trabalho','Ex.: Britador, Geral')
-      +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo, UG e comboios')+((EU()||{}).papel==='admin'&&!S.osComo?g('Equipe')+mi('mecs',ICON_USER,'Mecanicos','Cadastro, QR de acesso e ativos'):'')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
+      +g('Combustivel')+mi('cbx-aj',I.comb,'Combustivel','Centros de custo, UG e comboios')+((EU()||{}).papel==='admin'&&!S.osComo?g('Equipe')+mi('mecs',ICON_USER,'Mecanicos','Cadastro, QR de acesso e ativos')+(!OS_TESTE&&(v31L1().length||v31L2().length)?mi('vir31',ICON_USER,'Conferencia da virada',(n=>n?n+' a decidir':'Tudo decidido')(v31Pend())):''):'')+g('Dados')+mi('backup',BK_IC,'Copia de seguranca','Baixa um arquivo com todos os dados do app')}};
   /* tela limpa: Novo · Editar · Excluir */
   const X=(t,k,n)=>({title:t,sub:'O que voce quer fazer?',body:mi('eq'===k?'eq':k==='st'?'st':'kit',I.plus,'Novo','Cadastrar '+n)+mi('ed-'+k,EDI,'Editar','Alterar um cadastro existente')+mi('dl-'+k,DEL,'Excluir','Apagar um cadastro')});
   T['x:eq']=X('Equipamentos','eq','equipamento');T['x:st']=X('Itens do estoque','st','item do estoque');T['x:kit']=X('Kits','kit','kit');
@@ -4412,7 +4412,7 @@ function openMenu(mode){
       if(m.startsWith('l:'))return formLista(m.slice(2),'tudo');
       if(m.startsWith('g:'))return formGerir(m.slice(2));
       if(m.startsWith('mv-')){formMovEst.done=null;formMovEst.d&&(formMovEst.d.cur=null,formMovEst.d.q='');return formMovEst(m.slice(3))}
-      const A={mecs:()=>openMecs(),'os-nova':()=>osNova(),'os-ed':()=>osMenuPick('ed'),'os-ad':()=>osMenuPick('ad'),'os-cf':()=>osMenuPick('cf'),'os-cx':()=>osMenuPick('cx'),'os-ab':()=>osMenuPick('ab'),cfe:()=>{confEst.d=null;confEst()},acat:()=>formACats(),backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,etq:()=>openEtq(),eqv:()=>openEqv(),far:()=>formFiltroAr(''),prev:()=>formTroca(''),'ed-tr':()=>formPickTr(),'dl-ab':openDelAbast,eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
+      const A={mecs:()=>openMecs(),vir31:()=>openVir31(),'os-nova':()=>osNova(),'os-ed':()=>osMenuPick('ed'),'os-ad':()=>osMenuPick('ad'),'os-cf':()=>osMenuPick('cf'),'os-cx':()=>osMenuPick('cx'),'os-ab':()=>osMenuPick('ab'),cfe:()=>{confEst.d=null;confEst()},acat:()=>formACats(),backup:()=>backupAll(b),abast:formAbast,'cbx-lt':()=>cbxLote(),'cbx-en':()=>cbxEntrada(),'cbx-de':()=>cbxDelEnt(),'cbx-aj':()=>cbxAjustes(),cart:openListas,etq:()=>openEtq(),eqv:()=>openEqv(),far:()=>formFiltroAr(''),prev:()=>formTroca(''),'ed-tr':()=>formPickTr(),'dl-ab':openDelAbast,eq:()=>formEq(),thm:()=>formTrocaHm(),'thm-x':openDesfazHm,'ed-tr':formPickTr,st:()=>formStock(),kit:()=>formKit(),
         'ed-eq':()=>formPickEdit('eq'),'ed-st':()=>formPickEdit('st'),'ed-kit':()=>formPickEdit('kit'),'dl-eq':()=>formPickDel('eq'),'dl-st':()=>formPickDel('st'),'dl-kit':()=>formPickDel('kit')};
       A[m]&&A[m]()})});
 }
@@ -7149,7 +7149,7 @@ function osTodas(){const k=S.os.length+':'+S.ose.length+':'+(S.os[0]&&S.os[0].nu
   const m=new Map();S.os.forEach(r=>{if(r.o)m.set(r.id,osFold(r,ev.get(r.id)||[]))});m.forEach(v=>{const pai=v.vinc&&m.get(v.vinc);if(pai){pai.filhas.push(v);pai.hist.push({ts:v.ts,k:'vi',txt:`Vinculou a ${osNum(v)}`,d:v.aconteceu,nome:v.porNome})}});m.forEach(v=>v.filhas.sort((a,b)=>a.ts-b.ts));_osC.os=S.os;_osC.ose=S.ose;_osC.m=m;return m}
 function osFold(r,evs){const o=r.o;
   const v={id:r.id,num:r.num||null,tipo:o.tipo||'cor',arSub:o.arSub||'',arSv:o.arSv||'',kit:o.kit||'',eq:o.eq,por:o.por,porNome:o.porNome||osNomeDe(o.por),ts:o.ts||r._em||0,o,data:o.data,hor:o.hor||'',aconteceu:o.aconteceu||'',feito:o.feito||'',estado:o.estado||'',
-    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,k:o.concl?'co':'ab',txt:o.concl?'Abriu e concluiu a OS':'Abriu a OS',d:[o.hor?'Horimetro '+o.hor+' h':'',o.estado?(o.estado==='parado'?'Parado':'Liberado'):''].filter(Boolean).join(' · '),nome:o.porNome||'—'}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},estTs:o.estado?o.ts:0,evs};
+    sit:o.concl?'fechada':'aberta',concPor:o.concl?o.por:'',concTs:o.concl?o.ts:0,resp:[o.por,...(o.resp||[]).filter(x=>x&&x!==o.por)],vinc:o.vinc||'',filhas:[],ad:[],hist:[{ts:o.ts,k:o.concl?'co':'ab',txt:o.concl?'Abriu e concluiu a OS':'Abriu a OS',d:[o.hor?'Horimetro '+o.hor+' h':'',o.estado?(o.estado==='parado'?'Parado':'Liberado'):''].filter(Boolean).join(' · '),nome:o.porNome||'—'}],marc:{},pecas:[],fotos:(o.fotos||[]).slice(),conf:{},vir:null,estTs:o.estado?o.ts:0,evs};
   const addP=(arr,src,eid)=>(arr||[]).forEach((p,i)=>v.pecas.push({...p,src,pk:eid+':'+i}));
   addP(o.pecas,'',r.id);
   evs.forEach(e=>{const nm=e.porNome||osNomeDe(e.por);
@@ -7167,7 +7167,9 @@ function osFold(r,evs){const o=r.o;
       else if(e.tipo==='pcrm'){const fora=v.pecas.filter(p=>(e.pks||[]).includes(p.pk)&&!v.conf[p.pk]);v.pecas=v.pecas.filter(p=>!fora.includes(p));if(fora.length)v.hist.push({ts:e.ts,txt:`Tirou ${fora.map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}${e.para?' · '+((e.paraPks||[]).length<fora.length?'os que nao sao preventiva ':'')+'foram para a '+osNumId(e.para):''}`,nome:nm})}
       else if(e.tipo==='ftadd'){(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.fotos||[]).length} foto(s)`,nome:nm})}
       else{v.fotos=v.fotos.filter(f=>!(e.fotos||[]).includes(f));v.hist.push({ts:e.ts,txt:`Tirou ${(e.fotos||[]).length} foto(s)`,nome:nm})}}
-    else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,k:'cf',txt:`Conferiu ${e.nome||'peca'}`,d:e.acao==='nao'?'Nao veio do estoque':'Baixa de '+nf(e.qtd,2)+' no estoque',nome:nm})}});
+    else if(e.tipo==='conf'&&e.adm){v.conf[e.pk]=e;v.hist.push({ts:e.ts,k:'cf',txt:`Conferiu ${e.nome||'peca'}`,d:e.acao==='nao'?'Nao veio do estoque':e.acao==='ja'?'Baixa ja dada no oficial':'Baixa de '+nf(e.qtd,2)+' no estoque',nome:nm})}
+    else if(e.tipo==='confx'&&e.adm&&v.conf[e.pk]){const c=v.conf[e.pk];delete v.conf[e.pk];v.hist.push({ts:e.ts,k:'cf',txt:`Desfez a conferencia de ${c.nome||'peca'}`,nome:nm})}
+    else if(e.tipo==='vir31'&&e.adm){v.vir=e.d==='x'?null:e;v.hist.push({ts:e.ts,k:'cf',txt:e.d==='lig'?`Ligada ao registro de ${fdate(e.tdata)} · ${nf(e.th,1)} h`:e.d==='reg'?'Virada: fica a registrar':e.d==='conf'?'Virada: pecas ficam a conferir':'Desfez a escolha da virada',nome:nm})}});
   v.nAd=v.ad.length;return v}
 const osLista=()=>[...osTodas().values()];
 const osById=id=>osTodas().get(id);
@@ -7790,6 +7792,63 @@ function openMecs(){nav('mecs',()=>openMecs());const L=(S.mecs||[]).slice().sort
    ${L.length?`<div class="os-ml">${L.map(m=>`<button type="button" class="os-mc mc-r${m.ativo===false?' off':''}" data-mf="${esc(m.uid)}"><span class="mc-av">${esc(((m.nome||'?').trim()[0]||'?').toUpperCase())}</span><span class="mc-t"><span class="os-mn"><span class="n">${esc(m.nome)}</span>${m.enc?'<span class="os-e" title="Encarregado de manutencao">E</span>':''}</span><small>${esc(mecSub(m))}${m.ativo===false?' · desativado':''}${window.__frotaMec&&!m.real?' · sem login':''}</small></span>${cr}</button>`).join('')}</div>
    <p class="os-mut" style="margin:8px 4px 0;display:flex;align-items:center;gap:6px"><span class="os-e" style="margin:0">E</span>Encarregado de manutencao</p>`:'<div class="os-vz">Nenhum mecanico.</div>'}`,
   mount:sh=>{sh.querySelector('#mc-nv').onclick=()=>openMecFicha('novo');sh.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>openMecFicha(b.dataset.mf))}})}
+/* item 31 parte B: conferencia da virada (so admin, so oficial). Tudo fica em eventos da propria OS (ose):
+   vir31 {d:'lig'|'reg'|'conf'|'x', troca, tdata, th} e conf {acao:'ja'} / confx (desfaz) para as pecas. Desfazer em cada OS. */
+const v31Dia=d=>iso(new Date(new Date((d||today())+'T12:00').getTime()-3*864e5));
+const v31Ini=v=>v31Dia([v.data||'',v.ts?iso(new Date(v.ts)):''].filter(Boolean).sort()[0]);
+const v31Grp=v=>v.tipo==='prev'?'prev':'ar:'+(v.arSub||'');
+const v31L1=()=>osLista().filter(v=>!OS_TESTE&&v.sit==='fechada'&&(v.tipo==='prev'||v.tipo==='ar')&&eqById(v.eq)&&(osTr(v)?!!(v.vir&&v.vir.d==='lig'):true)).sort((a,b)=>(Number(a.num)||0)-(Number(b.num)||0));
+const v31Pc=v=>v.pecas.filter(p=>!v.conf[p.pk]||v.conf[p.pk].acao==='ja');
+const v31L2=()=>osLista().filter(v=>!OS_TESTE&&v.sit!=='cancelada'&&v.tipo==='cor'&&v31Pc(v).length).sort((a,b)=>(Number(a.num)||0)-(Number(b.num)||0));
+const v31Ok1=v=>!!osTr(v)||!!(v.vir&&v.vir.d==='reg');
+const v31Ok2=v=>!!(v.vir&&v.vir.d==='conf')||v.pecas.every(p=>v.conf[p.pk]);
+const v31Pend=()=>v31L1().filter(v=>!v31Ok1(v)).length+v31L2().filter(v=>!v31Ok2(v)).length;
+const v31Esp=async f=>{for(let i=0;i<40&&!f();i++)await new Promise(r=>setTimeout(r,100))};
+const v31Tr=t=>`${fdate(t.data)} · ${nf(t.horimetro,1)} h${t.ajuste?' · Ajuste':''}${t.tipo==='informada'?' · informada':''}`;
+function openVir31(){nav('vir31',()=>openVir31());const MV={ok:false,er:false,l:[]};
+  const itx=a=>(a||[]).map(p=>`${esc(p.desc||p.nome||'')} · ${nf(p.qtd,2)}`).join(', ')||'sem itens';
+  const cab=v=>{const e=eqById(v.eq)||{};return `<div class="v31-h"><b>${osNum(v)} · ${esc(e.codigo||v.eq)}</b><span>${esc(osTpTx(v))}</span></div><small class="v31-s">${fdate(v.data)}${v.hor?' · '+nf(v.hor,1)+' h':''} · ${esc(v.aconteceu||'')}</small>`};
+  const cand1=v=>{const g=v31Grp(v),ini=v31Ini(v),h=Number(v.hor)||0,dd=x=>Math.abs((new Date(x+'T12:00')-new Date((v.data||today())+'T12:00'))/864e5);
+    return (S.trocas||[]).filter(t=>t.equipId===v.eq&&trGrp(t)===g&&(t.data||'')>=ini&&!t.os).sort((a,b)=>dd(a.data)-dd(b.data)||Math.abs((Number(a.horimetro)||0)-h)-Math.abs((Number(b.horimetro)||0)-h))};
+  const card1=v=>{const t=osTr(v);let r;
+    if(t)r=`<div class="v31-ok">✓ Ligada ao registro de ${esc(v31Tr(t))}</div><button type="button" class="v31-dx" data-v1x="${esc(v.id)}">Desfazer</button>`;
+    else if(v.vir&&v.vir.d==='reg')r=`<div class="v31-ok cz">Fica em Preventivas a registrar</div><button type="button" class="v31-dx" data-v1x="${esc(v.id)}">Desfazer</button>`;
+    else{const C=cand1(v);r=`<div class="v31-t">Registros do oficial desde ${fdate(v31Ini(v))}</div>${C.length?C.map(t=>`<div class="v31-r"><span><b>${esc(v31Tr(t))}</b><small>${itx(t.itens)}</small></span><button type="button" class="v31-b" data-v1l="${esc(v.id)}" data-tr="${esc(t.id)}">Ja registrada</button></div>`).join(''):'<div class="v31-n">Nenhum registro do oficial</div>'}<button type="button" class="v31-b2" data-v1r="${esc(v.id)}">Registrar depois</button>`}
+    return `<div class="v31-c${t||v.vir?' ok':''}" data-c1="${esc(v.id)}">${cab(v)}<small class="v31-s">Itens da OS: ${itx(v.pecas)}</small>${r}</div>`};
+  const cand2=(v,p)=>{if(!MV.ok)return MV.er?'<div class="v31-n">Sem internet: saidas do estoque nao carregadas</div>':'<div class="v31-n">Carregando saidas do estoque...</div>';
+    const st=p.k==='est'?stById(p.id):null;if(!st)return '';const ids=new Set([st.id,...eqvGrupo(st).map(x=>x.id)]),ini=v31Ini(v);
+    const L=MV.l.filter(m=>ids.has(m.estoqueId)&&(m.data||'')>=ini&&!m.os).sort((a,b)=>(b.equipId===v.eq)-(a.equipId===v.eq)||Math.abs(new Date(a.data)-new Date(v.data))-Math.abs(new Date(b.data)-new Date(v.data))).slice(0,5);
+    return L.length?L.map(m=>{const s=stById(m.estoqueId)||{},e=eqById(m.equipId)||{};return `<div class="v31-m${m.equipId===v.eq?' eq':''}">${fdate(m.data)} · ${esc(stCod(s)||'')} · ${nf(m.qtd,2)}${e.codigo?' · '+esc(e.codigo):''}${m.obs?' · '+esc(m.obs):''}</div>`}).join(''):'<div class="v31-n">Nenhuma saida desse item desde '+fdate(ini)+'</div>'};
+  const card2=v=>{const conf=v.vir&&v.vir.d==='conf',P=v31Pc(v);
+    const pc=P.map(p=>{const ja=v.conf[p.pk];return `<div class="v31-p"><div class="v31-r"><span><b>${esc(p.nome)} · ${nf(p.qtd,2)}</b><small>${p.k==='est'?esc(stCod(stById(p.id)||{})||p.cod||''):'Sem cadastro'}</small></span>${ja?`<span class="v31-ok sm">✓ Baixa ja dada</span><button type="button" class="v31-dx" data-v2x="${esc(v.id)}" data-pk="${esc(p.pk)}">Desfazer</button>`:conf?'':`<button type="button" class="v31-b" data-v2j="${esc(v.id)}" data-pk="${esc(p.pk)}">Baixa ja dada</button>`}</div>${ja||conf?'':cand2(v,p)}</div>`}).join('');
+    return `<div class="v31-c${v31Ok2(v)?' ok':''}" data-c2="${esc(v.id)}">${cab(v)}<div class="v31-t">Pecas · saidas do estoque do oficial desde ${fdate(v31Ini(v))}</div>${pc}${conf?`<div class="v31-ok cz">Pecas ficam a conferir</div><button type="button" class="v31-dx" data-v2c="${esc(v.id)}">Desfazer</button>`:v.pecas.every(p=>v.conf[p.pk])?'':`<button type="button" class="v31-b2" data-v2f="${esc(v.id)}">Conferir depois</button>`}</div>`};
+  const css=`<style>.v31-c{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--warn);border-radius:12px;padding:10px 12px;margin:0 0 10px}.v31-c.ok{border-left-color:var(--ok)}.v31-h{display:flex;justify-content:space-between;gap:8px}.v31-h span{color:var(--faint);font-size:13px}.v31-s{display:block;color:var(--faint);font-size:12px;margin-top:2px}.v31-t{font-size:12px;font-weight:600;margin:8px 0 4px;color:var(--fg)}.v31-r{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--line)}.v31-r span{min-width:0}.v31-r small{display:block;color:var(--faint);font-size:12px}.v31-b,.v31-b2,.v31-dx{border:0;border-radius:999px;padding:7px 12px;font:inherit;font-size:13px;font-weight:600;flex:none}.v31-b{background:var(--accent);color:#fff}.v31-b2{background:none;color:var(--accent);padding:8px 0 2px}.v31-dx{background:none;color:var(--bad);padding:4px 0}.v31-ok{color:var(--ok);font-weight:600;font-size:13px;margin-top:8px}.v31-ok.cz{color:var(--faint)}.v31-ok.sm{margin:0;font-size:12px}.v31-n{color:var(--faint);font-size:12px;padding:2px 0 4px}.v31-m{font-size:12px;color:var(--fg);padding:2px 0 2px 8px;border-left:2px solid var(--line)}.v31-m.eq{border-left-color:var(--accent)}.v31-g{font-weight:700;margin:14px 2px 6px}</style>`;
+  const L1=v31L1(),L2=v31L2();
+  openSheet({title:'Conferencia da virada',sub:`${v31Pend()} a decidir`,
+    body:css+`<div class="v31-g">Preventivas e filtros de ar · ${L1.length}</div>${L1.length?L1.map(card1).join(''):'<div class="os-vz">Nenhuma OS.</div>'}<div class="v31-g">Pecas de OS corretiva · ${L2.length}</div>${L2.length?L2.map(card2).join(''):'<div class="os-vz">Nenhuma OS.</div>'}`,
+    mount:sh=>{
+      const sub=()=>{const s=document.querySelector('#sheet .sh-tt .sub');if(s)s.textContent=v31Pend()+' a decidir'};
+      const troca=(sel,html,id)=>{const o=sh.querySelector(sel);if(!o)return;const t=document.createElement('div');t.innerHTML=html;const n=t.firstElementChild;o.replaceWith(n);liga(n);sub()};
+      const re1=id=>{const v=osById(id);if(v)troca(`[data-c1="${CSS.escape(id)}"]`,card1(v))};const re1t=()=>L1.forEach(v=>re1(v.id));
+      const re2=id=>{const v=osById(id);if(v)troca(`[data-c2="${CSS.escape(id)}"]`,card2(v))};
+      const ev=async(v,tipo,d,ok)=>{const n0=S.ose.length;const r=await safe(()=>osEvento(v.id,tipo,d),ok);if(r)await v31Esp(()=>S.ose.length>n0);return r};
+      const liga=el=>{
+        el.querySelectorAll('[data-v1l]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v1l),t=(S.trocas||[]).find(x=>x.id===b.dataset.tr);if(!v||!t)return;
+          if(t.os&&t.os!==v.id){toast('Registro ja ligado a '+osNumId(t.os));return}if(osTr(v)){toast(osNum(v)+' ja ligada');return}b.disabled=true;
+          const ok=await safe(()=>S.db.doc('trocas/'+t.id).update({os:v.id}),'Ligada ao registro de '+fdate(t.data));
+          if(ok){await ev(v,'vir31',{d:'lig',troca:t.id,tdata:t.data||'',th:t.horimetro??''});await v31Esp(()=>osTr(osById(v.id)))}re1t()});
+        el.querySelectorAll('[data-v1r]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v1r);if(!v)return;b.disabled=true;await ev(v,'vir31',{d:'reg'},'Fica a registrar');re1(v.id)});
+        el.querySelectorAll('[data-v1x]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v1x);if(!v)return;b.disabled=true;const t=osTr(v);
+          if(t&&v.vir&&v.vir.d==='lig'&&v.vir.troca===t.id){const ok=await safe(()=>S.db.doc('trocas/'+t.id).update({os:null}));if(!ok){re1(v.id);return}await v31Esp(()=>!osTr(osById(v.id)))}
+          else if(t){toast('Registro feito pela OS: desfaca pelo Editar preventiva');re1(v.id);return}
+          await ev(v,'vir31',{d:'x'},'Escolha desfeita');re1t()});
+        el.querySelectorAll('[data-v2j]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v2j),p=v&&v.pecas.find(x=>x.pk===b.dataset.pk);if(!p)return;b.disabled=true;
+          await ev(v,'conf',{pk:p.pk,acao:'ja',estoqueId:p.k==='est'?p.id:'',qtd:0,nome:p.nome},'Baixa ja dada · estoque nao muda');re2(v.id)});
+        el.querySelectorAll('[data-v2x]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v2x);if(!v)return;b.disabled=true;await ev(v,'confx',{pk:b.dataset.pk},'Desfeito');re2(v.id)});
+        el.querySelectorAll('[data-v2f]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v2f);if(!v)return;b.disabled=true;await ev(v,'vir31',{d:'conf'},'Pecas ficam a conferir');re2(v.id)});
+        el.querySelectorAll('[data-v2c]').forEach(b=>b.onclick=async()=>{const v=osById(b.dataset.v2c);if(!v)return;b.disabled=true;await ev(v,'vir31',{d:'x'},'Escolha desfeita');re2(v.id)})};
+      liga(sh);
+      if(L2.length)S.db.collection('movs').where('tipo','==','saida').get().then(q=>{MV.l=q.docs.map(d=>({id:d.id,...d.data()}));MV.ok=true}).catch(()=>{MV.er=true}).then(()=>{if(sh.isConnected)L2.forEach(v=>re2(v.id))})}})}
 /* ficha do mecanico ja cadastrado: so leitura; Editar (no topo) abre o formulario */
 function openMecFicha(id){if(id==='novo'){openMecForm('novo');return}const m=(S.mecs||[]).find(x=>x.uid===id);if(!m){openMecs();return}
   nav('mecf:'+id,()=>openMecFicha(id));const MF=!!window.__frotaMec,off=m.ativo===false;

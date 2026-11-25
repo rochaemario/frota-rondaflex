@@ -67,7 +67,7 @@ R('as 2 pecas com baixa ja dada → OS decidida',await txt(p,'#sheet .sh-tt .sub
 const h42=await p.evaluate(()=>__T().osById('o42').hist.map(h=>h.txt+(h.d?' ('+h.d+')':'')).join(' | '));R('historico OS 0042',h42,/Baixa ja dada no oficial/.test(h42)&&/Desfez a conferencia/.test(h42));
 await ck(p,'[data-v1r="o43"]');await W(p,900);R('tudo decidido: 0 a decidir',await txt(p,'#sheet .sh-tt .sub'),await txt(p,'#sheet .sh-tt .sub')==='0 a decidir');
 await p.screenshot({path:OUT+'-3.png',fullPage:true});
-R('sem virada: a registrar continua vazio',await p.evaluate(()=>__T().osARegistrar().length),await p.evaluate(()=>__T().osARegistrar().length)===0);
+{const ar=await p.evaluate(()=>__T().osARegistrar().map(v=>v.num).sort().join(','));R('a registrar (v429): so 0041 e 0043, sem a ligada 0040',ar,ar==='41,43')}
 const pe=await abre(EDT);await pe.evaluate(()=>__T().openMenu('aj'));await W(pe);R('editor: sem Conferencia da virada',!/Conferencia da virada/.test(await txt(pe,'#sheet')));
 if(VIR){const p2=await abre(ADM);
   // reaplica as escolhas num banco novo: 40 ligada, 41 e 43 a registrar, 42 ja

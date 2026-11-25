@@ -7110,7 +7110,7 @@ function rdShow(txt,tipo){const r=RD;if(!r)return;r.paused=true;const fr=r.el.qu
 const OS_ON=true;
 const OS_TESTE=!!window.__frotaNS;
 /* item 31: ate a virada (parte B) o oficial nao mostra OS a registrar nem pecas a conferir e nao abre OS nova (numeracao vem do teste); a parte B troca para true */
-const VIRADA31=OS_TESTE||false;
+const VIRADA31=true;
 const TRAVA31='OS novas no oficial so depois da virada';
 S.os=[];S.ose=[];S.mecs=[];S.osComo=null;S.osF={tab:'abertas',q:'',par:false,min:false,conf:false,show:false};
 try{const c=JSON.parse(localStorage.getItem('frota.osComo')||'null');if(c)S.osComo=c}catch(e){}

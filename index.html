@@ -1627,9 +1627,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .tk-l{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.45;list-style:disc}.tk-l li{margin:3px 0;display:list-item}.tk-f{flex-wrap:wrap}.tk-f .btn{flex:1 1 40%}.tk-f [data-tkx]{flex-basis:100%}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v433'</script>
-<script src="config.js?v=6a071da705"></script>
-<script src="shim.js?v=6a071da705"></script>
+<script>window.__APPV='v434'</script>
+<script src="config.js?v=0528b2ec17"></script>
+<script src="shim.js?v=0528b2ec17"></script>
 </head>
 <body>
 
@@ -1825,8 +1825,15 @@ function ivSelect(cur,eqIv,attr){cur=cur==null?'':String(cur);return `<label cla
 const ivVal=v=>v==='aval'?'aval':v===''||v==null?'':Number(v);
 const ivProx=(v,h,fb)=>v==='aval'?'':v!==''&&v!=null?Math.round((Number(h)+Number(v))*10)/10:fb;
 const novoPid=()=>'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+/* item 11: equipamento sem leitura de horimetro (vazio; 0 conta como leitura). So muda o que aparece
+   no cronograma e na ficha; vencimentos, Painel, registro, OS e compras continuam iguais. */
+const semLeit=e=>!!e&&(e.horimetro===''||e.horimetro==null);
+const stVis=(e,st)=>semLeit(e)&&st&&st.cls!=='mut'?{...st,cls:'bad',label:'Sem leitura',sl:true}:st;
 function eqSituacao(e){
   if(!eqItens(e).length)return {cls:'mut',label:'Sem plano',mot:[],its:[],est:[]};
+  if(semLeit(e)){const r=eqSit0(e);return {...r,cls:'bad',label:'Sem leitura',mot:r.mot.filter(m=>/estoque/.test(m)),its:[]}}
+  return eqSit0(e)}
+function eqSit0(e){
   const crit=[],aten=[],its=[],est=[];
   eqItens(e).forEach(it=>{const st=itemStatus(e,it),sk=it.estoqueId&&stById(it.estoqueId);
     if(st.cls==='bad'||st.cls==='warn')its.push({it,st});
@@ -4098,9 +4105,11 @@ function planosACompletar(){const L=[];S.eqCtl.filter(e=>e.status!=='inativo').f
   return L.sort((a,b)=>byCode(a.e,b.e))}
 function vManut(){
   const items=allItems();
-  const grp=[];items.filter(x=>x.st.cls!=='mut').forEach(x=>{let g=grp.find(g=>g.eq.id===x.eq.id);if(!g)grp.push(g={eq:x.eq,items:[],first:x});g.items.push(x)});
-  const cRow=g=>{const f=g.first.st,w=f.cls;
-    return `<button class="tq" data-cron="${esc(g.eq.id)}"><span class="tq-c">${esc(g.eq.codigo)}</span><span class="tq-m"></span><span class="pill ${w}">${w==='bad'?`Vencida ${nf(-f.rest)} h`:`Faltam ${nf(f.rest)} h`}</span>${I.chev}</button>`};
+  const grp0=[];items.filter(x=>x.st.cls!=='mut').forEach(x=>{let g=grp0.find(g=>g.eq.id===x.eq.id);if(!g)grp0.push(g={eq:x.eq,items:[],first:x});g.items.push(x)});
+  /* item 11: sem leitura no topo (ordem pela TAG), depois a ordem por urgencia */
+  const grp=[...grp0.filter(g=>semLeit(g.eq)).sort((a,b)=>byCode(a.eq,b.eq)),...grp0.filter(g=>!semLeit(g.eq))];
+  const cRow=g=>{const f=g.first.st,sl=semLeit(g.eq),w=sl?'bad':f.cls;
+    return `<button class="tq" data-cron="${esc(g.eq.id)}"><span class="tq-c">${esc(g.eq.codigo)}</span><span class="tq-m"></span><span class="pill ${w}">${sl?'Sem leitura':w==='bad'?`Vencida ${nf(-f.rest)} h`:`Faltam ${nf(f.rest)} h`}</span>${I.chev}</button>`};
   const last={};S.trocas.forEach(t=>{if(t.tipo==='reprog'||t.tipo==='hmtroca'||t.tipo==='filtro_ar')return;const c=last[t.equipId];if(!c||(t.data||'')>(c.data||'')||((t.data||'')===(c.data||'')&&t.horimetro>c.horimetro))last[t.equipId]=t});
   const hist=Object.values(last).filter(t=>eqById(t.equipId)).sort((a,b)=>(b.data||'').localeCompare(a.data||'')||byCode(eqById(a.equipId),eqById(b.equipId)));
   const hRow=t=>{const e=eqById(t.equipId);
@@ -4942,13 +4951,13 @@ function itemList(e,its,empty){
   return G.map(([k,lab])=>{const g=its.filter(x=>gk(x.it.tipo)===k);return g.length?`<div class="ig-h">${lab} <span>${g.length}</span></div>${itemRows(e,g)}`:''}).join('');
 }
 function itemRows(e,its){
-  return `<div class="ilist">${its.map(({it,st},i)=>{const sk=it.estoqueId&&stById(it.estoqueId);return `<div class="ia"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="idot ${st.cls}"></span><span class="ia-t">${esc(itNome(it))}</span><span class="ist ${st.cls}">${st.label.toLowerCase()}</span>${I.chev}</button>
+  return `<div class="ilist">${its.map(({it,st:st0},i)=>{const st=stVis(e,st0),sk=it.estoqueId&&stById(it.estoqueId);return `<div class="ia"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="idot ${st.cls}"></span><span class="ia-t">${esc(itNome(it))}</span><span class="ist ${st.cls}">${st.label.toLowerCase()}</span>${I.chev}</button>
     <div class="ia-b" hidden><div class="s">${esc(it.espec||'Sem especificacao')}${it.qtd!==''&&it.qtd!=null?` · ${nf(it.qtd,2)} ${esc(it.un||'')}`:''}${sk?` · estoque ${esc(sk.codigo)}`:''}</div>${sk?eqvAv(sk):''}
     <div class="meter"><i style="width:${Math.round(st.pct*100)}%;background:${meterColor(st.cls)}"></i></div>
-    <div class="facts"><div>Ultima troca<b>${it.ultimaH!==''&&it.ultimaH!=null?(()=>{const o=it.ultimaData?hmOrig(e.id,it.ultimaH,it.ultimaData):{v:Number(it.ultimaH),d:0};return nf(o.v,2)+' h'+(o.d?'<small class="rp-mk">relogio antigo</small>':'')})():'—'}</b>${it.ultimaData?sdate(it.ultimaData):''}</div><div>${st.cls==='bad'?'Venceu em':'Proxima'}<b>${st.prox!=null?(()=>{const lt=hmTrocas(e.id).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
+    <div class="facts"><div>Ultima troca<b>${it.ultimaH!==''&&it.ultimaH!=null?(()=>{const o=it.ultimaData?hmOrig(e.id,it.ultimaH,it.ultimaData):{v:Number(it.ultimaH),d:0};return nf(o.v,2)+' h'+(o.d?'<small class="rp-mk">relogio antigo</small>':'')})():'—'}</b>${it.ultimaData?sdate(it.ultimaData):''}</div><div>${st.cls==='bad'&&!st.sl?'Venceu em':'Proxima'}<b>${st.prox!=null?(()=>{const lt=hmTrocas(e.id).sort((a,b)=>(b.data||'').localeCompare(a.data||''))[0];
       /* vencimento que caiu antes da troca do relogio: mostra no relogio antigo */
-      if(st.cls==='bad'&&lt&&it.ultimaData&&(it.ultimaData<(lt.data||''))&&st.prox<=Number(lt.horimetro)){const o=hmOrig(e.id,st.prox,it.ultimaData);return nf(o.v,2)+' h<small class="rp-mk">relogio antigo</small>'}
-      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.virt&&!adOleo(it)&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad'&&!it.virt;
+      if(st.cls==='bad'&&!st.sl&&lt&&it.ultimaData&&(it.ultimaData<(lt.data||''))&&st.prox<=Number(lt.horimetro)){const o=hmOrig(e.id,st.prox,it.ultimaData);return nf(o.v,2)+' h<small class="rp-mk">relogio antigo</small>'}
+      return nf(st.prox)+' h'})():'—'}</b>${it.reprog&&st.manual?'<span class="rp-mk">reprogramada</span>':''}</div><div>Horimetro<b>${hmTxt(e)} h</b></div></div>${(()=>{const def=!it.virt&&!adOleo(it)&&it.ultimaH!==''&&it.ultimaH!=null&&!(sk&&isKit(sk));const rp=st.cls==='bad'&&!st.sl&&!it.virt;
       return rp||def?`<div class="pn-bt">${def?`<button type="button" class="btn sm" data-ivd="${esc(e.id)}|${esc(it.pid)}">Intervalo</button>`:''}${rp?`<button type="button" class="btn sm" data-rp="${esc(e.id)}|${esc(it.pid)}">Reprogramar</button>`:''}</div><div class="ivd-box"></div>`:''})()}</div></div>`}).join('')}</div>`;
 }
 /* intervalo de troca do item: pode ser mudado a qualquer momento */
@@ -5008,7 +5017,7 @@ function openPend(id,all){
   const npend=its.filter(x=>x.st.cls==='bad'||x.st.cls==='warn').length;
   const si=eqSituacao(e),stk=si.mot.filter(m=>/estoque/.test(m));
   openSheet({title:esc(e.codigo),sub:`Horimetro ${hmTxt(e)} h${e.horimetroData?` em ${sdate(e.horimetroData)}`:''}`,
-  body:`<div class="pend-sit"><span class="sit ${si.cls}">${si.label}</span><span class="note">${npend?`${npend} ${npend===1?'item pendente':'itens pendentes'}`:'Nenhum item pendente'}</span></div>
+  body:`<div class="pend-sit"><span class="sit ${si.cls}">${si.label}</span>${semLeit(e)?'':`<span class="note">${npend?`${npend} ${npend===1?'item pendente':'itens pendentes'}`:'Nenhum item pendente'}</span>`}</div>
     ${ultBox(e)}<div class="lbl">${all?'Cronograma de trocas':'O que esta pendente'}</div>
     ${itemList(e,its,`<div class="empty">${all?'Sem oleos e filtros no plano.':'Nenhuma troca pendente.'}</div>`)}
     ${stk.length?`<div class="lbl">Estoque</div><div class="spec">${stk.map(m=>`<div class="r"><span>${esc(m)}</span></div>`).join('')}</div>`:''}`,

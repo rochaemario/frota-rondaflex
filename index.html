@@ -401,7 +401,11 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .cpl-vt{border:0;background:none;color:var(--accent-tx);font:700 13px var(--body);cursor:pointer;grid-column:4/5;white-space:nowrap}
 .cpl-sm{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.cbx-tag.am{background:var(--warn-bg);color:var(--warn)}
 .cpl-fb{margin-left:auto;border:0;background:none;color:var(--accent-tx);font:700 14px var(--body);cursor:pointer;min-height:36px}
-.cpl-pl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.cpl-pl button{border:0;border-radius:15px;background:var(--accent);color:#fff;font:600 13px var(--body);padding:5px 12px;cursor:pointer}
+.cpl-pl{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.osg-fb{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:18px;background:var(--surface);color:var(--fg);font:600 14px var(--body);padding:0 12px;min-height:36px;cursor:pointer;margin-left:auto}
+.osg-fb.on{border-color:var(--accent);color:var(--accent-tx)}
+.osg-pl{margin:2px 0 10px}
+.osg-dt{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 14px 14px;border-top:1px solid var(--line)}.cpl-pl button{border:0;border-radius:15px;background:var(--accent);color:#fff;font:600 13px var(--body);padding:5px 12px;cursor:pointer}
 .cpl-fo{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted);padding:0 4px}
 .cpl-fl{margin-top:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface);overflow:hidden}
 .cpl-fr,.cpl-fo2 button{display:flex;justify-content:space-between;width:100%;min-height:48px;padding:0 14px;border:0;background:none;font:600 15px var(--body);color:var(--fg);cursor:pointer;align-items:center}
@@ -1615,9 +1619,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v430'</script>
-<script src="config.js?v=9fb3e1db4e"></script>
-<script src="shim.js?v=9fb3e1db4e"></script>
+<script>window.__APPV='v431'</script>
+<script src="config.js?v=5f7ca9772c"></script>
+<script src="shim.js?v=5f7ca9772c"></script>
 </head>
 <body>
 
@@ -7197,18 +7201,75 @@ function osCard(v){const e=eqById(v.eq)||{},par=v.estado==='parado',pc=osAdm()?o
   return `<button type="button" class="os-c" data-os="${esc(v.id)}"><span class="os-l1"><span class="os-n${pend?' pend':''}">${osNum(v)}</span><b class="os-tag">${esc(e.codigo||v.eq)}</b>${v.tipo!=='cor'?`<span class="os-tp${osAdm()&&!ehMec()&&v.sit==='fechada'&&!osTr(v)?' rg':''}">${v.tipo==='ar'?'FILTRO DE AR':'PREVENTIVA'}</span>`:''}${v.sit==='cancelada'?'<span class="os-cxt">CANCELADA</span>':par?'<span class="os-par">PARADO</span>':''}${pc?`<span class="os-cf">${pc} conferir</span>`:''}</span>
     <span class="os-tx">${esc(v.aconteceu)}</span><small>${esc(v.resp.map(osNomeDe).join(', '))} · ${osHora(v.ts)}${v.nAd?` · ${v.nAd} ${v.nAd===1?'adendo':'adendos'}`:''}${pend?' · recebe o numero quando tiver sinal':''}</small></button>`}
 const OS_FIL='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>';
-function osListaHTML(){const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0)+(f.cx?1:0),L=osFiltra();
+function osListaHTML(){if(!ehMec())return osgHTML();const f=S.osF,nAb=osLista().filter(v=>v.sit==='aberta').length,fil=(f.par?1:0)+(f.min?1:0)+(f.q?1:0)+(f.conf?1:0)+(f.cx?1:0),L=osFiltra();
   const vz=f.conf?'Nenhuma peca a conferir':fil?'Nenhuma OS com esse filtro':f.tab==='abertas'?'Nenhuma OS aberta':'Nenhuma OS fechada';
   return `<div class="os-tbar"><div class="os-seg" role="tablist"><button type="button" role="tab" class="${f.tab==='abertas'&&!f.conf?'on':''}" data-ost="abertas">Abertas${nAb?`<em class="os-bg">${nAb}</em>`:''}</button><button type="button" role="tab" class="${f.tab==='fechadas'&&!f.conf?'on':''}" data-ost="fechadas">Fechadas</button></div>
    <button type="button" class="os-fb2${f.show||fil?' on':''}" data-osf aria-label="Filtrar">${OS_FIL}${fil?`<em class="os-bg">${fil}</em>`:''}</button></div>
   ${f.show?`<div class="os-fp"><input class="os-in sm" id="os-q" type="search" placeholder="Equipamento ou o que aconteceu" value="${esc(f.q)}" autocomplete="off"><div class="os-chips"><button type="button" class="os-ch sm${f.par?' on':''}" data-osp="par">So parados</button><button type="button" class="os-ch sm${f.min?' on':''}" data-osp="min">Minhas</button><button type="button" class="os-ch sm${f.cx?' on':''}" data-osp="cx">Canceladas</button>${osAdm()?`<button type="button" class="os-ch sm${f.conf?' on':''}" data-osp="conf">Pecas a conferir</button>`:''}${fil?'<button type="button" class="os-ch sm lk" data-osp="limpa">Limpar</button>':''}</div></div>`:''}
   <div class="os-ls" id="os-ls">${L.length?L.map(osCard).join(''):`<div class="os-vz2b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><b>${vz}</b>${!fil&&!f.conf&&f.tab==='abertas'?'<span>Toque em Nova OS para registrar um servico.</span>':''}</div>`}</div>`}
-function osBindLista(root,redraw){
+function osBindLista(root,redraw){if(!ehMec())return osgBind(root,redraw);
   root.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>openOS(b.dataset.os));
   root.querySelectorAll('[data-ost]').forEach(b=>b.onclick=()=>{S.osF.tab=b.dataset.ost;S.osF.conf=false;redraw()});
   const fb=root.querySelector('[data-osf]');if(fb)fb.onclick=()=>{S.osF.show=!S.osF.show;redraw()};
   root.querySelectorAll('[data-osp]').forEach(b=>b.onclick=()=>{const k=b.dataset.osp;if(k==='limpa'){Object.assign(S.osF,{par:false,min:false,conf:false,cx:false,q:''})}else{S.osF[k]=!S.osF[k];if(k==='cx'&&S.osF.cx)S.osF.tab='fechadas'}redraw()});
   const q=root.querySelector('#os-q');if(q)q.oninput=()=>{S.osF.q=q.value;const ls=root.querySelector('#os-ls');bLista(ls,osFiltra(),osCard,()=>ls.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>openOS(b.dataset.os)),{vazio:'<div class="os-vz">Nenhuma OS com esse filtro.</div>'})}}
+/* ---------- item 33: Filtrar da lista de OS (admin e equipe; o mini app usa a lista de antes) ---------- */
+const OSG_K='frota.osFiltro',OSG_V=()=>({q:'',tp:[],ar:[],per:'',de:'',ate:'',sit:[],mec:[]});
+S.osG=(()=>{try{const o=JSON.parse(localStorage.getItem(OSG_K)||'null');if(o&&typeof o==='object'){const b=OSG_V();for(const k in b)if(k in o)b[k]=Array.isArray(b[k])?(Array.isArray(o[k])?o[k]:[]):String(o[k]||'');return b}}catch(e){}return OSG_V()})();
+function osgSalva(){try{localStorage.setItem(OSG_K,JSON.stringify(S.osG))}catch(e){}}
+function osgPre(pre){S.osG={...OSG_V(),q:pre.q||'',sit:pre.conf?['conf']:pre.cx?['cx']:pre.par?['par']:[]};osgSalva()}
+const OSG_TP=[['cor','Corretiva'],['prev','Preventiva'],['ar','Filtro de ar']],OSG_AR=[['Planta','Planta'],['Mina','Mina'],['UG','UG']],OSG_PER=[['hoje','Hoje'],['7','7 dias'],['30','30 dias'],['esc','Escolher datas']];
+const osgSitOp=()=>[['par','Parados'],...(osAdm()?[['reg','A registrar'],['conf','Pecas a conferir']]:[]),['cx','Canceladas']];
+const osgMecOp=()=>[['eu','Minhas'],...(S.mecs||[]).filter(m=>m.ativo!==false&&m.uid).map(m=>[m.uid,m.nome||m.uid]).sort((a,b)=>_an(a[1],b[1]))];
+const osgArea=v=>{const e=eqById(v.eq);if(!e)return '';return e.area==='Mina'?(e.frente==='UG'?'UG':'Mina'):e.area==='Planta'?'Planta':''};
+const osgDia=n=>{const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10)};
+const osgDt=v=>v.data||(v.ts?new Date(v.ts).toISOString().slice(0,10):'');
+/* filtros validos para quem esta vendo (editor nao usa A registrar / Pecas a conferir) */
+const osgSit=F=>F.sit.filter(k=>osgSitOp().some(o=>o[0]===k));
+function osgFiltra(F,tab){F=F||S.osG;tab=tab||S.osF.tab;const u=osEu(),sit=osgSit(F),semAba=sit.includes('conf');const reg=sit.includes('reg')?new Set(osARegistrar().map(v=>v.id)):null;
+  let L=osLista().filter(v=>semAba||(tab==='abertas'?v.sit==='aberta':v.sit!=='aberta'));
+  if(sit.length)L=L.filter(v=>sit.some(k=>k==='par'?v.sit!=='cancelada'&&(osParado(v.eq)&&osParado(v.eq).id===v.id||v.estado==='parado'):k==='reg'?reg.has(v.id):k==='conf'?osPendPecas(v).length>0:v.sit==='cancelada'));
+  if(F.tp.length)L=L.filter(v=>F.tp.includes(v.tipo&&OS_TP[v.tipo]?v.tipo:'cor'));
+  if(F.ar.length)L=L.filter(v=>F.ar.includes(osgArea(v)));
+  if(F.per){const de=F.per==='hoje'?today():F.per==='7'?osgDia(6):F.per==='30'?osgDia(29):F.de,ate=F.per==='esc'?F.ate:'';L=L.filter(v=>{const d=osgDt(v);return (!de||d>=de)&&(!ate||d<=ate)})}
+  if(F.mec.length){const ids=F.mec.map(k=>k==='eu'?u.uid:k);L=L.filter(v=>ids.some(id=>v.por===id||v.resp.includes(id)))}
+  if(F.q){const q=F.q.trim(),k=nzM(q),nq=/^\d+$/.test(q)?Number(q):null;L=L.filter(v=>{if(nq!=null&&v.num===nq)return true;const e=eqById(v.eq)||{};return nzM([v.eq,e.codigo,e.desc,e.modelo,v.aconteceu,osNum(v)].join(' ')).includes(k)||bTodas(q,[e.codigo,e.desc,e.modelo,v.aconteceu,osNum(v)])})}
+  L.sort((a,b)=>(b.num||1e9)-(a.num||1e9)||b.ts-a.ts);if(!F.q)return L;const o=bOrdOs(L,F.q),nq=/^\d+$/.test(F.q.trim())?Number(F.q.trim()):null;return nq!=null?[...o.filter(v=>v.num===nq),...o.filter(v=>v.num!==nq)]:o}
+const osgNome=(lst,k)=>(lst.find(o=>o[0]===k)||[k,k])[1];
+/* pilulas: [chave para tirar, texto] */
+function osgPil(F){const P=[];if(F.q)P.push(['q:','"'+F.q+'"']);F.tp.forEach(k=>P.push(['tp:'+k,osgNome(OSG_TP,k)]));F.ar.forEach(k=>P.push(['ar:'+k,k]));
+  if(F.per)P.push(['per:',F.per==='esc'?((F.de?fdate(F.de).slice(0,5):'...')+' a '+(F.ate?fdate(F.ate).slice(0,5):'...')):osgNome(OSG_PER,F.per)]);
+  osgSit(F).forEach(k=>P.push(['sit:'+k,osgNome(osgSitOp(),k)]));F.mec.forEach(k=>P.push(['mec:'+k,osgNome(osgMecOp(),k)]));return P}
+function osgHTML(){const F=S.osG,tab=S.osF.tab,semAba=osgSit(F).includes('conf'),nAb=osLista().filter(v=>v.sit==='aberta').length,P=osgPil(F),L=osgFiltra();
+  const vz=P.length?'Nenhuma OS com este Filtrar':tab==='abertas'?'Nenhuma OS aberta':'Nenhuma OS fechada';
+  return `<div class="os-tbar"><div class="os-seg" role="tablist"><button type="button" role="tab" class="${tab==='abertas'&&!semAba?'on':''}" data-ost="abertas">Abertas${nAb?`<em class="os-bg">${nAb}</em>`:''}</button><button type="button" role="tab" class="${tab==='fechadas'&&!semAba?'on':''}" data-ost="fechadas">Fechadas</button></div>
+   <button type="button" class="osg-fb${P.length?' on':''}" data-osgf>${OS_FIL}<span>Filtrar</span>${P.length?`<em class="os-bg">${P.length}</em>`:''}</button></div>
+  ${P.length?`<div class="cpl-pl osg-pl">${P.map(([k,t])=>`<button type="button" data-osgx="${esc(k)}" aria-label="Tirar ${esc(t)}">${esc(t)} ✕</button>`).join('')}</div>`:''}
+  <div class="os-ls" id="os-ls">${L.length?L.map(osCard).join(''):`<div class="os-vz2b"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><b>${vz}</b>${!P.length&&tab==='abertas'?'<span>Toque em Nova OS para registrar um servico.</span>':''}</div>`}</div>`}
+function osgBind(root,redraw){
+  root.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>openOS(b.dataset.os));
+  root.querySelectorAll('[data-ost]').forEach(b=>b.onclick=()=>{S.osF.tab=b.dataset.ost;if(osgSit(S.osG).includes('conf')){S.osG.sit=S.osG.sit.filter(k=>k!=='conf');osgSalva()}redraw()});
+  const fb=root.querySelector('[data-osgf]');if(fb)fb.onclick=()=>osgFiltrar();
+  root.querySelectorAll('[data-osgx]').forEach(b=>b.onclick=()=>{const [c,k]=b.dataset.osgx.split(':'),F=S.osG;if(c==='q')F.q='';else if(c==='per'){F.per='';F.de='';F.ate=''}else F[c]=F[c].filter(x=>x!==k);osgSalva();
+    const sc=root.closest('.sh-body'),y=sc?sc.scrollTop:window.scrollY;redraw();if(sc)sc.scrollTop=y;else window.scrollTo(0,y)})}
+function osgFiltrar(){const ok=k=>NAV.length&&NAV[NAV.length-1].key===k;if(!ok('osg'))nav('osg',()=>osgFiltrar());
+  const T=JSON.parse(JSON.stringify(S.osG));let ab='';
+  const CR=[['tp','Tipo',OSG_TP,'Todos'],['ar','Area',OSG_AR,'Todas'],['per','Periodo',OSG_PER,'Todos'],['sit','Situacao',osgSitOp(),'Todas'],['mec','Mecanico',osgMecOp(),'Todos']];
+  openSheet({title:'Filtrar',body:`<form id="osgf"><label class="cbx-q" style="display:flex">${CBX_IC.q}<input id="osgf-q" type="search" data-nodeb placeholder="TAG, numero ou o que aconteceu" autocomplete="off" value="${esc(T.q)}" aria-label="Buscar"></label>
+      <div class="cpl-fl">${CR.map(([k,t,op])=>`<button type="button" class="cpl-fr" data-gr="${k}" aria-expanded="false"><span>${t}</span><span class="v"></span></button><div class="cpl-fo2" data-go="${k}" hidden>${op.map(([v,n])=>`<button type="button" data-gv="${esc(v)}"><span>${esc(n)}</span><span class="ck">✓</span></button>`).join('')}${k==='per'?`<div class="osg-dt" hidden><label class="f">De<input type="date" id="osgf-de" value="${esc(T.de)}"></label><label class="f">Ate<input type="date" id="osgf-ate" value="${esc(T.ate)}"></label></div>`:''}</div>`).join('')}</div></form>
+      <div class="cpl-ff"><span id="osgf-n"></span><button type="button" class="btn sm" data-gl>Limpar</button></div>`,
+    foot:`<button class="btn pri" form="osgf">Aplicar</button>`,
+    mount:sh=>{const pin=()=>{CR.forEach(([k,t,op,todos])=>{const v=sh.querySelector(`[data-gr="${k}"] .v`),sel=k==='per'?(T.per?[T.per]:[]):T[k],tx=k==='per'&&T.per==='esc'?((T.de?fdate(T.de).slice(0,5):'...')+' a '+(T.ate?fdate(T.ate).slice(0,5):'...')):sel.map(x=>osgNome(op,x)).join(', ');
+          v.textContent=(sel.length?tx:todos)+' ›';v.classList.toggle('on',!!sel.length);sh.querySelectorAll(`[data-go="${k}"] [data-gv]`).forEach(b=>b.classList.toggle('on',sel.includes(b.dataset.gv)))});
+        const dt=sh.querySelector('.osg-dt');if(dt)dt.hidden=T.per!=='esc';const n=osgFiltra(T).length;sh.querySelector('#osgf-n').textContent=`${n} OS`};pin();
+      sh.querySelectorAll('[data-gr]').forEach(b=>b.onclick=()=>{const k=b.dataset.gr;ab=ab===k?'':k;sh.querySelectorAll('[data-go]').forEach(o=>o.hidden=o.dataset.go!==ab);sh.querySelectorAll('[data-gr]').forEach(r=>r.setAttribute('aria-expanded',String(r.dataset.gr===ab)))});
+      sh.querySelectorAll('[data-go] [data-gv]').forEach(b=>b.onclick=()=>{const k=b.closest('[data-go]').dataset.go,v=b.dataset.gv;
+        if(k==='per'){T.per=T.per===v?'':v;if(T.per!=='esc'){T.de='';T.ate=''}}else{const on=T[k].includes(v)?T[k].filter(x=>x!==v):[...T[k],v],ord=CR.find(c=>c[0]===k)[2].map(o=>o[0]);T[k]=[...ord.filter(x=>on.includes(x)),...on.filter(x=>!ord.includes(x))]}pin()});
+      const de=sh.querySelector('#osgf-de'),ate=sh.querySelector('#osgf-ate');if(de)de.onchange=()=>{T.de=de.value;pin()};if(ate)ate.onchange=()=>{T.ate=ate.value;pin()};
+      const q=sh.querySelector('#osgf-q');q.addEventListener('input',()=>{T.q=q.value.trim();pin()});q.addEventListener('keydown',ev=>{if(ev.key==='Enter')ev.preventDefault()});
+      sh.querySelector('[data-gl]').onclick=()=>{Object.assign(T,OSG_V());q.value='';if(de)de.value='';if(ate)ate.value='';pin()};
+      sh.querySelector('#osgf').onsubmit=ev=>{ev.preventDefault();if(T.per==='esc'&&!T.de&&!T.ate)T.per='';S.osG=T;osgSalva();const s2=osgSit(T);if(!s2.includes('conf')&&(s2.length&&s2.every(k=>k==='cx'||k==='reg')))S.osF.tab='fechadas';goBack()}}});
+}
 /* topico Ordens de Servico na ficha do equipamento: so numero e data; tocou, expande */
 function osFichaHTML(e){const L=osDoEq(e.id).filter(v=>v.sit!=='cancelada'),pr=osParado(e.id);
   return `<div class="lbl">Ordens de Servico${pr?` <span class="os-par" style="margin-left:8px">PARADO · ${osNum(pr)}</span>`:''}</div>${L.length?`<div class="os-fl2">${L.map(v=>`<div class="os-fi"><button type="button" class="os-fh" data-ofx aria-expanded="false"><span class="n">${osNum(v)}</span><span class="d">${fdate(v.data)}${v.sit==='cancelada'?' <span class="os-cxt sm">CANCELADA</span>':''}</span>${I.chev}</button>
@@ -7216,7 +7277,7 @@ function osFichaHTML(e){const L=osDoEq(e.id).filter(v=>v.sit!=='cancelada'),pr=o
 document.addEventListener('click',ev=>{const h=ev.target.closest&&ev.target.closest('[data-ofx]');if(h){const it=h.parentElement,b=it.querySelector('.os-fb'),ab=b.hidden;it.parentElement.querySelectorAll('.os-fb').forEach(x=>{x.hidden=true;x.previousElementSibling.setAttribute('aria-expanded','false')});if(ab){b.hidden=false;h.setAttribute('aria-expanded','true')}return}
   const o=ev.target.closest&&ev.target.closest('[data-osab]');if(o)openOS(o.dataset.osab)});
 /* tela da equipe */
-function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,min:false,conf:false,cx:false,q:'',show:false},pre);
+function openOSLista(pre){if(pre)Object.assign(S.osF,{tab:'abertas',par:false,min:false,conf:false,cx:false,q:'',show:false},pre);if(pre&&!ehMec())osgPre(pre);
   nav('osl',()=>openOSLista());
   openSheet({title:'Ordens de Servico',sub:'Mecanicos e equipe',body:`${osrFaixaHTML()}<div id="osl">${osListaHTML()}</div>`,
     mount:sh=>{osrBind(sh);const box=sh.querySelector('#osl'),rd=()=>{box.innerHTML=osListaHTML();osBindLista(box,rd)};osBindLista(box,rd);const n=sh.querySelector('#os-nova');if(n)n.onclick=()=>osNova()}})}

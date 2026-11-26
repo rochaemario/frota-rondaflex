@@ -97,20 +97,43 @@
     finally{flushing=false;updSync()}}
   setInterval(()=>{if(OUT.length)flush()},20000);
 
-  /* recarga completa do servidor (ao abrir, ao voltar a internet e depois de importar) */
-  let pulling=null;
-  function pull(){if(pulling)return pulling;pulling=(async()=>{
-    const srv=new Map();let from=0;const N=1000;
-    for(;;){let q=sb.from('docs').select('path,parent,data');q=NS?q.like('path',NS+'%'):q.not('path','like',TNS+'%');const {data,error}=await q.order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>{if(meu(r.path))srv.set(dp(r.path),r.data)});
+  /* sincronizacao (item 43, B1): na 1a vez, a cada 7 dias, ao trocar de usuario ou se o banco ainda nao tem o registro de exclusoes,
+     baixa tudo (recarga completa); nas outras, so o que mudou desde a ultima vez (hora do servidor, com 10 min de folga)
+     e o que foi apagado (tabela docs_del). Desfazer: versao anterior volta a baixar tudo sempre. */
+  let pulling=null;const B1_FOLGA=10*60000,B1_TUDO=7*864e5;
+  const b1Uid=()=>(perfil&&perfil.user_id)||'';
+  const b1Max=(a,b)=>!a?b||'':!b?a:(Date.parse(b)>Date.parse(a)?b:a);
+  async function pullTudo(){
+    const srv=new Map();let from=0,maxT='';const N=1000;
+    for(;;){let q=sb.from('docs').select('path,parent,data,updated_at');q=NS?q.like('path',NS+'%'):q.not('path','like',TNS+'%');const {data,error}=await q.order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>{if(meu(r.path)){srv.set(dp(r.path),r.data);maxT=b1Max(maxT,r.updated_at)}});
       const pg=document.getElementById('dl-pg');if(pg)pg.textContent=`Baixando ${srv.size} registros…`;if(data.length<N)break;from+=N}
-    const pend=new Set(OUT.map(o=>o.path).filter(Boolean));
-    const mud=new Set(),vazio=!DOCS.size;
+    const pend=new Set(OUT.map(o=>o.path).filter(Boolean));const mud=new Set();
     [...DOCS.keys()].forEach(p=>{if(!srv.has(p)&&!pend.has(p)){setLocal(p,null,false);mud.add(p)}});
-    srv.forEach((d,p)=>{let x=semAc(d);pendingFor(p).forEach(o=>{x=replay(x,o)});const cur=DOCS.get(p);if(JSON.stringify(cur)!==JSON.stringify(x)){setLocal(p,x,false);mud.add(p)}});
-    /* so grava no aparelho o que mudou (antes regravava tudo a cada abertura) */
+    srv.forEach((d,p)=>{if(b1Aplica(p,d))mud.add(p)});
+    return {mud,maxT,n:srv.size}}
+  function b1Aplica(p,d){let x=semAc(d);pendingFor(p).forEach(o=>{x=replay(x,o)});const cur=DOCS.get(p);if(JSON.stringify(cur)!==JSON.stringify(x)){setLocal(p,x,false);return true}return false}
+  async function pullMudou(desde){
+    const since=new Date(Date.parse(desde)-B1_FOLGA).toISOString();const N=1000;
+    const del=[];for(let from=0;;from+=N){let q=sb.from('docs_del').select('path,apagado_em').gt('apagado_em',since);q=NS?q.like('path',NS+'%'):q.not('path','like',TNS+'%');const {data,error}=await q.order('path').range(from,from+N-1);if(error)throw error;del.push(...data);if(data.length<N)break}
+    const up=new Map();let maxT=desde;
+    for(let from=0;;from+=N){let q=sb.from('docs').select('path,parent,data,updated_at').gt('updated_at',since);q=NS?q.like('path',NS+'%'):q.not('path','like',TNS+'%');const {data,error}=await q.order('path').range(from,from+N-1);if(error)throw error;data.forEach(r=>{if(meu(r.path)){up.set(dp(r.path),r);maxT=b1Max(maxT,r.updated_at)}});if(data.length<N)break}
+    const pend=new Set(OUT.map(o=>o.path).filter(Boolean));const mud=new Set();
+    del.forEach(r=>{if(!meu(r.path))return;const p=dp(r.path),u=up.get(p);maxT=b1Max(maxT,r.apagado_em);
+      if(u&&Date.parse(u.updated_at)>=Date.parse(r.apagado_em))return;up.delete(p);if(DOCS.has(p)&&!pend.has(p)){setLocal(p,null,false);mud.add(p)}});
+    up.forEach((r,p)=>{if(b1Aplica(p,r.data))mud.add(p)});
+    return {mud,maxT,n:up.size+del.length}}
+  function pull(tudo){if(pulling)return pulling;pulling=(async()=>{
+    const vazio=!DOCS.size,c=await metaGet('b1cur'),uid=b1Uid();
+    const inc=!tudo&&!vazio&&c&&c.t&&c.u===uid&&Date.now()-(c.full||0)<B1_TUDO;let r=null;
+    if(inc){try{r=await pullMudou(c.t);r.full=c.full}catch(e){if(isNet(e))throw e;console.warn('B1: busca so do que mudou falhou; baixando tudo',e)}}
+    if(!r){r=await pullTudo();r.full=Date.now()}
+    /* so grava no aparelho o que mudou */
+    const mud=r.mud;
     if(IDBH&&(mud.size||vazio)){await new Promise(ok=>{const t=IDBH.transaction('docs','readwrite'),o=t.objectStore('docs');
       if(vazio){o.clear();DOCS.forEach((d,p)=>o.put({parent:parentOf(p),data:d},p))}else mud.forEach(p=>{const d=DOCS.get(p);if(d==null)o.delete(p);else o.put({parent:parentOf(p),data:d},p)});
       t.oncomplete=ok;t.onerror=ok;t.onabort=ok})}
+    window.__frotaB1={modo:inc&&r.full===c.full?'mudou':'tudo',baixados:r.n,mudou:mud.size,ate:r.maxT};
+    if(r.maxT)await metaSet('b1cur',{u:uid,t:r.maxT,full:r.full});
     await metaSet('pulled',Date.now());netOk=true})().catch(e=>{if(isNet(e))netOk=false;else console.error(e);throw e}).finally(()=>{pulling=null;updSync()});return pulling}
   /* rede lenta: o app abre com o que esta guardado e atualiza depois, sem travar a abertura */
   const LENTO='frota.lento';
@@ -190,7 +213,7 @@
     window.__frotaLevar=async paths=>{const {data,error}=await sb.rpc('teste_levar_oficial',{p_paths:paths});if(error)throw error;return data||{levados:[],pulados:[]}};
     window.__frotaCopia=async prog=>{const keep=(await todos('path,data',false)).filter(r=>!fora(r.path)),agora=new Date().toISOString();
       for(let i=0;i<keep.length;i+=200){const lote=keep.slice(i,i+200).map(r=>({path:NS+r.path,parent:parentOf(NS+r.path),data:r.data,updated_at:agora}));const {error}=await sb.from('docs').upsert(lote);if(error)throw error;prog&&prog(Math.min(i+200,keep.length),keep.length)}
-      await pull();return keep.length}}
+      await pull(true);return keep.length}}
   /* espera a foto chegar ao servidor (usado antes de abrir o Google Lens) */
   window.__assetPronto=id=>new Promise((ok,no)=>{const t0=Date.now();flushSoon();const tick=()=>{if(!OUT.some(o=>o.op==='upload'&&o.id===id)){ok();return}if(Date.now()-t0>30000||!navigator.onLine){no(new Error('timeout'));return}setTimeout(tick,300)};tick()});
 

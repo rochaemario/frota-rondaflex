@@ -35,7 +35,7 @@ const ntr=p=>p.evaluate(async()=>(await window.__db.collection('trocas').get()).
 const nos=p=>p.evaluate(async()=>(await window.__db.collection('os').get()).docs.length);
 // ---------- admin
 let p=await abre(ADM);
-const painel=await txt(p,'#sec-painel');R('admin: Painel mostra "Preventivas a registrar"',/Preventivas a registrar/.test(painel));
+const painel=await txt(p,'#sec-painel');R('admin: Painel mostra cartao azul "Registrar" (item 48)',VIR?/Registrar/.test(await txt(p,'#sec-painel .pn-k.reg')):!/Registrar/.test(painel));
 await p.screenshot({path:OUT+'-1-home.png'});
 R('admin: A registrar (lista interna)',await p.evaluate(()=>__T().osARegistrar().map(v=>v.num)));
 R('admin: pecas a conferir OS 42',await p.evaluate(()=>__T().osPendPecas(__T().osLista().find(v=>v.num===42)).length));
@@ -61,6 +61,8 @@ if(!VIR){
 }
 if(VIR){
   // registrar preventiva vinda da OS 0040 (equivalente FIL2 do item do plano FIL1)
+  /* item 48: com 2 ou mais OS na TAG, o cartao azul abre a escolha */
+  await p.evaluate(()=>{const b=document.querySelector('#sec-painel [data-pnosl]');if(b)b.click()});await W(p,300);
   await p.click('#sec-painel [data-osreg="o40"]');await W(p,700);
   R('reg 0040: abre Registrar preventiva',await txt(p,'#sheet h2'));
   R('reg 0040: conciliacao',(await txt(p,'#t-conc')).slice(0,160));

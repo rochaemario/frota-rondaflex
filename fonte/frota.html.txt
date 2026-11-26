@@ -681,7 +681,16 @@ button.cb-c .u::after{content:' ›';color:var(--ink-muted)}
 .pn-list .ia-h{min-height:44px;padding:0 10px 0 0;gap:10px}
 .pn-list .ia+.ia{box-shadow:inset 0 1px 0 var(--line)}
 .pn-s{align-self:stretch;width:4px;flex:0 0 auto;background:var(--line-2)}
-.pn-s.bad{background:var(--bad)} .pn-s.warn{background:var(--warn)}
+.pn-s.bad{background:var(--bad)} .pn-s.warn{background:var(--warn)} .pn-s.reg{background:var(--accent)}
+.pn-ks{display:flex;gap:6px;flex:0 0 auto;white-space:nowrap}
+.pn-k{font:inherit;font-size:12.5px;font-weight:600;white-space:nowrap;border:0;border-radius:7px;padding:4px 8px;line-height:1.2;font-variant-numeric:tabular-nums}
+.pn-k.reg{background:var(--accent-soft);color:var(--accent);cursor:pointer}
+.pn-k.bad{background:var(--bad-bg);color:var(--bad)} .pn-k.warn{background:var(--warn-bg);color:var(--warn)}
+.pn-h .pn-c{flex:1 0 auto}
+.pn-tabs b.rg{color:var(--accent)}
+.pn-osl{display:flex;flex-direction:column;padding:0 10px 8px 14px}
+.pn-osi{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;border:0;background:none;font:inherit;font-size:13.5px;text-align:left;cursor:pointer;box-shadow:inset 0 1px 0 var(--line)}
+.pn-osi span:nth-child(2){flex:1}.pn-osi .chev{width:16px;height:16px;color:var(--faint)}
 .pn-c{flex:1;font-weight:600;font-size:15px;letter-spacing:.02em}
 .pn-st .ia-h,.pn-st .ia-b,.pn-st .ia-h[aria-expanded="true"]{background:var(--st-bg)}
 .pn-list .ia-b{padding:2px 12px 12px 14px}
@@ -3899,26 +3908,35 @@ function vPainel(){
   byEq.sort((a,b)=>(b.bad?1:0)-(a.bad?1:0)||byCode(a.eq,b.eq));
   const st=S.estoque.filter(s=>!isKit(s)&&stockCls(s)!=='ok').sort((a,b)=>ord[stockCls(a)]-ord[stockCls(b)]||byCode(a,b));
   const oR=!ehMec()&&podeEscrever()?osARegistrar():[];
-  const n=byEq.length+st.length+oR.length;
+  /* item 48: OS a registrar entram na linha da TAG (cartao azul); TAGs com cartao azul no topo; cada TAG conta uma vez */
+  oR.forEach(v=>{const e=eqById(v.eq);if(!e)return;let g=byEq.find(g=>g.eq.id===e.id);if(!g)byEq.push(g={eq:e,items:[],bad:0,warn:0});(g.reg=g.reg||[]).push(v)});
+  byEq.sort((a,b)=>(b.reg?1:0)-(a.reg?1:0)||(b.bad?1:0)-(a.bad?1:0)||byCode(a.eq,b.eq));
+  const n=byEq.length+st.length;
   const crit=byEq.some(g=>g.bad)||st.some(x=>stockCls(x)==='bad'),lvl=!n?'ok':crit?'bad':'warn';
   const WARN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5L2.5 20h19z"/><path d="M12 10v4.5"/><path d="M12 17.3v.2"/></svg>';
   const head=`<div class="ph pnb ${lvl}"><h2>${lvl==='ok'?I.painel:WARN}Painel</h2>${n?`<span class="pnb-n">${n} ${n===1?'pendencia':'pendencias'}</span>`:'<span class="pnb-n">em dia</span>'}</div>`;
   if(!n) return head+`<div class="allok"><span class="dot"></span>${S.equips.length||S.estoque.length?'Tudo em dia. Nenhuma troca vencendo e estoque acima do minimo.':'Sem prioridades. Cadastre os equipamentos para acompanhar as trocas.'}</div>`;
-  const eqRow=g=>{const c=g.bad?'bad':'warn',its=g.items.slice().sort((a,b)=>a.st.rest-b.st.rest);
-    return `<div class="ia pn-r"><button type="button" class="ia-h" data-ia aria-expanded="false"><span class="pn-s ${c}"></span><span class="pn-c num">${esc(g.eq.codigo)}</span><span class="ist ${c}">${g.bad?`${g.bad} vencida${g.bad>1?'s':''}`:`${g.warn} proxima${g.warn>1?'s':''}`}</span>${I.chev}</button>
-    <div class="ia-b" hidden><div class="s">${esc([g.eq.tipo,[g.eq.marca,g.eq.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · '))}</div>
+  const pnReg=g=>{const L=g.reg||[];if(!L.length)return '';const tp=[...new Set(L.map(v=>v.tipo==='ar'?'ar':'prev'))];
+    const full=L.length>1?`Registrar ${L.length} ${tp.length>1?'OS':tp[0]==='ar'?'filtros de ar':'preventivas'}`:`Registrar ${L[0].tipo==='ar'?'filtro de ar':'preventiva'}`,curto=L.length>1?`Registrar ${L.length}`:'Registrar';
+    return `<button type="button" class="pn-k reg" ${L.length>1?`data-pnosl="${esc(g.eq.id)}" aria-expanded="false"`:`data-osreg="${esc(L[0].id)}"`} data-full="${esc(full)}" data-curto="${esc(curto)}">${esc(full)}</button>`};
+  const pnOsl=g=>(g.reg||[]).length>1?`<div class="pn-osl" hidden>${g.reg.map(v=>`<button type="button" class="pn-osi" data-osreg="${esc(v.id)}"><span class="num">${osNum(v).replace('OS ','')}</span><span>${v.tipo==='ar'?'Filtro de ar':'Preventiva'}</span><span class="num">${fdate(v.data).slice(0,5)}</span>${I.chev}</button>`).join('')}</div>`:'';
+  const eqRow=g=>{const c=g.bad?'bad':'warn',its=g.items.slice().sort((a,b)=>a.st.rest-b.st.rest),pend=its.length>0;
+    return `<div class="ia pn-r${g.reg?' pn-rg':''}"><div class="ia-h pn-h" role="button" tabindex="0"${pend?' data-pnx aria-expanded="false"':' data-pnreg'}><span class="pn-s ${g.reg?'reg':c}"></span><span class="pn-c num">${esc(g.eq.codigo)}</span><span class="pn-ks">${pnReg(g)}${pend?`<span class="pn-k ${c}">${g.bad?`${g.bad} vencida${g.bad>1?'s':''}`:`${g.warn} proxima${g.warn>1?'s':''}`}</span>`:''}</span>${pend?I.chev:''}</div>${pnOsl(g)}
+    ${pend?`<div class="ia-b" hidden><div class="s">${esc([g.eq.tipo,[g.eq.marca,g.eq.modelo].filter(Boolean).join(' ')].filter(Boolean).join(' · '))}</div>
       <div class="es-l pn-esl">${its.map(x=>itRow(x)).join('')}</div>
-      <div class="pn-bt"><button type="button" class="btn sm" data-pend="${esc(g.eq.id)}">Abrir pendencias</button>${(()=>{/* so itens reais do plano vao para a compra; 'Primeira preventiva' nao */const r=its.filter(x=>!x.it.virt);return r.length?cartBtnHTML('eq',g.eq.id,r.every(x=>inCartIt(x.it))):''})()}</div></div></div>`};
+      <div class="pn-bt"><button type="button" class="btn sm" data-pend="${esc(g.eq.id)}">Abrir pendencias</button>${(()=>{/* so itens reais do plano vao para a compra; 'Primeira preventiva' nao */const r=its.filter(x=>!x.it.virt);return r.length?cartBtnHTML('eq',g.eq.id,r.every(x=>inCartIt(x.it))):''})()}</div></div>`:''}</div>`};
   const stRow=x=>{const c=stockCls(x);
     return `<div class="ia pn-r pn-st">${esRow(x,{attr:'data-ia aria-expanded="false"',cls2:'ia-h',end:I.chev,sub:esc(stCod(x))})}
     <div class="ia-b" hidden>
       <div class="pn-bt"><button type="button" class="btn sm" data-mov="${esc(x.id)}">Ver item</button>${cartBtnHTML('st',x.id,inCart('s:'+x.id))}</div></div></div>`};
   const tab=S.pnTab==='st'||(!S.pnTab&&!byEq.length&&st.length)?'st':'eq';
-  const tabs=`<div class="pn-tabs" role="tablist"><button type="button" role="tab" data-pntab="eq" aria-selected="${tab==='eq'}">Equipamentos <b class="${byEq.some(g=>g.bad)?'bad':'warn'}">${byEq.length}</b></button><button type="button" role="tab" data-pntab="st" aria-selected="${tab==='st'}">Estoque <b class="stc">${st.length}</b></button></div>`;
+  const tabs=`<div class="pn-tabs" role="tablist"><button type="button" role="tab" data-pntab="eq" aria-selected="${tab==='eq'}">Equipamentos <b class="${byEq.some(g=>g.bad)?'bad':byEq.some(g=>g.warn)?'warn':'rg'}">${byEq.length}</b></button><button type="button" role="tab" data-pntab="st" aria-selected="${tab==='st'}">Estoque <b class="stc">${st.length}</b></button></div>`;
   const body=tab==='eq'?(byEq.length?byEq.map(eqRow).join(''):'<div class="pn-empty">Nenhum equipamento com troca pendente.</div>'):(st.length?st.map(stRow).join(''):'<div class="pn-empty">Nenhum item abaixo do minimo.</div>');
-  const osB=oR.length?`<div class="ti-g" style="margin:4px 2px 6px">Preventivas a registrar</div><div class="ilist pn-list" style="margin-bottom:12px">${oR.map(v=>{const e=eqById(v.eq)||{};return `<div class="ia pn-r"><button type="button" class="ia-h" data-osreg="${esc(v.id)}"><span class="pn-s warn"></span><span class="pn-c num">${esc(e.codigo||v.eq)}</span><span class="ist warn">${osNum(v)} · ${v.tipo==='ar'?'Filtro de ar':'Preventiva'} · ${fdate(v.data).slice(0,5)}</span>${I.chev}</button></div>`}).join('')}</div>`:'';
-  return head+osB+((byEq.length||st.length)?tabs+`<div class="ilist pn-list">${body}</div>`:'');
+  return head+((byEq.length||st.length)?tabs+`<div class="ilist pn-list">${body}</div>`:'');
 }
+/* item 48: cartao azul encurta se a linha da TAG nao couber; nunca quebra linha */
+addEventListener('resize',()=>pnFit());
+function pnFit(root){(root||document).querySelectorAll('.pn-h').forEach(h=>{const k=h.querySelector('.pn-k.reg');if(!k)return;k.textContent=k.dataset.full;if(h.scrollWidth>h.clientWidth+1)k.textContent=k.dataset.curto})}
 function schedRow(x){
   return `<button class="row" data-eq="${esc(x.eq.id)}">${x.st.cls==='bad'||x.st.cls==='warn'?`<span class="stripe ${x.st.cls}"></span>`:''}
   <div class="main"><div class="t"><span class="code">${esc(x.eq.codigo)}</span>${esc(itNome(x.it))}</div>
@@ -4253,7 +4271,12 @@ function bindView(){
   app.querySelectorAll('[data-aback]').forEach(b=>b.onclick=()=>{const to=b.dataset.aback;S.alocSite=to;S.alocSel='';render();topAloc()});
   app.querySelectorAll('[data-eq]').forEach(b=>b.onclick=()=>openEq(b.dataset.eq));
   app.querySelectorAll('[data-pend]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.pend)});
-  app.querySelectorAll('[data-osreg]').forEach(b=>b.onclick=()=>{NAV.length=0;osRegistrar(b.dataset.osreg)});
+  app.querySelectorAll('[data-osreg]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();NAV.length=0;osRegistrar(b.dataset.osreg)});
+  /* item 48: linha da TAG no Painel (cartao azul / vencidas) */
+  app.querySelectorAll('[data-pnosl]').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const l=b.closest('.pn-r').querySelector('.pn-osl');const o=b.getAttribute('aria-expanded')==='true';b.setAttribute('aria-expanded',!o);l.hidden=o});
+  app.querySelectorAll('.pn-h[data-pnx]').forEach(h=>h.onclick=()=>{const o=h.getAttribute('aria-expanded')==='true';h.setAttribute('aria-expanded',!o);h.closest('.pn-r').querySelector(':scope>.ia-b').hidden=o});
+  app.querySelectorAll('.pn-h[data-pnreg]').forEach(h=>h.onclick=()=>{const k=h.querySelector('.pn-k.reg');k&&k.click()});
+  pnFit(app);
   app.querySelectorAll('[data-pv]').forEach(b=>b.onclick=()=>{const k=b.dataset.pv;S.pv[k]=!S.pv[k];render()});
   app.querySelectorAll('[data-cron]').forEach(b=>b.onclick=()=>{NAV.length=0;openPend(b.dataset.cron,true)});app.querySelectorAll('[data-sif]').forEach(b=>b.onclick=()=>{NAV.length=0;planoAbre(b.dataset.sif)});
   app.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>openTroca(b.dataset.tr));

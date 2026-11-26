@@ -1615,9 +1615,9 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-x{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px 12px;border-bottom:1px solid var(--line);background:var(--surface)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v429'</script>
-<script src="config.js?v=86515c2e93"></script>
-<script src="shim.js?v=86515c2e93"></script>
+<script>window.__APPV='v430'</script>
+<script src="config.js?v=9fb3e1db4e"></script>
+<script src="shim.js?v=9fb3e1db4e"></script>
 </head>
 <body>
 
@@ -3863,6 +3863,8 @@ function render(){
   if(S.db&&ehMec()){document.body.classList.add('mec');$('#app').innerHTML=osTesteBar()+vMec();bindMec();const fb=$('#fab');if(fb)fb.hidden=true;return}
   document.body.classList.remove('mec');
   if(!S.db){$('#app').innerHTML=`<div class="card"><div class="hero"><h3>Sem conexao com os dados</h3><p>Este app guarda a frota no armazenamento do proprio link. Abra-o pelo Claude, conectado a sua conta, para ver e editar.</p></div></div>`;return}
+  /* item 44: fora do mini app o + volta a aparecer (Ver o app como mecanico › Voltar a admin escondia de vez) */
+  {const fb=$('#fab');if(fb)fb.hidden=false}
   const subT=()=>{const n=(TABS.find(t=>t[0]===S.focus)||[])[1]||'';const pf=FROTA_KIDS.includes(S.focus)?'<span>Frota › </span>':MNT_KIDS.includes(S.focus)?'<span>Manutencoes › </span>':'';if(S.focus!=='aloc'||!S.alocSite)return pf+esc(n);
     const a=S.alocSel?(S.alocSel==='_'?'Sem area':S.alocSel):'';return `${esc(n)} <span>› ${esc(S.alocSite)}${a?' › '+esc(a):''}</span>`};
   document.body.classList.toggle('focus',!!S.focus);

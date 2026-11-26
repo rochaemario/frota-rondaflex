@@ -3846,6 +3846,8 @@ function render(){
   if(S.db&&ehMec()){document.body.classList.add('mec');$('#app').innerHTML=osTesteBar()+vMec();bindMec();const fb=$('#fab');if(fb)fb.hidden=true;return}
   document.body.classList.remove('mec');
   if(!S.db){$('#app').innerHTML=`<div class="card"><div class="hero"><h3>Sem conexao com os dados</h3><p>Este app guarda a frota no armazenamento do proprio link. Abra-o pelo Claude, conectado a sua conta, para ver e editar.</p></div></div>`;return}
+  /* item 44: fora do mini app o + volta a aparecer (Ver o app como mecanico › Voltar a admin escondia de vez) */
+  {const fb=$('#fab');if(fb)fb.hidden=false}
   const subT=()=>{const n=(TABS.find(t=>t[0]===S.focus)||[])[1]||'';const pf=FROTA_KIDS.includes(S.focus)?'<span>Frota › </span>':MNT_KIDS.includes(S.focus)?'<span>Manutencoes › </span>':'';if(S.focus!=='aloc'||!S.alocSite)return pf+esc(n);
     const a=S.alocSel?(S.alocSel==='_'?'Sem area':S.alocSel):'';return `${esc(n)} <span>› ${esc(S.alocSite)}${a?' › '+esc(a):''}</span>`};
   document.body.classList.toggle('focus',!!S.focus);

@@ -1621,15 +1621,21 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-sr{color:var(--faint);font-weight:400}.cc-r.pen small .cc-sr{color:var(--faint);font-weight:400}
 .cc-r[data-ccm]{cursor:pointer}.cc-r[data-ccm] svg{width:16px;height:16px;opacity:.5}
 .cc-co{font-style:normal;color:var(--accent-tx);font-weight:600}
+/* item 47: pecas sem cadastro da OS */
+.scg-w{margin-top:14px}.scg-l{border-radius:12px;overflow:hidden;box-shadow:inset 0 0 0 1px #ebcb84}
+.scg-r{display:flex;align-items:center;gap:8px;padding:11px 12px;background:#fff6e3;border-bottom:1px solid #f1dfb2;cursor:pointer}.scg-r:last-child{border-bottom:0}.scg-r .scg-m{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.scg-r small{font-size:12.5px;color:#8a4b00}.scg-r svg{width:16px;height:16px;flex:none;color:#8a4b00;transition:transform .15s}.scg-r.op svg{transform:rotate(90deg)}
+.scg-x{padding:10px 12px 12px;background:#fffaf0;border-bottom:1px solid #f1dfb2}.scg-lb{font:600 12px var(--body);color:var(--muted);margin:0 0 6px}.scg-res{margin-top:8px}.scg-cad{margin-top:10px;width:100%}
+.scg-al{margin:6px 0 8px;padding:8px 10px;border-radius:10px;background:#fdecea;color:#a3271b;font:600 13px var(--body)}
+.scg-lg{color:#1a7f37;font-weight:600}.scg-na{display:block;font-size:12px;color:var(--muted)}.scg-av{display:block;margin-top:3px;padding:3px 8px;border-radius:8px;background:#fff6e3;color:#8a4b00;font:600 12px var(--body);width:max-content;max-width:100%}
 .cc-r.tir{background:#f5f6f8}.cc-r.tir b{color:var(--muted);text-decoration:line-through}
 .cc-tk{display:block}.cc-tk .ti-g{margin:10px 0 6px}.cc-tk .search{margin-bottom:6px}.cc-tk .cc-tq{max-width:160px;margin:0}.cc-tk>.btn{margin-top:8px}
 .cc-tk .kt-r[disabled]{opacity:.55}
 .tk-l{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.45;list-style:disc}.tk-l li{margin:3px 0;display:list-item}.tk-f{flex-wrap:wrap}.tk-f .btn{flex:1 1 40%}.tk-f [data-tkx]{flex-basis:100%}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v434'</script>
-<script src="config.js?v=0528b2ec17"></script>
-<script src="shim.js?v=0528b2ec17"></script>
+<script>window.__APPV='v435'</script>
+<script src="config.js?v=bfba343d8c"></script>
+<script src="shim.js?v=bfba343d8c"></script>
 </head>
 <body>
 
@@ -5388,7 +5394,7 @@ function formFiltroAr(eqId,sub,osId){
       mount:sh=>sh.querySelectorAll('[data-ar]').forEach(b=>b.onclick=()=>formFiltroAr(eqId,b.dataset.ar,osId))});
     return;
   }
-  nav('ar:'+sub+(osId?':'+osId:''),()=>formFiltroAr(eqId,sub,osId));const vOS=osId&&OS_ON?osById(osId):null;
+  nav('ar:'+sub+(osId?':'+osId:''),()=>formFiltroAr(eqId,sub,osId));let vOS=osId&&OS_ON?osById(osId):null;
   const eqs=S.eqCtl.slice().sort(byCode);
   const cur=eqId&&eqById(eqId)?eqId:'';
   const filtros=S.estoque.filter(s=>s.tipo==='filtro'&&!isKit(s)).sort(byCode);
@@ -5402,7 +5408,7 @@ function formFiltroAr(eqId,sub,osId){
       <div id="a-sug"></div>
       <div class="sug-w t-add"><div class="search">${I.search}<input id="a-q" type="search" placeholder="Adicionar filtro por codigo ou nome" autocomplete="off" aria-label="Adicionar filtro"></div><div class="sug" id="a-qh"></div></div>
       ${rdBtn('a-cam','Adicionar filtro pela camera')}<div id="a-its"></div></div>
-    <div id="a-plan"></div>
+    <div id="a-plan"></div>${vOS?'<div id="a-sc"></div>':''}
     <div class="fset" style="margin-top:12px"><label class="f">Responsavel<input id="a-resp" placeholder="Mecanico ou oficina"></label>
     <label class="f">Observacoes<textarea id="a-obs"></textarea></label></div><div id="a-hmg"></div></form>`,
   foot:`<button class="btn pri" form="fa">Registrar ${esc(sub==='Motor'?'filtro de ar':'filtro da cabine')}</button>`,
@@ -5411,7 +5417,7 @@ function formFiltroAr(eqId,sub,osId){
     const SV={Troca:true,Limpeza:false};let sv='Troca';const tr=()=>SV.Troca;const sel=sh.querySelector('#a-eq'),hm=sh.querySelector('#a-hm');
     /* filtros do lancamento: um ou mais, cada um com a sua quantidade */
     const L=[];const box=sh.querySelector('#a-its'),sug=sh.querySelector('#a-sug');
-    const drawL=()=>{box.innerHTML=L.length?`<div class="kl ar-kl">${L.map((c,i)=>{const x=stById(c.id);return `<div class="kr"><span class="n"><b>${esc(x?x.desc:'Item removido')}</b><small class="num">${esc(x?stCod(x):'')}${x?` · saldo ${nf(stQtd(x),2)}`:''}</small></span><input type="number" step="1" min="0" inputmode="numeric" value="${esc(c.q)}" data-aq="${i}" aria-label="Quantidade"><span class="u">${esc(x?stUn(x):'un')}</span><button type="button" class="x" data-ax="${i}" aria-label="Tirar">✕</button></div>`}).join('')}</div>`:'<p class="note" style="margin:10px 2px 0">Nenhum filtro adicionado. Sem filtro, o servico e registrado sem baixa no estoque.</p>';
+    const drawL=()=>{box.innerHTML=L.length?`<div class="kl ar-kl">${L.map((c,i)=>{const x=stById(c.id);return `<div class="kr"><span class="n"><b>${esc(x?x.desc:'Item removido')}</b><small class="num">${esc(x?stCod(x):'')}${x?` · saldo ${nf(stQtd(x),2)}`:''}</small>${vOS&&c.pks?scgLig(c.pks.map(pk=>vOS.pecas.find(p=>p.pk===pk)),c.q):''}</span><input type="number" step="1" min="0" inputmode="numeric" value="${esc(c.q)}" data-aq="${i}" aria-label="Quantidade"><span class="u">${esc(x?stUn(x):'un')}</span><button type="button" class="x" data-ax="${i}" aria-label="Tirar">✕</button></div>`}).join('')}</div>`:'<p class="note" style="margin:10px 2px 0">Nenhum filtro adicionado. Sem filtro, o servico e registrado sem baixa no estoque.</p>';
       box.querySelectorAll('[data-aq]').forEach(q=>q.oninput=()=>{L[Number(q.dataset.aq)].q=q.value});
       box.querySelectorAll('[data-ax]').forEach(b=>b.onclick=()=>{const c=L.splice(Number(b.dataset.ax),1)[0];if(c&&c.pks)arRm.add(c.pks.join());drawL();drawSug()});drawSug();if(vOS)fillPlan()};
     /* item 45: filtros da OS com as correcoes do registro (ARC, por peca da OS); o que o administrador tirou pelo X nao volta */
@@ -5450,6 +5456,7 @@ function formFiltroAr(eqId,sub,osId){
       const pksL=k=>k.startsWith('t:')?[k.slice(2)]:((L.find(c=>c.id===k.slice(2))||{}).pks||[]);
       const corrL=k=>pksL(k).some(pk=>ARC[pk]),eraTx=k=>pksL(k).filter(pk=>ARC[pk]).map(pk=>osPcTx(vOS.pecas.find(p=>p.pk===pk))).filter(Boolean).join(', ');
       const qOf=k=>(L.find(c=>c.id===k.slice(2))||{}).q||'';
+      const lg=k=>scgLig(pksL(k).map(pk=>vOS.pecas.find(p=>p.pk===pk)),qOf(k));
       const pend=tr()?its.filter(i=>!rec[i.pid]).sort((a,b)=>_an(itNome(a),itNome(b))):[];
       const mk=k=>pksL(k).length&&!k.startsWith('t:')?` data-ccm="${esc(k)}" role="button" tabindex="0"`:'';
       const cr=k=>corrL(k)?` · <em class="cc-co">corrigido · era ${esc(eraTx(k))}</em>`:'';
@@ -5462,12 +5469,12 @@ function formFiltroAr(eqId,sub,osId){
       let h=np.map(p=>`<div class="cc-r bad"><span class="main"><b>${esc(p.nome)} · ${nf(p.qtd,2)}</b><small>Nao e preventiva · retire pelo Editar OS</small></span><button type="button" class="btn sm" data-cced>Editar OS</button></div>`).join('');
       show.forEach(i=>{const r=rec[i.pid],P=esc(i.pid);
         if(r){const st=stById(r.id),pc=itCodPl(i),cd=st?stCod(st):'',jaEq=!pc||!cd||nzCod(pc)===nzCod(cd)||eqvDec(pc,cd)==='eq'||(st&&eqvGrupo(st).some(x=>itMatchSt(i,x))),K='s:'+r.id;
-          h+=`<input type="checkbox" hidden checked data-pl="${P}"><div class="cc-r ok${r.man?' man':''}"${r.man?` data-ccop="${P}" role="button" tabindex="0"`:mk(K)}><span class="main"><b>✓ ${esc(itNome(i))}</b><small>${refH(refSt(st))} · ${r.man?'trocado por este':r.same?'mesmo item':'equivalente'}${r.man?'':cr(K)}</small></span>${r.man||pksL(K).length?I.chev:''}</div>`;
+          h+=`<input type="checkbox" hidden checked data-pl="${P}"><div class="cc-r ok${r.man?' man':''}"${r.man?` data-ccop="${P}" role="button" tabindex="0"`:mk(K)}><span class="main"><b>✓ ${esc(itNome(i))}</b><small>${refH(refSt(st))} · ${r.man?'trocado por este':r.same?'mesmo item':'equivalente'}${r.man?'':cr(K)}</small>${r.man?'':lg(K)}</span>${r.man||pksL(K).length?I.chev:''}</div>`;
           if(r.man&&arOpen===i.pid)h+=`<div class="cc-x">${jaEq?'':`<button type="button" class="btn sm" data-cceq="${P}">Gravar como equivalente</button>`}<button type="button" class="btn sm" data-ccun="${P}">Desfazer ligacao</button></div>`;
           if(!r.man)h+=acts(K)}
         else{h+=`<div class="cc-r pen"><span class="main"><b>${esc(itNome(i))}</b><small>${refH(refIt(i))} · Pendente · mantem a programacao</small></span>${sobra.length?`<button type="button" class="btn sm" data-cctp="${P}">Trocado por...</button>`:''}</div>`;
           if(arLk===i.pid&&sobra.length)h+=`<div class="cc-x">${sobra.map(c=>{const s=stById(c.id);return `<button type="button" class="btn sm" data-cclk="${esc(c.id)}" data-ccpid="${P}">${esc(s.desc)} · ${esc(refSt(s)||stCod(s))}</button>`}).join('')}</div>`}});
-      sobra.forEach(c=>{const s=stById(c.id),K='s:'+c.id;h+=`<div class="cc-r"${mk(K)}><span class="main"><b>${esc(s.desc)}</b><small>${refH(refSt(s))} · fora do plano · so baixa no estoque${cr(K)}</small></span>${pksL(K).length?I.chev:''}</div>`+acts(K)});
+      sobra.forEach(c=>{const s=stById(c.id),K='s:'+c.id;h+=`<div class="cc-r"${mk(K)}><span class="main"><b>${esc(s.desc)}</b><small>${refH(refSt(s))} · fora do plano · so baixa no estoque${cr(K)}</small>${lg(K)}</span>${pksL(K).length?I.chev:''}</div>`+acts(K)});
       vOS.pecas.filter(p=>ARC[p.pk]&&ARC[p.pk].t==='tira').forEach(p=>{const st=p.k==='est'&&stById(p.id);h+=`<div class="cc-r tir"><span class="main"><b>${esc(p.nome)}</b><small>${refH(st?refSt(st):p.cod)} · tirado do registro</small></span><button type="button" class="btn sm" data-ccvo="t:${esc(p.pk)}">Voltar ao lancado</button></div>`});
       bx.innerHTML=h?`<div class="fset" style="margin-top:12px"><h3>Plano do ${esc(e.codigo)}</h3><div class="list cc-l">${h}</div></div>`:'';
       bx.querySelectorAll('[data-cced]').forEach(b=>b.onclick=()=>formOSEdit(vOS.id));
@@ -5498,15 +5505,24 @@ function formFiltroAr(eqId,sub,osId){
     /* veio da OS do mecanico: filtros, data, horimetro, responsaveis e servico ja preenchidos */
     if(vOS){const v=vOS;L.length=0;arL();
       const hv=osHmNum(v.hor);if(hv!=null)hm.value=hv;sh.querySelector('#a-dt').value=v.data||today();sh.querySelector('#a-resp').value=v.resp.map(osNomeDe).join(', ');
-      const sc=v.pecas.filter(p=>p.k!=='est'||!stById(p.id)).map(p=>`${p.nome} (${nf(p.qtd,2)})`);sh.querySelector('#a-obs').value=[osNum(v),v.feito,sc.length?'Sem cadastro: '+sc.join(', '):''].filter(Boolean).join(' · ');
+      const sc=v.pecas.filter(p=>p.k!=='sc'&&(p.k!=='est'||!stById(p.id))).map(p=>`${p.nome} (${nf(p.qtd,2)})`);sh.querySelector('#a-obs').value=[osNum(v),v.feito,sc.length?'Sem ligacao com o estoque: '+sc.join(', '):''].filter(Boolean).join(' · ');
       if(sub!=='Motor'&&v.arSv){SV.Troca=/troca/i.test(v.arSv);SV.Limpeza=/limpeza/i.test(v.arSv);if(!SV.Troca&&!SV.Limpeza)SV.Troca=true;sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelectorAll('[data-sv]').forEach(b=>b.setAttribute('aria-pressed',SV[b.dataset.sv]));sh.querySelector('#a-stw').hidden=!tr()}
       drawL();fillPlan()}
+    /* item 47: pecas sem cadastro da OS; ao voltar do cadastro de item novo, devolve o que o administrador ja tinha feito */
+    const scSt={open:'',q:'',aviso:false},fv=id=>sh.querySelector(id);
+    const drawSc=()=>{const h=fv('#a-sc');if(!h||!vOS)return;h.innerHTML=scgHTML(vOS,scSt);scgBind(h,vOS,scSt,{draw:drawSc,
+      liga:async(p,st)=>{if(!await osScLiga(vOS,p,st))return;vOS=osById(osId)||vOS;scSt.open='';if(!osScPecas(vOS).length)scSt.aviso=false;const bd=fv('.sh-body')||document.querySelector('#sheet .sh-body'),y=bd?bd.scrollTop:0;arL();drawL();fillPlan();drawSc();if(bd)bd.scrollTop=y},
+      cad:p=>{formFiltroAr._k={osId,sub,ARC:{...ARC},arRm:[...arRm],arMan:{...arMan},L:L.filter(c=>!c.pks).map(c=>({...c})),hm:hm.value,dt:fv('#a-dt').value,resp:fv('#a-resp').value,obs:fv('#a-obs').value};osScCad(vOS,p)}})};
+    if(vOS&&formFiltroAr._k&&formFiltroAr._k.osId===osId&&formFiltroAr._k.sub===sub){const k=formFiltroAr._k;formFiltroAr._k=null;Object.assign(ARC,k.ARC);k.arRm.forEach(x=>arRm.add(x));Object.assign(arMan,k.arMan);
+      hm.value=k.hm;fv('#a-dt').value=k.dt;fv('#a-resp').value=k.resp;fv('#a-obs').value=k.obs;arL();k.L.forEach(c=>{if(!L.some(x=>x.id===c.id))L.push(c)});drawL();fillPlan()}
+    drawSc();
     sh.querySelectorAll('[data-sv]').forEach(b=>b.onclick=()=>{const k=b.dataset.sv;if(SV[k]&&!SV[k==='Troca'?'Limpeza':'Troca'])return;SV[k]=!SV[k];b.setAttribute('aria-pressed',SV[k]);
       sv=SV.Troca&&SV.Limpeza?'Troca e limpeza':SV.Troca?'Troca':'Limpeza';sh.querySelector('#a-stw').hidden=!tr();fillPlan()});
     const hmSt={ok:false};[hm,sh.querySelector('#a-dt')].forEach(x=>x.addEventListener('input',()=>{hmSt.ok=false;hmSt.salto=false}));sel.addEventListener('change',()=>{hmSt.ok=false;hmSt.salto=false});
     const dupB=sh.querySelector('#a-dup'),dupC=()=>dupShow(dupB,sel.value,'ar:'+sub,hm.value,'',sh.querySelector('#a-dt').value);hm.addEventListener('input',dupC);sh.querySelector('#a-dt').addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();setTimeout(dupC,0);
     sh.querySelector('#fa').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
+      if(vOS&&osScPecas(vOS).length){scSt.aviso=true;drawSc();toast(osScTx(osScPecas(vOS).length));const c=fv('#scg-w');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       if(dupC()){dupStop(dupB);return}
       if(vOS&&osNaoPrev(vOS,e).length){toast('Retire pelo Editar OS o que nao e preventiva');const c=sh.querySelector('#a-plan');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       const h0=Number(hm.value),dt0=sh.querySelector('#a-dt').value,g=hmGuard(sh.querySelector('#a-hmg'),e,h0,dt0,hmSt,()=>sh.querySelector('#fa').onsubmit({preventDefault(){}}));if(!g)return;
@@ -5551,7 +5567,7 @@ const osNaoPrev=(v,e)=>v.pecas.filter(p=>{const st=p.k==='est'&&stById(p.id);ret
 async function eqvGrava(a,b,desc,equipId){const add={a,b,desc,equipId,status:'eq',data:today()},k=eqvKey(a,b);
   const L=[...(S.equiv||[]).filter(x=>eqvKey(x.a,x.b)!==k),add];if(await safe(()=>S.db.doc('config/equivalencias').set({pares:L}),'Equivalencia gravada')){S.equiv=L;return true}return false}
 function formTroca(eqId,osId){
-  nav('fp:new'+(osId?':'+osId:''),()=>formTroca(eqId,osId));const vOS=osId&&OS_ON?osById(osId):null;
+  nav('fp:new'+(osId?':'+osId:''),()=>formTroca(eqId,osId));let vOS=osId&&OS_ON?osById(osId):null;
   const eqs=S.eqCtl.slice().sort(byCode);
   if(!eqs.length){NAV.pop();toast('Cadastre um equipamento antes.');return}
   const cur=eqId&&eqById(eqId)?eqId:'';
@@ -5566,7 +5582,7 @@ function formTroca(eqId,osId){
     <p class="note" id="t-proxhint" style="margin:0">Em branco, a proxima e agendada sozinha pelo intervalo de cada item.</p></div>
     <div class="lbl" style="margin-top:16px">Itens trocados <span class="hint" style="text-transform:none;letter-spacing:0;font-weight:400">so entra o que voce adicionar</span></div>
     <div id="t-kits" hidden></div><div id="t-plan" hidden></div><div class="sug-w t-add"><div class="search">${I.search}<input id="t-q" type="search" placeholder="Adicionar item por codigo ou nome" autocomplete="off" aria-label="Adicionar item"></div><div class="sug" id="t-qh"></div></div>
-    ${rdBtn('t-cam','Adicionar item pela camera')}<div class="list" id="t-items"></div><div class="list" id="t-extra" hidden></div>${vOS?'<div id="t-conc"></div>':''}
+    ${rdBtn('t-cam','Adicionar item pela camera')}<div class="list" id="t-items"></div><div class="list" id="t-extra" hidden></div>${vOS?'<div id="t-conc"></div><div id="t-sc"></div>':''}
     <div class="fset" style="margin-top:12px"><label class="f">Observacoes<textarea id="t-obs"></textarea></label></div><div id="t-eqv"></div></form>`,
   foot:`<button class="btn pri" form="ft">Registrar preventiva</button>`,
   mount:sh=>{
@@ -5603,7 +5619,7 @@ function formTroca(eqId,osId){
     const extras=[],xb=sh.querySelector('#t-extra');
     const xOpen=new Set();
     const drawX=()=>{xb.hidden=!extras.length;xb.innerHTML=`<div class="ti-g">Itens adicionados</div>`+extras.map((x,k)=>{const st=x.s,op=xOpen.has(st.id);return `<div class="tr-i${op?' op':''}" data-xrow="${k}">
-        <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${op}"><div class="main"><b>${esc(st.desc)}</b><div class="s">${x.kit?`<span class="pill kt-tag">${esc(x.kit)}</span>`:''}<span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),2)} ${esc(stUn(st))}</span></div></div>
+        <div class="tr-h" data-trh role="button" tabindex="0" aria-expanded="${op}"><div class="main"><b>${esc(st.desc)}</b><div class="s">${x.kit?`<span class="pill kt-tag">${esc(x.kit)}</span>`:''}<span class="num">${esc(stCod(st))}</span><span>${isKit(st)?'disponivel':'saldo'} ${nf(stQtd(st),2)} ${esc(stUn(st))}</span></div>${vOS?scgLig((SRC.s[st.id]||[]).map(pk=>vOS.pecas.find(p=>p.pk===pk)),x.q):''}</div>
         <input class="q" type="number" step="0.1" min="0" inputmode="decimal" data-xq="${k}" value="${esc(x.q)}" aria-label="Quantidade"><span class="u">${esc(isKit(st)?'kit':st.un||'un')}</span>${I.chev}</div>
         <div class="tr-b"${op?'':' hidden'}>${isKit(st)||x.kit||vOS?'':ivSelect(x.iv??((eqById(sel.value)||{}).ivEnc||{})[st.id]??'',(eqById(sel.value)||{}).intervaloPrev,`data-xiv="${k}"`)}${isKit(st)?`<button type="button" class="btn" data-kv>Ver itens do kit</button><div class="kv-w" hidden>${kitLista(st,x.q)}</div>`:''}<button type="button" class="btn" data-xr="${k}">Retirar do lancamento</button></div></div>`}).join('');
       xb.querySelectorAll('[data-xr]').forEach(b=>b.onclick=()=>{const x=extras.splice(Number(b.dataset.xr),1)[0];if(x)xOpen.delete(x.s.id);drawX();hint();toast('Retirado do lancamento')});
@@ -5627,6 +5643,7 @@ function formTroca(eqId,osId){
       const eraTx=k=>pksL(k).filter(pk=>COR[pk]).map(pk=>osPcTx(vOS.pecas.find(p=>p.pk===pk))).filter(Boolean).join(', ');
       const qOf=k=>k.startsWith('p:')?((box.querySelector(`[data-q="${CSS.escape(k.slice(2))}"]`)||{}).value||''):((extras.find(x=>x.s.id===k.slice(2))||{}).q||'');
       const pend=its.filter(i=>!on.has(i.pid));
+      const lg=k=>scgLig(pksL(k).map(pk=>vOS.pecas.find(p=>p.pk===pk)),qOf(k));
       const mk=k=>pksL(k).length&&!k.startsWith('t:')?` data-ccm="${esc(k)}" role="button" tabindex="0"`:'';
       const cr=k=>corrL(k)?` · <em class="cc-co">corrigido · era ${esc(eraTx(k))}</em>`:'';
       const acts=k=>{if(ccMo!==k)return '';
@@ -5638,13 +5655,13 @@ function formTroca(eqId,osId){
       let h=np.map(p=>`<div class="cc-r bad"><span class="main"><b>${esc(p.nome)} · ${nf(p.qtd,2)}</b><small>Nao e preventiva · retire pelo Editar OS</small></span><button type="button" class="btn sm" data-cced>Editar OS</button></div>`).join('');
       its.forEach(i=>{const c=on.get(i.pid),P=esc(i.pid),K='p:'+i.pid;
         if(c){const man=!!c.dataset.man,st=c.dataset.sid&&stById(c.dataset.sid),same=!st||itMatchSt(i,st),cd=cdOf(i.pid),pc=itCodPl(i),jaEq=!!(pc&&cd&&(nzCod(pc)===nzCod(cd)||eqvDec(pc,cd)==='eq'||(st&&eqvGrupo(st).some(x=>itMatchSt(i,x))))),rf=st?refSt(st):cd||refIt(i);
-          h+=`<div class="cc-r ok${man?' man':''}"${man?` data-ccop="${P}" role="button" tabindex="0"`:mk(K)}><span class="main"><b>✓ ${esc(itNome(i))}</b><small>${refH(rf)} · ${man?'trocado por este':same?'mesmo item':'equivalente'}${man?'':cr(K)}</small></span>${man||pksL(K).length?I.chev:''}</div>`;
+          h+=`<div class="cc-r ok${man?' man':''}"${man?` data-ccop="${P}" role="button" tabindex="0"`:mk(K)}><span class="main"><b>✓ ${esc(itNome(i))}</b><small>${refH(rf)} · ${man?'trocado por este':same?'mesmo item':'equivalente'}${man?'':cr(K)}</small>${lg(K)}</span>${man||pksL(K).length?I.chev:''}</div>`;
           if(man&&ccOpen===i.pid)h+=`<div class="cc-x">${jaEq||!pc||!cd?'':`<button type="button" class="btn sm" data-cceq="${P}">Gravar como equivalente</button>`}<button type="button" class="btn sm" data-ccun="${P}">Desfazer ligacao</button></div>`;
           if(!man)h+=acts(K)}
         else{h+=`<div class="cc-r pen"><span class="main"><b>${esc(itNome(i))}</b><small>${refH(refIt(i))} · Pendente · mantem a programacao</small></span>${sobra.length?`<button type="button" class="btn sm" data-cctp="${P}">Trocado por...</button>`:''}</div>`;
           if(ccLk===i.pid&&sobra.length)h+=`<div class="cc-x">${sobra.map(({x,k})=>`<button type="button" class="btn sm" data-cclk="${k}" data-ccpid="${P}">${esc(x.s.desc)} · ${esc(refSt(x.s)||stCod(x.s))}</button>`).join('')}</div>`}});
-      sobra.forEach(y=>{const K='s:'+y.x.s.id;h+=`<div class="cc-r nv"${mk(K)}><span class="main"><b>${esc(y.x.s.desc)}</b><small>${refH(refSt(y.x.s))} · novo no plano${cr(K)}</small></span>${ivO(y)}</div>`+acts(K)});
-      fora.forEach(({x})=>{const K='s:'+x.s.id;h+=`<div class="cc-r"${mk(K)}><span class="main"><b>${esc(x.s.desc)}</b><small>${refH(refSt(x.s))} · fora do plano · so baixa no estoque${cr(K)}</small></span>${pksL(K).length?I.chev:''}</div>`+acts(K)});
+      sobra.forEach(y=>{const K='s:'+y.x.s.id;h+=`<div class="cc-r nv"${mk(K)}><span class="main"><b>${esc(y.x.s.desc)}</b><small>${refH(refSt(y.x.s))} · novo no plano${cr(K)}</small>${lg(K)}</span>${ivO(y)}</div>`+acts(K)});
+      fora.forEach(({x})=>{const K='s:'+x.s.id;h+=`<div class="cc-r"${mk(K)}><span class="main"><b>${esc(x.s.desc)}</b><small>${refH(refSt(x.s))} · fora do plano · so baixa no estoque${cr(K)}</small>${lg(K)}</span>${pksL(K).length?I.chev:''}</div>`+acts(K)});
       vOS.pecas.filter(p=>COR[p.pk]&&COR[p.pk].t==='tira').forEach(p=>{const st=p.k==='est'&&stById(p.id);h+=`<div class="cc-r tir"><span class="main"><b>${esc(p.nome)}</b><small>${refH(st?refSt(st):p.cod)} · tirado do registro</small></span><button type="button" class="btn sm" data-ccvo="t:${esc(p.pk)}">Voltar ao lancado</button></div>`});
       cc.innerHTML=h?`<div class="ti-g" style="margin-top:14px">Plano do ${esc(e.codigo)}</div><div class="list cc-l">${h}</div>`:'';
       cc.querySelectorAll('[data-cced]').forEach(b=>b.onclick=()=>formOSEdit(vOS.id));
@@ -5735,7 +5752,8 @@ function formTroca(eqId,osId){
       d.chk.forEach(([p,c,q,cd])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(!cb)return;cb.checked=c;const qi=box.querySelector(`[data-q="${CSS.escape(p)}"]`);if(qi&&q!=null)qi.value=q;const ci=box.querySelector(`[data-cd="${CSS.escape(p)}"]`);if(ci&&cd!=null){ci.value=cd;const v=box.querySelector(`[data-cdv="${CSS.escape(p)}"]`);if(v&&cd)v.textContent=cd}});vis();drawPlan();
       (d.sid||[]).forEach(([p,s])=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.dataset.sid=s});(d.man||[]).forEach(p=>{const cb=box.querySelector(`input[type=checkbox][data-pid="${CSS.escape(p)}"]`);if(cb)cb.dataset.man='1'});
       d.ex.forEach(([id,q,kt])=>{const st=stById(id);if(st)extras.push({s:st,q,...(kt?{kit:kt}:{})})});(d.kits||[]).forEach(k=>{if(stById(k))kitsAdd.add(k)});drawX();hint();
-      if(d.add){const st=stById(d.add);if(st)addPeca(st);else setTimeout(()=>{const s2=stById(d.add);if(s2)addPeca(s2)},800)}};
+      if(d.add){const st=stById(d.add);if(st)addPeca(st);else setTimeout(()=>{const s2=stById(d.add);if(s2)addPeca(s2)},800)}
+      if(d.relig)setTimeout(()=>formTroca._sc&&formTroca._sc(),0)};
     const ph=sh.querySelector('#t-proxhint'),pin=sh.querySelector('#t-prox');
     let iv=0;sh.querySelectorAll('[data-iv]').forEach(b=>b.onclick=()=>{const v=Number(b.dataset.iv);iv=iv===v?0:v;sh.querySelectorAll('[data-iv]').forEach(x=>x.setAttribute('aria-pressed',Number(x.dataset.iv)===iv));hint()});
     const hint=()=>{const e=eqById(sel.value);if(e&&iv&&!pin.value.trim()){const h=Number(hm.value)||0;ph.textContent=`Intervalo de ${nf(iv)} h: a proxima fica para ${nf(h+iv)} h.`;return}
@@ -5744,10 +5762,17 @@ function formTroca(eqId,osId){
       const w=ivs.filter(Boolean);ph.textContent=!ivs.length?'Adicione os itens trocados.':!w.length?'Sem intervalo na ficha do equipamento. Anote a proxima aqui ou preencha o intervalo na ficha.':`Em branco, fica agendada automaticamente para ${[...new Set(w)].map(v=>nf(h+v)+' h').join(' / ')}.`};
     pin.oninput=hint;hm.addEventListener('input',hint);box.addEventListener('change',hint);
     sel.onchange=()=>{fill();hint()};fill();hint();setTimeout(()=>sh._restore&&sh._restore(),0);
+    /* item 47: pecas sem cadastro da OS */
+    const scSt={open:'',q:'',aviso:false};
+    const drawSc=()=>{const h=sh.querySelector('#t-sc');if(!h||!vOS)return;h.innerHTML=scgHTML(vOS,scSt);scgBind(h,vOS,scSt,{draw:drawSc,
+      liga:async(p,st)=>{if(!await osScLiga(vOS,p,st))return;vOS=osById(osId)||vOS;scSt.open='';if(!osScPecas(vOS).length)scSt.aviso=false;reb();drawSc()},
+      cad:p=>{const d=snap();d.relig=1;formTroca.draft=d;osScCad(vOS,p)}})};
+    formTroca._sc=()=>{vOS=osById(osId)||vOS;reb();drawSc()};drawSc();
     const hmSt={ok:false};[hm,sh.querySelector('#t-dt'),sel].forEach(x=>x.addEventListener(x===sel?'change':'input',()=>{hmSt.ok=false;hmSt.salto=false}));
     const dupB=sh.querySelector('#t-dup'),dupC=()=>dupShow(dupB,sel.value,'prev',hm.value,'',sh.querySelector('#t-dt').value);hm.addEventListener('input',dupC);sh.querySelector('#t-dt').addEventListener('input',dupC);sel.addEventListener('change',dupC);dupC();setTimeout(dupC,0);
     sh.querySelector('#ft').onsubmit=async ev=>{ev.preventDefault();
       const e=eqById(sel.value);if(!e)return;if(vOS&&osTr(vOS)){toast(osNum(vOS)+' ja foi registrada');return}
+      if(vOS&&osScPecas(vOS).length){scSt.aviso=true;drawSc();toast(osScTx(osScPecas(vOS).length));const c=sh.querySelector('#scg-w');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       if(vOS&&osNaoPrev(vOS,e).length){toast('Retire pelo Editar OS o que nao e preventiva');const c=sh.querySelector('#t-conc');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       if(vOS&&extras.some(x=>!isKit(x.s)&&!x.kit&&ehPrevSt(x.s)&&!ehFiltroAr(x.s.desc)&&!x.ivOk)){toast('Escolha o intervalo dos itens novos no plano');const c=sh.querySelector('#t-conc');c&&c.scrollIntoView({block:'start',behavior:'smooth'});return}
       const picked=[...box.querySelectorAll('input[type=checkbox]:checked')].map(c=>{const it=e.itens.find(i=>i.pid===c.dataset.pid);const q=box.querySelector(`[data-q="${CSS.escape(it.pid)}"]`).value;const cd=box.querySelector(`[data-cd="${CSS.escape(it.pid)}"]`).value.trim().toUpperCase();const ivI=box.querySelector(`[data-ivp="${CSS.escape(it.pid)}"]`);/* item do plano sem ligacao com o estoque: liga pelo codigo (mesmo item mesmo com prefixo diferente) para dar baixa */
@@ -7343,6 +7368,7 @@ function osFold(r,evs){const o=r.o;
       v.ad.push({n,id:e.id,por:e.por,nome:nm,ts:e.ts,obs:e.obs||'',corr,pecas:e.pecas||[],fotos:e.fotos||[]});addP(e.pecas,'adendo '+n,e.id);(e.fotos||[]).forEach(f=>v.fotos.push(f));v.hist.push({ts:e.ts,k:'ad',txt:`Fez o adendo ${n}`,d:e.obs||'',nome:nm})}
     else if(e.tipo==='edit'&&e.campo==='tipo'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=osTpTx(v);v.tipo=OS_TP[e.para]?e.para:'cor';v.arSub=v.tipo==='ar'?(e.arSub||''):'';v.arSv=v.tipo==='ar'?(e.arSv||''):'';v.hist.push({ts:e.ts,k:'ed',txt:'Editou tipo de servico',d:`${de} → ${osTpTx(v)}`,nome:nm})}
     else if(e.tipo==='edit'&&((v.sit==='fechada'&&e.adm)||(v.sit==='aberta'&&v.resp.includes(e.por)))){const de=v[e.campo];v[e.campo]=e.para;v.marc[e.campo]={t:'ed',nome:nm,ts:e.ts,de};if(e.campo==='estado')v.estTs=e.ts;v.hist.push({ts:e.ts,k:'ed',txt:`Editou ${(OS_CAMPOS[e.campo]||e.campo).toLowerCase()}`,d:`${osVal(e.campo,de)||'vazio'} → ${osVal(e.campo,e.para)||'vazio'}`,nome:nm})}
+    else if(e.tipo==='pcliga'&&e.adm&&v.sit!=='cancelada'){const j=v.pecas.findIndex(p=>p.pk===e.pk&&p.k==='sc');if(j>=0&&e.para){const p0=v.pecas[j];v.pecas[j]={...e.para,pk:p0.pk,src:p0.src,orig:p0.nome,ligNome:nm,ligTs:e.ts};v.hist.push({ts:e.ts,k:'ed',txt:e.novo?'Cadastrou e ligou peca sem cadastro':'Ligou peca sem cadastro',d:`${p0.nome} → ${osPcTx(e.para)}${e.novo&&e.ent?' · entrada de '+nf(e.ent,2)+' (compra direta)':''}`,nome:nm})}}
     else if(e.tipo==='pctroca'&&v.sit==='fechada'&&(e.adm||e.reg)){const j=v.pecas.findIndex(p=>p.pk===e.pk);if(j>=0&&e.para){const p0=v.pecas[j];v.pecas[j]={...e.para,pk:p0.pk,src:p0.src};v.hist.push({ts:e.ts,k:'ed',txt:'Item corrigido no registro',d:`${osPcTx(p0)} → ${osPcTx(e.para)}`,nome:nm})}}
     else if(/^(pcadd|pcrm|ftadd|ftrm)$/.test(e.tipo)&&((v.sit==='aberta'&&v.resp.includes(e.por))||(v.sit==='fechada'&&(e.adm||(e.reg&&e.tipo==='pcrm'))))){
       if(e.tipo==='pcadd'){addP(e.pecas,'',e.id);v.hist.push({ts:e.ts,txt:`Acrescentou ${(e.pecas||[]).map(p=>p.nome+' · '+nf(p.qtd,2)).join(', ')}`,nome:nm})}
@@ -7564,7 +7590,7 @@ function osPendAviso(sh,sel,e,tp,osId,usar){const bx=sh.querySelector(sel);if(!b
   const b=bx.querySelector('[data-osuse]');if(b)b.onclick=()=>usar(b.dataset.osuse)}
 /* OS -> rascunho do Registrar preventiva (itens ligados ao plano; o resto entra como item adicionado) */
 function osParaTroca(v,e){const chk=[],sid=[],ex=[],sc=[],plan=(e.itens||[]).filter(i=>!i.virt),src={p:{},s:{}},sp=(o,k,pk)=>{if(pk)(o[k]=o[k]||[]).push(pk)};
-  v.pecas.forEach(p=>{const q=Number(p.qtd)||0;if(p.k==='sc'){sc.push(`${p.nome} (${nf(q,2)})`);return}
+  v.pecas.forEach(p=>{const q=Number(p.qtd)||0;if(p.k==='sc')return;
     const st=p.k==='est'?stById(p.id):null;let it=p.pid&&plan.find(i=>i.pid===p.pid);
     if(!it&&st)it=plan.find(i=>itMatchSt(i,st)&&!chk.some(c=>c[0]===i.pid));
     if(!it&&st)it=plan.find(i=>itEqvSt(i,st)&&!chk.some(c=>c[0]===i.pid));
@@ -7572,7 +7598,7 @@ function osParaTroca(v,e){const chk=[],sid=[],ex=[],sc=[],plan=(e.itens||[]).fil
     if(st&&!ehPrevSt(st))return;
     if(st){sp(src.s,st.id,p.pk);const k=ex.find(x=>x[0]===st.id);if(k)k[1]=(Number(k[1])||0)+q;else ex.push([st.id,q,''])}else sc.push(`${p.nome} (${nf(q,2)})`)});
   const hv=osHmNum(v.hor);
-  return {eq:e.id,dt:v.data||today(),hm:hv==null?'':String(hv),resp:v.resp.map(osNomeDe).join(', '),obs:[osNum(v),v.feito,sc.length?'Sem cadastro: '+sc.join(', '):''].filter(Boolean).join(' · '),prox:'',iv:0,chk,ex,sid,kits:v.kit?[v.kit]:[],src}}
+  return {eq:e.id,dt:v.data||today(),hm:hv==null?'':String(hv),resp:v.resp.map(osNomeDe).join(', '),obs:[osNum(v),v.feito,sc.length?'Sem ligacao com o estoque: '+sc.join(', '):''].filter(Boolean).join(' · '),prox:'',iv:0,chk,ex,sid,kits:v.kit?[v.kit]:[],src}}
 /* item 45: correcoes do registro vindo da OS (por peca da OS): {t:'tira'} ou {t:'troca',p:<peca nova>} */
 const osPcCorr=(v,COR)=>v.pecas.map(p=>{const c=COR[p.pk];return !c?p:c.t==='tira'?null:{...c.p,pk:p.pk,src:p.src}}).filter(Boolean);
 const osPcTx=p=>p?[p.nome,p.cod].filter(Boolean).join(' · '):'';
@@ -7580,6 +7606,34 @@ const osPcTx=p=>p?[p.nome,p.cod].filter(Boolean).join(' · '):'';
 async function osCorrGrava(v,COR){const tira=[],tr=[];v.pecas.forEach(p=>{const c=COR[p.pk];if(!c)return;if(c.t==='tira')tira.push(p.pk);else tr.push({pk:p.pk,para:c.p})});
   for(const x of tr)await osEvento(v.id,'pctroca',{reg:1,pk:x.pk,para:{k:x.para.k,id:x.para.id||'',pid:x.para.pid||'',nome:x.para.nome||'',cod:x.para.cod||'',un:x.para.un||'',qtd:Number(x.para.qtd)||0}});
   if(tira.length)await osEvento(v.id,'pcrm',{reg:1,pks:tira})}
+/* item 47: pecas sem cadastro da OS (k:'sc'). Ligar = a peca passa a ser o item do estoque na propria OS (evento pcliga; nome original e quem ligou no historico);
+   cadastrar item novo = cadastro com o nome da OS + entrada automatica "Compra direta · OS NNNN" + ligacao. Baixa normal ao registrar/conferir. */
+const osScPecas=v=>v?v.pecas.filter(p=>p.k==='sc'):[];
+const scgCod=s=>s?(s.alm||s.codigo||s.ref||''):'';
+const osScTx=n=>n===1?'Ligue ou cadastre a peca sem cadastro':`Ligue ou cadastre as ${n} pecas sem cadastro`;
+const osEvWait=n0=>new Promise(ok=>{let i=0;const t=setInterval(()=>{if(++i>30||S.ose.length>n0){clearInterval(t);ok()}},100)});
+const scgAv=(st,q)=>{if(!st)return '';const s=stQtd(st);return s<(Number(q)||0)?`<span class="scg-av">${s<=0?'Saldo zero':'Saldo '+nf(s,2)+' '+esc(stUn(st))} · insuficiente</span>`:''};
+/* linha que veio de peca sem cadastro: "✓ ligado" e "na OS: <nome original>" (+ aviso amarelo de saldo) */
+const scgLig=(P,q)=>{P=(P||[]).filter(p=>p&&p.orig);if(!P.length)return '';const st=P[0].k==='est'&&stById(P[0].id);return `<small class="scg-na"><span class="scg-lg">✓ ligado</span> · na OS: ${esc(P.map(p=>p.orig).join(', '))}</small>${scgAv(st,q??P.reduce((a,p)=>a+(Number(p.qtd)||0),0))}`};
+async function osScLiga(v,p,st){const n0=S.ose.length;
+  const ok=await safe(()=>osEvento(v.id,'pcliga',{pk:p.pk,de:p.nome,para:{k:'est',id:st.id,pid:'',nome:st.desc||p.nome,cod:scgCod(st),un:st.un||p.un||'',qtd:Number(p.qtd)||0}}),`Ligado a ${scgCod(st)||st.desc}`);if(ok)await osEvWait(n0);return ok}
+function osScCad(v,p){const q=Number(p.qtd)||0;
+  const cb=async(sid,body)=>{let saldo=Number(body.qtd)||0;
+    if(q>0){saldo=Math.round((saldo+q)*100)/100;await S.db.doc('estoque/'+sid).update({qtd:saldo});await S.db.collection('movs').add({estoqueId:sid,tipo:'entrada',qtd:q,data:today(),obs:'Compra direta · '+osNum(v),origem:'os',os:v.id,equipId:v.eq,saldo,ts:Date.now()})}
+    const n0=S.ose.length;await osEvento(v.id,'pcliga',{pk:p.pk,de:p.nome,novo:1,ent:q,para:{k:'est',id:sid,pid:'',nome:body.desc||p.nome,cod:scgCod(body),un:body.un||p.un||'',qtd:q}});await osEvWait(n0)};
+  cb.msg='Item cadastrado e ligado';formStock(null,{desc:p.nome,...(p.un?{un:p.un}:{}),fotos:p.foto?[p.foto]:[]},cb)}
+/* secao "Sem cadastro · N": uma linha por peca; tocar abre ali mesmo a busca (ja com o nome da OS) e "+ Cadastrar item novo" */
+function scgHTML(v,st){const L=osScPecas(v);if(!L.length)return '';
+  return `<div class="scg-w" id="scg-w"><div class="ti-g">Sem cadastro · ${L.length}</div>${st.aviso?`<div class="scg-al">${osScTx(L.length)}</div>`:''}<div class="scg-l">${L.map(p=>{const op=st.open===p.pk;
+    return `<div class="scg-r${op?' op':''}" data-scg="${esc(p.pk)}" role="button" tabindex="0" aria-expanded="${op}"><span class="scg-m"><b>${esc(p.nome)}</b><small>${nf(p.qtd,2)} ${esc(p.un||'un')}</small></span>${I.chev}</div>${op?`<div class="scg-x"><div class="search">${I.search}<input class="scg-q" type="search" placeholder="Codigo, referencia ou descricao" autocomplete="off" aria-label="Ligar a um item do estoque" value="${esc(st.q)}"></div><div class="scg-res"></div><button type="button" class="os-ad scg-cad" data-scgcad>+ Cadastrar item novo</button></div>`:''}`}).join('')}</div></div>`}
+function scgBind(h,v,st,on){
+  h.querySelectorAll('[data-scg]').forEach(r=>{const tg=()=>{const k=r.dataset.scg;st.open=st.open===k?'':k;const p=v.pecas.find(x=>x.pk===st.open);st.q=p?p.nome:'';on.draw()};r.onclick=tg;r.onkeydown=ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();tg()}}});
+  const p=v.pecas.find(x=>x.pk===st.open&&x.k==='sc'),q=h.querySelector('.scg-q'),res=h.querySelector('.scg-res');if(!p||!q)return;
+  const run=()=>{st.q=q.value;const m=nzB(q.value)?S.estoque.filter(x=>!isKit(x)&&!x.inativo).map(x=>[bScSt(x,q.value),x]).filter(a=>a[0]<9).sort((a,b)=>a[0]-b[0]||byCode(a[1],b[1])).slice(0,8).map(a=>a[1]):[];
+    res.innerHTML=m.length?`<div class="tsec-l">${m.map(x=>esRow(x,{attr:`data-scgl="${esc(x.id)}"`,sub:esc(stCodTx(x))})).join('')}</div>`:`<div class="eqs-v">${nzB(q.value)?'Nenhum item encontrado. Mude a busca ou cadastre.':'Digite para buscar no estoque.'}</div>`;
+    res.querySelectorAll('[data-scgl]').forEach(b=>b.onclick=()=>{const s=stById(b.dataset.scgl);if(s)on.liga(p,s)})};
+  q.oninput=run;q.onkeydown=ev=>{if(ev.key==='Enter')ev.preventDefault()};run();
+  h.querySelector('[data-scgcad]').onclick=()=>on.cad(p)}
 
 /* mecanicos no servico (responsaveis): quem cria ja esta; so ele adiciona ou tira */
 const osMecDe=u=>(S.mecs||[]).find(m=>m.uid===u)||{};
@@ -7784,7 +7838,9 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
   const marca=c=>{const m=v.marc[c];return m&&m.t==='ad'?` <em class="os-cor">· corrigido no adendo ${m.n}</em>`:''};
   const mm=[e.marca,e.modelo].filter(Boolean).join(' · ');
   const stP=p=>{if(v.tipo!=='cor')return cx?'<span class="os-sx">liberada</span>':osTr(v)?'<span class="os-sb">registrado</span>':`<span class="os-sp">${v.sit==='fechada'?'a registrar':'pendente'}</span>`;const cf=v.conf[p.pk];return cf?(cf.acao==='nao'?'<span class="os-sx">nao veio</span>':'<span class="os-sb">baixado</span>'):cx?'<span class="os-sx">liberada</span>':`<span class="os-sp">${adm?'conferir':'pendente'}</span>`};
-  const cfOk=p=>admA&&!cx&&!v.conf[p.pk]&&v.tipo==='cor',pcRow=p=>`<button type="button" class="os-pr${cfOk(p)?' cfp':''}" data-pk="${esc(p.pk)}"${cfOk(p)?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc(p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small></span>${stP(p)}</button>`;
+  const cfOk=p=>admA&&!cx&&!v.conf[p.pk]&&v.tipo==='cor',pcRow=p=>`<button type="button" class="os-pr${cfOk(p)?' cfp':''}" data-pk="${esc(p.pk)}"${cfOk(p)?'':' disabled'}><span class="q">${nf(p.qtd,2)}</span><span class="d">${esc(p.nome)}<small>${p.k==='sc'?'sem cadastro':esc((p.k==='est'&&stById(p.id)?(p.orig?stCodTx:stCod)(stById(p.id)):'')||p.cod||'')}${p.src&&p.src!=='conclusao'?' · '+esc(p.src):''}</small>${p.orig&&!ehMec()?(cfOk(p)?scgLig([p]):`<small class="scg-na"><span class="scg-lg">✓ ligado</span> · na OS: ${esc(p.orig)}</small>`):''}</span>${stP(p)}</button>`;
+  /* item 47: na conferencia (admin, corretiva) as pecas sem cadastro ficam na secao propria */
+  const scC=admA&&!cx&&v.tipo==='cor'&&osScPecas(v).length>0,pcs=scC?v.pecas.filter(p=>p.k!=='sc'):v.pecas,scH=scC?'<div id="os-sc"></div>':'';
   const fotos=v.fotos.length?`<div class="os-g3f">${v.fotos.map((f,i)=>`<button type="button" data-fv="${i}">${imgTag(f)}</button>`).join('')}</div>`:'';
   const hist=ehMec()?'':`<button type="button" class="os-det" data-a="detalhes">Detalhes</button>`;
   const pai=v.vinc&&osById(v.vinc);
@@ -7799,7 +7855,7 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
      <div class="os-wtl"><div><small>Aberta em</small><b>${sdate(v.data)||'—'}</b></div><div class="nv"><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b></div><div><small>Ha</small><b>${tempo()}</b></div></div>
      <div class="os-ws"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
      <div class="os-ws"><div class="os-lb">Servico executado</div>${v.feito?`<div class="os-tx">${esc(v.feito)}${marca('feito')}</div>`:'<div class="os-vz2">Preencha ao concluir</div>'}</div>
-     ${v.pecas.length?`<div class="os-ws"><div class="os-lb">Pecas</div>${v.pecas.map(pcRow).join('')}</div>`:''}
+     ${v.pecas.length?`<div class="os-ws"><div class="os-lb">Pecas</div>${pcs.map(pcRow).join('')}${scH}</div>`:''}
      ${fotos?`<div class="os-ws"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
      <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
      ${resp?`<div class="os-cta"><button type="button" class="os-ad pri w" data-a="concluir">Concluir OS</button><button type="button" class="os-ad" data-a="editar">Editar</button><button type="button" class="os-ad" data-a="informe">Informe</button></div>`
@@ -7812,7 +7868,7 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
      <div class="os-dg g4"><div><small>Aberta</small><b>${sdate(v.data)}</b>${marca('data')}</div><div><small>${cx?'Cancelada':'Concluida'}</small><b>${sdate(iso(new Date(conc)))}</b></div><div><small>Horimetro</small><b>${v.hor?esc(v.hor)+' h':'—'}</b>${marca('hor')}</div><div><small>Situacao</small><b class="${par?'bad':cx?'':'ok'}">${cx?'—':par?'Parado':v.estado==='operando'?'Liberado':'—'}</b>${marca('estado')}</div></div>
      <div class="os-ds"><div class="os-lb">Ocorrencia</div><div class="os-tx">${esc(v.aconteceu)}${marca('aconteceu')}</div></div>
      <div class="os-ds"><div class="os-lb">Servico executado</div><div class="os-tx">${esc(v.feito)||'<i class="os-mut">nao informado</i>'}${marca('feito')}</div></div>
-     ${v.pecas.length?`<div class="os-ds"><div class="os-th"><span>Qtd</span><span>Peca ou material</span><span>Estoque</span></div>${v.pecas.map(pcRow).join('')}</div>`:''}
+     ${v.pecas.length?`<div class="os-ds">${pcs.length?`<div class="os-th"><span>Qtd</span><span>Peca ou material</span><span>Estoque</span></div>${pcs.map(pcRow).join('')}`:''}${scH}</div>`:''}
      ${fotos?`<div class="os-ds"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
      <div class="os-ds"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}</div></div></div>
      ${ext?`<div class="os-x">${ext}</div>`:''}
@@ -7831,7 +7887,12 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
     if(a('detalhes'))a('detalhes').onclick=()=>openOSDet(v.id);
     if(a('editar'))a('editar').onclick=()=>{S.osEd=null;formOSEdit(v.id)};
     const rb=sh.querySelector('[data-resp]');if(rb)rb.onclick=()=>osResp(v.id);
-    if(admA)sh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const p=v.pecas.find(x=>x.pk===b.dataset.pk);if(p&&!v.conf[p.pk])osConf(v,p)})}})}
+    if(admA)sh.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{const p=v.pecas.find(x=>x.pk===b.dataset.pk);if(p&&!v.conf[p.pk]&&p.k!=='sc')osConf(v,p)});
+    /* item 47: conferencia so termina depois de ligar ou cadastrar as pecas sem cadastro */
+    const scW=sh.querySelector('#os-sc');if(scW){const st={open:'',q:'',aviso:!pcs.some(p=>!v.conf[p.pk])};
+      const re=()=>{const bd=document.querySelector('#sheet .sh-body'),y=bd?bd.scrollTop:0;openOS(id,acao);const b2=document.querySelector('#sheet .sh-body');if(b2)b2.scrollTop=y};
+      const draw=()=>{scW.innerHTML=scgHTML(v,st);scgBind(scW,v,st,{draw,liga:async(p,s2)=>{if(await osScLiga(v,p,s2))re()},cad:p=>osScCad(v,p)})};draw();
+      if(openOS._irSc===id){openOS._irSc=null;if(st.aviso){toast(osScTx(osScPecas(v).length));setTimeout(()=>{const w=sh.querySelector('#scg-w');w&&w.scrollIntoView({block:'start',behavior:'smooth'})},60)}}}}})}
 /* cancelar: o numero fica inutilizado, nada e apagado */
 function osCancelar(id){const v=osById(id);if(!v||!osPodeCx(v))return;const u=osEu();
   osModal(`<h2>Cancelar a ${osNum(v)}?</h2><p class="os-mut">O numero ${osNum(v).replace('OS ','')} nao sera reutilizado. Tudo o que foi registrado continua guardado${osPendPecas(v).length?' e as pecas reservadas voltam a ficar livres no estoque':''}. Depois de cancelada, a OS nao pode mais ser mudada.</p>
@@ -7917,7 +7978,7 @@ function osConf(v,p){const est=p.k==='est'?stById(p.id):null;
     <button type="button" class="os-op" id="cf-nao">Nao veio do estoque</button><button type="button" class="os-op lk" data-x>Cancelar</button>`,(o,close)=>{
     const qv=()=>Math.max(0,Number(o.querySelector('#cf-q').value)||0);o.querySelector('[data-x]').onclick=close;
     const fim=async(acao,st)=>{const q=qv();if(acao!=='nao'&&!q){toast('Informe a quantidade');return}close();
-      const ok=await safe(async()=>{if(acao!=='nao')await osBaixa(v,st,q);await osEvento(v.id,'conf',{pk:p.pk,acao,estoqueId:st?st.id:'',qtd:acao==='nao'?0:q,nome:p.nome})},acao==='nao'?'Marcado: nao veio do estoque':'Baixa feita no estoque');if(ok)osRe(v.id)};
+      const ok=await safe(async()=>{if(acao!=='nao')await osBaixa(v,st,q);await osEvento(v.id,'conf',{pk:p.pk,acao,estoqueId:st?st.id:'',qtd:acao==='nao'?0:q,nome:p.nome})},acao==='nao'?'Marcado: nao veio do estoque':'Baixa feita no estoque');if(ok){if(osScPecas(v).length)openOS._irSc=v.id;osRe(v.id)}};
     const okb=o.querySelector('#cf-ok');if(okb)okb.onclick=()=>fim('ok',est);
     o.querySelector('#cf-lig').onclick=()=>osPickEst(st=>fim('lig',st));
     const cad=o.querySelector('#cf-cad');if(cad)cad.onclick=()=>{close();formStock(undefined,{desc:p.nome,fotos:p.foto?[p.foto]:[]},sid=>{setTimeout(()=>{const s=stById(sid);if(s)osConf(osById(v.id)||v,{...p,k:'est',id:s.id,cod:stCod(s)})},900)})};
@@ -7976,7 +8037,7 @@ async function osDraw(v,modo){
   sec('Ocorrencia',v.aconteceu);sec('Servico executado',v.feito||'—');
   /* pecas: todas, com nome e codigo quebrando linha; tabela continua na folha seguinte com o cabecalho */
   if(v.pecas.length){const cX=W-P-270,nW=cX-P-170,cW=W-P-cX-14;
-    const R=v.pecas.map(p=>{F(400,24);const nL=wrap(p.nome,nW);F(500,20,MON);const cL=wrap(p.k==='sc'?'sem cadastro':(p.cod||''),cW);return {p,nL,cL,h:Math.max(50,34+Math.max((nL.length-1)*30,(cL.length-1)*26)+16)}});
+    const R=v.pecas.map(p=>{F(400,24);const nL=wrap(p.nome,nW);F(500,20,MON);const cL=wrap(p.k==='sc'?'sem cadastro':((p.k==='est'&&stById(p.id)?(p.orig?stCodTx:stCod)(stById(p.id)):'')||p.cod||''),cW);return {p,nL,cL,h:Math.max(50,34+Math.max((nL.length-1)*30,(cL.length-1)*26)+16)}});
     let i=0,first=true;while(i<R.length){need(30+46+R[i].h);lab(first?'Pecas e materiais':'Pecas e materiais (continuacao)',P,y+18);y+=30;
       let hh=46,j=i;while(j<R.length&&(j===i||y+hh+R[j].h<=BOT)){hh+=R[j].h;j++}
       box(P,y,gw,hh);F(600,15);ls('2px');x.fillStyle=MU;x.fillText('QTD',P+16,y+30);x.fillText('DESCRICAO',P+150,y+30);x.fillText('CODIGO',cX,y+30);ls('0px');x.fillStyle=INK;x.fillRect(P,y+46,gw,2.4);

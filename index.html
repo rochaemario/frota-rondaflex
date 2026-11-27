@@ -1492,7 +1492,7 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-wtl .nv{background:var(--ink);border-color:var(--ink)}.os-wtl .nv small{color:#a9b8e6}.os-wtl .nv b{color:#fff}
 .os-ws{padding:12px 14px;border-top:1px solid var(--line)}.os-lb{font:600 11px var(--body);letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between}
 .os-tx{font-size:15px;line-height:1.42;color:#121a2c}.os-vz2{font-size:14px;color:var(--faint);font-style:italic}
-.os-who{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.os-av{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;background:var(--bg);border-radius:999px;padding:3px 10px 3px 3px}.os-av i{width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font:700 10.5px var(--body);font-style:normal;display:grid;place-items:center}
+.os-who{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.os-rp{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;background:var(--bg);border-radius:999px;padding:3px 10px 3px 3px;max-width:100%;min-width:0}.os-rp i{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent);color:#fff;font:700 10.5px var(--body);font-style:normal;display:grid;place-items:center}
 .os-pr{display:flex;align-items:center;gap:10px;padding:9px 0;border:0;border-bottom:1px solid #eef1f5;background:none;width:100%;text-align:left;font:inherit;color:inherit}.os-pr:last-child{border-bottom:0}.os-pr.cfp{cursor:pointer}
 .os-pr .q{font:700 15px "IBM Plex Mono",monospace;min-width:44px;color:var(--ink)}.os-pr .d{flex:1;font-size:14.5px;min-width:0}.os-pr .d small{display:block;font:500 11.5px "IBM Plex Mono",monospace;color:var(--faint)}
 .os-sp{font:600 10.5px var(--body);color:#8a4b00;background:#fbf0dd;padding:3px 8px;border-radius:999px;white-space:nowrap}.os-pr.cfp .os-sp{box-shadow:inset 0 0 0 1.5px #e0a100}
@@ -1524,7 +1524,7 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .os-ds{padding:12px 16px;border-bottom:1px solid var(--line)}.os-ds:last-child{border-bottom:0}
 .os-th{display:flex;gap:10px;font:600 10px var(--body);letter-spacing:.1em;color:var(--faint);text-transform:uppercase;padding-bottom:4px;border-bottom:1px solid var(--line)}.os-th span:first-child{min-width:44px}.os-th span:nth-child(2){flex:1}
 .os-sig{display:grid;grid-template-columns:1fr 1fr;gap:14px}.os-sig>div{border-top:1.5px solid #121a2c;padding-top:6px;font-size:14px}.os-sig small{display:block;font-size:11.5px;color:var(--faint)}
-.mc-nv{width:100%;background:var(--surface)!important;border:1px solid #cdd5e1!important;box-shadow:none!important;min-height:46px;border-radius:14px;display:flex;align-items:center;margin-bottom:12px;justify-content:center;font-weight:600;color:var(--accent)!important}.mc-nv span{font-size:19px;margin-right:4px;line-height:1}
+.mc-nvb{width:100%;background:var(--surface)!important;border:1px solid #cdd5e1!important;box-shadow:none!important;min-height:46px;border-radius:14px;display:flex;align-items:center;margin-bottom:12px;justify-content:center;font-weight:600;color:var(--accent)!important}.mc-nvb span{font-size:19px;margin-right:4px;line-height:1}
 .mc-r{flex-direction:row!important;align-items:center!important;width:100%;border:0;border-top:1px solid var(--line);background:none;font:inherit;text-align:left;cursor:pointer;color:inherit;gap:11px!important;padding:9px 12px!important}.os-ml .mc-r:first-child{border-top:0}
 .mc-av{width:32px;height:32px;border-radius:50%;background:#e8edf6;color:#0f2a66;font:600 13.5px var(--body);display:flex;align-items:center;justify-content:center;flex:none}.mc-r.off .mc-av{opacity:.5}
 .mc-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}.mc-t small{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mc-r.off .mc-t small{opacity:.7}
@@ -1640,11 +1640,21 @@ textarea.os-in{resize:none;line-height:1.4}.os-in:focus{border-color:var(--accen
 .cc-tk{display:block}.cc-tk .ti-g{margin:10px 0 6px}.cc-tk .search{margin-bottom:6px}.cc-tk .cc-tq{max-width:160px;margin:0}.cc-tk>.btn{margin-top:8px}
 .cc-tk .kt-r[disabled]{opacity:.55}
 .tk-l{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.45;list-style:disc}.tk-l li{margin:3px 0;display:list-item}.tk-f{flex-wrap:wrap}.tk-f .btn{flex:1 1 40%}.tk-f [data-tkx]{flex-basis:100%}
+/* item 49: enquadramento (nada alem de espaco e quebra de linha) */
+.acc-h h2{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(18px,5.8vw,23px)}
+.os-op{padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:clamp(13.5px,3.9vw,15px)}
+.os-dg.g4>div{padding:10px 6px 10px 9px}.os-dg.g4 b{font-size:clamp(15.5px,4.6vw,18px)}
+.cfe-cats{display:flex!important;flex-wrap:wrap}.cfe-cats button{flex:1 1 auto;padding:0 12px;white-space:nowrap}
+.os-lk>.os-par{flex:none}
+.et-a{flex-wrap:wrap}.et-a .btn{flex:1 1 auto;padding-left:12px;padding-right:12px;white-space:nowrap}
+.chk.pick .s{display:block;min-width:0;max-width:100%}.chk.pick .s .pill{display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:top}
+.seg button{padding-left:4px;padding-right:4px;line-height:1.15}
+.mc-bt .mc-nv{width:100%;height:44px;justify-content:center;background:var(--surface);border:1px solid #cdd5e1;box-shadow:none;border-radius:14px;color:var(--accent)}.mc-bt .mc-es{justify-content:center}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script>window.__APPV='v436'</script>
-<script src="config.js?v=e2f2d2fe09"></script>
-<script src="shim.js?v=e2f2d2fe09"></script>
+<script>window.__APPV='v437'</script>
+<script src="config.js?v=0f5021a2f6"></script>
+<script src="shim.js?v=0f5021a2f6"></script>
 </head>
 <body>
 
@@ -3054,7 +3064,7 @@ async function cbxPdf(o){
   const tops=c.custos.filter(k=>!k.pai),filhos=id=>c.custos.filter(z=>z.pai===id);
   openSheet({title:'Informe PDF',sub:'Combustivel',body:`<form id="pdf-f" novalidate><div id="pf-b"></div></form>`,foot:`<button class="btn pri" form="pdf-f">Gerar PDF</button>`,
   mount:sh=>{const B=sh.querySelector('#pf-b');
-    const seg=(k,l)=>`<div class="seg" role="group" style="grid-template-columns:repeat(${l.length},1fr)">${l.map(([v,n])=>`<button type="button" data-${k}="${esc(v)}" aria-pressed="${String(P[k==='pv'?'v':k==='pc'?'cu':'eqT']===v)}">${esc(n)}</button>`).join('')}</div>`;
+    const seg=(k,l)=>`<div class="seg" role="group" style="grid-template-columns:repeat(${l.length},${l.length<=3?'minmax(max-content,1fr)':'1fr'})">${l.map(([v,n])=>`<button type="button" data-${k}="${esc(v)}" aria-pressed="${String(P[k==='pv'?'v':k==='pc'?'cu':'eqT']===v)}">${esc(n)}</button>`).join('')}</div>`;
     const ck=(k,txt,on)=>`<label class="rl-ck"><span>${txt}</span><input type="checkbox" data-po="${k}"${on?' checked':''}></label>`;
     const ler=()=>{const g=id=>B.querySelector(id);if(g('#pf-d'))P.d=g('#pf-d').value||P.d;if(g('#pf-de'))P.de=g('#pf-de').value||P.de;if(g('#pf-ate'))P.ate=g('#pf-ate').value||P.ate;
       B.querySelectorAll('[data-po]').forEach(x=>P[x.dataset.po]=x.checked);const s=[...B.querySelectorAll('[data-ps]')];if(s.length)P.sub=s.filter(x=>x.checked).map(x=>x.dataset.ps)};
@@ -3292,7 +3302,7 @@ function rgPronto(R){
   mount:sh=>rgPreview(sh,rgHtml(R),F,R.fname,R.tit)});
 }
 /* blocos comuns do Filtrar */
-const rgSeg=(k,l,cur)=>`<div class="seg" role="group" style="grid-template-columns:repeat(${l.length},1fr)">${l.map(([v,n])=>`<button type="button" data-${k}="${esc(v)}" aria-pressed="${String(cur===v)}">${esc(n)}</button>`).join('')}</div>`;
+const rgSeg=(k,l,cur)=>`<div class="seg" role="group" style="grid-template-columns:repeat(${l.length},${l.length<=3?'minmax(max-content,1fr)':'1fr'})">${l.map(([v,n])=>`<button type="button" data-${k}="${esc(v)}" aria-pressed="${String(cur===v)}">${esc(n)}</button>`).join('')}</div>`;
 const rgCk=(k,txt,on)=>`<label class="rl-ck"><span>${txt}</span><input type="checkbox" data-rck="${k}"${on?' checked':''}></label>`;
 function rgPer(P,t){return P.v==='mes'?`<div class="cbx-mn rl-box"><button type="button" class="btn icon ghost" data-rgm="-1" aria-label="Mes anterior">${I.back}</button><b>${cbxMesNome(P.m)} ${P.m.slice(0,4)}</b><button type="button" class="btn icon ghost cbx-nx" data-rgm="1" aria-label="Proximo mes"${P.m>=mesKey()?' disabled':''}>${I.back}</button></div>`
   :P.v==='dia'?`<label class="f">Data<input type="date" id="rg-d" value="${P.d}" max="${t}"></label>`
@@ -7880,7 +7890,7 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
      <div class="os-ws"><div class="os-lb">Servico executado</div>${v.feito?`<div class="os-tx">${esc(v.feito)}${marca('feito')}</div>`:'<div class="os-vz2">Preencha ao concluir</div>'}</div>
      ${v.pecas.length?`<div class="os-ws"><div class="os-lb">Pecas</div>${pcs.map(pcRow).join('')}${scH}</div>`:''}
      ${fotos?`<div class="os-ws"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
-     <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
+     <div class="os-ws"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-rp"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}${dono?'<button type="button" class="os-ch sm" data-resp>+ Adicionar</button>':''}</div></div></div>
      ${resp?`<div class="os-cta"><button type="button" class="os-ad pri w" data-a="concluir">Concluir OS</button><button type="button" class="os-ad" data-a="editar">Editar</button><button type="button" class="os-ad" data-a="informe">Informe</button></div>`
       :`<div class="os-cta"><button type="button" class="os-ad w" data-a="informe">Informe</button></div>${AC?'<p class="os-mut" style="margin-top:8px">Voce nao e responsavel por esta OS. Quando ela for fechada, voce pode fazer um adendo.</p>':''}`}
      <div id="os-cf"></div>${ext?`<div class="os-x">${ext}</div>`:''}${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
@@ -7893,7 +7903,7 @@ function openOS(id,acao){const AC=ehMec()||!!acao;nav((AC&&!ehMec()?'osx:':'os:'
      <div class="os-ds"><div class="os-lb">Servico executado</div><div class="os-tx">${esc(v.feito)||'<i class="os-mut">nao informado</i>'}${marca('feito')}</div></div>
      ${v.pecas.length?`<div class="os-ds">${pcs.length?`<div class="os-th"><span>Qtd</span><span>Peca ou material</span><span>Estoque</span></div>${pcs.map(pcRow).join('')}`:''}${scH}</div>`:''}
      ${fotos?`<div class="os-ds"><div class="os-lb">Fotos</div>${fotos}</div>`:''}
-     <div class="os-ds"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-av"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}</div></div></div>
+     <div class="os-ds"><div class="os-lb">Responsaveis</div><div class="os-who">${v.resp.map(x=>{const n=osNomeDe(x);return `<span class="os-rp"><i>${esc(n.slice(0,2).toUpperCase())}</i>${esc(n)}</span>`}).join('')}</div></div></div>
      ${ext?`<div class="os-x">${ext}</div>`:''}
      <div class="os-cta">${cx||!AC?'':`${resp?'<button type="button" class="os-ad red" data-a="reabrir">Reabrir</button>':''}${!resp?'<button type="button" class="os-ad" data-a="adendo">+ Adendo</button>':''}${adm?'<button type="button" class="os-ad" data-a="editar">Editar</button>':''}`}<button type="button" class="os-ad pri${cx||!AC?' w':''}" data-a="informe">Informe</button></div>
      <div id="os-cf"></div>${hist}${podeCx?'<button type="button" class="os-cxl" data-a="cancelar">Cancelar OS</button>':''}`}
@@ -8118,7 +8128,7 @@ function openMecs(){nav('mecs',()=>openMecs());const L=(S.mecs||[]).slice().sort
   const cr='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--faint);flex:none"><path d="M9 6l6 6-6 6"/></svg>';
   const at=L.filter(m=>m.ativo!==false).length;
   openSheet({title:'Mecanicos',sub:`${at} ${at===1?'ativo':'ativos'}`,
-  body:`<button type="button" class="btn mc-nv" id="mc-nv"><span>+</span> Novo mecanico</button>
+  body:`<button type="button" class="btn mc-nvb" id="mc-nv"><span>+</span> Novo mecanico</button>
    ${L.length?`<div class="os-ml">${L.map(m=>`<button type="button" class="os-mc mc-r${m.ativo===false?' off':''}" data-mf="${esc(m.uid)}"><span class="mc-av">${esc(((m.nome||'?').trim()[0]||'?').toUpperCase())}</span><span class="mc-t"><span class="os-mn"><span class="n">${esc(m.nome)}</span>${m.enc?'<span class="os-e" title="Encarregado de manutencao">E</span>':''}</span><small>${esc(mecSub(m))}${m.ativo===false?' · desativado':''}${window.__frotaMec&&!m.real?' · sem login':''}</small></span>${cr}</button>`).join('')}</div>
    <p class="os-mut" style="margin:8px 4px 0;display:flex;align-items:center;gap:6px"><span class="os-e" style="margin:0">E</span>Encarregado de manutencao</p>`:'<div class="os-vz">Nenhum mecanico.</div>'}`,
   mount:sh=>{sh.querySelector('#mc-nv').onclick=()=>openMecFicha('novo');sh.querySelectorAll('[data-mf]').forEach(b=>b.onclick=()=>openMecFicha(b.dataset.mf))}})}
